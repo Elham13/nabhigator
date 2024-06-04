@@ -89,3 +89,46 @@ export const buildWDMSUrl = () => {
 
   return mainObj;
 };
+
+export const buildMaximusUrl = () => {
+  type MainObjType = {
+    baseUrl: string;
+    authPayload: {
+      UserID: string;
+      Client_id: string;
+    };
+    apiId: string;
+  };
+
+  let mainObj: MainObjType = {
+    baseUrl: "",
+    authPayload: { UserID: "", Client_id: "" },
+    apiId: "",
+  };
+
+  if (process.env.NEXT_PUBLIC_CONFIG) {
+    if (["LOCAL", "UAT"].includes(process.env.NEXT_PUBLIC_CONFIG)) {
+      mainObj = {
+        baseUrl: "https://caseuat.nivabupa.com/uat/api/",
+        authPayload: {
+          UserID: "fniWorkflow",
+          Client_id:
+            "7c59fa9b9c2dea047995f6cf91bd6f1ba00fc410f387d18bcac678ea9e18c2e7",
+        },
+        apiId: "a69kp43tn7",
+      };
+    } else {
+      mainObj = {
+        baseUrl: "https://case.nivabupa.com/prod/api/",
+        authPayload: {
+          UserID: "fniWorkflow",
+          Client_id:
+            "23c05746eafc5b672674169d0611386fe9a25ea53f6f6cd407a0718bdfa16ab9",
+        },
+        apiId: "4krb3qc8rf",
+      };
+    }
+  }
+
+  return mainObj;
+};

@@ -67,3 +67,4 @@ export const captureCaseEvent = async (payload: CaptureCaseEventPayload) => {
     }
   }
 };
+
