@@ -8,8 +8,8 @@ const NotFound = () => {
       <p className="text-xl mb-8">
         Oops! The page you&apos;re looking for does not exist.
       </p>
-      <CustomLink href="/" legacyBehavior>
-        <a className="text-blue-500 hover:underline">Go back to the homepage</a>
+      <CustomLink href="/" className="text-blue-500 hover:underline">
+        Go back to the homepage
       </CustomLink>
     </div>
   );

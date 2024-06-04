@@ -9,7 +9,7 @@ import { Databases } from "@/lib/utils/types/enums";
 import { Role } from "@/lib/utils/types/fniDataTypes";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { PipelineStage } from "mongoose";
+import { PipelineStage, Types } from "mongoose";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
@@ -158,7 +158,7 @@ router.get(async (req) => {
     const matchStage: PipelineStage.Match["$match"] = {};
 
     if (id) {
-      matchStage["_id"] = new mongoose.Types.ObjectId(id as string);
+      matchStage["_id"] = new Types.ObjectId(id as string);
     } else {
       matchStage["claimId"] = parseInt(claimId as string);
     }
@@ -202,10 +202,12 @@ router.get(async (req) => {
 
     let data = await DashboardData.aggregate(pipeline);
 
-    data = await addEncryptedClaimId(data);
-
     if (!data || data?.length < 1)
       throw new Error(`No record found with the id ${id}`);
+
+    data = await addEncryptedClaimId(data);
+
+    data = data[0];
 
     return NextResponse.json(
       {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Document,
   Font,
@@ -13,19 +13,19 @@ Font.register({
   family: "Roboto",
   fonts: [
     {
-      src: `/ethinos-home-page/fonts/Roboto/Roboto-Regular.ttf`,
+      src: `/fonts/Roboto/Roboto-Regular.ttf`,
     },
     {
-      src: `/ethinos-home-page/fonts/Roboto/Roboto-Bold.ttf`,
+      src: `/fonts/Roboto/Roboto-Bold.ttf`,
       fontWeight: "bold",
     },
     {
-      src: `/ethinos-home-page/fonts/Roboto/Roboto-Italic.ttf`,
+      src: `/fonts/Roboto/Roboto-Italic.ttf`,
       fontWeight: "normal",
       fontStyle: "italic",
     },
     {
-      src: `/ethinos-home-page/fonts/Roboto/Roboto-BoldItalic.ttf`,
+      src: `/fonts/Roboto/Roboto-BoldItalic.ttf`,
       fontWeight: "bold",
       fontStyle: "italic",
     },
@@ -63,7 +63,14 @@ const DownloadableDoc = ({ data, caseData }: PropTypes) => {
 };
 
 const DownloadAssignmentSummary = ({ data, caseData }: PropTypes) => {
-  return (
+  const [isClient, setIsClient] = useState(false);
+
+  // had to be done so as to make it client side.
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  return isClient ? (
     <div>
       <PDFDownloadLink
         className="bg-blue-600 text-white p-2 rounded-md text-center mt-4"
@@ -73,7 +80,7 @@ const DownloadAssignmentSummary = ({ data, caseData }: PropTypes) => {
         Download Assignment Summary
       </PDFDownloadLink>
     </div>
-  );
+  ) : null;
 };
 
 export default DownloadAssignmentSummary;
