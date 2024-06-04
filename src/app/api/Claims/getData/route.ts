@@ -203,7 +203,7 @@ router.get(async (req) => {
     let data = await DashboardData.aggregate(pipeline);
 
     if (!data || data?.length < 1)
-      throw new Error(`No record found with the id ${id}`);
+      throw new Error(`No record found with the id ${id || claimId}`);
 
     data = await addEncryptedClaimId(data);
 
