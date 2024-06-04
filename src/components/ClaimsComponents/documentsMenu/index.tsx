@@ -1,0 +1,116 @@
+import React, { useState } from "react";
+import { Box, Button, Menu } from "@mantine/core";
+import axios from "axios";
+import DocumentsTable from "./DocumentsTable";
+import {
+  IDashboardData,
+  NumericStage,
+  SingleResponseType,
+} from "@/lib/utils/types/fniDataTypes";
+import {
+  IGetDocumentDetailRes,
+  IGetDocumentDetailsDoc,
+} from "@/lib/utils/types/maximusResponseTypes";
+import { EndPoints } from "@/lib/utils/types/enums";
+import { showError } from "@/lib/helpers";
+
+type PropTypes = {
+  dashboardData: IDashboardData | null;
+};
+
+const DocumentsMenu = ({ dashboardData }: PropTypes) => {
+  const [open, setOpen] = useState<boolean>(false);
+  const [docs, setDocs] = useState<IGetDocumentDetailsDoc[]>([]);
+
+  const getWDMSDocs = async (type: "claim" | "policy") => {
+    try {
+      const { data } = await axios.post<
+        SingleResponseType<IGetDocumentDetailRes>
+      >(EndPoints.WDMS_DOC_DETAIL, {
+        claimId:
+          type === "claim"
+            ? dashboardData?.claimId
+            : dashboardData?.applicationId,
+        claimType: type === "claim" ? dashboardData?.claimType : "AppID",
+      });
+      setDocs(data?.data?.Documents);
+      setOpen(true);
+    } catch (error) {
+      showError(error);
+    }
+  };
+
+  return (
+    <>
+      <DocumentsTable
+        open={open}
+        setOpen={setOpen}
+        claimId={dashboardData?.claimId}
+        docs={docs}
+      />
+      <Box className="float-right flex flex-col gap-y-2" my={20}>
+        <Menu shadow="md" width={200}>
+          <Menu.Target>
+            <Button>Check Documents</Button>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Label>Reports</Menu.Label>
+            <Menu.Item
+              color="blue"
+              onClick={() => {
+                window.open(
+                  `/pdf-view-and-download?claimId=${dashboardData?.encryptedClaimId}&docType=assignment`,
+                  "_blank"
+                );
+              }}
+            >
+              Assignment Report
+            </Menu.Item>
+            {dashboardData?.stage &&
+              [
+                NumericStage.POST_QC,
+                NumericStage.CLOSED,
+                NumericStage.IN_FIELD_REWORK,
+              ].includes(dashboardData?.stage) && (
+                <Menu.Item
+                  color="cyan"
+                  onClick={() => {
+                    window.open(
+                      `/pdf-view-and-download?claimId=${dashboardData?.encryptedClaimId}&docType=investigation`,
+                      "_blank"
+                    );
+                  }}
+                >
+                  Investigation Report
+                </Menu.Item>
+              )}
+            {dashboardData?.stage &&
+              dashboardData?.stage === NumericStage.CLOSED && (
+                <Menu.Item
+                  color="grape"
+                  onClick={() => {
+                    window.open(
+                      `/pdf-view-and-download?claimId=${dashboardData?.encryptedClaimId}&docType=final-investigation-report`,
+                      "_blank"
+                    );
+                  }}
+                >
+                  Final Investigation Report
+                </Menu.Item>
+              )}
+            <Menu.Divider />
+            <Menu.Label>WDMS Documents</Menu.Label>
+            <Menu.Item color="green" onClick={() => getWDMSDocs("claim")}>
+              Claim Documents
+            </Menu.Item>
+            <Menu.Item color="orange" onClick={() => getWDMSDocs("policy")}>
+              Policy Documents
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      </Box>
+    </>
+  );
+};
+
+export default DocumentsMenu;
