@@ -177,3 +177,19 @@ export const decryptAppID = (encryptedText: string) => {
     return decodedString;
   }
 };
+
+export const encryptPlainText = (plaintext: string): string => {
+  const fixedKey = process.env.KEY as string;
+  const fixedIV = process.env.IV as string;
+  const salt = crypto.randomBytes(8).toString("hex"); // generates a random 8-byte salt
+  const strDecKey = hexToBytes(fixedKey);
+  const strFixedIV = hexToBytes(fixedIV);
+
+  if (!strDecKey || !strFixedIV) return "";
+
+  const cipher = crypto.createCipheriv("aes-256-cbc", strDecKey, strFixedIV);
+  let encrypted = cipher.update(plaintext + salt, "utf8", "hex");
+  encrypted += cipher.final("hex");
+
+  return encrypted;
+};

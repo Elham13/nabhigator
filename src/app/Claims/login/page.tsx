@@ -80,7 +80,7 @@ const Login = () => {
   };
 
   return (
-    <Paper h="100%">
+    <Paper h="100vh">
       <Head>
         <title>Nabhigator Login</title>
         <meta name="description" content="Welcome to Nabhigator Login" />

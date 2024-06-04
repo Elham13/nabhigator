@@ -11,7 +11,7 @@ const Header = () => {
           width={0}
           height={0}
           sizes="100vw"
-          style={{ width: "100%", height: "auto" }}
+          style={{ width: "7rem", height: "auto" }}
           priority
         />
       </div>
@@ -22,7 +22,7 @@ const Header = () => {
           width={0}
           height={0}
           sizes="100vw"
-          style={{ width: "100%", height: "auto" }}
+          style={{ width: "6rem", height: "auto" }}
           priority
         />
       </div>

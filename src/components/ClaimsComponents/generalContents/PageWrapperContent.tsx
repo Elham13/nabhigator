@@ -40,9 +40,7 @@ const PageWrapperContent = ({ title, showBackBtn, children }: PropTypes) => {
   const { colorScheme } = useMantineColorScheme();
 
   const [opened, setOpened] = useState<boolean>(false);
-  const [logoPath, setLogoPath] = useState<string>(
-    "/appform-images/nabhigator.png"
-  );
+  const [logoPath, setLogoPath] = useState<string>("/images/nabhigator.png");
   const [infoOpen, setInfoOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -75,9 +73,8 @@ const PageWrapperContent = ({ title, showBackBtn, children }: PropTypes) => {
   }, []);
 
   useEffect(() => {
-    if (colorScheme === "dark")
-      setLogoPath("/appform-images/nabhigatorDark.jpeg");
-    else setLogoPath("/appform-images/nabhigator.png");
+    if (colorScheme === "dark") setLogoPath("/images/nabhigatorDark.jpeg");
+    else setLogoPath("/images/nabhigator.png");
   }, [colorScheme]);
 
   return (
