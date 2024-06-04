@@ -1,15 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  Box,
-  Button,
-  FileInput,
-  Flex,
-  Modal,
-  NumberInput,
-  Text,
-} from "@mantine/core";
+import React, { useState, useEffect } from "react";
+import { Box, Button, Flex, Modal, NumberInput, Text } from "@mantine/core";
 import { useDisclosure, useLocalStorage } from "@mantine/hooks";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { BiSearch } from "react-icons/bi";
 import { AiOutlineClear } from "react-icons/ai";
@@ -25,8 +16,9 @@ import {
   TDashboardOrigin,
 } from "@/lib/utils/types/fniDataTypes";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
-import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
+import { StorageKeys } from "@/lib/utils/types/enums";
 import { showError } from "@/lib/helpers";
+import uploadDashboardData from "@/lib/serverActions/uploadDashboardData";
 
 interface PropType {
   values: DashboardFilters;
@@ -53,12 +45,10 @@ const InboxHeader = ({
   getFilters,
   refetch,
 }: PropType) => {
-  const fileRef = useRef(null);
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
   const [opened, { open, close }] = useDisclosure(false);
   const [docOpened, { open: openDoc, close: closeDoc }] = useDisclosure(false);
   const [filters, setFilters] = useState<DashboardFilters>(values);
-  const [xlFile, setXlFile] = useState(null);
   const [uploading, setUploading] = useState<boolean>(false);
 
   const handleClose = () => {
@@ -67,7 +57,6 @@ const InboxHeader = ({
   };
 
   const handleCloseDoc = () => {
-    if (xlFile) setXlFile(null);
     closeDoc();
   };
 
@@ -80,30 +69,17 @@ const InboxHeader = ({
     handleClose();
   };
 
-  const handleUpload = async () => {
-    if (xlFile === null) return;
+  const handleUpload = async (data: FormData) => {
     setUploading(true);
-    const formData = new FormData();
-    formData.append("file", xlFile);
 
     try {
-      const { data } = await axios.post(
-        EndPoints.UPLOAD_DASHBOARD_DATA,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const { success } = await uploadDashboardData(data);
 
-      toast.success(data.message);
-      toast.warning(
-        `${data.inserted} records inserted and ${data.skipped} records skipped`
-      );
-      closeDoc();
-      setXlFile(null);
-      refetch();
+      if (success) {
+        toast.success("Success");
+        closeDoc();
+        refetch();
+      }
     } catch (error) {
       showError(error);
     } finally {
@@ -113,7 +89,7 @@ const InboxHeader = ({
 
   const downloadSample = () => {
     const link = document.createElement("a");
-    link.href = "/claim_details_sample_file.xlsx";
+    link.href = "/files/claim_details_sample_file.xlsx";
     link.download = "Calim_Details_Sample_File.xlsx";
     link.click();
   };
@@ -167,62 +143,52 @@ const InboxHeader = ({
         </Button>
       </Flex>
       <Box className="flex items-center gap-x-2">
-        {user?.activeRole === Role.ADMIN && origin === "Consolidated" && (
-          <>
-            <Button
-              size="compact-md"
-              rightSection={<HiDocumentAdd />}
-              onClick={openDoc}
-            >
-              Upload Document
-            </Button>
+        {/* {user?.activeRole === Role.ADMIN && origin === "Consolidated" && ( */}
+        <>
+          <Button
+            size="compact-md"
+            rightSection={<HiDocumentAdd />}
+            onClick={openDoc}
+          >
+            Upload Document
+          </Button>
 
-            <Modal
-              opened={docOpened}
-              onClose={handleCloseDoc}
-              title="Upload Document"
-              centered
-              size="lg"
-            >
-              <Box p={20}>
-                <Text size="xs">
-                  <strong>Instructions: </strong>Please download the sample file
-                  and make sure number of columns and column names match with
-                  the sample
-                </Text>
-                <Button
-                  onClick={downloadSample}
-                  size="compact-sm"
-                  variant="outline"
-                  mt={10}
-                  mb={20}
-                >
-                  Download Sample
-                </Button>
-                <FileInput
-                  {...{
-                    ref: fileRef,
-                    onFileSelected: (file: any) => setXlFile(file),
-                    title: "",
-                    onDelete: () => setXlFile(null),
-                    accept:
-                      ".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel",
-                    disabled: false,
-                    preventDelete: false,
-                  }}
+          <Modal
+            opened={docOpened}
+            onClose={handleCloseDoc}
+            title="Upload Document"
+            centered
+            size="lg"
+          >
+            <Box p={20}>
+              <Text size="xs">
+                <strong>Instructions: </strong>Please download the sample file
+                and make sure number of columns and column names match with the
+                sample
+              </Text>
+              <Button
+                onClick={downloadSample}
+                size="compact-sm"
+                variant="outline"
+                mt={10}
+                mb={20}
+              >
+                Download Sample
+              </Button>
+              <form action={handleUpload}>
+                <input
+                  type="file"
+                  name="file"
+                  accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
                 />
-                <Button
-                  loading={uploading}
-                  disabled={!xlFile}
-                  mt={20}
-                  onClick={handleUpload}
-                >
+                <Button loading={uploading} mt={20} type="submit">
                   Upload Document
                 </Button>
-              </Box>
-            </Modal>
-          </>
-        )}
+              </form>
+            </Box>
+          </Modal>
+        </>
+        {/* )} */}
         {user?.activeRole !== Role.VIEWER ||
         (origin === "Consolidated" &&
           user?.config?.canExportConsolidatedInbox === "Yes") ? (

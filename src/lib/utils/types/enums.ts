@@ -39,7 +39,6 @@ export enum EndPoints {
   REVERSE_API = "/api/Claims/FNIReverseApiCall",
   RUN_TRIAGE = "/api/FNI-work-flow/runTriagingLogic",
   STATES = "/api/Claims/states",
-  UPLOAD_DASHBOARD_DATA = "/api/Claims/uploadClaimDetails",
   UPLOAD_TO_S3 = "/api/fni-mobile-@uploadToS3",
   UPDATE_CASE_DETAIL = "/api/fni-mobile-@updateCaseDetail",
   UPDATE_DASHBOARD_DATA = "/api/fni-mobile-@updateDashboardData",
