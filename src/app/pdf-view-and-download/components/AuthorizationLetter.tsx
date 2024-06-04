@@ -36,7 +36,7 @@ type PropTypes = {
 const AuthorizationLetter = ({ dashboardData }: PropTypes) => {
   return (
     <View style={styles.container}>
-      <Image src="/appform-images/nivaBupaLogo.png" style={styles.logo} />
+      <Image src="/images/nivaBupaLogo.png" style={styles.logo} />
       <View style={[styles.horizontalContainer, { marginTop: 20 }]}>
         <Text style={[styles.textBold, { marginBottom: 10 }]}>To</Text>
         <Text style={[styles.textBold, { marginBottom: 10 }]}>

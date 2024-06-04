@@ -108,7 +108,7 @@ const PageWrapperContent = ({ title, showBackBtn, children }: PropTypes) => {
               />
             </Link>
             <Image
-              src="/appform-images/nivaBupaLogo.png"
+              src="/images/nivaBupaLogo.png"
               alt="nabhigator logo"
               width={200}
               height={200}
