@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, Suspense, useEffect, useState } from "react";
 import {
   Accordion,
   Box,
@@ -28,6 +28,7 @@ import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
 import { getStageLabel, showError } from "@/lib/helpers";
 import CustomMarquee from "@/components/CustomMarquee";
+import { Spin } from "antd";
 
 const TriageSummary = dynamic(
   () => import("@/components/ClaimsComponents/TriageSummary")
@@ -52,18 +53,18 @@ const InvestigationFindingsContent = dynamic(
 const InvestigationRecommendationContent = dynamic(
   () => import("./InboxDetail/InvestigationRecommendationContent")
 );
-// const RMInvestigationRecommendationContent = dynamic(
-//   () => import("./InboxDetail/RMInvestigationRecommendationContent")
-// );
-// const RMInvestigationFindingsContent = dynamic(
-//   () => import("./InboxDetail/RMInvestigationFindingsContent")
-// );
+const RMInvestigationRecommendationContent = dynamic(
+  () => import("./InboxDetail/RMInvestigationRecommendationContent")
+);
+const RMInvestigationFindingsContent = dynamic(
+  () => import("./InboxDetail/RMInvestigationFindingsContent")
+);
 const InvestigationFindings = dynamic(
   () => import("./InboxDetail/InvestigationFindings")
 );
-// const RMInvestigationFindings = dynamic(
-//   () => import("./InboxDetail/RMInvestigationFindings")
-// );
+const RMInvestigationFindings = dynamic(
+  () => import("./InboxDetail/RMInvestigationFindings")
+);
 const ClaimDetailsContent = dynamic(
   () => import("./InboxDetail/ClaimDetailsContent")
 );
@@ -214,16 +215,15 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
                     Download
                   </Button>
                 </Box>
-                {
-                  data?.claimType === "PreAuth" ? (
-                    <InvestigationFindingsContent
-                      findings={caseDetail?.investigationFindings}
-                    />
-                  ) : null
-                  // <RMInvestigationFindingsContent
-                  //   findings={caseDetail?.rmFindings}
-                  // />
-                }
+                {data?.claimType === "PreAuth" ? (
+                  <InvestigationFindingsContent
+                    findings={caseDetail?.investigationFindings}
+                  />
+                ) : (
+                  <RMInvestigationFindingsContent
+                    findings={caseDetail?.rmFindings}
+                  />
+                )}
               </Box>
             ),
           },
@@ -234,15 +234,14 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
                 <InvestigationRecommendationContent
                   findings={caseDetail?.investigationFindings}
                 />
-              ) : null,
-            // (
-            //   <RMInvestigationRecommendationContent
-            //     recommendation={caseDetail?.rmFindings?.recommendation}
-            //     otherRecommendation={
-            //       caseDetail?.rmFindings?.otherRecommendation
-            //     }
-            //   />
-            // ),
+              ) : (
+                <RMInvestigationRecommendationContent
+                  recommendation={caseDetail?.rmFindings?.recommendation}
+                  otherRecommendation={
+                    caseDetail?.rmFindings?.otherRecommendation
+                  }
+                />
+              ),
           },
           ...([Role.ADMIN, Role.POST_QA].includes(user?.activeRole) &&
           data?.stage === NumericStage.POST_QC &&
@@ -262,14 +261,13 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
                           }))
                         }
                       />
-                    ) : null,
-                  //  (
-                  //   <RMInvestigationFindings
-                  //     dashboardData={data}
-                  //     caseDetail={caseDetail}
-                  //     setCaseDetail={setCaseDetail}
-                  //   />
-                  // ),
+                    ) : (
+                      <RMInvestigationFindings
+                        dashboardData={data}
+                        caseDetail={caseDetail}
+                        setCaseDetail={setCaseDetail}
+                      />
+                    ),
                 },
               ]
             : []),
@@ -451,7 +449,9 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
           {el?.value}
         </Title>
       </Accordion.Control>
-      <Accordion.Panel>{el?.content}</Accordion.Panel>
+      <Accordion.Panel>
+        <Suspense fallback={<Spin />}>{el?.content}</Suspense>
+      </Accordion.Panel>
     </Accordion.Item>
   ));
 

@@ -6,6 +6,7 @@ import connectDB from "@/lib/db/dbConnectWithMongoose";
 import { Investigator } from "@/lib/utils/types/fniDataTypes";
 import ClaimInvestigator from "@/lib/Models/claimInvestigator";
 import { encrypt } from "@/lib/helpers/authHelpers";
+import { Databases } from "@/lib/utils/types/enums";
 
 const router = createEdgeRouter<NextRequest, RequestContext>();
 
@@ -15,7 +16,7 @@ router.post(async (req) => {
     if (!phone) throw new Error("phone is required");
     if (!password) throw new Error("password is required");
 
-    await connectDB("FNI");
+    await connectDB(Databases.FNI);
 
     const result: HydratedDocument<Investigator> | null =
       await ClaimInvestigator.findOne({

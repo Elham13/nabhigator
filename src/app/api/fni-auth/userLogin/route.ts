@@ -6,6 +6,7 @@ import connectDB from "@/lib/db/dbConnectWithMongoose";
 import { IUser } from "@/lib/utils/types/fniDataTypes";
 import User from "@/lib/Models/user";
 import { encrypt } from "@/lib/helpers/authHelpers";
+import { Databases } from "@/lib/utils/types/enums";
 
 interface RequestContext {}
 
@@ -17,7 +18,7 @@ router.post(async (req) => {
     if (!userId) throw new Error("userId is required");
     if (!password) throw new Error("password is required");
 
-    await connectDB("FNI");
+    await connectDB(Databases.FNI);
 
     const result: HydratedDocument<IUser> | null = await User.findOne({
       userId,
