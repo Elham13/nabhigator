@@ -70,3 +70,7 @@ export enum EndPoints {
 export enum Databases {
   FNI = "FNI",
 }
+
+export enum FromEmails {
+  DO_NOT_REPLY = "donotreply@nivabupa.com",
+}
