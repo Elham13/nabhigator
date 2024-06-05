@@ -16,7 +16,7 @@ import {
   EventNames,
   Investigator,
 } from "@/lib/utils/types/fniDataTypes";
-import { HydratedDocument } from "mongoose";
+import { HydratedDocument, Types } from "mongoose";
 import DashboardData from "@/lib/Models/dashboardData";
 import {
   findInvestigators,
@@ -92,9 +92,7 @@ router.post(async (req) => {
       } else {
         investigators = await ClaimInvestigator.find({
           _id: {
-            $in: investigator?.map(
-              (id: string) => new mongoose.Types.ObjectId(id)
-            ),
+            $in: investigator?.map((id: string) => new Types.ObjectId(id)),
           },
         });
       }

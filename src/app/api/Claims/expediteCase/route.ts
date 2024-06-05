@@ -16,7 +16,7 @@ import {
   UserExpedition,
   UserUpdates,
 } from "@/lib/utils/types/fniDataTypes";
-import { HydratedDocument } from "mongoose";
+import { HydratedDocument, Types } from "mongoose";
 import DashboardData from "@/lib/Models/dashboardData";
 import { captureCaseEvent } from "../caseEvent/helpers";
 import dayjs from "dayjs";
@@ -127,9 +127,7 @@ router.post(async (req) => {
 
       const investigators: Investigator[] = await ClaimInvestigator.find({
         _id: {
-          $in: investigatorId?.map(
-            (el: string) => new mongoose.Types.ObjectId(el)
-          ),
+          $in: investigatorId?.map((el: string) => new Types.ObjectId(el)),
         },
       }).lean();
 

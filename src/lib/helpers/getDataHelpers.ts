@@ -12,6 +12,7 @@ import {
 import ZoneStateMaster from "../Models/zoneStateMaster";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { encryptPlainText } from "./authHelpers";
+import { Types } from "mongoose";
 
 dayjs.extend(customParseFormat);
 
@@ -120,7 +121,7 @@ export const processGetDataFilters = async (obj: any) => {
   ) {
     processedObj["claimInvestigators._id"] = {
       $in: processedObj["claimInvestigators"].map(
-        (inv: string) => new mongoose.Types.ObjectId(inv)
+        (inv: string) => new Types.ObjectId(inv)
       ),
     };
     delete processedObj["claimInvestigators"];
@@ -303,11 +304,11 @@ export const processGetDataFilters = async (obj: any) => {
   }
 
   const teamLead = processedObj["teamLead"]
-    ? new mongoose.Types.ObjectId(processedObj["teamLead"])
+    ? new Types.ObjectId(processedObj["teamLead"])
     : undefined;
   const clusterManager =
     processedObj["clusterManager"]?.map(
-      (id: string) => new mongoose.Types.ObjectId(id)
+      (id: string) => new Types.ObjectId(id)
     ) || [];
 
   if (teamLead) {
@@ -366,12 +367,10 @@ export const processGetDataFilters = async (obj: any) => {
     let geography: string[] = processedObj["user"]?.state;
 
     if (userRole === Role.TL)
-      processedObj["teamLead"] = new mongoose.Types.ObjectId(
-        processedObj["user"]?._id
-      );
+      processedObj["teamLead"] = new Types.ObjectId(processedObj["user"]?._id);
 
     if (userRole === Role.CLUSTER_MANAGER)
-      processedObj["clusterManager"] = new mongoose.Types.ObjectId(
+      processedObj["clusterManager"] = new Types.ObjectId(
         processedObj["user"]?._id
       );
 
@@ -393,12 +392,12 @@ export const processGetDataFilters = async (obj: any) => {
   if (origin && origin !== "Inbox") {
     if (origin === "Outbox") {
       delete processedObj["stage"];
-      processedObj["actionsTaken.userId"] = new mongoose.Types.ObjectId(
+      processedObj["actionsTaken.userId"] = new Types.ObjectId(
         processedObj["user"]?._id
       );
     } else if (origin === "Consolidated") {
       if ([Role.ALLOCATION, Role.POST_QA].includes(userRole)) {
-        processedObj["actionsTaken.userId"] = new mongoose.Types.ObjectId(
+        processedObj["actionsTaken.userId"] = new Types.ObjectId(
           processedObj["user"]?._id
         );
       } else if ([Role.TL, Role.CLUSTER_MANAGER].includes(userRole)) {

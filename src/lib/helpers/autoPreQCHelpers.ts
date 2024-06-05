@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import mongoose, { PipelineStage } from "mongoose";
+import  { PipelineStage, Types } from "mongoose";
 import axios from "axios";
 import {
   AdmissionType,
@@ -384,7 +384,7 @@ export const tellMaximusCaseIsAssigned = async (
     api: "",
     originFileName: __filename,
     claimId: dData?.claimId,
-    dashboardDataId: new mongoose.Types.ObjectId(dData?._id?.toString()),
+    dashboardDataId: new Types.ObjectId(dData?._id?.toString()),
     requestBody: null,
     requestHeaders: null,
     responseBody: null,

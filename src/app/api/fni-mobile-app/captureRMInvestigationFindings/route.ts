@@ -8,7 +8,7 @@ import {
   Task,
 } from "@/lib/utils/types/fniDataTypes";
 import { IRMFindings } from "@/lib/utils/types/rmDataTypes";
-import { HydratedDocument } from "mongoose";
+import { HydratedDocument, Types } from "mongoose";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
@@ -43,7 +43,7 @@ router.post(async (req) => {
       if (tempFindings?.recommendation?.value) {
         const dashboardData: HydratedDocument<IDashboardData> | null =
           await DashboardData.findOne({
-            caseId: new mongoose.Types.ObjectId(id),
+            caseId: new Types.ObjectId(id),
           });
 
         if (!dashboardData)

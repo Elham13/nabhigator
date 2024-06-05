@@ -2,7 +2,7 @@ import User from "@/lib/Models/user";
 import connectDB from "@/lib/db/dbConnectWithMongoose";
 import { Databases } from "@/lib/utils/types/enums";
 import { IUser, IUserLeave, Role } from "@/lib/utils/types/fniDataTypes";
-import { HydratedDocument, PipelineStage } from "mongoose";
+import { HydratedDocument, PipelineStage, Types } from "mongoose";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
@@ -108,7 +108,7 @@ router.post(async (req) => {
         const tlUser: HydratedDocument<IUser> | null = await User.findOne({
           role: Role.TL,
           zone: { $in: payload?.zone },
-          _id: { $ne: new mongoose.Types.ObjectId(id) },
+          _id: { $ne: new Types.ObjectId(id) },
         });
 
         if (tlUser)
@@ -121,7 +121,7 @@ router.post(async (req) => {
         const cmUser: HydratedDocument<IUser> | null = await User.findOne({
           role: Role.CLUSTER_MANAGER,
           zone: { $in: payload?.zone },
-          _id: { $ne: new mongoose.Types.ObjectId(id) },
+          _id: { $ne: new Types.ObjectId(id) },
         });
 
         if (cmUser)

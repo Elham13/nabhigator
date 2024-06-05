@@ -9,7 +9,7 @@ import {
   NumericStage,
   Role,
 } from "@/lib/utils/types/fniDataTypes";
-import { HydratedDocument } from "mongoose";
+import { HydratedDocument, Types } from "mongoose";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
@@ -64,12 +64,10 @@ router.get(async (req) => {
       }
 
       if (user?.activeRole === Role.TL)
-        commonFilters["teamLead"] = new mongoose.Types.ObjectId(user?._id);
+        commonFilters["teamLead"] = new Types.ObjectId(user?._id);
 
       if (user?.activeRole === Role.CLUSTER_MANAGER)
-        commonFilters["clusterManager"] = new mongoose.Types.ObjectId(
-          user?._id
-        );
+        commonFilters["clusterManager"] = new Types.ObjectId(user?._id);
     }
 
     counts.preAuth = await getColorCodes({
