@@ -252,3 +252,17 @@ export const documentName = (url: string) => {
   }
   return "";
 };
+
+export const compareArrOfObjBasedOnProp = (
+  arr1: Record<string, any>[],
+  arr2: Record<string, any>[],
+  prop1: string,
+  prop2: string
+) => {
+  if (arr1.length !== arr2.length) return false;
+
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i][prop1] !== arr2[i][prop2]) return false;
+  }
+  return true;
+};
