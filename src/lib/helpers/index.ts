@@ -266,3 +266,9 @@ export const compareArrOfObjBasedOnProp = (
   }
   return true;
 };
+
+export const isWeekend = (date: string | Date) => {
+  if (!date) return false;
+  const dayOfWeek = dayjs(date).day();
+  return dayOfWeek === 0 || dayOfWeek === 6; // 0 is Sunday, 6 is Saturday
+};
