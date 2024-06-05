@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
 import {
   Button,
   ComboboxItem,
@@ -12,18 +11,17 @@ import {
   SimpleGrid,
   TextInput,
 } from "@mantine/core";
+import React, { useEffect, useRef, useState } from "react";
 import { Text } from "@mantine/core";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { AiOutlineLoading } from "react-icons/ai";
-import { useDebouncedValue } from "@mantine/hooks";
 import {
   IDType,
   ILoadings,
   INewCityMaster,
   INewPinCodeMaster,
   IUser,
-  IUserSearchValues,
   IZoneStateMaster,
   ResponseType,
   Role,
@@ -46,13 +44,6 @@ import {
 } from "@/lib/helpers/getLocations";
 import PageWrapper from "@/components/ClaimsComponents/PageWrapper";
 
-const searchInitials: IUserSearchValues = {
-  pinCode: "",
-  city: "",
-  district: "",
-  state: "",
-};
-
 const loadingsInitials: ILoadings = {
   state: false,
   district: false,
@@ -71,9 +62,6 @@ const UserEdit = () => {
   const [cityOptions, setCityOptions] = useState<INewCityMaster[]>([]);
   const [stateOptions, setStateOptions] = useState<IZoneStateMaster[]>([]);
   const [districtOptions, setDistrictOptions] = useState<IDType[]>([]);
-  const [searchValues, setSearchValues] =
-    useState<IUserSearchValues>(searchInitials);
-  const [debouncedDist] = useDebouncedValue(searchValues?.district, 300);
   const [loadings, setLoadings] = useState<ILoadings>(loadingsInitials);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,8 +89,8 @@ const UserEdit = () => {
           ?.filter((zo: ComboboxItem) => zo.value !== "All")
           ?.map((zo: ComboboxItem) => zo?.value),
         state: ["All"],
-        district: "All",
         city: "All",
+        district: "All",
         pinCode: "All",
       }));
     } else {
@@ -219,7 +207,7 @@ const UserEdit = () => {
   }, []);
 
   useEffect(() => {
-    if (usersMaster?.length > 0 && values?.userId) {
+    if (usersMaster?.length > 0 && values?.userId && !values?._id) {
       const foundUser =
         usersMaster.find((el) => el.userId === values?.userId) || usersInitials;
       setValues(foundUser);
@@ -250,8 +238,7 @@ const UserEdit = () => {
         getTeamLeads();
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [values.userId]);
+  }, [values.userId, usersMaster, values?._id]);
 
   useEffect(() => {
     // Getting states
@@ -288,15 +275,14 @@ const UserEdit = () => {
     ) {
       getDistricts({
         stateCode: values?.state,
-        districtName: debouncedDist,
-        limit: 100,
+        limit: 1000,
         getOptions: (options) => setDistrictOptions(options),
         getLoading: (status) => {
           setLoadings((prev) => ({ ...prev, district: status }));
         },
       });
     }
-  }, [values?.state, debouncedDist, values?.city]);
+  }, [values?.state, values?.city]);
 
   useEffect(() => {
     // Getting PinCodes
@@ -342,7 +328,7 @@ const UserEdit = () => {
 
                 {loading ? (
                   <AiOutlineLoading className="animate-spin" size={44} />
-                ) : values?.userId ? (
+                ) : values?._id ? (
                   <>
                     <TextInput
                       label="Name"
@@ -477,13 +463,6 @@ const UserEdit = () => {
                         searchable
                         clearable
                         onChange={handleChangeDistrict}
-                        onSearchChange={(val) =>
-                          setSearchValues((prev) => ({
-                            ...prev,
-                            district: val,
-                          }))
-                        }
-                        searchValue={searchValues?.district}
                         disabled={
                           values?.state.includes("All") ||
                           loadings.district ||

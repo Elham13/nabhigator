@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   Button,
-  ComboboxItem,
   Group,
   Loader,
   MultiSelect,
@@ -15,7 +14,7 @@ import {
 } from "@mantine/core";
 import { Text } from "@mantine/core";
 import { useParams } from "next/navigation";
-import { useDebouncedValue, useLocalStorage } from "@mantine/hooks";
+import { useLocalStorage } from "@mantine/hooks";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { AiOutlineLoading } from "react-icons/ai";
@@ -26,7 +25,6 @@ import {
   INewCityMaster,
   INewPinCodeMaster,
   IUser,
-  IUserSearchValues,
   IZoneStateMaster,
   ResponseType,
   Role,
@@ -49,13 +47,6 @@ import {
   getStates,
 } from "@/lib/helpers/getLocations";
 import PageWrapper from "@/components/ClaimsComponents/PageWrapper";
-
-const searchInitials: IUserSearchValues = {
-  pinCode: "",
-  city: "",
-  district: "",
-  state: "",
-};
 
 const loadingsInitials: ILoadings = {
   state: false,
@@ -80,9 +71,6 @@ const UserEdit = () => {
   const [cityOptions, setCityOptions] = useState<INewCityMaster[]>([]);
   const [stateOptions, setStateOptions] = useState<IZoneStateMaster[]>([]);
   const [districtOptions, setDistrictOptions] = useState<IDType[]>([]);
-  const [searchValues, setSearchValues] =
-    useState<IUserSearchValues>(searchInitials);
-  const [debouncedDist] = useDebouncedValue(searchValues?.district, 300);
   const [loadings, setLoadings] = useState<ILoadings>(loadingsInitials);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -344,16 +332,14 @@ const UserEdit = () => {
     ) {
       getDistricts({
         stateCode: values?.state,
-        districtName: debouncedDist,
-        limit: 100,
+        limit: 1000,
         getOptions: (options) => setDistrictOptions(options),
         getLoading: (status) => {
           setLoadings((prev) => ({ ...prev, district: status }));
         },
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [values?.state, debouncedDist]);
+  }, [values?.state, values?.city]);
 
   useEffect(() => {
     // Getting PinCodes
@@ -516,13 +502,6 @@ const UserEdit = () => {
                         searchable
                         clearable
                         onChange={handleChangeDistrict}
-                        onSearchChange={(val) =>
-                          setSearchValues((prev) => ({
-                            ...prev,
-                            district: val,
-                          }))
-                        }
-                        searchValue={searchValues?.district}
                         disabled={
                           values?.state.includes("All") ||
                           loadings.district ||

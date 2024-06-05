@@ -17,7 +17,7 @@ router.get(async (req) => {
     let data: any[] = [];
 
     if (newUsers) {
-      const users = await User.find({});
+      const users = await User.find({}).lean();
 
       const existingIds = users.map((el) => el?.userId);
 
