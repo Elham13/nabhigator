@@ -352,7 +352,8 @@ const UserEdit = () => {
         },
       });
     }
-  }, [values?.state, debouncedDist, values?.city]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [values?.state, debouncedDist]);
 
   useEffect(() => {
     // Getting PinCodes
