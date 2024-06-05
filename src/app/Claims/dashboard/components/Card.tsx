@@ -13,7 +13,7 @@ const Card = ({ number, color, claimType }: CardPropTypes) => {
     Red: "#ff0000",
   };
 
-  // TODO: Make the message role specific
+  // TODO: Make the message, role specific
 
   let tooltipMsg = "";
 

@@ -25,12 +25,12 @@ export default function Error({
             {error?.message}
           </code>
         </h2>
-        <h2 className="font-bold max-h-28 overflow-y-auto">
-          Error Stack:{" "}
-          <code className="text-slate-500 text-xs">
-            {error?.stack}
-          </code>
-        </h2>
+        {process.env.NEXT_PUBLIC_CONFIG !== "PROD" ? (
+          <h2 className="font-bold max-h-28 overflow-y-auto">
+            Error Stack:{" "}
+            <code className="text-slate-500 text-xs">{error?.stack}</code>
+          </h2>
+        ) : null}
       </div>
       <Button onClick={reset}>Try again</Button>
     </div>

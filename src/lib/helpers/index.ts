@@ -116,7 +116,6 @@ export const convertToIndianFormat = (amount: number, hideSymbol?: boolean) => {
 };
 
 export const getSelectOption = (name: string) => {
-  // TODO: Change this in prod
   let env: "UAT" | "PROD" = "UAT";
   if (process.env.NEXT_PUBLIC_CONFIG === "PROD") env = "PROD";
 
