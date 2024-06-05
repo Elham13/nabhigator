@@ -301,14 +301,7 @@ router.post(async (req) => {
     responseObj.data = investigators;
     await dashboardData.save();
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Fetched",
-        data: null,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json(responseObj, { status: statusCode });
   } catch (error: any) {
     return NextResponse.json(
       {
