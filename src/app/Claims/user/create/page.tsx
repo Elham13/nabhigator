@@ -250,7 +250,8 @@ const UserEdit = () => {
         getTeamLeads();
       }
     }
-  }, [values.userId, usersMaster]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [values.userId]);
 
   useEffect(() => {
     // Getting states
@@ -295,8 +296,7 @@ const UserEdit = () => {
         },
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [values?.state, debouncedDist]);
+  }, [values?.state, debouncedDist, values?.city]);
 
   useEffect(() => {
     // Getting PinCodes
