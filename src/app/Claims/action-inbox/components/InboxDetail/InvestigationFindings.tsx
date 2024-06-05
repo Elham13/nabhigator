@@ -186,27 +186,30 @@ const InvestigationFindings = ({
 
     try {
       setProgress(10);
-      //  TODO: Need to increase the progress from 0 to 100 somehow
+
       const docKey = await uploadFile(file, dashboardData?.claimId || 0);
 
-      if (
-        values.evidenceDocs &&
-        Array.isArray(values.evidenceDocs) &&
-        values?.evidenceDocs?.length > 0
-      ) {
-        handleBlur("evidenceDocs", [...values.evidenceDocs, docKey], true);
-        setUpdatedValues((prev) => ({
-          ...prev,
-          evidenceDocs: [...prev.evidenceDocs, docKey],
-        }));
-      } else {
-        handleBlur("evidenceDocs", [docKey], true);
-        setUpdatedValues((prev) => ({
-          ...prev,
-          evidenceDocs: [docKey],
-        }));
+      console.log("key: ", docKey);
+      if (docKey) {
+        if (
+          values.evidenceDocs &&
+          Array.isArray(values.evidenceDocs) &&
+          values?.evidenceDocs?.length > 0
+        ) {
+          handleBlur("evidenceDocs", [...values.evidenceDocs, docKey], true);
+          setUpdatedValues((prev) => ({
+            ...prev,
+            evidenceDocs: [...prev.evidenceDocs, docKey],
+          }));
+        } else {
+          handleBlur("evidenceDocs", [docKey], true);
+          setUpdatedValues((prev) => ({
+            ...prev,
+            evidenceDocs: [docKey],
+          }));
+        }
+        setProgress(100);
       }
-      setProgress(100);
     } catch (error: any) {
       showError(error);
     } finally {

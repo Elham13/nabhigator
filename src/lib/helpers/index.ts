@@ -1,9 +1,5 @@
 import { toast } from "react-toastify";
-import {
-  NumericStage,
-  SingleResponseType,
-  TValueCode,
-} from "../utils/types/fniDataTypes";
+import { NumericStage, TValueCode } from "../utils/types/fniDataTypes";
 import { DateInputProps } from "@mantine/dates";
 import {
   FRCUGroundOfRepudiationOptions,
@@ -15,11 +11,10 @@ import {
   recommendationOptions,
   recommendationProdOptions,
 } from "../utils/constants/options";
-import { EndPoints } from "../utils/types/enums";
-import axios from "axios";
 import { NextApiRequest } from "next";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import AWS from "aws-sdk";
 
 export const showError = (error: any) => {
   const message = error.response ? error.response.data.message : error.message;
@@ -143,19 +138,32 @@ export const getSelectOption = (name: string) => {
   return options[name] || ([] as any[]);
 };
 
-export const uploadFile = async (file: File | null, claimId: number) => {
+export const uploadFile = async (file: File, claimId: number) => {
   try {
-    if (!file) throw new Error("Not selected");
+    const bucketName =
+      process.env.NEXT_PUBLIC_CONFIG === "PROD"
+        ? process.env.NEXT_PUBLIC_S3_BUCKET_NAME_PROD
+        : process.env.NEXT_PUBLIC_S3_BUCKET_NAME_UAT;
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("claimId", claimId?.toString());
+    const s3 = new AWS.S3({
+      accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID_UAT,
+      secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_KEY_ID_UAT,
+      region: process.env.NEXT_PUBLIC_AWS_DEFAULT_REGION_UAT,
+    });
 
-    const { data } = await axios.post<SingleResponseType<{ docKey: string }>>(
-      EndPoints.UPLOAD_TO_S3,
-      formData
-    );
-    return data?.data?.docKey;
+    const name = `${claimId || "claimIdNotFound"}/${dayjs().unix()}-${
+      file?.name
+    }`;
+
+    const params = {
+      Bucket: bucketName || "",
+      Key: `fni-docs/${name}` || "",
+      Body: file,
+      ContentType: file.type,
+    };
+
+    await s3.upload(params).promise();
+    return params?.Key;
   } catch (error) {
     showError(error);
     return "";

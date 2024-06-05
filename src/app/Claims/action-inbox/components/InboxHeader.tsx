@@ -143,52 +143,52 @@ const InboxHeader = ({
         </Button>
       </Flex>
       <Box className="flex items-center gap-x-2">
-        {/* {user?.activeRole === Role.ADMIN && origin === "Consolidated" && ( */}
-        <>
-          <Button
-            size="compact-md"
-            rightSection={<HiDocumentAdd />}
-            onClick={openDoc}
-          >
-            Upload Document
-          </Button>
+        {user?.activeRole === Role.ADMIN && origin === "Consolidated" && (
+          <>
+            <Button
+              size="compact-md"
+              rightSection={<HiDocumentAdd />}
+              onClick={openDoc}
+            >
+              Upload Document
+            </Button>
 
-          <Modal
-            opened={docOpened}
-            onClose={handleCloseDoc}
-            title="Upload Document"
-            centered
-            size="lg"
-          >
-            <Box p={20}>
-              <Text size="xs">
-                <strong>Instructions: </strong>Please download the sample file
-                and make sure number of columns and column names match with the
-                sample
-              </Text>
-              <Button
-                onClick={downloadSample}
-                size="compact-sm"
-                variant="outline"
-                mt={10}
-                mb={20}
-              >
-                Download Sample
-              </Button>
-              <form action={handleUpload}>
-                <input
-                  type="file"
-                  name="file"
-                  accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-                />
-                <Button loading={uploading} mt={20} type="submit">
-                  Upload Document
+            <Modal
+              opened={docOpened}
+              onClose={handleCloseDoc}
+              title="Upload Document"
+              centered
+              size="lg"
+            >
+              <Box p={20}>
+                <Text size="xs">
+                  <strong>Instructions: </strong>Please download the sample file
+                  and make sure number of columns and column names match with
+                  the sample
+                </Text>
+                <Button
+                  onClick={downloadSample}
+                  size="compact-sm"
+                  variant="outline"
+                  mt={10}
+                  mb={20}
+                >
+                  Download Sample
                 </Button>
-              </form>
-            </Box>
-          </Modal>
-        </>
-        {/* )} */}
+                <form action={handleUpload}>
+                  <input
+                    type="file"
+                    name="file"
+                    accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                  />
+                  <Button loading={uploading} mt={20} type="submit">
+                    Upload Document
+                  </Button>
+                </form>
+              </Box>
+            </Modal>
+          </>
+        )}
         {user?.activeRole !== Role.VIEWER ||
         (origin === "Consolidated" &&
           user?.config?.canExportConsolidatedInbox === "Yes") ? (
