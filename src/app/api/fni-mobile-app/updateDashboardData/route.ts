@@ -113,7 +113,7 @@ router.post(async (req) => {
         ];
 
         const webUrl =
-          process.env.MONGO_CONFIG === "PROD"
+          process.env.NEXT_PUBLIC_CONFIG === "PROD"
             ? "https://www.nivabupa.com/"
             : "https://appform.nivabupa.com/";
 

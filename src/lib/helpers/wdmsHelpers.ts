@@ -41,8 +41,8 @@ export const buildWDMSUrl = () => {
     },
   };
 
-  if (process.env.CONFIG) {
-    if (["LOCAL", "UAT"].includes(process.env.CONFIG)) {
+  if (process.env.NEXT_PUBLIC_CONFIG) {
+    if (["LOCAL", "UAT"].includes(process.env.NEXT_PUBLIC_CONFIG)) {
       mainObj = {
         docDetail: {
           baseUrl: "http://172.23.115.56:9087/",

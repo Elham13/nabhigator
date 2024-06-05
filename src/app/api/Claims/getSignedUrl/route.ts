@@ -15,13 +15,18 @@ router.post(async (req) => {
     await connectDB(Databases.FNI);
 
     const s3 = new S3({
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID_UAT,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY_UAT,
-      region: process.env.AWS_DEFAULT_REGION_UAT,
+      accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID_UAT,
+      secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_KEY_ID_UAT,
+      region: process.env.NEXT_PUBLIC_AWS_DEFAULT_REGION_UAT,
     });
 
+    const bucketName =
+      process.env.NEXT_PUBLIC_CONFIG === "PROD"
+        ? process.env.NEXT_PUBLIC_S3_BUCKET_NAME_PROD
+        : process.env.NEXT_PUBLIC_S3_BUCKET_NAME_UAT;
+
     const signedUrl = s3.getSignedUrl("getObject", {
-      Bucket: process.env.S3_BUCKET_NAME_UAT,
+      Bucket: bucketName,
       Key: docKey,
       Expires: 60 * 60 * 60,
     });

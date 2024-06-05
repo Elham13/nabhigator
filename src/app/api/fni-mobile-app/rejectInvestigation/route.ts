@@ -141,7 +141,7 @@ router.post(async (req) => {
     )}</span> and returned on <span style="font-weight:700">${dayjs().format(
       "DD-MMM-YYYY hh:mm:ss a"
     )}</span></p><p>Please take appropriate action by logging in to <a href="${
-      process.env.MONGO_CONFIG === "PROD"
+      process.env.NEXT_PUBLIC_CONFIG === "PROD"
         ? "https://www.nivabupa.com/Claims/action-inbox"
         : "https://appform.nivabupa.com/Claims/action-inbox"
     }">FRCU</a></p><p>Regards,</p><p>FRCU</p></div>`;

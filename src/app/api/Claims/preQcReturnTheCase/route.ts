@@ -72,10 +72,10 @@ router.post(async (req) => {
 
     let FINAL_OUTCOME = "";
 
-    if (!process.env.MONGO_CONFIG)
+    if (!process.env.NEXT_PUBLIC_CONFIG)
       throw new Error("Failed to get .env variable");
 
-    if (["LOCAL", "UAT"].includes(process.env.MONGO_CONFIG)) {
+    if (["LOCAL", "UAT"].includes(process.env.NEXT_PUBLIC_CONFIG)) {
       FINAL_OUTCOME = "DT";
     } else {
       FINAL_OUTCOME = "NI";
@@ -265,7 +265,7 @@ router.post(async (req) => {
     }
 
     const webUrl =
-      process.env.MONGO_CONFIG === "PROD"
+      process.env.NEXT_PUBLIC_CONFIG === "PROD"
         ? "https://www.nivabupa.com/"
         : "https://appform.nivabupa.com/";
 
