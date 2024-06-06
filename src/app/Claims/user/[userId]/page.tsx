@@ -80,8 +80,6 @@ const UserEdit = () => {
   };
 
   const handleSelect = (name: keyof IUser, value: string | string[] | null) => {
-    console.log("name: ", name);
-    console.log("value: ", value);
     if (
       name === "role" &&
       Array.isArray(value) &&

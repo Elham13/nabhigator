@@ -17,8 +17,14 @@ import {
 } from "../utils/types/maximusResponseTypes";
 import { Databases, EndPoints } from "../utils/types/enums";
 import connectDB from "../db/dbConnectWithMongoose";
-import { AdmissionType, IUser } from "../utils/types/fniDataTypes";
+import {
+  AdmissionType,
+  IUser,
+  IZoneStateMaster,
+  Role,
+} from "../utils/types/fniDataTypes";
 import User from "../Models/user";
+import ZoneStateMaster from "../Models/zoneStateMaster";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -41,6 +47,23 @@ function convertDateToDayJsFormat(dateStr: string) {
   // Reassemble the date string in the correct format
   return `${parts[0]}-${month}-${parts[2]}`;
 }
+
+const getUser = async (state: string, role: Role.TL | Role.CLUSTER_MANAGER) => {
+  const zoneState: HydratedDocument<IZoneStateMaster> | null =
+    await ZoneStateMaster.findOne({
+      State: state,
+    });
+
+  if (!zoneState) return null;
+
+  const user: HydratedDocument<IUser> | null = await User.findOne({
+    role,
+    zone: zoneState?.Zone,
+  });
+  if (!user) return null;
+
+  return user.toJSON();
+};
 
 const { baseUrl, authPayload, apiId } = buildMaximusUrl();
 
@@ -305,25 +328,15 @@ const getFniData = async (claimId: string, claimType: string) => {
     if (!provider?.ProviderData?.providerState)
       throw new Error("Failed to find provider details");
 
-    const teamLead: HydratedDocument<IUser> | null = await User.findOne({
-      role: "TL",
-      $or: [
-        {
-          state: { $regex: RegExp(provider.ProviderData?.providerState, "i") },
-        },
-        { state: "All" },
-      ],
-    });
+    const teamLead = await getUser(
+      provider.ProviderData?.providerState,
+      Role.TL
+    );
 
-    const clusterManager: HydratedDocument<IUser> | null = await User.findOne({
-      role: "Cluster Manager",
-      $or: [
-        {
-          state: { $regex: RegExp(provider.ProviderData?.providerState, "i") },
-        },
-        { state: "All" },
-      ],
-    });
+    const clusterManager = await getUser(
+      provider.ProviderData?.providerState,
+      Role.CLUSTER_MANAGER
+    );
 
     let admissionType: AdmissionType = AdmissionType.NA;
     if (claimType === "P") {
