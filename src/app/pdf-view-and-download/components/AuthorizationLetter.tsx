@@ -1,5 +1,5 @@
 import React from "react";
-import { Image, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { Image as RPImage, StyleSheet, Text, View } from "@react-pdf/renderer";
 import dayjs from "dayjs";
 import { IDashboardData } from "@/lib/utils/types/fniDataTypes";
 
@@ -36,7 +36,10 @@ type PropTypes = {
 const AuthorizationLetter = ({ dashboardData }: PropTypes) => {
   return (
     <View style={styles.container}>
-      <Image src="/images/nivaBupaLogo.png" style={styles.logo} />
+      <RPImage
+        src="/navigator-admin/images/nivaBupaLogo.png"
+        style={styles.logo}
+      />
       <View style={[styles.horizontalContainer, { marginTop: 20 }]}>
         <Text style={[styles.textBold, { marginBottom: 10 }]}>To</Text>
         <Text style={[styles.textBold, { marginBottom: 10 }]}>
@@ -117,7 +120,10 @@ const AuthorizationLetter = ({ dashboardData }: PropTypes) => {
       <Text style={[styles.textBold, { fontStyle: "italic" }]}>
         (Formerly known as Max Bupa Health Insurance Co. Ltd.)
       </Text>
-      <Image src="/aem-to-react/signature.jpg" style={styles.signature} />
+      <RPImage
+        src="/navigator-admin/images/signature.jpg"
+        style={styles.signature}
+      />
       <Text style={[styles.textBold, { marginTop: 20 }]}>Manish Baweja</Text>
       <Text style={[styles.textBold, { marginVertical: 20, fontSize: 16 }]}>
         (Vice President - Fraud & Risk Control Unit, Insttutonal Fraud Risk

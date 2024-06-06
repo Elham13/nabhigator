@@ -6,7 +6,7 @@ const Header = () => {
     <div className="flex items-center justify-between p-2 bg-white shadow-[0_5px_10px_-5px_gray]">
       <div className="flex pad:h-14 desk:h-20">
         <Image
-          src="/images/nabhigator.jpeg"
+          src="/navigator-admin/images/nabhigator.jpeg"
           alt="Nabhigator Logo"
           width={0}
           height={0}
@@ -17,7 +17,7 @@ const Header = () => {
       </div>
       <div className="flex pad:h-14 desk:h-20">
         <Image
-          src="/svgs/nivabupaLogo.svg"
+          src="/navigator-admin/svgs/nivabupaLogo.svg"
           alt="Nivabupa Logo"
           width={0}
           height={0}
