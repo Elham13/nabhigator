@@ -13,6 +13,7 @@ import {
   EventNames,
   ILocked,
   IUser,
+  Investigator,
   NumericStage,
 } from "@/lib/utils/types/fniDataTypes";
 import ClaimCase from "@/lib/Models/claimCase";
@@ -20,6 +21,7 @@ import User from "@/lib/Models/user";
 import sendEmail from "@/lib/helpers/sendEmail";
 import { captureCaseEvent } from "../../Claims/caseEvent/helpers";
 import { encryptPlainText } from "@/lib/helpers/authHelpers";
+import ClaimInvestigator from "@/lib/Models/claimInvestigator";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -112,6 +114,10 @@ router.post(async (req) => {
           postQaUserEmail,
         ];
 
+        const invId = dashboardData?.claimInvestigators[0]?._id;
+        const inv: HydratedDocument<Investigator> | null =
+          await ClaimInvestigator.findById(invId);
+
         const webUrl =
           process.env.NEXT_PUBLIC_CONFIG === "PROD"
             ? "https://www.nivabupa.com/"
@@ -123,7 +129,9 @@ router.post(async (req) => {
           postQARecommendation?.frcuRecommendationOnClaims?.value
         }</p><p>Kindly refer to FRCU Final Investigation Report and documents collected, <a href="${webUrl}/pdf-view-and-download?claimId=${encryptPlainText(
           dashboardData?.claimId?.toString()
-        )}&docType=final-investigation-report">here.</a></p><p>The FRCU recommendation and summary can be referred in Maximus/Phoenix. The URL to access the Final Report and documents are available there as well.</p><p>Regards,</p><p>FRCU</p></div>`;
+        )}&docType=final-investigation-report&invType=${
+          inv?.Type
+        }">here.</a></p><p>The FRCU recommendation and summary can be referred in Maximus/Phoenix. The URL to access the Final Report and documents are available there as well.</p><p>Regards,</p><p>FRCU</p></div>`;
 
         const {
           success,

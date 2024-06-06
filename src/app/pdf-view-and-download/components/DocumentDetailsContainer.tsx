@@ -12,19 +12,19 @@ Font.register({
   family: "Roboto",
   fonts: [
     {
-      src: `/ethinos-home-page/fonts/Roboto/Roboto-Regular.ttf`,
+      src: `/fonts/Roboto/Roboto-Regular.ttf`,
     },
     {
-      src: `/ethinos-home-page/fonts/Roboto/Roboto-Bold.ttf`,
+      src: `/fonts/Roboto/Roboto-Bold.ttf`,
       fontWeight: "bold",
     },
     {
-      src: `/ethinos-home-page/fonts/Roboto/Roboto-Italic.ttf`,
+      src: `/fonts/Roboto/Roboto-Italic.ttf`,
       fontWeight: "normal",
       fontStyle: "italic",
     },
     {
-      src: `/ethinos-home-page/fonts/Roboto/Roboto-BoldItalic.ttf`,
+      src: `/fonts/Roboto/Roboto-BoldItalic.ttf`,
       fontWeight: "bold",
       fontStyle: "italic",
     },
@@ -35,12 +35,14 @@ type PropTypes = {
   docType: TDocType;
   caseData: CaseDetail | null;
   dashboardData: IDashboardData | null;
+  invType?: "Internal" | "External";
 };
 
 const DocumentDetailsContainer = ({
   docType,
   caseData,
   dashboardData,
+  invType,
 }: PropTypes) => {
   const [isClient, setIsClient] = useState(false);
 
@@ -53,12 +55,13 @@ const DocumentDetailsContainer = ({
     <div className="flex flex-col items-center gap-4 mt-4">
       <Box className="flex items-center gap-x-4">
         <PDFDownloadLink
-          className="bg-nivabupa-ethinosHomeOrange text-white p-4 rounded-lg w-48 text-center font-bold"
+          className="bg-orange-500 text-white p-4 rounded-lg w-48 text-center font-bold"
           document={
             <DocumentsContainer
               docType={docType}
               dashboardData={dashboardData}
               caseData={caseData}
+              invType={invType}
             />
           }
           fileName={`${dashboardData?.claimId}${docType}.pdf`}
@@ -74,6 +77,7 @@ const DocumentDetailsContainer = ({
           docType={docType}
           dashboardData={dashboardData}
           caseData={caseData}
+          invType={invType}
         />
       </PDFViewer>
     </div>

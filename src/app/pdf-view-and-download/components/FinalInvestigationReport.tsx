@@ -1,12 +1,12 @@
 import React from "react";
-import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import dayjs from "dayjs";
-import AssignmentSummary from "./AssignmentSummary";
-import TwoSectionView from "./TwoSectionView";
-import SectionHeading from "./SectionHeading";
+import { TDocType } from "../page";
 import TableView from "./TableView";
 import SingleLine from "./SingleLine";
-import { TDocType } from "../page";
+import TwoSectionView from "./TwoSectionView";
+import SectionHeading from "./SectionHeading";
+import AssignmentSummary from "./AssignmentSummary";
+import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import { CaseDetail, IDashboardData } from "@/lib/utils/types/fniDataTypes";
 
 const styles = StyleSheet.create({ txt: { fontSize: 20 } });
@@ -15,12 +15,14 @@ type PropTypes = {
   dashboardData: IDashboardData | null;
   caseData: CaseDetail | null;
   docType: TDocType;
+  invType?: "Internal" | "External";
 };
 
 const FinalInvestigationReport = ({
   dashboardData,
   caseData,
   docType,
+  invType,
 }: PropTypes) => {
   const findings = caseData?.postQaFindings;
 
@@ -359,19 +361,19 @@ const FinalInvestigationReport = ({
       : []),
   ];
 
-  const mappedAilmentData = findings?.ailment.map((element) => {
-    return {
-      Ailment: element.ailment,
-      Diagnosis: element.diagnosis,
-      Duration: element.duration,
-      "On Medication": element.onMedication,
-    };
-  });
+  // const mappedAilmentData = findings?.ailment.map((element) => {
+  //   return {
+  //     Ailment: element.ailment,
+  //     Diagnosis: element.diagnosis,
+  //     Duration: element.duration,
+  //     "On Medication": element.onMedication,
+  //   };
+  // });
 
-  const ailmentsTableData = {
-    column: ["Ailment", "Diagnosis", "Duration", "On Medication"],
-    data: mappedAilmentData,
-  };
+  // const ailmentsTableData = {
+  //   column: ["Ailment", "Diagnosis", "Duration", "On Medication"],
+  //   data: mappedAilmentData,
+  // };
 
   const mappedHabitTable = findings?.patientHabit.map((element) => {
     return {
@@ -456,6 +458,7 @@ const FinalInvestigationReport = ({
         caseData={caseData}
         title="Final Investigation Report"
         docType={docType}
+        invType={invType}
       />
       <TwoSectionView
         data={preAuthInvestigationSummary}

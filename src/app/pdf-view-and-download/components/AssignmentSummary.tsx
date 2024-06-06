@@ -1,19 +1,15 @@
 import React from "react";
-import { StyleSheet, Text, View } from "@react-pdf/renderer";
-import SingleLine from "./SingleLine";
-import ThreeSectionView from "./ThreeSectionView";
 import dayjs from "dayjs";
-import SectionHeading from "./SectionHeading";
-import FraudIndicatorTable from "./FraudIndicatorTable";
-import TwoSectionView from "./TwoSectionView";
 import Heading from "./Heading";
 import { TDocType } from "../page";
-import {
-  CaseDetail,
-  IDashboardData,
-  ResponseDoc,
-} from "@/lib/utils/types/fniDataTypes";
+import SingleLine from "./SingleLine";
+import SectionHeading from "./SectionHeading";
+import TwoSectionView from "./TwoSectionView";
+import ThreeSectionView from "./ThreeSectionView";
 import { convertToIndianFormat } from "@/lib/helpers";
+import FraudIndicatorTable from "./FraudIndicatorTable";
+import { StyleSheet, Text, View } from "@react-pdf/renderer";
+import { CaseDetail, IDashboardData } from "@/lib/utils/types/fniDataTypes";
 
 const styles = StyleSheet.create({
   container: { display: "flex", flexDirection: "column", columnGap: 10 },
@@ -118,14 +114,25 @@ type PropTypes = {
   caseData: CaseDetail | null;
   docType: TDocType;
   title: string;
+  invType?: "Internal" | "External";
 };
 
-const AssignmentSummary = ({ data, caseData, docType, title }: PropTypes) => {
+const AssignmentSummary = ({
+  data,
+  caseData,
+  docType,
+  title,
+  invType,
+}: PropTypes) => {
   const preAuthDetailsData = [
-    {
-      key: "Referral Type",
-      value: data?.claimType,
-    },
+    ...(invType !== "External"
+      ? [
+          {
+            key: "Referral Type",
+            value: data?.claimType,
+          },
+        ]
+      : []),
     {
       key: "Claim Amount",
       value: data?.claimDetails?.claimAmount
@@ -295,22 +302,30 @@ const AssignmentSummary = ({ data, caseData, docType, title }: PropTypes) => {
       key: "Members Covered",
       value: data?.contractDetails?.membersCovered.toString(),
     },
-    {
-      key: "Sourcing",
-      value: data?.claimDetails?.claimTrigger,
-    },
+    ...(invType !== "External"
+      ? [
+          {
+            key: "Sourcing",
+            value: data?.claimDetails?.claimTrigger,
+          },
+        ]
+      : []),
     {
       key: "Agent Name",
       value: data?.contractDetails?.agentName,
     },
-    {
-      key: "Agent Code",
-      value: data?.contractDetails?.agentCode,
-    },
-    {
-      key: "Branch Location",
-      value: data?.contractDetails?.branchLocation,
-    },
+    ...(invType !== "External"
+      ? [
+          {
+            key: "Agent Code",
+            value: data?.contractDetails?.agentCode,
+          },
+          {
+            key: "Branch Location",
+            value: data?.contractDetails?.branchLocation,
+          },
+        ]
+      : []),
     {
       key: "Banca Details",
       value: data?.contractDetails?.bancaDetails,
@@ -403,17 +418,19 @@ const AssignmentSummary = ({ data, caseData, docType, title }: PropTypes) => {
                                 : "-"}
                             </Text>
                           </View>
-                          <View style={styles.detailSection}>
-                            <Text style={styles.keyText}>Claim Amount :</Text>
-                            <Text style={styles.valueText}>
-                              {el?.claimAmount
-                                ? convertToIndianFormat(
-                                    parseInt(el?.claimAmount),
-                                    true
-                                  )
-                                : "-"}
-                            </Text>
-                          </View>
+                          {invType !== "External" ? (
+                            <View style={styles.detailSection}>
+                              <Text style={styles.keyText}>Claim Amount :</Text>
+                              <Text style={styles.valueText}>
+                                {el?.claimAmount
+                                  ? convertToIndianFormat(
+                                      parseInt(el?.claimAmount),
+                                      true
+                                    )
+                                  : "-"}
+                              </Text>
+                            </View>
+                          ) : null}
                         </View>
                       );
                     })
@@ -430,9 +447,11 @@ const AssignmentSummary = ({ data, caseData, docType, title }: PropTypes) => {
           topic="Trigger Details:"
         />
 
-        <FraudIndicatorTable
-          indicatorsList={data?.fraudIndicators?.indicatorsList || []}
-        />
+        {invType !== "External" ? (
+          <FraudIndicatorTable
+            indicatorsList={data?.fraudIndicators?.indicatorsList || []}
+          />
+        ) : null}
 
         {docType === "final-investigation-report" ? (
           <TwoSectionView

@@ -1,10 +1,10 @@
 import "./globals.css";
+import 'react-toastify/ReactToastify.min.css';
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import { mantineTheme } from "../lib/providers/mantineTheme";
 import { ToastContainer } from "react-toastify";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
-import "react-toastify/dist/ReactToastify.css";
 import { Rubik } from "next/font/google";
 import { Metadata } from "next";
 import { AntdRegistry } from "@ant-design/nextjs-registry";

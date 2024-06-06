@@ -1,6 +1,6 @@
 import React from "react";
-import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import SectionHeading from "./SectionHeading";
+import { StyleSheet, Text, View } from "@react-pdf/renderer";
 
 const styles = StyleSheet.create({
   detailSection: {
@@ -42,8 +42,8 @@ type PropTypes = {
 
 const ThreeSectionView = ({ data, topic, customStyle }: PropTypes) => {
   // Function to generate JSX for a detail section
-  const detailSectionJsx = (entry: KeyValue) => (
-    <View style={styles.detailSection}>
+  const detailSectionJsx = (entry: KeyValue, ind: number) => (
+    <View style={styles.detailSection} key={ind}>
       <Text style={styles.keyText}>{entry.key} :</Text>
       <Text style={styles.valueText}>{entry.value}</Text>
     </View>
@@ -62,13 +62,13 @@ const ThreeSectionView = ({ data, topic, customStyle }: PropTypes) => {
       <SectionHeading>{topic}</SectionHeading>
       <View style={styles.Separator}>
         <View style={styles.subSeparator}>
-          {firstSection.map((entry) => detailSectionJsx(entry))}
+          {firstSection.map((entry, ind) => detailSectionJsx(entry, ind))}
         </View>
         <View style={styles.subSeparator}>
-          {secondSection.map((entry) => detailSectionJsx(entry))}
+          {secondSection.map((entry, ind) => detailSectionJsx(entry, ind))}
         </View>
         <View style={styles.subSeparator}>
-          {thirdSection.map((entry) => detailSectionJsx(entry))}
+          {thirdSection.map((entry, ind) => detailSectionJsx(entry, ind))}
         </View>
       </View>
     </View>

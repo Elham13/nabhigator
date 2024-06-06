@@ -22,12 +22,14 @@ type PropTypes = {
   docType: TDocType;
   dashboardData: IDashboardData | null;
   caseData: CaseDetail | null;
+  invType?: "Internal" | "External";
 };
 
 const DocumentsContainer = ({
   docType,
   dashboardData,
   caseData,
+  invType,
 }: PropTypes) => {
   return (
     <Document>
@@ -52,6 +54,7 @@ const DocumentsContainer = ({
             dashboardData={dashboardData}
             caseData={caseData}
             docType={docType}
+            invType={invType}
           />
         ) : (
           <NoData />

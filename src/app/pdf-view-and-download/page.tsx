@@ -17,6 +17,7 @@ export type TDocType =
 type TSearchParams = {
   claimId: string;
   docType: TDocType;
+  invType?: "Internal" | "External";
 };
 
 type PropTypes = {
@@ -25,7 +26,8 @@ type PropTypes = {
 };
 
 const PDFViewAndDownload = async ({ searchParams }: PropTypes) => {
-  const { claimId, docType } = searchParams;
+  const { claimId, docType, invType } = searchParams;
+
   if (!claimId) throw new Error("claimId is required");
   const decryptedClaimId = decryptAppID(claimId) as string;
 
@@ -71,6 +73,7 @@ const PDFViewAndDownload = async ({ searchParams }: PropTypes) => {
         docType,
         caseData: JSON.parse(JSON.stringify(caseData)),
         dashboardData: JSON.parse(JSON.stringify(dashboardData)),
+        invType,
       }}
     />
   );
