@@ -12,19 +12,19 @@ Font.register({
   family: "Roboto",
   fonts: [
     {
-      src: `/fonts/Roboto/Roboto-Regular.ttf`,
+      src: `/navigator-admin/fonts/Roboto/Roboto-Regular.ttf`,
     },
     {
-      src: `/fonts/Roboto/Roboto-Bold.ttf`,
+      src: `/navigator-admin/fonts/Roboto/Roboto-Bold.ttf`,
       fontWeight: "bold",
     },
     {
-      src: `/fonts/Roboto/Roboto-Italic.ttf`,
+      src: `/navigator-admin/fonts/Roboto/Roboto-Italic.ttf`,
       fontWeight: "normal",
       fontStyle: "italic",
     },
     {
-      src: `/fonts/Roboto/Roboto-BoldItalic.ttf`,
+      src: `/navigator-admin/fonts/Roboto/Roboto-BoldItalic.ttf`,
       fontWeight: "bold",
       fontStyle: "italic",
     },
