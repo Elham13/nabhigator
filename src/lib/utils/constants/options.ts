@@ -551,7 +551,7 @@ export const roleOptions: ComboboxData = [
   "Allocation",
   "Post QA",
   "Pre QC",
-  "QA Lead",
+  "Post QA Lead",
   "Internal Investigator",
   "External Investigator",
   "CFR",

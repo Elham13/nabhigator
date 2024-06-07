@@ -27,6 +27,7 @@ export enum Role {
   ADMIN = "Admin",
   ALLOCATION = "Allocation",
   POST_QA = "Post QA",
+  POST_QA_LEAD = "Post QA Lead",
   PRE_QC = "Pre QC",
   QA_LEAD = "QA Lead",
   INTERNAL_INVESTIGATOR = "Internal Investigator",
