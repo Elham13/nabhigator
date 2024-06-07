@@ -1,6 +1,7 @@
-import ClaimCase from "@/lib/Models/claimCase";
+import User from "@/lib/Models/user";
 import connectDB from "@/lib/db/dbConnectWithMongoose";
 import { Databases } from "@/lib/utils/types/enums";
+import { Role } from "@/lib/utils/types/fniDataTypes";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
@@ -8,25 +9,19 @@ import { NextRequest, NextResponse } from "next/server";
 const router = createEdgeRouter<NextRequest, {}>();
 
 router.post(async (req) => {
-  const { id, payload } = await req?.json();
-
   try {
-    if (!id) throw new Error("id is missing");
     await connectDB(Databases.FNI);
 
-    await ClaimCase.findByIdAndUpdate(
-      id,
-      {
-        $set: { postQaFindings: payload },
-      },
-      { useFindAndModify: false }
+    await User.updateMany(
+      { role: Role.POST_QA },
+      { $set: { assignedCases: [] } }
     );
 
     return NextResponse.json(
       {
         success: true,
-        message: "Changes captured successfully",
-        data: {},
+        message: "Post QA Assigned cases cleared",
+        data: null,
       },
       { status: 200 }
     );

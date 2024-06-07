@@ -39,12 +39,16 @@ export async function getSession() {
 const isFNIProtectedRoute = (pathname: string) => {
   const routeNames = ["/Claims", "/api/Claims", "/api/fni-mobile-app"];
 
-  const unprotectedRoutes = ["/Claims/action-inbox/documents"];
+  const unprotectedRoutes = [
+    "/Claims/login",
+    "/Claims/action-inbox/documents",
+    "/api/Claims/feedDashboard",
+    "/api/Claims/emptyPostQaAssignedCases",
+  ];
 
-  return (
-    routeNames?.some(
-      (name) => pathname?.startsWith(name) && pathname !== "/Claims/login"
-    ) && unprotectedRoutes?.some((route) => !pathname?.startsWith(route))
+  return routeNames?.some(
+    (name) =>
+      pathname?.startsWith(name) && !unprotectedRoutes.includes(pathname)
   );
 };
 

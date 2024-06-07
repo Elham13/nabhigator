@@ -203,11 +203,17 @@ router.post(async (req) => {
     }
 
     if (dashboardData?.caseId) {
-      await ClaimCase.findByIdAndUpdate(dashboardData.caseId, {
-        caseStatus: "Rejected",
-        rejectionReasons,
-        assignedBy: user?._id,
-      });
+      await ClaimCase.findByIdAndUpdate(
+        dashboardData.caseId,
+        {
+          $set: {
+            caseStatus: "Rejected",
+            rejectionReasons,
+            assignedBy: user?._id,
+          },
+        },
+        { useFindAndModify: false }
+      );
     } else {
       const newCase: HydratedDocument<CaseDetail> = await ClaimCase.create({
         caseStatus: "Rejected",

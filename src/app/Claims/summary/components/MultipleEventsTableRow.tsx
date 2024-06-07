@@ -53,7 +53,9 @@ const MultipleEventsTableRow = ({ item }: PropTypes) => {
           {item?.investigator?.map((inv) => inv?.investigatorName)?.join(", ")}
         </Table.Td>
         <Table.Td className="whitespace-nowrap">
-          {item?.clusterManager?.map((cm) => cm.name)?.join(", ")}
+          {item?.clusterManager && typeof item?.clusterManager !== "string"
+            ? item?.clusterManager?.name
+            : "-"}
         </Table.Td>
         <Table.Td className="whitespace-nowrap">{item?.zonalManager}</Table.Td>
         <Table.Td className="whitespace-nowrap">{item?.qaBy}</Table.Td>

@@ -144,9 +144,13 @@ router.post(async (req) => {
               el?.claimId === claimId ? { ...el, noted: true } : el
             );
 
-            await ClaimInvestigator.findByIdAndUpdate(inv?._id, {
-              $set: { updates: newUpdates },
-            });
+            await ClaimInvestigator.findByIdAndUpdate(
+              inv?._id,
+              {
+                $set: { updates: newUpdates },
+              },
+              { useFindAndModify: false }
+            );
           }
         }
         resMsg = "Thank you for the attention";
@@ -160,11 +164,15 @@ router.post(async (req) => {
             newUpdates.expedition = [newExpedition];
           }
 
-          await ClaimInvestigator.findByIdAndUpdate(inv?._id, {
-            $set: {
-              updates: newUpdates,
+          await ClaimInvestigator.findByIdAndUpdate(
+            inv?._id,
+            {
+              $set: {
+                updates: newUpdates,
+              },
             },
-          });
+            { useFindAndModify: false }
+          );
           resMsg = "Expedition message sent successfully";
         }
       }
@@ -181,9 +189,13 @@ router.post(async (req) => {
               el?.claimId === claimId ? { ...el, noted: true } : el
             );
 
-            await User.findByIdAndUpdate(user?._id, {
-              $set: { updates: newUpdates },
-            });
+            await User.findByIdAndUpdate(
+              user?._id,
+              {
+                $set: { updates: newUpdates },
+              },
+              { useFindAndModify: false }
+            );
           }
         }
         resMsg = "Thank you for the attention";
@@ -197,11 +209,15 @@ router.post(async (req) => {
             newUpdates.expedition = [newExpedition];
           }
 
-          await User.findByIdAndUpdate(user?._id, {
-            $set: {
-              updates: newUpdates,
+          await User.findByIdAndUpdate(
+            user?._id,
+            {
+              $set: {
+                updates: newUpdates,
+              },
             },
-          });
+            { useFindAndModify: false }
+          );
         }
         resMsg = "Expedition message sent successfully";
       }

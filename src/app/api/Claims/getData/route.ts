@@ -55,6 +55,9 @@ router.post(async (req) => {
         },
       },
       {
+        $unwind: { path: "$clusterManager", preserveNullAndEmptyArrays: true },
+      },
+      {
         $lookup: {
           from: "users",
           localField: "teamLead",
@@ -70,6 +73,7 @@ router.post(async (req) => {
           as: "postQa",
         },
       },
+      { $unwind: { path: "$postQa", preserveNullAndEmptyArrays: true } },
       { $sort: sort ? sort : { updatedAt: -1 } },
       {
         $skip: updatedFilter?.claimId

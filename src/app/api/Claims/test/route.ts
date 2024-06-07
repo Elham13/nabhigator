@@ -25,8 +25,8 @@ import ZoneStateMaster from "@/lib/Models/zoneStateMaster";
 import ZoneMaster from "@/lib/Models/zoneMaster";
 import CaseEvent from "@/lib/Models/caseEvent";
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
+// dayjs.extend(utc);
+// dayjs.extend(timezone);
 
 const router = createEdgeRouter<NextRequest, {}>();
 
@@ -653,7 +653,7 @@ router.post(async (req) => {
       {
         success: true,
         message: "Success",
-        data: {},
+        data: { date: dayjs().format("hh:mm:ss") },
       },
       { status: 200 }
     );

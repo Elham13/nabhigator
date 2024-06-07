@@ -27,12 +27,18 @@ router.post(async (req) => {
         },
       },
       {
+        $unwind: { path: "$investigator", preserveNullAndEmptyArrays: true },
+      },
+      {
         $lookup: {
           from: "users",
           localField: "clusterManager",
           foreignField: "_id",
           as: "clusterManager",
         },
+      },
+      {
+        $unwind: { path: "$clusterManager", preserveNullAndEmptyArrays: true },
       },
       { $sort: { eventDate: 1 } },
     ];

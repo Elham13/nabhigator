@@ -113,7 +113,7 @@ router.post(async (req) => {
         {
           $push: { "postQARecommendation.documents": postQaDoc },
         },
-        { new: true }
+        { new: true, useFindAndModify: false }
       );
       message = "Document added successfully!";
     }

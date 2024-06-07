@@ -137,6 +137,11 @@ const UserSchema = new Schema<IUserSchema>(
         default: [],
       },
     },
+    assignedCases: {
+      type: [Schema.Types.ObjectId],
+      ref: "User",
+      default: null,
+    },
   },
   { timestamps: true }
 );

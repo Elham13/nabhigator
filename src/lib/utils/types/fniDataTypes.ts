@@ -12,7 +12,7 @@ export interface CommonThProps {
   onSort(sortKey: string): void;
 }
 
-export type TReportReceivedTime = { from?: string; to?: string };
+export type TReportReceivedTime = { from?: Date; to?: Date };
 
 export type UserConfig = {
   leadView?: string[];
@@ -94,6 +94,7 @@ export interface IUser {
   claimAmountThreshold: TClaimAmountThreshold;
   leave?: IUserLeave;
   zone: string[];
+  assignedCases?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -543,8 +544,8 @@ export interface IDashboardData {
   caseId: CaseDetail | string | null;
   dateOfOS: Date | null;
   dateOfClosure: Date | null;
-  clusterManager: IUser[];
-  postQa: string | IUser[];
+  clusterManager: string | IUser;
+  postQa: string | IUser;
   triageSummary: MainTriage[];
   closureTAT: number;
   lossType: string;
@@ -766,7 +767,7 @@ export interface CaseDetail {
   preQcObservation: string;
   allocationType: "Single" | "Dual";
   documents: DocumentMap | ResponseDoc | null;
-  investigator: Investigator[];
+  investigator: Investigator | string | null;
   dashboardDataId: string | ObjectId;
   intimationDate: Date | string;
   rejectionReasons: RejectionReason[];
@@ -859,8 +860,8 @@ export interface ICaseEvent {
   status: NumericStage;
   recommendation: string;
   closureDate: Date | null;
-  investigator: Investigator[] | null;
-  clusterManager: IUser[] | null;
+  investigator: Investigator | null | string;
+  clusterManager: IUser | null | string;
   zonalManager: string;
   qaBy: string;
   encryptedClaimId: string;

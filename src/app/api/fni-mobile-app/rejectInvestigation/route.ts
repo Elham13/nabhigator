@@ -81,7 +81,7 @@ router.post(async (req) => {
           caseStatus: "Investigation Rejected",
         },
       },
-      { new: true }
+      { new: true, useFindAndModify: false }
     );
 
     dashboardData.stage = NumericStage.PENDING_FOR_RE_ALLOCATION;

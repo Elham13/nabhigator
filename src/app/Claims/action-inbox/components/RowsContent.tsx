@@ -135,18 +135,16 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
             <TableCell
               columnName="clusterManager"
               value={
-                el?.clusterManager?.length > 0
-                  ? el?.clusterManager?.map((cl) => cl.name)?.join(",")
+                el?.clusterManager && typeof el?.clusterManager !== "string"
+                  ? el?.clusterManager?.name
                   : "-"
               }
             />
             <TableCell
               columnName="postQa"
               value={
-                el?.postQa &&
-                Array.isArray(el?.postQa) &&
-                el?.postQa?.length > 0
-                  ? el?.postQa?.map((cl) => cl.name)?.join(",")
+                el?.postQa && typeof el?.postQa !== "string"
+                  ? el?.postQa?.name
                   : "-"
               }
             />

@@ -609,20 +609,18 @@ const UserEdit = () => {
                           <BsClock />
                         </ActionIcon>
                       }
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setUpdatedValues((prev) => ({
                           ...prev,
                           config: {
                             ...prev.config,
                             reportReceivedTime: {
                               ...prev.config?.reportReceivedTime,
-                              from: dayjs(e.target.value, "hh:mm").format(
-                                "hh:mm a"
-                              ),
+                              from: dayjs(e.target.value, "hh:mm").toDate(),
                             },
                           },
-                        }))
-                      }
+                        }));
+                      }}
                     />
                     <TimeInput
                       label="Report received time To"
@@ -643,9 +641,7 @@ const UserEdit = () => {
                             ...prev.config,
                             reportReceivedTime: {
                               ...prev.config?.reportReceivedTime,
-                              to: dayjs(e.target.value, "hh:mm").format(
-                                "hh:mm a"
-                              ),
+                              to: dayjs(e.target.value, "hh:mm").toDate(),
                             },
                           },
                         }))

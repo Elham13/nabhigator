@@ -134,13 +134,15 @@ router.post(async (req) => {
       data = await User.findByIdAndUpdate(
         id,
         {
-          ...flattenObject(payload),
-          updates: {
-            userIsInformed: false,
-            details,
+          $set: {
+            ...flattenObject(payload),
+            updates: {
+              userIsInformed: false,
+              details,
+            },
           },
         },
-        { new: true }
+        { new: true, useFindAndModify: false }
       );
       message = "User updated successfully";
       statusCode = 201;
@@ -158,8 +160,8 @@ router.post(async (req) => {
       if (!id) throw new Error("id is required");
       data = await User.findByIdAndUpdate(
         id,
-        { updates: { userIsInformed: true, details: {} } },
-        { new: true }
+        { $set: { updates: { userIsInformed: true, details: {} } } },
+        { new: true, useFindAndModify: false }
       );
       message = "Thanks for the acknowledgment, Enjoy working!";
     }

@@ -191,7 +191,8 @@ router.put(async (req) => {
     } else if (action === "edit") {
       const updatedRecord = await ClaimInvestigator.findByIdAndUpdate(
         payload?._id,
-        payload
+        { $set: payload },
+        { new: true, useFindAndModify: false }
       );
       return NextResponse.json(
         {

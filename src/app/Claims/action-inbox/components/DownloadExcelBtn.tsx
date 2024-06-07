@@ -93,9 +93,7 @@ const DownloadExcelBtn = ({ filters, sort, searchTerm }: PropTypes) => {
             ? el?.teamLead?.map((tl) => tl.name)?.join(", ")
             : "-",
         postQa:
-          el?.postQa && Array.isArray(el?.postQa) && el?.postQa?.length > 0
-            ? el?.postQa?.map((pq) => pq.name)?.join(", ")
-            : "-",
+          el?.postQa && typeof el?.postQa !== "string" ? el?.postQa?.name : "-",
         finalOutcome:
           el?.caseId &&
           typeof el?.caseId === "object" &&
@@ -110,10 +108,8 @@ const DownloadExcelBtn = ({ filters, sort, searchTerm }: PropTypes) => {
             ? el?.caseId?.investigationFindings?.recommendation?.value
             : "-",
         clusterManager:
-          el?.clusterManager &&
-          Array.isArray(el?.clusterManager) &&
-          el?.clusterManager?.length > 0
-            ? el?.clusterManager?.map((tl) => tl.name)?.join(", ")
+          el?.clusterManager && typeof el?.clusterManager !== "string"
+            ? el?.clusterManager?.name
             : "-",
         claimInvestigators:
           el?.claimInvestigators?.length > 0

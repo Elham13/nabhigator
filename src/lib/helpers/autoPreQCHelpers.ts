@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import  { PipelineStage, Types } from "mongoose";
+import { PipelineStage, Types } from "mongoose";
 import axios from "axios";
 import {
   AdmissionType,
@@ -358,15 +358,23 @@ export const updateInvestigators = async (investigator: Investigator) => {
   try {
     // Check if "updatedDate" is before one month
     if (dayjs(investigator?.updatedDate).isBefore(oneMonthAgo)) {
-      await ClaimInvestigator.findByIdAndUpdate(investigator._id, {
-        $inc: { dailyAssign: 1, monthlyAssigned: 1 },
-        $set: { updatedDate: new Date() },
-      });
+      await ClaimInvestigator.findByIdAndUpdate(
+        investigator._id,
+        {
+          $inc: { dailyAssign: 1, monthlyAssigned: 1 },
+          $set: { updatedDate: new Date() },
+        },
+        { useFindAndModify: false }
+      );
     } else {
-      await ClaimInvestigator.findByIdAndUpdate(investigator._id, {
-        $inc: { dailyAssign: 1 },
-        $set: { updatedDate: new Date() },
-      });
+      await ClaimInvestigator.findByIdAndUpdate(
+        investigator._id,
+        {
+          $inc: { dailyAssign: 1 },
+          $set: { updatedDate: new Date() },
+        },
+        { useFindAndModify: false }
+      );
     }
     return { success: true };
   } catch (error: any) {

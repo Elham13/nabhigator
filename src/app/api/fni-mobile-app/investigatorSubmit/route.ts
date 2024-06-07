@@ -10,17 +10,84 @@ import {
   CaseDetail,
   EventNames,
   IDashboardData,
+  IUser,
+  IZoneStateMaster,
   NumericStage,
 } from "@/lib/utils/types/fniDataTypes";
-import { HydratedDocument } from "mongoose";
+import { HydratedDocument, PipelineStage } from "mongoose";
 import DashboardData from "@/lib/Models/dashboardData";
 import ClaimCase from "@/lib/Models/claimCase";
 import { captureCaseEvent } from "../../Claims/caseEvent/helpers";
+import User from "@/lib/Models/user";
+import ZoneStateMaster from "@/lib/Models/zoneStateMaster";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const router = createEdgeRouter<NextRequest, {}>();
+
+interface IProps {
+  claimType: "PreAuth" | "Reimbursement";
+  providerState: string;
+}
+
+const findPostQaUser = async (props: IProps) => {
+  const { claimType, providerState } = props;
+
+  const addField: PipelineStage.AddFields["$addFields"] = {
+    fromTimeHour: {
+      $dateToString: {
+        format: "%H:%M:%S",
+        date: "$config.reportReceivedTime.from",
+      },
+    },
+    toTimeHour: {
+      $dateToString: {
+        format: "%H:%M:%S",
+        date: "$config.reportReceivedTime.to",
+      },
+    },
+  };
+
+  const targetTime = dayjs().format("hh:mm:ss");
+
+  const match: PipelineStage.Match["$match"] = {
+    "config.leadView": claimType,
+    "config.reportReceivedTime": { $exists: true },
+    $expr: {
+      $and: [
+        { $lt: ["$fromTimeHour", targetTime] },
+        { $gt: ["$toTimeHour", targetTime] },
+      ],
+    },
+  };
+
+  const pipeline: PipelineStage[] = [
+    {
+      $match: {
+        $expr: {
+          $lt: [{ $size: "$assignedCases" }, "$config.dailyThreshold"],
+        },
+      },
+    },
+    { $addFields: addField },
+    { $match: match },
+  ];
+
+  const zoneState: HydratedDocument<IZoneStateMaster> | null =
+    await ZoneStateMaster.findOne({
+      State: { $regex: new RegExp(providerState, "i") },
+    });
+
+  if (zoneState) {
+    match["zone"] = zoneState?.Zone;
+  }
+
+  const users: IUser[] = await User.aggregate(pipeline);
+
+  if (users && users?.length > 0) return users[0];
+  return null;
+};
 
 router.post(async (req) => {
   const { id, userId, userName } = await req?.json();
@@ -30,6 +97,8 @@ router.post(async (req) => {
     await connectDB(Databases.FNI);
 
     const stage = NumericStage.POST_QC;
+
+    let eventRemarks: string = EventNames.INVESTIGATION_REPORT_SUBMITTED;
 
     const dashboardData: HydratedDocument<IDashboardData> | null =
       await DashboardData.findById(id);
@@ -53,18 +122,38 @@ router.post(async (req) => {
 
     caseDetail.invReportReceivedDate = new Date();
 
+    const user: IUser | null = await findPostQaUser({
+      claimType: dashboardData?.claimType,
+      providerState: dashboardData?.hospitalDetails?.providerState,
+    });
+
+    if (user) {
+      dashboardData.postQa = user?._id;
+      eventRemarks = eventRemarks += `, and assigned to post qa ${user?.name}`;
+      await User.findByIdAndUpdate(
+        user?._id,
+        {
+          $push: { assignedCases: dashboardData?._id },
+        },
+        { useFindAndModify: false }
+      );
+    } else {
+      eventRemarks =
+        eventRemarks += `, and moved to Post QA Lead bucket because no Post Qa matched`;
+    }
+
     dashboardData.stage = stage;
     dashboardData.actionsTaken = dashboardData?.actionsTaken
       ? [
           ...dashboardData?.actionsTaken,
           {
-            actionName: EventNames.INVESTIGATION_REPORT_SUBMITTED,
+            actionName: eventRemarks,
             userId,
           },
         ]
       : [
           {
-            actionName: EventNames.INVESTIGATION_REPORT_SUBMITTED,
+            actionName: eventRemarks,
             userId,
           },
         ];
@@ -77,7 +166,7 @@ router.post(async (req) => {
       eventName: EventNames.INVESTIGATION_REPORT_SUBMITTED,
       stage: stage,
       userId: userId as string,
-      eventRemarks: EventNames.INVESTIGATION_REPORT_SUBMITTED,
+      eventRemarks,
       userName,
     });
 

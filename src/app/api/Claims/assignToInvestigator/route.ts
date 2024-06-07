@@ -105,13 +105,17 @@ router.post(async (req) => {
       if (response?.success) investigators = response.investigators;
       else {
         if (dashboardData?.caseId) {
-          await ClaimCase.findByIdAndUpdate(dashboardData?.caseId, {
-            ...req.body,
-            documents: new Map(body?.documents || []),
-            intimationDate: dashboardData?.intimationDate,
-            assignedBy: user?._id,
-            outSourcingDate: new Date(),
-          });
+          await ClaimCase.findByIdAndUpdate(
+            dashboardData?.caseId,
+            {
+              ...req.body,
+              documents: new Map(body?.documents || []),
+              intimationDate: dashboardData?.intimationDate,
+              assignedBy: user?._id,
+              outSourcingDate: new Date(),
+            },
+            { useFindAndModify: false }
+          );
         } else {
           const newCase: HydratedDocument<CaseDetail> = await ClaimCase.create({
             ...req.body,
@@ -166,14 +170,18 @@ router.post(async (req) => {
     const isReInvestigated = dashboardData?.claimInvestigators?.length > 0;
 
     if (dashboardData?.caseId) {
-      await ClaimCase.findByIdAndUpdate(dashboardData?.caseId, {
-        ...req.body,
-        documents: new Map(body?.documents || []),
-        investigator: investigators?.map((inv: Investigator) => inv?._id),
-        intimationDate: dashboardData?.intimationDate,
-        assignedBy: user?._id,
-        outSourcingDate: new Date(),
-      });
+      await ClaimCase.findByIdAndUpdate(
+        dashboardData?.caseId,
+        {
+          ...req.body,
+          documents: new Map(body?.documents || []),
+          investigator: investigators?.map((inv: Investigator) => inv?._id),
+          intimationDate: dashboardData?.intimationDate,
+          assignedBy: user?._id,
+          outSourcingDate: new Date(),
+        },
+        { useFindAndModify: false }
+      );
     } else {
       const newCase = await ClaimCase.create({
         ...req.body,

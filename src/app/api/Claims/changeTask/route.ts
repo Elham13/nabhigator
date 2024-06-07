@@ -132,9 +132,13 @@ router.post(async (req) => {
         ? investigators[0]
         : investigators?.slice(0, 2);
 
-    const data = await ClaimCase.findByIdAndUpdate(_id, {
-      $set: { ...req.body, investigator: invIds },
-    });
+    const data = await ClaimCase.findByIdAndUpdate(
+      _id,
+      {
+        $set: { ...body, investigator: invIds },
+      },
+      { useFindAndModify: false }
+    );
 
     return NextResponse.json(
       {

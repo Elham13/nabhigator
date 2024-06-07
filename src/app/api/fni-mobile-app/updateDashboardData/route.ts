@@ -150,7 +150,7 @@ router.post(async (req) => {
         caseDetail.reportSubmissionDateQa = new Date();
         caseDetail.qaBy = userName;
         dashboardData.dateOfClosure = new Date();
-        dashboardData.postQa = userId;
+
         await caseDetail.save();
         eventName = EventNames.QA_COMPLETED;
         eventRemarks = `Investigation approved and QA completed with summary of investigation: ${postQARecommendation?.summaryOfInvestigation}`;
