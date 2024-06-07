@@ -2,10 +2,12 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import {
+  ActionIcon,
   Button,
   Group,
   Loader,
   MultiSelect,
+  NumberInput,
   Paper,
   Select,
   SimpleGrid,
@@ -47,6 +49,9 @@ import {
   getStates,
 } from "@/lib/helpers/getLocations";
 import PageWrapper from "@/components/ClaimsComponents/PageWrapper";
+import { BsClock } from "react-icons/bs";
+import { TimeInput } from "@mantine/dates";
+import dayjs from "dayjs";
 
 const loadingsInitials: ILoadings = {
   state: false,
@@ -58,6 +63,8 @@ const loadingsInitials: ILoadings = {
 const UserEdit = () => {
   const params = useParams();
   const isFirstMount = useRef<boolean>(true);
+  const fromTimeRef = useRef<HTMLInputElement>(null);
+  const toTimeRef = useRef<HTMLInputElement>(null);
   const [user, setUser] = useLocalStorage<IUserFromSession | null>({
     key: StorageKeys.USER,
   });
@@ -362,7 +369,7 @@ const UserEdit = () => {
   }
 
   return (
-    <PageWrapper title="">
+    <PageWrapper title="" showBackBtn>
       <Paper shadow="md" radius="lg">
         <div className="p-4 md:p-8">
           <div className="p-4">
@@ -544,7 +551,6 @@ const UserEdit = () => {
                       checkIconPosition="right"
                       clearable
                     />
-                    {/* {!values?.role?.includes(Role.TL) ? ( */}
                     <Select
                       label="Team Lead"
                       placeholder="Select team lead"
@@ -571,8 +577,6 @@ const UserEdit = () => {
                       checkIconPosition="right"
                       clearable
                     />
-                    {/* {values?.role?.length > 0 &&
-                      !values.role?.includes(Role.ADMIN) && ( */}
                     <MultiSelect
                       label="Lead View"
                       placeholder="Specify the leads which should be visible to him"
@@ -592,6 +596,72 @@ const UserEdit = () => {
                       searchable
                       hidePickedOptions
                       clearable
+                    />
+                    <TimeInput
+                      label="Report received time From"
+                      ref={fromTimeRef}
+                      rightSection={
+                        <ActionIcon
+                          variant="subtle"
+                          color="gray"
+                          onClick={() => fromTimeRef.current?.showPicker()}
+                        >
+                          <BsClock />
+                        </ActionIcon>
+                      }
+                      onChange={(e) =>
+                        setUpdatedValues((prev) => ({
+                          ...prev,
+                          config: {
+                            ...prev.config,
+                            reportReceivedTime: {
+                              ...prev.config?.reportReceivedTime,
+                              from: dayjs(e.target.value, "hh:mm").format(
+                                "hh:mm a"
+                              ),
+                            },
+                          },
+                        }))
+                      }
+                    />
+                    <TimeInput
+                      label="Report received time To"
+                      ref={toTimeRef}
+                      rightSection={
+                        <ActionIcon
+                          variant="subtle"
+                          color="gray"
+                          onClick={() => toTimeRef.current?.showPicker()}
+                        >
+                          <BsClock />
+                        </ActionIcon>
+                      }
+                      onChange={(e) =>
+                        setUpdatedValues((prev) => ({
+                          ...prev,
+                          config: {
+                            ...prev.config,
+                            reportReceivedTime: {
+                              ...prev.config?.reportReceivedTime,
+                              to: dayjs(e.target.value, "hh:mm").format(
+                                "hh:mm a"
+                              ),
+                            },
+                          },
+                        }))
+                      }
+                    />
+                    <NumberInput
+                      label="Daily threshold"
+                      onChange={(val) =>
+                        setUpdatedValues((prev) => ({
+                          ...prev,
+                          config: {
+                            ...prev.config,
+                            dailyThreshold: val as number,
+                          },
+                        }))
+                      }
                     />
                     <Select
                       label="User type"

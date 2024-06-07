@@ -1,11 +1,13 @@
 "use client";
 
 import {
+  ActionIcon,
   Button,
   ComboboxItem,
   Group,
   Loader,
   MultiSelect,
+  NumberInput,
   Paper,
   Select,
   SimpleGrid,
@@ -43,6 +45,9 @@ import {
   getStates,
 } from "@/lib/helpers/getLocations";
 import PageWrapper from "@/components/ClaimsComponents/PageWrapper";
+import { TimeInput } from "@mantine/dates";
+import { BsClock } from "react-icons/bs";
+import dayjs from "dayjs";
 
 const loadingsInitials: ILoadings = {
   state: false,
@@ -53,6 +58,8 @@ const loadingsInitials: ILoadings = {
 
 const UserEdit = () => {
   const isFirstMount = useRef<boolean>(true);
+  const fromTimeRef = useRef<HTMLInputElement>(null);
+  const toTimeRef = useRef<HTMLInputElement>(null);
   const [values, setValues] = useState<IUser>(usersInitials);
   const [teamLeadOptions, setTeamLeadsOptions] = useState<ValueLabel[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -297,7 +304,7 @@ const UserEdit = () => {
   }, [values?.city]);
 
   return (
-    <PageWrapper title="">
+    <PageWrapper title="" showBackBtn>
       <Paper shadow="md" radius="lg">
         <div className="p-4 md:p-8">
           <div className="p-4">
@@ -565,6 +572,77 @@ const UserEdit = () => {
                           clearable
                         />
                       )}
+                    {values?.role?.length > 0 &&
+                    values?.role?.includes(Role.POST_QA) ? (
+                      <>
+                        <TimeInput
+                          label="Report received time From"
+                          ref={fromTimeRef}
+                          rightSection={
+                            <ActionIcon
+                              variant="subtle"
+                              color="gray"
+                              onClick={() => fromTimeRef.current?.showPicker()}
+                            >
+                              <BsClock />
+                            </ActionIcon>
+                          }
+                          onChange={(e) =>
+                            setValues((prev) => ({
+                              ...prev,
+                              config: {
+                                ...prev.config,
+                                reportReceivedTime: {
+                                  ...prev.config?.reportReceivedTime,
+                                  from: dayjs(e.target.value, "hh:mm").format(
+                                    "hh:mm a"
+                                  ),
+                                },
+                              },
+                            }))
+                          }
+                        />
+                        <TimeInput
+                          label="Report received time To"
+                          ref={toTimeRef}
+                          rightSection={
+                            <ActionIcon
+                              variant="subtle"
+                              color="gray"
+                              onClick={() => toTimeRef.current?.showPicker()}
+                            >
+                              <BsClock />
+                            </ActionIcon>
+                          }
+                          onChange={(e) =>
+                            setValues((prev) => ({
+                              ...prev,
+                              config: {
+                                ...prev.config,
+                                reportReceivedTime: {
+                                  ...prev.config?.reportReceivedTime,
+                                  to: dayjs(e.target.value, "hh:mm").format(
+                                    "hh:mm a"
+                                  ),
+                                },
+                              },
+                            }))
+                          }
+                        />
+                        <NumberInput
+                          label="Daily threshold"
+                          onChange={(val) =>
+                            setValues((prev) => ({
+                              ...prev,
+                              config: {
+                                ...prev.config,
+                                dailyThreshold: val as number,
+                              },
+                            }))
+                          }
+                        />
+                      </>
+                    ) : null}
                     <Select
                       label="User type"
                       placeholder="Select user type"

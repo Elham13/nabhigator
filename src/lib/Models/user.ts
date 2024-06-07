@@ -1,4 +1,9 @@
-import { IUser, UserExpedition } from "../utils/types/fniDataTypes";
+import {
+  IUser,
+  IUserLeave,
+  UserConfig,
+  UserExpedition,
+} from "../utils/types/fniDataTypes";
 import mongoose, { models, Document, model, Schema } from "mongoose";
 
 interface IUserSchema extends Omit<IUser, "_id">, Document {}
@@ -7,6 +12,9 @@ interface IExpeditionSchema
     Document {
   role: string;
 }
+
+interface IConfigSchema extends Omit<UserConfig, "_id">, Document {}
+interface ILeaveSchema extends Omit<IUserLeave, "_id">, Document {}
 
 const ExpeditionSchema = new Schema<IExpeditionSchema>(
   {
@@ -19,6 +27,44 @@ const ExpeditionSchema = new Schema<IExpeditionSchema>(
   {
     timestamps: true,
   }
+);
+
+const ConfigSchema = new Schema<IConfigSchema>(
+  {
+    leadView: {
+      type: [String],
+    },
+    isPreQcAutomated: { type: Boolean, default: false },
+    canSeeConsolidatedInbox: {
+      type: String,
+      enum: ["Yes", "No"],
+      default: "No",
+    },
+    canExportConsolidatedInbox: {
+      type: String,
+      enum: ["Yes", "No"],
+      default: "No",
+    },
+    dailyThreshold: { type: Number },
+    reportReceivedTime: { from: String, to: String },
+  },
+  { timestamps: true }
+);
+
+const LeaveSchema = new Schema<ILeaveSchema>(
+  {
+    fromDate: { type: Date, default: null },
+    toDate: { type: Date, default: null },
+    status: {
+      type: String,
+      enum: {
+        values: ["Requested", "Approved", "Rejected", ""],
+      },
+      default: "",
+    },
+    remark: { type: String },
+  },
+  { timestamps: true }
 );
 
 const UserSchema = new Schema<IUserSchema>(
@@ -61,22 +107,7 @@ const UserSchema = new Schema<IUserSchema>(
       },
       required: [true, "userType is required"],
     },
-    config: {
-      leadView: {
-        type: [String],
-      },
-      isPreQcAutomated: { type: Boolean, default: false },
-      canSeeConsolidatedInbox: {
-        type: String,
-        enum: ["Yes", "No"],
-        default: "No",
-      },
-      canExportConsolidatedInbox: {
-        type: String,
-        enum: ["Yes", "No"],
-        default: "No",
-      },
-    },
+    config: ConfigSchema,
     team: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     pinCode: { type: String },
     city: { type: String },
@@ -97,18 +128,7 @@ const UserSchema = new Schema<IUserSchema>(
         ],
       },
     },
-    leave: {
-      fromDate: { type: Date, default: null },
-      toDate: { type: Date, default: null },
-      status: {
-        type: String,
-        enum: {
-          values: ["Requested", "Approved", "Rejected", ""],
-        },
-        default: "",
-      },
-      remark: { type: String },
-    },
+    leave: LeaveSchema,
     updates: {
       userIsInformed: { type: Boolean, default: true },
       details: { type: mongoose.Schema.Types.Mixed },

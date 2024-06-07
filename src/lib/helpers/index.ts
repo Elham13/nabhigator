@@ -271,3 +271,25 @@ export const isWeekend = (date: string | Date) => {
   const dayOfWeek = dayjs(date).day();
   return dayOfWeek === 0 || dayOfWeek === 6; // 0 is Sunday, 6 is Saturday
 };
+
+export const flattenObject = (
+  obj: Record<string, any>,
+  parent: string = "",
+  res: Record<string, any> = {}
+) => {
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const propName = parent ? `${parent}.${key}` : key;
+      if (
+        typeof obj[key] === "object" &&
+        obj[key] !== null &&
+        !Array.isArray(obj[key])
+      ) {
+        flattenObject(obj[key], propName, res);
+      } else {
+        res[propName] = obj[key];
+      }
+    }
+  }
+  return res;
+};

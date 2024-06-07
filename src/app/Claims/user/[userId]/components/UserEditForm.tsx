@@ -42,7 +42,8 @@ const UserEditForm = ({ userId, getUserId }: PropTypes) => {
       }
     };
     if (userId) getUser();
-  }, [userId, getUserId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   const items = (
     <SimpleGrid cols={{ base: 1, sm: 2 }}>
@@ -97,11 +98,13 @@ const UserEditForm = ({ userId, getUserId }: PropTypes) => {
           icon={BsCardChecklist}
         />
       ) : null}
-      <EditFormItem
-        title="Claim amount threshold"
-        description={user?.claimAmountThreshold}
-        icon={BsCardChecklist}
-      />
+      {user?.claimAmountThreshold ? (
+        <EditFormItem
+          title="Claim amount threshold"
+          description={user?.claimAmountThreshold}
+          icon={BsCardChecklist}
+        />
+      ) : null}
       {user?.config?.leadView && user?.config?.leadView?.length > 0 ? (
         <EditFormItem
           title="Lead View"
@@ -109,6 +112,28 @@ const UserEditForm = ({ userId, getUserId }: PropTypes) => {
           icon={BsCardChecklist}
         />
       ) : null}
+      {user?.config?.reportReceivedTime?.from ? (
+        <EditFormItem
+          title="Report received time From"
+          description={user?.config?.reportReceivedTime?.from}
+          icon={BsCardChecklist}
+        />
+      ) : null}
+      {user?.config?.reportReceivedTime?.to ? (
+        <EditFormItem
+          title="Report received time To"
+          description={user?.config?.reportReceivedTime?.to}
+          icon={BsCardChecklist}
+        />
+      ) : null}
+      {user?.config?.dailyThreshold ? (
+        <EditFormItem
+          title="Daily threshold"
+          description={user?.config?.dailyThreshold}
+          icon={BsCardChecklist}
+        />
+      ) : null}
+
       <EditFormItem
         title="User Type"
         description={user?.userType}

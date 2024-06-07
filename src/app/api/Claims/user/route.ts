@@ -1,5 +1,6 @@
 import User from "@/lib/Models/user";
 import connectDB from "@/lib/db/dbConnectWithMongoose";
+import { flattenObject } from "@/lib/helpers";
 import { Databases } from "@/lib/utils/types/enums";
 import { IUser, IUserLeave, Role } from "@/lib/utils/types/fniDataTypes";
 import { HydratedDocument, PipelineStage, Types } from "mongoose";
@@ -36,8 +37,8 @@ const prepareDetails = async (payload: Record<string, any>) => {
 };
 
 router.post(async (req) => {
-  const { userId, sort, skip, limit, searchTerm, action, role, id } =
-    await req?.json();
+  const body = await req?.json();
+  const { userId, sort, skip, limit, searchTerm, action, role, id } = body;
 
   try {
     await connectDB(Databases.FNI);
@@ -64,7 +65,7 @@ router.post(async (req) => {
 
     // For Create a user
     else if (action === "create") {
-      const { payload } = await req?.json();
+      const { payload } = body;
       payload.activeRole = payload?.role[0];
 
       if (payload?.role?.includes(Role.TL)) {
@@ -98,7 +99,7 @@ router.post(async (req) => {
 
     // For Edit a user
     else if (action === "edit") {
-      const { payload } = await req.json();
+      const { payload } = body;
       const id = payload?._id;
       if (!id) throw new Error("_id is missing");
       delete payload._id;
@@ -133,7 +134,7 @@ router.post(async (req) => {
       data = await User.findByIdAndUpdate(
         id,
         {
-          ...payload,
+          ...flattenObject(payload),
           updates: {
             userIsInformed: false,
             details,
@@ -166,7 +167,7 @@ router.post(async (req) => {
     // For taking leave
     else if (action === "leaveRequest") {
       if (!userId) throw new Error("User id required");
-      const { fromDate, toDate, remark } = await req.json();
+      const { fromDate, toDate, remark } = body;
       const user: HydratedDocument<IUser> | null = await User.findOne({
         userId,
       });
@@ -238,7 +239,7 @@ router.post(async (req) => {
             as: "team",
           },
         },
-        ...(!!sort ? [{ $sort: sort }] : [{ $sort: { _id: -1 } }]),
+        { $sort: { updatedAt: -1, ...(!!sort ? sort : {}) } },
         { $skip: skip && limit ? skip * limit : 0 },
         { $limit: limit || 10 },
       ];

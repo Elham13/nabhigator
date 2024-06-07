@@ -1,11 +1,11 @@
 import mongoose, { ConnectOptions } from "mongoose";
 
 let connectionString =
-  process.env.NEXT_PUBLIC_CONFIG == "LOCAL"
-    ? process.env.MONGODB_URI_LOCAL
+  process.env.NEXT_PUBLIC_CONFIG == "PROD"
+    ? process.env.MONGODB_URI_PROD
     : process.env.NEXT_PUBLIC_CONFIG == "UAT"
     ? process.env.MONGODB_URI_UAT
-    : process.env.MONGODB_URI_PROD;
+    : process.env.MONGODB_URI_LOCAL;
 
 const options: ConnectOptions = {};
 
