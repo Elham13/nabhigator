@@ -14,6 +14,7 @@ import { BsCardChecklist } from "react-icons/bs";
 import { showError } from "@/lib/helpers";
 import { IUser, SingleResponseType } from "@/lib/utils/types/fniDataTypes";
 import { EndPoints } from "@/lib/utils/types/enums";
+import dayjs from "dayjs";
 
 type PropTypes = {
   userId: string;
@@ -115,14 +116,18 @@ const UserEditForm = ({ userId, getUserId }: PropTypes) => {
       {user?.config?.reportReceivedTime?.from ? (
         <EditFormItem
           title="Report received time From"
-          description={user?.config?.reportReceivedTime?.from}
+          description={dayjs(user?.config?.reportReceivedTime?.from).format(
+            "hh:mm a"
+          )}
           icon={BsCardChecklist}
         />
       ) : null}
       {user?.config?.reportReceivedTime?.to ? (
         <EditFormItem
           title="Report received time To"
-          description={user?.config?.reportReceivedTime?.to}
+          description={dayjs(user?.config?.reportReceivedTime?.to).format(
+            "hh:mm a"
+          )}
           icon={BsCardChecklist}
         />
       ) : null}

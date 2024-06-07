@@ -594,9 +594,7 @@ const UserEdit = () => {
                                 ...prev.config,
                                 reportReceivedTime: {
                                   ...prev.config?.reportReceivedTime,
-                                  from: dayjs(e.target.value, "hh:mm").format(
-                                    "hh:mm a"
-                                  ),
+                                  from: dayjs(e.target.value, "hh:mm").toDate(),
                                 },
                               },
                             }))
@@ -621,9 +619,7 @@ const UserEdit = () => {
                                 ...prev.config,
                                 reportReceivedTime: {
                                   ...prev.config?.reportReceivedTime,
-                                  to: dayjs(e.target.value, "hh:mm").format(
-                                    "hh:mm a"
-                                  ),
+                                  to: dayjs(e.target.value, "hh:mm").toDate(),
                                 },
                               },
                             }))

@@ -1,4 +1,5 @@
 import {
+  AcceptedValues,
   IUser,
   IVisibleColumn,
   Role,
@@ -165,4 +166,25 @@ export const usersInitials: IUser = {
   userType: "" as "Internal" | "External",
   claimAmountThreshold: "" as TClaimAmountThreshold,
   updates: { userIsInformed: true, details: {} },
+};
+
+export const changeTaskInitialValues: AcceptedValues = {
+  allocationType: "Single",
+  caseType: [],
+  caseTypeDependencies: {
+    "PED/NDC": [],
+    Genuineness: [],
+    "Alcohol Intoxication/Addiction": [],
+  },
+  caseStatus: "Accepted",
+  dashboardDataId: "",
+  documents: null,
+  investigator: "",
+  preQcObservation: "",
+  tasksAssigned: [],
+  insuredAddress: "",
+  insuredCity: "",
+  insuredState: "",
+  insuredPinCode: 0,
+  allocatorComment: "",
 };

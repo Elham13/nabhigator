@@ -49,32 +49,12 @@ import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
 import { buildUrl, showError } from "@/lib/helpers";
 import { getStates } from "@/lib/helpers/getLocations";
+import { changeTaskInitialValues } from "@/lib/utils/constants";
 
 const dependentOptionsMap = {
   PED: pedOptionsArray,
   Gen: genuinenessOptionsArray,
   Alc: alcoholAddictionOptionsArray,
-};
-
-const initialValues: AcceptedValues = {
-  allocationType: "Single",
-  caseType: [],
-  caseTypeDependencies: {
-    "PED/NDC": [],
-    Genuineness: [],
-    "Alcohol Intoxication/Addiction": [],
-  },
-  caseStatus: "Accepted",
-  dashboardDataId: "",
-  documents: null,
-  investigator: [],
-  preQcObservation: "",
-  tasksAssigned: [],
-  insuredAddress: "",
-  insuredCity: "",
-  insuredState: "",
-  insuredPinCode: 0,
-  allocatorComment: "",
 };
 
 const searchValuesInitials: IUserSearchValues = {
@@ -99,7 +79,7 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
   const router = useRouter();
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
   const [values, setValues] = useState<AcceptedValues>({
-    ...initialValues,
+    ...changeTaskInitialValues,
     dashboardDataId: dashboardData?._id as string,
   });
   const [submitting, setSubmitting] = useState<boolean>(false);

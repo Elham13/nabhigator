@@ -50,7 +50,9 @@ const MultipleEventsTableRow = ({ item }: PropTypes) => {
           {item?.closureDate ? dayjs(item?.closureDate).format("hh:mm a") : "-"}
         </Table.Td>
         <Table.Td className="whitespace-nowrap">
-          {item?.investigator?.map((inv) => inv?.investigatorName)?.join(", ")}
+          {item?.investigator && typeof item?.investigator !== "string"
+            ? item?.investigator?.investigatorName
+            : "-"}
         </Table.Td>
         <Table.Td className="whitespace-nowrap">
           {item?.clusterManager && typeof item?.clusterManager !== "string"

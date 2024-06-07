@@ -35,32 +35,12 @@ import {
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
 import { showError } from "@/lib/helpers";
+import { changeTaskInitialValues } from "@/lib/utils/constants";
 
 const dependentOptionsMap = {
   PED: pedOptionsArray,
   Gen: genuinenessOptionsArray,
   Alc: alcoholAddictionOptionsArray,
-};
-
-const initialValues: AcceptedValues = {
-  allocationType: "Single",
-  caseType: [],
-  caseTypeDependencies: {
-    "PED/NDC": [],
-    Genuineness: [],
-    "Alcohol Intoxication/Addiction": [],
-  },
-  caseStatus: "Accepted",
-  dashboardDataId: "",
-  documents: null,
-  investigator: [],
-  preQcObservation: "",
-  tasksAssigned: [],
-  insuredAddress: "",
-  insuredCity: "",
-  insuredState: "",
-  insuredPinCode: 0,
-  allocatorComment: "",
 };
 
 type PropType = {
@@ -80,7 +60,7 @@ const ChangeTask = ({
 }: PropType) => {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [values, setValues] = useState<AcceptedValues>({
-    ...initialValues,
+    ...changeTaskInitialValues,
     dashboardDataId: id,
   });
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
