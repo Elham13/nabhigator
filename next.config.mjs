@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  assetPrefix: "/navigator-admin",
+  assetPrefix: "/navigator-admin/",
   rewrites() {
     return [
       {
