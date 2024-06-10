@@ -134,6 +134,7 @@ router.post(async (req) => {
         user?._id,
         {
           $push: { assignedCases: dashboardData?._id },
+          $inc: { "config.dailyAssign": 1 },
         },
         { useFindAndModify: false }
       );

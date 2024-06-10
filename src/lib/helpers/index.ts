@@ -220,19 +220,6 @@ export const buildUrl = (url: string, params: Record<string, any> = {}) => {
   return finalUrl;
 };
 
-export const processBody = (req: NextApiRequest) => {
-  let reqBody: any;
-  const contentType = req.headers["content-type"];
-
-  if (contentType && contentType.includes("application/json")) {
-    reqBody = req.body;
-  } else {
-    reqBody = JSON.parse(req.body);
-  }
-
-  return reqBody;
-};
-
 export const capitalizeFirstLetter = (str: string) => {
   if (!str || str?.length === 0) return str;
 

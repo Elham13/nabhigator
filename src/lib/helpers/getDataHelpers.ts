@@ -60,6 +60,9 @@ export const processGetDataFilters = async (obj: any) => {
   }
 
   const processedObj = { ...obj };
+  const user: IUser | undefined = processedObj["user"];
+
+  if (!user) throw new Error("user is required");
 
   Object.keys(processedObj).forEach((key) => {
     if (!processedObj[key] && processedObj[key] !== 0) {
@@ -338,8 +341,8 @@ export const processGetDataFilters = async (obj: any) => {
 
   //------------ Default Filters Start -------------//
 
-  const userRole = processedObj["user"]?.activeRole
-    ? processedObj["user"]?.activeRole
+  const userRole = user?.activeRole
+    ? user?.activeRole
     : processedObj["source"] === "Investigators"
     ? Role.INTERNAL_INVESTIGATOR
     : undefined;
@@ -359,22 +362,21 @@ export const processGetDataFilters = async (obj: any) => {
       };
     } else if (userRole === Role.POST_QA) {
       processedObj["stage"] = NumericStage.POST_QC;
+      processedObj["postQa"] = new Types.ObjectId(user?._id);
     }
   }
 
-  if (![Role.ADMIN, Role.VIEWER].includes(userRole)) {
-    const leadView: string[] = processedObj["user"]?.config?.leadView;
-    let geography: string[] = processedObj["user"]?.state;
+  if (userRole && ![Role.ADMIN, Role.VIEWER].includes(userRole)) {
+    const leadView: string[] | undefined = user?.config?.leadView;
+    let geography: string[] = user?.state;
 
     if (userRole === Role.TL)
-      processedObj["teamLead"] = new Types.ObjectId(processedObj["user"]?._id);
+      processedObj["teamLead"] = new Types.ObjectId(user?._id);
 
     if (userRole === Role.CLUSTER_MANAGER)
-      processedObj["clusterManager"] = new Types.ObjectId(
-        processedObj["user"]?._id
-      );
+      processedObj["clusterManager"] = new Types.ObjectId(user?._id);
 
-    if (leadView?.length > 0) {
+    if (leadView && leadView?.length > 0) {
       processedObj["claimType"] = { $in: leadView };
     }
 
@@ -384,25 +386,22 @@ export const processGetDataFilters = async (obj: any) => {
       };
     }
 
-    processedObj["claimDetails.claimAmount"] = getClaimAmountFilter(
-      processedObj["user"]
-    );
+    processedObj["claimDetails.claimAmount"] = getClaimAmountFilter(user);
   }
 
   if (origin && origin !== "Inbox") {
     if (origin === "Outbox") {
       delete processedObj["stage"];
-      processedObj["actionsTaken.userId"] = new Types.ObjectId(
-        processedObj["user"]?._id
-      );
+      processedObj["actionsTaken.userId"] = new Types.ObjectId(user?._id);
     } else if (origin === "Consolidated") {
-      if ([Role.ALLOCATION, Role.POST_QA].includes(userRole)) {
-        processedObj["actionsTaken.userId"] = new Types.ObjectId(
-          processedObj["user"]?._id
-        );
-      } else if ([Role.TL, Role.CLUSTER_MANAGER].includes(userRole)) {
+      if (userRole && [Role.ALLOCATION, Role.POST_QA].includes(userRole)) {
+        processedObj["actionsTaken.userId"] = new Types.ObjectId(user?._id);
+      } else if (
+        userRole &&
+        [Role.TL, Role.CLUSTER_MANAGER].includes(userRole)
+      ) {
         const states: IZoneStateMaster[] = await ZoneStateMaster.find({
-          Zone: { $in: processedObj["user"].zone },
+          Zone: { $in: user.zone },
         });
 
         processedObj["hospitalDetails.providerState"] = {

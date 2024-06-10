@@ -9,7 +9,7 @@ import {
   NumericStage,
   Role,
 } from "@/lib/utils/types/fniDataTypes";
-import { HydratedDocument, Types } from "mongoose";
+import { HydratedDocument } from "mongoose";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
@@ -53,8 +53,10 @@ router.get(async (req) => {
     if (user?.activeRole === Role.PRE_QC)
       commonFilters["stage"] = NumericStage.PENDING_FOR_PRE_QC;
 
-    if (user?.activeRole === Role.POST_QA)
+    if (user?.activeRole === Role.POST_QA) {
       commonFilters["stage"] = NumericStage.POST_QC;
+      commonFilters["postQa"] = user?._id;
+    }
 
     const geography = user?.state;
 
@@ -63,11 +65,10 @@ router.get(async (req) => {
         commonFilters["hospitalDetails.providerState"] = { $in: geography };
       }
 
-      if (user?.activeRole === Role.TL)
-        commonFilters["teamLead"] = new Types.ObjectId(user?._id);
+      if (user?.activeRole === Role.TL) commonFilters["teamLead"] = user?._id;
 
       if (user?.activeRole === Role.CLUSTER_MANAGER)
-        commonFilters["clusterManager"] = new Types.ObjectId(user?._id);
+        commonFilters["clusterManager"] = user?._id;
     }
 
     counts.preAuth = await getColorCodes({
