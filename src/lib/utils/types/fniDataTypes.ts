@@ -20,6 +20,7 @@ export type UserConfig = {
   canSeeConsolidatedInbox?: "Yes" | "No";
   canExportConsolidatedInbox?: "Yes" | "No";
   dailyThreshold?: number;
+  dailyAssign?: number;
   reportReceivedTime?: TReportReceivedTime;
 };
 

@@ -62,18 +62,6 @@ const findPostQaUser = async (props: IProps) => {
     },
   };
 
-  const pipeline: PipelineStage[] = [
-    {
-      $match: {
-        $expr: {
-          $lt: [{ $size: "$assignedCases" }, "$config.dailyThreshold"],
-        },
-      },
-    },
-    { $addFields: addField },
-    { $match: match },
-  ];
-
   const zoneState: HydratedDocument<IZoneStateMaster> | null =
     await ZoneStateMaster.findOne({
       State: { $regex: new RegExp(providerState, "i") },
@@ -82,6 +70,18 @@ const findPostQaUser = async (props: IProps) => {
   if (zoneState) {
     match["zone"] = zoneState?.Zone;
   }
+
+  const pipeline: PipelineStage[] = [
+    {
+      $match: {
+        $expr: {
+          $lt: ["$config.dailyAssign", "$config.dailyThreshold"],
+        },
+      },
+    },
+    { $addFields: addField },
+    { $match: match },
+  ];
 
   const users: IUser[] = await User.aggregate(pipeline);
 

@@ -45,7 +45,8 @@ const ConfigSchema = new Schema<IConfigSchema>(
       enum: ["Yes", "No"],
       default: "No",
     },
-    dailyThreshold: { type: Number },
+    dailyThreshold: { type: Number, default: 0 },
+    dailyAssign: { type: Number, default: 0 },
     reportReceivedTime: { from: String, to: String },
   },
   { timestamps: true }
