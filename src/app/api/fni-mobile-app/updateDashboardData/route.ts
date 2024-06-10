@@ -111,6 +111,7 @@ router.post(async (req) => {
           "Vikram.Singh9@nivabupa.com",
           "Nandan.CA@nivabupa.com",
           "Rakesh.Pandey@nivabupa.com",
+          "Nanit.Kumar@nivabupa.com",
           postQaUserEmail,
         ];
 
