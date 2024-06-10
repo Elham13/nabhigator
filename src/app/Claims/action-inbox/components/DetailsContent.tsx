@@ -587,3 +587,14 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
 };
 
 export default DetailsContent;
+
+// type PropTypes = {
+//   dashboardDataId: string;
+//   origin: "consolidated" | "inbox";
+// };
+
+// const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
+//   return <>Hi</>;
+// };
+
+// export default DetailsContent;
