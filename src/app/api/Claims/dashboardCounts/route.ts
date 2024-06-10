@@ -58,9 +58,16 @@ router.get(async (req) => {
       commonFilters["postQa"] = user?._id;
     }
 
+    if (user?.activeRole === Role.POST_QA_LEAD) {
+      commonFilters["stage"] = NumericStage.POST_QC;
+      commonFilters["postQa"] = null;
+    }
+
     const geography = user?.state;
 
-    if (![Role.ADMIN, Role.VIEWER].includes(user?.activeRole)) {
+    if (
+      ![Role.ADMIN, Role.VIEWER, Role.POST_QA_LEAD].includes(user?.activeRole)
+    ) {
       if (geography && geography?.length > 0 && !geography?.includes("All")) {
         commonFilters["hospitalDetails.providerState"] = { $in: geography };
       }

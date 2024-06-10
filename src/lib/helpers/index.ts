@@ -11,7 +11,6 @@ import {
   recommendationOptions,
   recommendationProdOptions,
 } from "../utils/constants/options";
-import { NextApiRequest } from "next";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import AWS from "aws-sdk";

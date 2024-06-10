@@ -363,10 +363,16 @@ export const processGetDataFilters = async (obj: any) => {
     } else if (userRole === Role.POST_QA) {
       processedObj["stage"] = NumericStage.POST_QC;
       processedObj["postQa"] = new Types.ObjectId(user?._id);
+    } else if (userRole === Role.POST_QA_LEAD) {
+      processedObj["stage"] = NumericStage.POST_QC;
+      processedObj["postQa"] = null;
     }
   }
 
-  if (userRole && ![Role.ADMIN, Role.VIEWER].includes(userRole)) {
+  if (
+    userRole &&
+    ![Role.ADMIN, Role.VIEWER, Role.POST_QA_LEAD].includes(userRole)
+  ) {
     const leadView: string[] | undefined = user?.config?.leadView;
     let geography: string[] = user?.state;
 
@@ -526,7 +532,7 @@ export const addColorCodes = async (data: IDashboardData[], role?: Role) => {
               rowColor = colors.Red;
             }
           }
-        } else if (role && role === Role.POST_QA) {
+        } else if (role && [Role.POST_QA, Role.POST_QA_LEAD].includes(role)) {
           const eventDate = el?.dateOfFallingIntoPostQaBucket || "";
 
           if (eventDate) {
@@ -644,7 +650,7 @@ export const addColorCodes = async (data: IDashboardData[], role?: Role) => {
               }
             }
           }
-        } else if (role && role === Role.POST_QA) {
+        } else if (role && [Role.POST_QA, Role.POST_QA_LEAD].includes(role)) {
           const eventDate = el?.dateOfFallingIntoPostQaBucket;
           if (
             dayjs(eventDate).isBefore(dayjs()) &&

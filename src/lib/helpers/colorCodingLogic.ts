@@ -91,7 +91,7 @@ const getPipeline = ({
   if (userRole === Role.ALLOCATION)
     divide["$subtract"][1] = "$dateOfFallingIntoAllocationBucket";
 
-  if (userRole === Role.POST_QA)
+  if ([Role.POST_QA, Role.POST_QA_LEAD].includes(userRole))
     divide["$subtract"][1] = "$dateOfFallingIntoPostQaBucket";
 
   if (claimType === "PreAuth") {
@@ -116,7 +116,7 @@ const getPipeline = ({
     let minutes = noOfMinutesFromOneDayAgo;
     if (userRole === Role.ALLOCATION)
       minutes = dayjs().diff(dayjs().subtract(4, "hours"), "minutes");
-    if (userRole === Role.POST_QA)
+    if ([Role.POST_QA, Role.POST_QA_LEAD].includes(userRole))
       minutes = dayjs().diff(dayjs().subtract(24, "hours"), "minutes");
 
     query["$expr"] = {
@@ -137,7 +137,7 @@ const getPipeline = ({
       lessMinutes = dayjs().diff(dayjs().subtract(4, "hours"), "minutes");
     }
 
-    if (userRole === Role.POST_QA) {
+    if ([Role.POST_QA, Role.POST_QA_LEAD].includes(userRole)) {
       moreMinutes = dayjs().diff(dayjs().subtract(2, "days"), "minutes");
       lessMinutes = dayjs().diff(dayjs().subtract(24, "hours"), "minutes");
     }
@@ -156,7 +156,7 @@ const getPipeline = ({
     if (userRole === Role.ALLOCATION)
       minutes = dayjs().diff(dayjs().subtract(6, "hours"), "minutes");
 
-    if (userRole === Role.POST_QA)
+    if ([Role.POST_QA, Role.POST_QA_LEAD].includes(userRole))
       minutes = dayjs().diff(dayjs().subtract(2, "days"), "minutes");
 
     query["$expr"] = {
@@ -164,7 +164,7 @@ const getPipeline = ({
     };
   } else if (colorCode === EColorCode["PreAuth-Green"]) {
     let seconds = noOfSecondsFrom2HoursAgo;
-    if (userRole === Role.ALLOCATION || userRole === Role.POST_QA)
+    if ([Role.POST_QA, Role.POST_QA_LEAD, Role.ALLOCATION].includes(userRole))
       seconds = dayjs().diff(dayjs().subtract(30, "minutes"), "seconds");
     query["$expr"] = {
       $and: [
@@ -179,7 +179,7 @@ const getPipeline = ({
   } else if (colorCode === EColorCode["PreAuth-Amber"]) {
     let moreSeconds = noOfSecondsFrom4HoursAgo;
     let lessSeconds = noOfSecondsFrom2HoursAgo;
-    if (userRole === Role.ALLOCATION || userRole === Role.POST_QA) {
+    if ([Role.POST_QA, Role.POST_QA_LEAD, Role.ALLOCATION].includes(userRole)) {
       moreSeconds = dayjs().diff(dayjs().subtract(45, "minutes"), "seconds");
       lessSeconds = dayjs().diff(dayjs().subtract(30, "minutes"), "seconds");
     }
@@ -195,7 +195,7 @@ const getPipeline = ({
     };
   } else if (colorCode === EColorCode["PreAuth-Red"]) {
     let seconds = noOfSecondsFrom4HoursAgo;
-    if (userRole === Role.ALLOCATION || userRole === Role.POST_QA)
+    if ([Role.POST_QA, Role.POST_QA_LEAD, Role.ALLOCATION].includes(userRole))
       seconds = dayjs().diff(dayjs().subtract(45, "minutes"), "seconds");
     query["$expr"] = {
       $gte: ["$differenceInSeconds", seconds],
