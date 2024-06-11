@@ -577,7 +577,7 @@ const addTLAndClusterManager = async () => {
   const zonalStates: IZoneStateMaster[] = await ZoneStateMaster.find({}).lean();
 
   for (const el of data) {
-    if (!el?.teamLead || !el?.clusterManager) {
+    // if (!el?.teamLead || !el?.clusterManager) {
       const foundTL = teamLeads?.find((tl) => {
         if (!tl?.state || tl?.state?.includes("All") || tl?.state?.length < 1) {
           if (tl?.zone?.length < 1) return false;
@@ -616,7 +616,7 @@ const addTLAndClusterManager = async () => {
           clusterManager: foundCM ? foundCM?._id : el?.clusterManager,
         },
       });
-    }
+    // }
   }
 };
 
@@ -648,7 +648,7 @@ router.post(async (req) => {
 
   try {
     await connectDB(Databases.FNI);
-
+    addTLAndClusterManager();
     return NextResponse.json(
       {
         success: true,

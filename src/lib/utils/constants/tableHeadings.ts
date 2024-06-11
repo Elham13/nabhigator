@@ -353,3 +353,46 @@ export const usersTableHeaders: ITableHeader[] = [
     sortable: false,
   },
 ];
+
+export const postQaTableHeaders: ITableHeader[] = [
+  {
+    value: "name",
+    label: "Name",
+    sortable: true,
+  },
+  {
+    value: "userId",
+    label: "User ID",
+    sortable: true,
+  },
+  {
+    value: "phone",
+    label: "Phone",
+    sortable: true,
+  },
+  {
+    value: "password",
+    label: "Password",
+    sortable: true,
+  },
+  {
+    value: "role",
+    label: "Role",
+    sortable: false,
+  },
+  {
+    value: "status",
+    label: "Status",
+    sortable: false,
+  },
+  {
+    value: "state",
+    label: "State",
+    sortable: false,
+  },
+  {
+    value: "zone",
+    label: "Zone",
+    sortable: false,
+  },
+];

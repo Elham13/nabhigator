@@ -1,40 +1,97 @@
-import React, { Dispatch, ReactNode, SetStateAction, Suspense } from "react";
+import React, { Dispatch, ReactNode, SetStateAction, Fragment } from "react";
 import { Spin } from "antd";
-const NPSConfirmation = dynamic(() => import("./NPSConfirmation"));
-const PrePostVerification = dynamic(() => import("./PrePostVerification"));
-const HospitalDailyCash = dynamic(() => import("./HospitalDailyCash"));
-const OPDVerification = dynamic(() => import("./OPDVerification"));
-const AHCVerification = dynamic(() => import("./AHCVerification"));
-const ClaimVerification = dynamic(() => import("./ClaimVerification"));
-const InsuredVerification = dynamic(() => import("./InsuredVerification"));
-const VicinityVerification = dynamic(() => import("./VicinityVerification"));
-const HospitalVerification = dynamic(() => import("./HospitalVerification"));
+import dynamic from "next/dynamic";
+const NPSConfirmation = dynamic(() => import("./NPSConfirmation"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
+const PrePostVerification = dynamic(() => import("./PrePostVerification"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
+const HospitalDailyCash = dynamic(() => import("./HospitalDailyCash"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
+const OPDVerification = dynamic(() => import("./OPDVerification"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
+const AHCVerification = dynamic(() => import("./AHCVerification"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
+const ClaimVerification = dynamic(() => import("./ClaimVerification"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
+const InsuredVerification = dynamic(() => import("./InsuredVerification"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
+const VicinityVerification = dynamic(() => import("./VicinityVerification"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
+const HospitalVerification = dynamic(() => import("./HospitalVerification"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
 const TreatingDoctorVerification = dynamic(
-  () => import("./TreatingDoctorVerification")
+  () => import("./TreatingDoctorVerification"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const FamilyOrReferringDoctorVerification = dynamic(
-  () => import("./FamilyOrReferringDoctorVerification")
+  () => import("./FamilyOrReferringDoctorVerification"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const LabOrPathologistVerification = dynamic(
-  () => import("./LabOrPathologistVerification")
+  () => import("./LabOrPathologistVerification"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
-const ChemistVerification = dynamic(() => import("./ChemistVerification"));
-const EmployerVerification = dynamic(() => import("./EmployerVerification"));
+const ChemistVerification = dynamic(() => import("./ChemistVerification"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
+const EmployerVerification = dynamic(() => import("./EmployerVerification"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
 const RandomVicinityVerification = dynamic(
-  () => import("./RandomVicinityVerification")
+  () => import("./RandomVicinityVerification"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const EmploymentAndEstablishmentVerification = dynamic(
-  () => import("./EmploymentAndEstablishmentVerification")
+  () => import("./EmploymentAndEstablishmentVerification"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const MiscellaneousVerification = dynamic(
-  () => import("./MiscellaneousVerification")
+  () => import("./MiscellaneousVerification"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 import {
   CaseDetail,
   IDashboardData,
   Task as ITask,
 } from "@/lib/utils/types/fniDataTypes";
-import dynamic from "next/dynamic";
 
 type PropTypes = {
   task: ITask;
@@ -146,7 +203,7 @@ const Task = ({ task, data, caseDetail, setCaseDetail }: PropTypes) => {
     ),
   };
 
-  return <Suspense fallback={<Spin />}>{tasksMap[task?.name]}</Suspense>;
+  return <Fragment fallback={<Spin />}>{tasksMap[task?.name]}</Fragment>;
 };
 
 export default Task;

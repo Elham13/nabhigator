@@ -448,6 +448,7 @@ export enum EventNames {
   INVESTIGATION_SKIPPED_CANCELEd = "Investigation which was skipped, is canceled and sent back to where it was before",
   EXPEDITION_MESSAGE_SENT = "Expedition Message Sent",
   SENT_BACK_TO_PRE_QC_DUE_TO_PA = "Case came back to Pre-QC",
+  MANUALLY_ASSIGNED_TO_POST_QA = "Manually assigned to Post QA user",
 }
 
 export interface INewCityMaster {
@@ -955,6 +956,7 @@ export interface IShowElement {
   completeDocuments: boolean;
   preQCAccept: boolean;
   preQCReject: boolean;
+  assignToPostQA: boolean;
 }
 
 export type LocationType = {
