@@ -578,44 +578,44 @@ const addTLAndClusterManager = async () => {
 
   for (const el of data) {
     // if (!el?.teamLead || !el?.clusterManager) {
-      const foundTL = teamLeads?.find((tl) => {
-        if (!tl?.state || tl?.state?.includes("All") || tl?.state?.length < 1) {
-          if (tl?.zone?.length < 1) return false;
-          let returnType = false;
-          for (const tlz of tl?.zone) {
-            const found = zonalStates?.find(
-              (state) =>
-                state?.Zone === tlz &&
-                state?.State === el?.hospitalDetails?.providerState
-            );
-            if (found) returnType = true;
-          }
-          return returnType;
-        } else return tl?.state?.includes(el?.hospitalDetails?.providerState);
-      });
+    const foundTL = teamLeads?.find((tl) => {
+      if (!tl?.state || tl?.state?.includes("All") || tl?.state?.length < 1) {
+        if (tl?.zone?.length < 1) return false;
+        let returnType = false;
+        for (const tlz of tl?.zone) {
+          const found = zonalStates?.find(
+            (state) =>
+              state?.Zone === tlz &&
+              state?.State === el?.hospitalDetails?.providerState
+          );
+          if (found) returnType = true;
+        }
+        return returnType;
+      } else return tl?.state?.includes(el?.hospitalDetails?.providerState);
+    });
 
-      const foundCM = clusterManagers?.find((cm) => {
-        if (!cm?.state || cm?.state?.includes("All") || cm?.state?.length < 1) {
-          if (cm?.zone?.length < 1) return false;
-          let returnType = false;
-          for (const cmz of cm?.zone) {
-            const found = zonalStates?.find(
-              (state) =>
-                state?.Zone === cmz &&
-                state?.State === el?.hospitalDetails?.providerState
-            );
-            if (found) returnType = true;
-          }
-          return returnType;
-        } else return cm?.state?.includes(el?.hospitalDetails?.providerState);
-      });
+    const foundCM = clusterManagers?.find((cm) => {
+      if (!cm?.state || cm?.state?.includes("All") || cm?.state?.length < 1) {
+        if (cm?.zone?.length < 1) return false;
+        let returnType = false;
+        for (const cmz of cm?.zone) {
+          const found = zonalStates?.find(
+            (state) =>
+              state?.Zone === cmz &&
+              state?.State === el?.hospitalDetails?.providerState
+          );
+          if (found) returnType = true;
+        }
+        return returnType;
+      } else return cm?.state?.includes(el?.hospitalDetails?.providerState);
+    });
 
-      await DashboardData.findByIdAndUpdate(el?._id, {
-        $set: {
-          teamLead: foundTL ? foundTL?._id : el?.teamLead,
-          clusterManager: foundCM ? foundCM?._id : el?.clusterManager,
-        },
-      });
+    await DashboardData.findByIdAndUpdate(el?._id, {
+      $set: {
+        teamLead: foundTL ? foundTL?._id : el?.teamLead,
+        clusterManager: foundCM ? foundCM?._id : el?.clusterManager,
+      },
+    });
     // }
   }
 };
@@ -648,7 +648,6 @@ router.post(async (req) => {
 
   try {
     await connectDB(Databases.FNI);
-    addTLAndClusterManager();
     return NextResponse.json(
       {
         success: true,
