@@ -4,8 +4,6 @@ import { Databases } from "@/lib/utils/types/enums";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
 import dayjs from "dayjs";
 import DashboardData from "@/lib/Models/dashboardData";
 import { HydratedDocument } from "mongoose";
@@ -24,6 +22,10 @@ import NewStateDistrictMaster from "@/lib/Models/newStateDistrictMaster";
 import ZoneStateMaster from "@/lib/Models/zoneStateMaster";
 import ZoneMaster from "@/lib/Models/zoneMaster";
 import CaseEvent from "@/lib/Models/caseEvent";
+import { buildMaximusUrl } from "@/lib/helpers/wdmsHelpers";
+import axios from "axios";
+import { IGetFNIData } from "@/lib/utils/types/maximusResponseTypes";
+import UnwantedFNIData from "@/lib/Models/uwantedFNIData";
 
 // dayjs.extend(utc);
 // dayjs.extend(timezone);
@@ -577,46 +579,46 @@ const addTLAndClusterManager = async () => {
   const zonalStates: IZoneStateMaster[] = await ZoneStateMaster.find({}).lean();
 
   for (const el of data) {
-    // if (!el?.teamLead || !el?.clusterManager) {
-    const foundTL = teamLeads?.find((tl) => {
-      if (!tl?.state || tl?.state?.includes("All") || tl?.state?.length < 1) {
-        if (tl?.zone?.length < 1) return false;
-        let returnType = false;
-        for (const tlz of tl?.zone) {
-          const found = zonalStates?.find(
-            (state) =>
-              state?.Zone === tlz &&
-              state?.State === el?.hospitalDetails?.providerState
-          );
-          if (found) returnType = true;
-        }
-        return returnType;
-      } else return tl?.state?.includes(el?.hospitalDetails?.providerState);
-    });
+    if (!el?.teamLead || !el?.clusterManager) {
+      const foundTL = teamLeads?.find((tl) => {
+        if (!tl?.state || tl?.state?.includes("All") || tl?.state?.length < 1) {
+          if (tl?.zone?.length < 1) return false;
+          let returnType = false;
+          for (const tlz of tl?.zone) {
+            const found = zonalStates?.find(
+              (state) =>
+                state?.Zone === tlz &&
+                state?.State === el?.hospitalDetails?.providerState
+            );
+            if (found) returnType = true;
+          }
+          return returnType;
+        } else return tl?.state?.includes(el?.hospitalDetails?.providerState);
+      });
 
-    const foundCM = clusterManagers?.find((cm) => {
-      if (!cm?.state || cm?.state?.includes("All") || cm?.state?.length < 1) {
-        if (cm?.zone?.length < 1) return false;
-        let returnType = false;
-        for (const cmz of cm?.zone) {
-          const found = zonalStates?.find(
-            (state) =>
-              state?.Zone === cmz &&
-              state?.State === el?.hospitalDetails?.providerState
-          );
-          if (found) returnType = true;
-        }
-        return returnType;
-      } else return cm?.state?.includes(el?.hospitalDetails?.providerState);
-    });
+      const foundCM = clusterManagers?.find((cm) => {
+        if (!cm?.state || cm?.state?.includes("All") || cm?.state?.length < 1) {
+          if (cm?.zone?.length < 1) return false;
+          let returnType = false;
+          for (const cmz of cm?.zone) {
+            const found = zonalStates?.find(
+              (state) =>
+                state?.Zone === cmz &&
+                state?.State === el?.hospitalDetails?.providerState
+            );
+            if (found) returnType = true;
+          }
+          return returnType;
+        } else return cm?.state?.includes(el?.hospitalDetails?.providerState);
+      });
 
-    await DashboardData.findByIdAndUpdate(el?._id, {
-      $set: {
-        teamLead: foundTL ? foundTL?._id : el?.teamLead,
-        clusterManager: foundCM ? foundCM?._id : el?.clusterManager,
-      },
-    });
-    // }
+      await DashboardData.findByIdAndUpdate(el?._id, {
+        $set: {
+          teamLead: foundTL ? foundTL?._id : el?.teamLead,
+          clusterManager: foundCM ? foundCM?._id : el?.clusterManager,
+        },
+      });
+    }
   }
 };
 
@@ -643,11 +645,47 @@ const addDateOfFallingIntoAllocationBucket = async () => {
   }
 };
 
+const addUnwantedFNIData = async () => {
+  const { baseUrl, authPayload, apiId } = buildMaximusUrl();
+  const headers = {
+    "x-apigw-api-id": apiId,
+  };
+
+  const { data: token } = await axios.post(
+    `${baseUrl}auth/getauthtoken`,
+    authPayload,
+    {
+      headers,
+    }
+  );
+
+  const getFniDataUrl = `${baseUrl}claim/getfnidata`;
+  const payload = {
+    ClaimType: "FnI",
+    SourceSystem: "M",
+  };
+  const getFniDataHeaders = {
+    headers: { ...headers, Authorization: `Bearer ${token?.Token}` },
+  };
+
+  const { data } = await axios.post<IGetFNIData>(
+    getFniDataUrl,
+    payload,
+    getFniDataHeaders
+  );
+
+  const claimsData =
+    data?.ClaimsData && data?.ClaimsData?.length > 0 ? data?.ClaimsData : [];
+
+  await UnwantedFNIData.insertMany(claimsData);
+};
+
 router.post(async (req) => {
   const {} = await req?.json();
 
   try {
     await connectDB(Databases.FNI);
+
     return NextResponse.json(
       {
         success: true,
