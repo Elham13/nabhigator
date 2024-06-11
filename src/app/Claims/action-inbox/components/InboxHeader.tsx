@@ -189,7 +189,7 @@ const InboxHeader = ({
             </Modal>
           </>
         )}
-        {user?.activeRole !== Role.VIEWER ||
+        {user?.activeRole !== Role.CENTRAL_OPERATION ||
         (origin === "Consolidated" &&
           user?.config?.canExportConsolidatedInbox === "Yes") ? (
           <DownloadExcelBtn

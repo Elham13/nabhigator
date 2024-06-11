@@ -550,15 +550,14 @@ export const roleOptions: ComboboxData = [
   "Admin",
   "Allocation",
   "Post QA",
-  "Pre QC",
   "Post QA Lead",
+  "Pre QC",
   "Internal Investigator",
   "External Investigator",
   "CFR",
   "TL",
   "Central Operation",
   "Cluster Manager",
-  "Viewer",
   "NA",
 ];
 export const claimAmountThresholdOptions: ComboboxData = [

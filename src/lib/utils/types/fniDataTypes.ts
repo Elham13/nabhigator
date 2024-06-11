@@ -36,7 +36,6 @@ export enum Role {
   TL = "TL",
   CENTRAL_OPERATION = "Central Operation",
   CLUSTER_MANAGER = "Cluster Manager",
-  VIEWER = "Viewer",
   NA = "NA",
 }
 
