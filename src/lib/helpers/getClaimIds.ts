@@ -2,6 +2,8 @@ import axios from "axios";
 import { IMaximusResponseLog } from "../utils/types/fniDataTypes";
 import { buildMaximusUrl } from "./wdmsHelpers";
 import MaximusResponseLog from "../Models/maximusResponseLog";
+import { IGetFNIData } from "../utils/types/maximusResponseTypes";
+import UnwantedFNIData from "../Models/uwantedFNIData";
 
 const logsPayload: IMaximusResponseLog = {
   api: "",
@@ -200,7 +202,7 @@ export default async function getClaimIds() {
       headers: { ...headers, Authorization: `Bearer ${token?.Token}` },
     };
 
-    const { data } = await axios.post(
+    const { data } = await axios.post<IGetFNIData>(
       getFniDataUrl,
       payload,
       getFniDataHeaders
@@ -213,7 +215,19 @@ export default async function getClaimIds() {
 
     await MaximusResponseLog.create(logsPayload);
 
-    return { success: true, data: processResponse(data?.ClaimsData) };
+    let claimsData =
+      data?.ClaimsData && data?.ClaimsData?.length > 0 ? data?.ClaimsData : [];
+
+    const claimIds = await UnwantedFNIData.aggregate([
+      { $project: { Claims: 1 } },
+    ]);
+
+    if (claimIds && claimIds?.length > 0) {
+      const claimIdsSet = new Set(claimIds.map((id) => id?.Claims));
+      claimsData = claimsData?.filter((el) => !claimIdsSet.has(el?.Claims));
+    }
+
+    return { success: true, data: processResponse(claimsData) };
   } catch (error: any) {
     logsPayload.api =
       error?.config?.url || "Find it from errorPayloadFromCatchBlock";

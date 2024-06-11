@@ -408,3 +408,20 @@ export interface IGetDocumentDetailRes {
   CaseTypeID: string;
   Documents: IGetDocumentDetailsDoc[];
 }
+
+export interface IClaimsBenefits {
+  Benefit_Type: string;
+  Benefit_Head: string;
+}
+
+export interface IClaimsData {
+  Claims: string;
+  SourceSystem: string;
+  ClaimsBenefits: IClaimsBenefits[];
+}
+
+export interface IGetFNIData {
+  Status: string;
+  StatusMessage: string;
+  ClaimsData: IClaimsData[];
+}

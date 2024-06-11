@@ -4,8 +4,6 @@ import { Databases } from "@/lib/utils/types/enums";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
 import dayjs from "dayjs";
 import DashboardData from "@/lib/Models/dashboardData";
 import { HydratedDocument } from "mongoose";
@@ -24,6 +22,10 @@ import NewStateDistrictMaster from "@/lib/Models/newStateDistrictMaster";
 import ZoneStateMaster from "@/lib/Models/zoneStateMaster";
 import ZoneMaster from "@/lib/Models/zoneMaster";
 import CaseEvent from "@/lib/Models/caseEvent";
+import { buildMaximusUrl } from "@/lib/helpers/wdmsHelpers";
+import axios from "axios";
+import { IGetFNIData } from "@/lib/utils/types/maximusResponseTypes";
+import UnwantedFNIData from "@/lib/Models/uwantedFNIData";
 
 // dayjs.extend(utc);
 // dayjs.extend(timezone);
@@ -641,6 +643,41 @@ const addDateOfFallingIntoAllocationBucket = async () => {
       });
     }
   }
+};
+
+const addUnwantedFNIData = async () => {
+  const { baseUrl, authPayload, apiId } = buildMaximusUrl();
+  const headers = {
+    "x-apigw-api-id": apiId,
+  };
+
+  const { data: token } = await axios.post(
+    `${baseUrl}auth/getauthtoken`,
+    authPayload,
+    {
+      headers,
+    }
+  );
+
+  const getFniDataUrl = `${baseUrl}claim/getfnidata`;
+  const payload = {
+    ClaimType: "FnI",
+    SourceSystem: "M",
+  };
+  const getFniDataHeaders = {
+    headers: { ...headers, Authorization: `Bearer ${token?.Token}` },
+  };
+
+  const { data } = await axios.post<IGetFNIData>(
+    getFniDataUrl,
+    payload,
+    getFniDataHeaders
+  );
+
+  const claimsData =
+    data?.ClaimsData && data?.ClaimsData?.length > 0 ? data?.ClaimsData : [];
+
+  await UnwantedFNIData.insertMany(claimsData);
 };
 
 router.post(async (req) => {

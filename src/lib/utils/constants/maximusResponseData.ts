@@ -1247,5 +1247,88 @@ const postDocumentStatus = {
   status: "Success",
   Message: "SUCCESS",
   DocContent: "",
-  UniqueIdentifier: ""
+  UniqueIdentifier: "",
+};
+
+const getFniData = {
+  Status: "True",
+  StatusMessage: "Success",
+  ClaimsData: [
+    {
+      Claims: "R_85091",
+      SourceSystem: "M",
+      ClaimsBenefits: [
+        {
+          Benefit_Type: "A-In-patient Hospitalization",
+          Benefit_Head: "A1-Surg ops, incl pre & post operative care",
+        },
+      ],
+    },
+    {
+      Claims: "R_84935",
+      SourceSystem: "M",
+      ClaimsBenefits: [
+        {
+          Benefit_Type: "A-In-patient Hospitalization",
+          Benefit_Head: "A5-Patho., X-rays, diag. tests & therapies",
+        },
+        {
+          Benefit_Type: "A-In-patient Hospitalization",
+          Benefit_Head: "A4-Theatre charges and intensive care",
+        },
+      ],
+    },
+    {
+      Claims: "R_84911",
+      SourceSystem: "M",
+      ClaimsBenefits: [
+        {
+          Benefit_Type: "A-In-patient Hospitalization",
+          Benefit_Head: "A1-Surg ops, incl pre & post operative care",
+        },
+      ],
+    },
+    {
+      Claims: "R_84907",
+      SourceSystem: "M",
+      ClaimsBenefits: [
+        {
+          Benefit_Type: "A-In-patient Hospitalization",
+          Benefit_Head: "A5-Patho., X-rays, diag. tests & therapies",
+        },
+      ],
+    },
+    {
+      Claims: "R_84622",
+      SourceSystem: "M",
+      ClaimsBenefits: [
+        {
+          Benefit_Type: "A-In-patient Hospitalization",
+          Benefit_Head: "A5-Patho., X-rays, diag. tests & therapies",
+        },
+      ],
+    },
+    {
+      Claims: "R_77193",
+      SourceSystem: "M",
+      ClaimsBenefits: [
+        {
+          Benefit_Type: "A-In-patient Hospitalization",
+          Benefit_Head: "A7-Hospital Accommodation",
+        },
+        {
+          Benefit_Type: "A-In-patient Hospitalization",
+          Benefit_Head: "A9-Others",
+        },
+        {
+          Benefit_Type: "A-In-patient Hospitalization",
+          Benefit_Head: "A4-Theatre charges and intensive care",
+        },
+        {
+          Benefit_Type: "A-In-patient Hospitalization",
+          Benefit_Head: "A3-Physicians fees",
+        },
+      ],
+    },
+  ],
 };
