@@ -40,6 +40,11 @@ const ConfigSchema = new Schema<IConfigSchema>(
       enum: ["Yes", "No"],
       default: "No",
     },
+    canSeeFailedCases: {
+      type: String,
+      enum: ["Yes", "No"],
+      default: "No",
+    },
     canExportConsolidatedInbox: {
       type: String,
       enum: ["Yes", "No"],

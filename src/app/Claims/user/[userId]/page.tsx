@@ -37,6 +37,7 @@ import {
   claimAmountThresholdOptions,
   leadViewOptionsArray,
   roleOptions,
+  yesNoOptions,
   zoneOptions,
 } from "@/lib/utils/constants/options";
 import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
@@ -574,6 +575,24 @@ const UserEdit = () => {
                         )
                       }
                       data={claimAmountThresholdOptions}
+                      checkIconPosition="right"
+                      clearable
+                    />
+                    <Select
+                      label="Can see Failed cases"
+                      placeholder="Select Can see Failed cases"
+                      required
+                      value={values?.config?.canSeeFailedCases}
+                      onChange={(val) =>
+                        setUpdatedValues((prev) => ({
+                          ...prev,
+                          config: {
+                            ...prev.config,
+                            canSeeFailedCases: (val as "Yes" | "No") || "No",
+                          },
+                        }))
+                      }
+                      data={yesNoOptions}
                       checkIconPosition="right"
                       clearable
                     />

@@ -18,6 +18,7 @@ export type UserConfig = {
   leadView?: string[];
   isPreQcAutomated?: boolean;
   canSeeConsolidatedInbox?: "Yes" | "No";
+  canSeeFailedCases?: "Yes" | "No";
   canExportConsolidatedInbox?: "Yes" | "No";
   dailyThreshold?: number;
   dailyAssign?: number;

@@ -71,8 +71,10 @@ const Navbar = () => {
           ]
         : []),
       ...(user?.activeRole === Role.ADMIN
+        ? [{ name: "Users", icon: <BiUser />, href: "/Claims/user" }]
+        : []),
+      ...(user?.config.canSeeFailedCases === "Yes"
         ? [
-            { name: "Users", icon: <BiUser />, href: "/Claims/user" },
             {
               name: "Failed Cases",
               icon: <MdOutlineSmsFailed />,
