@@ -90,7 +90,7 @@ const InboxHeader = ({
   const downloadSample = () => {
     const link = document.createElement("a");
     link.href = "/files/claim_details_sample_file.xlsx";
-    link.download = "Calim_Details_Sample_File.xlsx";
+    link.download = "Claim_Details_Sample_File.xlsx";
     link.click();
   };
 
