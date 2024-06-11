@@ -203,7 +203,7 @@ const Task = ({ task, data, caseDetail, setCaseDetail }: PropTypes) => {
     ),
   };
 
-  return <Fragment fallback={<Spin />}>{tasksMap[task?.name]}</Fragment>;
+  return <Fragment>{tasksMap[task?.name]}</Fragment>;
 };
 
 export default Task;
