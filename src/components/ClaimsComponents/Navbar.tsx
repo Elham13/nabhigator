@@ -93,12 +93,15 @@ const Navbar = () => {
   };
 
   const handleLogout = async () => {
+    setLoading(false);
     try {
       await axios.get(EndPoints.USER_LOGOUT);
       setUser(null);
       router.replace("/Claims/login");
     } catch (error: any) {
       showError(error);
+    } finally {
+      setLoading(true);
     }
   };
 

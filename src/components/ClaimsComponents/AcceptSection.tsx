@@ -267,6 +267,8 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
     [dashboardData?.claimType]
   );
 
+  const onSelection = useCallback((ids: string[]) => setSelected(ids), []);
+
   useEffect(() => {
     if (!!dashboardData && mainObjectOptionsMap?.length > 0) {
       if (dashboardData?.claimType === "PreAuth") {
@@ -823,12 +825,12 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
               className="col-span-1 md:col-span-2"
               label="Allocator's comment"
               placeholder="Enter your comment"
-              value={values?.allocatorComment}
+              value={values?.allocatorComment || ""}
               required
               onChange={(e) =>
                 setValues((prev) => ({
                   ...prev,
-                  allocatorComment: e.currentTarget.value,
+                  allocatorComment: e?.currentTarget?.value || "",
                 }))
               }
             />
@@ -837,8 +839,8 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
             {isManual && (
               <InvestigatorsList
                 destination="inbox"
-                onSelection={(ids) => setSelected(ids)}
-                initialFilters={{ source: "inbox" }}
+                onSelection={onSelection}
+                initialFilters="inbox"
               />
             )}
             <Flex mt={20} gap={10}>

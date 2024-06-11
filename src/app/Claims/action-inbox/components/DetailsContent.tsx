@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Fragment, Suspense, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { Box, Center, Loader } from "@mantine/core";
 import dayjs from "dayjs";
 import axios from "axios";
@@ -20,17 +20,44 @@ import { getStageLabel, showError } from "@/lib/helpers";
 import CustomMarquee from "@/components/CustomMarquee";
 import { Spin } from "antd";
 
-const PreQcFooter = dynamic(() => import("./InboxDetail/PreQcFooter"));
-const PostQAFooter = dynamic(() => import("./InboxDetail/PostQAFooter"));
+const PreQcFooter = dynamic(() => import("./InboxDetail/PreQcFooter"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
+const PostQAFooter = dynamic(() => import("./InboxDetail/PostQAFooter"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
 const AllocationFooter = dynamic(
-  () => import("./InboxDetail/AllocationFooter")
+  () => import("./InboxDetail/AllocationFooter"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const SkipInvestigation = dynamic(
-  () => import("./InboxDetail/SkipInvestigation")
+  () => import("./InboxDetail/SkipInvestigation"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
-const Expedite = dynamic(() => import("./InboxDetail/Expedite"));
-const NotificationModal = dynamic(() => import("./NotificationModal"));
-const DetailsAccordion = dynamic(() => import("./DetailsAccordion"));
+const Expedite = dynamic(() => import("./InboxDetail/Expedite"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
+const NotificationModal = dynamic(() => import("./NotificationModal"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
+const DetailsAccordion = dynamic(() => import("./DetailsAccordion"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
+const PostQaLeadFooter = dynamic(() => import("./PostQaLeadFooter"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
 
 const showElementInitials: IShowElement = {
   changeTask: false,
@@ -42,6 +69,7 @@ const showElementInitials: IShowElement = {
   completeDocuments: false,
   preQCAccept: false,
   preQCReject: false,
+  assignToPostQA: false,
 };
 
 type PropTypes = {
@@ -168,19 +196,17 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
               </h4>
             </Box>
 
-            <Suspense fallback={<Spin />}>
-              <DetailsAccordion
-                {...{
-                  data,
-                  caseDetail,
-                  skipInvestigationRoleCheck,
-                  showElement,
-                  setData,
-                  setCaseDetail,
-                  setShowElement,
-                }}
-              />
-            </Suspense>
+            <DetailsAccordion
+              {...{
+                data,
+                caseDetail,
+                skipInvestigationRoleCheck,
+                showElement,
+                setData,
+                setCaseDetail,
+                setShowElement,
+              }}
+            />
 
             {[Role.ADMIN, Role.PRE_QC, Role.ALLOCATION].includes(
               user?.activeRole
@@ -238,6 +264,16 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
               data?.stage as NumericStage
             ) ? (
               <Expedite dashboardData={data} />
+            ) : null}
+
+            {user?.activeRole === Role.POST_QA_LEAD && origin === "inbox" ? (
+              <PostQaLeadFooter
+                {...{
+                  showElement,
+                  setShowElement,
+                  claimId: data?.claimId || 0,
+                }}
+              />
             ) : null}
           </Box>
         </>

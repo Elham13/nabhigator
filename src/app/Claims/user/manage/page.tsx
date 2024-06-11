@@ -15,7 +15,11 @@ import {
 } from "@/lib/utils/types/fniDataTypes";
 import { showError } from "@/lib/helpers";
 import PageWrapper from "@/components/ClaimsComponents/PageWrapper";
-const LeaveDetail = dynamic(() => import("./components/LeaveDetail"));
+import { Spin } from "antd";
+const LeaveDetail = dynamic(() => import("./components/LeaveDetail"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
 
 const MangeUser = () => {
   const [user] = useLocalStorage<IUserFromSession | null>({

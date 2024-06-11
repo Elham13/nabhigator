@@ -108,7 +108,7 @@ router.post(async (req) => {
           await ClaimCase.findByIdAndUpdate(
             dashboardData?.caseId,
             {
-              ...req.body,
+              ...body,
               documents: new Map(body?.documents || []),
               intimationDate: dashboardData?.intimationDate,
               assignedBy: user?._id,
@@ -118,7 +118,7 @@ router.post(async (req) => {
           );
         } else {
           const newCase: HydratedDocument<CaseDetail> = await ClaimCase.create({
-            ...req.body,
+            ...body,
             documents: new Map(body?.documents || []),
             intimationDate: dashboardData?.intimationDate,
             assignedBy: user?._id,
@@ -173,7 +173,7 @@ router.post(async (req) => {
       await ClaimCase.findByIdAndUpdate(
         dashboardData?.caseId,
         {
-          ...req.body,
+          ...body,
           documents: new Map(body?.documents || []),
           investigator: investigators?.map((inv: Investigator) => inv?._id),
           intimationDate: dashboardData?.intimationDate,
@@ -184,7 +184,7 @@ router.post(async (req) => {
       );
     } else {
       const newCase = await ClaimCase.create({
-        ...req.body,
+        ...body,
         documents: new Map(body?.documents || []),
         investigator: investigators?.map((inv: Investigator) => inv?._id),
         intimationDate: dashboardData?.intimationDate,

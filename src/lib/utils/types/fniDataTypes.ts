@@ -20,6 +20,7 @@ export type UserConfig = {
   canSeeConsolidatedInbox?: "Yes" | "No";
   canExportConsolidatedInbox?: "Yes" | "No";
   dailyThreshold?: number;
+  dailyAssign?: number;
   reportReceivedTime?: TReportReceivedTime;
 };
 
@@ -29,7 +30,6 @@ export enum Role {
   POST_QA = "Post QA",
   POST_QA_LEAD = "Post QA Lead",
   PRE_QC = "Pre QC",
-  QA_LEAD = "QA Lead",
   INTERNAL_INVESTIGATOR = "Internal Investigator",
   EXTERNAL_INVESTIGATOR = "External Investigator",
   CFR = "CFR",
@@ -448,6 +448,7 @@ export enum EventNames {
   INVESTIGATION_SKIPPED_CANCELEd = "Investigation which was skipped, is canceled and sent back to where it was before",
   EXPEDITION_MESSAGE_SENT = "Expedition Message Sent",
   SENT_BACK_TO_PRE_QC_DUE_TO_PA = "Case came back to Pre-QC",
+  MANUALLY_ASSIGNED_TO_POST_QA = "Manually assigned to Post QA user",
 }
 
 export interface INewCityMaster {
@@ -955,6 +956,7 @@ export interface IShowElement {
   completeDocuments: boolean;
   preQCAccept: boolean;
   preQCReject: boolean;
+  assignToPostQA: boolean;
 }
 
 export type LocationType = {

@@ -11,7 +11,6 @@ import {
   recommendationOptions,
   recommendationProdOptions,
 } from "../utils/constants/options";
-import { NextApiRequest } from "next";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import AWS from "aws-sdk";
@@ -218,19 +217,6 @@ export const buildUrl = (url: string, params: Record<string, any> = {}) => {
   let finalUrl = newUrl?.toString()?.split("?")[1];
   finalUrl = url + "?" + finalUrl;
   return finalUrl;
-};
-
-export const processBody = (req: NextApiRequest) => {
-  let reqBody: any;
-  const contentType = req.headers["content-type"];
-
-  if (contentType && contentType.includes("application/json")) {
-    reqBody = req.body;
-  } else {
-    reqBody = JSON.parse(req.body);
-  }
-
-  return reqBody;
 };
 
 export const capitalizeFirstLetter = (str: string) => {

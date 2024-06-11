@@ -1,10 +1,4 @@
-import React, {
-  Dispatch,
-  Fragment,
-  SetStateAction,
-  Suspense,
-  useState,
-} from "react";
+import React, { Dispatch, Fragment, SetStateAction, useState } from "react";
 import { Accordion, Box, Button, Divider, Text, Title } from "@mantine/core";
 import { Spin } from "antd";
 import {
@@ -21,65 +15,153 @@ import { StorageKeys } from "@/lib/utils/types/enums";
 import { useLocalStorage } from "@mantine/hooks";
 
 const TriageSummary = dynamic(
-  () => import("@/components/ClaimsComponents/TriageSummary")
+  () => import("@/components/ClaimsComponents/TriageSummary"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const FraudIndicatorTable = dynamic(
-  () => import("@/components/ClaimsComponents/FraudIndicators")
+  () => import("@/components/ClaimsComponents/FraudIndicators"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
-const GeneralContent = dynamic(() => import("./InboxDetail/GeneralContent"));
+const GeneralContent = dynamic(() => import("./InboxDetail/GeneralContent"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
 const ContractDetailsContent = dynamic(
-  () => import("./InboxDetail/ContractDetailsContent")
+  () => import("./InboxDetail/ContractDetailsContent"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const HistoricalClaimTable = dynamic(
-  () => import("./InboxDetail/HistoricalClaimTable")
+  () => import("./InboxDetail/HistoricalClaimTable"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const TasksAndDocumentsContent = dynamic(
-  () => import("./InboxDetail/TasksAndDocumentsContent")
+  () => import("./InboxDetail/TasksAndDocumentsContent"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const InvestigationFindingsContent = dynamic(
-  () => import("./InboxDetail/InvestigationFindingsContent")
+  () => import("./InboxDetail/InvestigationFindingsContent"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const InvestigationRecommendationContent = dynamic(
-  () => import("./InboxDetail/InvestigationRecommendationContent")
+  () => import("./InboxDetail/InvestigationRecommendationContent"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const RMInvestigationRecommendationContent = dynamic(
-  () => import("./InboxDetail/RMInvestigationRecommendationContent")
+  () => import("./InboxDetail/RMInvestigationRecommendationContent"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const RMInvestigationFindingsContent = dynamic(
-  () => import("./InboxDetail/RMInvestigationFindingsContent")
+  () => import("./InboxDetail/RMInvestigationFindingsContent"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const InvestigationFindings = dynamic(
-  () => import("./InboxDetail/InvestigationFindings")
+  () => import("./InboxDetail/InvestigationFindings"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const RMInvestigationFindings = dynamic(
-  () => import("./InboxDetail/RMInvestigationFindings")
+  () => import("./InboxDetail/RMInvestigationFindings"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const ClaimDetailsContent = dynamic(
-  () => import("./InboxDetail/ClaimDetailsContent")
+  () => import("./InboxDetail/ClaimDetailsContent"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const InsuredDetailsContent = dynamic(
-  () => import("./InboxDetail/InsuredDetailsContent")
+  () => import("./InboxDetail/InsuredDetailsContent"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const HospitalDetailsContent = dynamic(
-  () => import("./InboxDetail/HospitalDetailsContent")
+  () => import("./InboxDetail/HospitalDetailsContent"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
-const MembersTable = dynamic(() => import("./InboxDetail/MembersTable"));
-const Allocation = dynamic(() => import("./InboxDetail/Allocation"));
+const MembersTable = dynamic(() => import("./InboxDetail/MembersTable"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
+const Allocation = dynamic(() => import("./InboxDetail/Allocation"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
 const TasksAndDocsButtons = dynamic(
-  () => import("./InboxDetail/TasksAndDocsButtons")
+  () => import("./InboxDetail/TasksAndDocsButtons"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const CompleteDocuments = dynamic(
-  () => import("./InboxDetail/CompleteDocuments")
+  () => import("./InboxDetail/CompleteDocuments"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const InvestigationRejectionDetails = dynamic(
-  () => import("./InboxDetail/InvestigationRejectionDetails")
+  () => import("./InboxDetail/InvestigationRejectionDetails"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
-const WDMSDocuments = dynamic(() => import("./InboxDetail/WDMSDocuments"));
+const WDMSDocuments = dynamic(() => import("./InboxDetail/WDMSDocuments"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
 const ClaimTypeDetails = dynamic(
-  () => import("./InboxDetail/ClaimTypeDetails")
+  () => import("./InboxDetail/ClaimTypeDetails"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 const DownloadAssignmentSummary = dynamic(
-  () => import("./InboxDetail/DownloadAssignmentSummary")
+  () => import("./InboxDetail/DownloadAssignmentSummary"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
 );
 
 type PropTypes = {
@@ -419,9 +501,7 @@ const DetailsAccordion = ({
           {el?.value}
         </Title>
       </Accordion.Control>
-      <Accordion.Panel>
-        <Suspense fallback={<Spin />}>{el?.content}</Suspense>
-      </Accordion.Panel>
+      <Accordion.Panel>{el?.content}</Accordion.Panel>
     </Accordion.Item>
   ));
 

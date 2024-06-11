@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Box,
   Button,
@@ -65,7 +65,7 @@ const assignmentPreferredOptions = [
 ];
 
 type PropTypes = {
-  initialFilters?: Record<string, string | boolean | undefined>;
+  initialFilters?: "inbox";
   onSelection?: (ids: string[]) => void;
   destination: "inbox" | "assignment";
 };
@@ -106,29 +106,33 @@ const InvestigatorsList = ({
     }));
   };
 
-  const fetchData = async (filters?: Filters) => {
-    setLoading(true);
-    try {
-      const { data } = await axios.post<ResponseType<Investigator>>(
-        EndPoints.INVESTIGATORS,
-        {
-          filters: {
-            investigatorName: debouncedSearch || undefined,
-            ...(filters ? filters : {}),
-            ...(initialFilters ? initialFilters : {}),
-          },
-          sort: sort || undefined,
-          pagination,
-        }
-      );
-      setData(data.data);
-      setPagination((prev) => ({ ...prev, count: data?.count }));
-    } catch (error) {
-      showError(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const fetchData = useCallback(
+    async (filters?: Filters) => {
+      setLoading(true);
+      try {
+        const { data } = await axios.post<ResponseType<Investigator>>(
+          EndPoints.INVESTIGATORS,
+          {
+            filters: {
+              investigatorName: debouncedSearch || undefined,
+              source: initialFilters,
+              ...(filters ? filters : {}),
+            },
+            sort: sort || undefined,
+            pagination,
+          }
+        );
+        setData(data.data);
+        setPagination((prev) => ({ ...prev, count: data?.count }));
+      } catch (error) {
+        showError(error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [filters, debouncedSearch, initialFilters, pagination.page, sort]
+  );
 
   const handleClose = () => {
     setFilters({});
@@ -395,4 +399,4 @@ const InvestigatorsList = ({
   );
 };
 
-export default InvestigatorsList;
+export default memo(InvestigatorsList);
