@@ -11,11 +11,10 @@ import {
   Badge,
   Input,
   CloseButton,
-  Title,
   Flex,
 } from "@mantine/core";
 import axios from "axios";
-import { BiSearch, BiUserPlus } from "react-icons/bi";
+import { BiSearch, BiUpload, BiUserPlus } from "react-icons/bi";
 import { useRouter } from "next/navigation";
 import { useDebouncedValue } from "@mantine/hooks";
 import { AiOutlineClear } from "react-icons/ai";
@@ -25,6 +24,12 @@ import { showError } from "@/lib/helpers";
 import CommonTableHead from "@/components/ClaimsComponents/commonTable/CommonTableHead";
 import { usersTableHeaders } from "@/lib/utils/constants/tableHeadings";
 import CommonTablePlaceholder from "@/components/ClaimsComponents/commonTable/CommonTablePlaceholder";
+import dynamic from "next/dynamic";
+import { Spin } from "antd";
+const UploadModal = dynamic(() => import("./UploadModal"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
 
 const tableHeadings = [
   "Name",
@@ -42,6 +47,7 @@ const UsersTable = () => {
   const [data, setData] = useState<IUser[]>([]);
   const [sort, setSort] = useState<{ [x: string]: SortOrder } | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [uploadOpen, setUploadOpen] = useState<boolean>(false);
   const [pagination, setPagination] = useState({
     limit: 5,
     page: 1,
@@ -114,9 +120,6 @@ const UsersTable = () => {
 
   return (
     <Paper w="100%" p={20}>
-      <Title order={2} mb={12}>
-        Users
-      </Title>
       <Box className="flex justify-between items-center mb-2 space-x-2">
         <Flex gap={2} align="center">
           <Input
@@ -148,9 +151,27 @@ const UsersTable = () => {
             </Button>
           )}
         </Flex>
-        <Button onClick={handleAdd} rightSection={<BiUserPlus />}>
-          Add
-        </Button>
+
+        <Flex gap={2} align="center">
+          {uploadOpen ? (
+            <UploadModal open={uploadOpen} setOpen={setUploadOpen} />
+          ) : null}
+          <Button
+            onClick={() => setUploadOpen(true)}
+            rightSection={<BiUpload />}
+            size="compact-md"
+            color="green"
+          >
+            Upload Users Master
+          </Button>
+          <Button
+            onClick={handleAdd}
+            rightSection={<BiUserPlus />}
+            size="compact-md"
+          >
+            Add
+          </Button>
+        </Flex>
       </Box>
       <Table.ScrollContainer minWidth={800}>
         <Table highlightOnHover>
