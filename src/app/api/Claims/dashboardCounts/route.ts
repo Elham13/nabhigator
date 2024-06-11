@@ -66,7 +66,7 @@ router.get(async (req) => {
     const geography = user?.state;
 
     if (
-      ![Role.ADMIN, Role.VIEWER, Role.POST_QA_LEAD].includes(user?.activeRole)
+      ![Role.ADMIN, Role.CENTRAL_OPERATION, Role.POST_QA_LEAD].includes(user?.activeRole)
     ) {
       if (geography && geography?.length > 0 && !geography?.includes("All")) {
         commonFilters["hospitalDetails.providerState"] = { $in: geography };

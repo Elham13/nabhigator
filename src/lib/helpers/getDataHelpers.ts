@@ -17,7 +17,7 @@ import { Types } from "mongoose";
 dayjs.extend(customParseFormat);
 
 export const getClaimAmountFilter = (user: IUser) => {
-  if (user?.activeRole === Role.VIEWER) return { $gte: 0 };
+  if (user?.activeRole === Role.CENTRAL_OPERATION) return { $gte: 0 };
   switch (user?.claimAmountThreshold) {
     case "1 Lac to 5 Lacs":
       return {
@@ -371,7 +371,7 @@ export const processGetDataFilters = async (obj: any) => {
 
   if (
     userRole &&
-    ![Role.ADMIN, Role.VIEWER, Role.POST_QA_LEAD].includes(userRole)
+    ![Role.ADMIN, Role.CENTRAL_OPERATION, Role.POST_QA_LEAD].includes(userRole)
   ) {
     const leadView: string[] | undefined = user?.config?.leadView;
     let geography: string[] = user?.state;
