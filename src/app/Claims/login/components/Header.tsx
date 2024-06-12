@@ -13,6 +13,7 @@ const Header = () => {
           sizes="100vw"
           style={{ width: "7rem", height: "auto" }}
           priority
+          unoptimized
         />
       </div>
       <div className="flex pad:h-14 desk:h-20">
@@ -24,6 +25,7 @@ const Header = () => {
           sizes="100vw"
           style={{ width: "6rem", height: "auto" }}
           priority
+          unoptimized
         />
       </div>
     </div>

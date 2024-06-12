@@ -108,6 +108,7 @@ const PageWrapperContent = ({ title, showBackBtn, children }: PropTypes) => {
                 width={200}
                 height={200}
                 className="h-auto w-28"
+                unoptimized
               />
             </Link>
             <Image
@@ -116,6 +117,7 @@ const PageWrapperContent = ({ title, showBackBtn, children }: PropTypes) => {
               width={200}
               height={200}
               className="h-auto w-24 mr-4"
+              unoptimized
             />
           </div>
         </AppShell.Header>
