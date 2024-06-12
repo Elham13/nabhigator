@@ -41,7 +41,7 @@ const PageWrapperContent = ({ title, showBackBtn, children }: PropTypes) => {
 
   const [opened, setOpened] = useState<boolean>(false);
   const [logoPath, setLogoPath] = useState<string>(
-    "/navigator-admin-images/svgs/nabhigator.png"
+    "/navigator-admin-images/images/nabhigator.png"
   );
   const [infoOpen, setInfoOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -76,8 +76,8 @@ const PageWrapperContent = ({ title, showBackBtn, children }: PropTypes) => {
 
   useEffect(() => {
     if (colorScheme === "dark")
-      setLogoPath("/navigator-admin-images/svgs/nabhigatorDark.jpeg");
-    else setLogoPath("/navigator-admin-images/svgs/nabhigator.png");
+      setLogoPath("/navigator-admin-images/images/nabhigatorDark.jpeg");
+    else setLogoPath("/navigator-admin-images/images/nabhigator.png");
   }, [colorScheme]);
 
   return (
@@ -111,7 +111,7 @@ const PageWrapperContent = ({ title, showBackBtn, children }: PropTypes) => {
               />
             </Link>
             <Image
-              src="/navigator-admin-images/svgs/nivaBupaLogo.png"
+              src="/navigator-admin-images/images/nivaBupaLogo.png"
               alt="nabhigator logo"
               width={200}
               height={200}

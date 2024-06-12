@@ -37,7 +37,7 @@ const AuthorizationLetter = ({ dashboardData }: PropTypes) => {
   return (
     <View style={styles.container}>
       <RPImage
-        src="/navigator-admin-images/svgs/nivaBupaLogo.png"
+        src="/navigator-admin-images/images/nivaBupaLogo.png"
         style={styles.logo}
       />
       <View style={[styles.horizontalContainer, { marginTop: 20 }]}>
@@ -121,7 +121,7 @@ const AuthorizationLetter = ({ dashboardData }: PropTypes) => {
         (Formerly known as Max Bupa Health Insurance Co. Ltd.)
       </Text>
       <RPImage
-        src="/navigator-admin-images/svgs/signature.jpg"
+        src="/navigator-admin-images/images/signature.jpg"
         style={styles.signature}
       />
       <Text style={[styles.textBold, { marginTop: 20 }]}>Manish Baweja</Text>
