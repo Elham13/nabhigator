@@ -6,7 +6,7 @@ const Header = () => {
     <div className="flex items-center justify-between p-2 bg-white shadow-[0_5px_10px_-5px_gray]">
       <div className="flex pad:h-14 desk:h-20">
         <Image
-          src="/navigator-admin-images/images/nabhigator.jpeg"
+          src="/navigator-admin-images/svgs/nabhigator.jpeg"
           alt="Nabhigator Logo"
           width={0}
           height={0}
