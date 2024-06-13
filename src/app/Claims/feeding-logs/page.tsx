@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   NumberInput,
+  Pagination,
   Paper,
   Select,
   Text,
@@ -14,7 +15,6 @@ import {
 import axios from "axios";
 import { toast } from "react-toastify";
 import { BsEmojiFrown } from "react-icons/bs";
-import FeedingLogTable from "./components/FeedingLogTable";
 import {
   IDDataFeedingLog,
   IFeedingLogsTableData,
@@ -24,6 +24,12 @@ import { EndPoints } from "@/lib/utils/types/enums";
 import { numberToOrdinal, showError } from "@/lib/helpers";
 import PageWrapper from "@/components/ClaimsComponents/PageWrapper";
 import LoaderPlaceholder from "@/components/ClaimsComponents/LoaderPlaceholder";
+import dynamic from "next/dynamic";
+import { Spin } from "antd";
+const FeedingLogTable = dynamic(() => import("./components/FeedingLogTable"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
 
 const formDataInitials = { claimId: "", claimType: "" };
 
@@ -33,6 +39,11 @@ const FeedingLogs = () => {
   const [data, setData] = useState<IFeedingLogsTableData[][]>([]);
   const [formVisible, setFormVisible] = useState<boolean>(false);
   const [formData, setFormData] = useState(formDataInitials);
+  const [pagination, setPagination] = useState({
+    limit: 10,
+    page: 1,
+    count: 0,
+  });
 
   const handleFeed = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -63,9 +74,15 @@ const FeedingLogs = () => {
     const getLogs = async () => {
       setLoading(true);
       try {
-        const { data } = await axios.get<ResponseType<IDDataFeedingLog>>(
-          EndPoints.FAILED_CASES
+        const payload = {
+          limit: pagination?.limit,
+          skip: pagination?.page - 1,
+        };
+        const { data } = await axios.post<ResponseType<IDDataFeedingLog>>(
+          EndPoints.FAILED_CASES,
+          payload
         );
+        setPagination((prev) => ({ ...prev, count: data?.count }));
         const tmpArr = data?.data?.map((el) => {
           return el?.skippedClaimIds?.map((id, ind) => ({
             claimId: id,
@@ -80,12 +97,15 @@ const FeedingLogs = () => {
       }
     };
     getLogs();
-  }, []);
+  }, [pagination?.page, pagination?.limit]);
 
   return (
     <PageWrapper title="Failed Cases">
       <Paper w="100%" p={20}>
-        <Box className="flex items-center justify-end mb-4">
+        <Box className="flex items-center justify-end mb-4 gap-x-4">
+          <Text>
+            Total: <strong>{pagination?.count}</strong>
+          </Text>
           <Button onClick={() => setFormVisible((prev) => !prev)}>
             {formVisible ? "Cancel" : "Feed Manually"}
           </Button>
@@ -142,6 +162,12 @@ const FeedingLogs = () => {
             </Box>
           )}
         </Accordion>
+        <Pagination
+          className="w-fit ml-auto mt-8"
+          value={pagination.page}
+          onChange={(page) => setPagination((prev) => ({ ...prev, page }))}
+          total={Math.ceil(pagination.count / pagination.limit)}
+        />
       </Paper>
     </PageWrapper>
   );
