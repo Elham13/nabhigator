@@ -43,7 +43,7 @@ const isFNIProtectedRoute = (pathname: string) => {
     "/Claims/login",
     "/Claims/action-inbox/documents",
     "/api/Claims/feedDashboard",
-    "/api/Claims/emptyPostQaAssignedCases",
+    "/api/Claims/deployVerify",
   ];
 
   return routeNames?.some(
