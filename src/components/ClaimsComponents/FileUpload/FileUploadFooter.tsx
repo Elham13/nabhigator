@@ -77,6 +77,7 @@ const FileUploadFooter = ({ url, onDelete }: PropTypes) => {
                 className="w-full h-auto"
                 width={200}
                 height={200}
+                unoptimized
               />
             ) : null}
           </div>
