@@ -6,6 +6,15 @@ import type { NextFetchEvent, NextRequest } from "next/server";
 const router = createEdgeRouter<NextRequest, NextFetchEvent>();
 
 router.use(async (request, event, next) => {
+  const { pathname } = request.nextUrl;
+  const publicRoutes = [
+    "/Claims/action-inbox/documents",
+    "/api/Claims/feedDashboard",
+    "/api/Claims/deployVerify",
+  ];
+
+  if (publicRoutes.includes(pathname)) return next();
+
   return await updateSession(request, next);
 });
 
