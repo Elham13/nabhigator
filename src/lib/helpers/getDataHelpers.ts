@@ -16,7 +16,8 @@ import { Types } from "mongoose";
 
 dayjs.extend(customParseFormat);
 
-export const getClaimAmountFilter = (user: IUser) => {
+export const getClaimAmountFilter = (user?: IUser) => {
+  if (!user) return { $gte: 0 };
   if (user?.activeRole === Role.CENTRAL_OPERATION) return { $gte: 0 };
   switch (user?.claimAmountThreshold) {
     case "1 Lac to 5 Lacs":
@@ -61,8 +62,6 @@ export const processGetDataFilters = async (obj: any) => {
 
   const processedObj = { ...obj };
   const user: IUser | undefined = processedObj["user"];
-
-  if (!user) throw new Error("user is required");
 
   Object.keys(processedObj).forEach((key) => {
     if (!processedObj[key] && processedObj[key] !== 0) {
@@ -374,7 +373,7 @@ export const processGetDataFilters = async (obj: any) => {
     ![Role.ADMIN, Role.CENTRAL_OPERATION, Role.POST_QA_LEAD].includes(userRole)
   ) {
     const leadView: string[] | undefined = user?.config?.leadView;
-    let geography: string[] = user?.state;
+    let geography: string[] = user?.state || [];
 
     if (userRole === Role.TL)
       processedObj["teamLead"] = new Types.ObjectId(user?._id);
@@ -407,7 +406,7 @@ export const processGetDataFilters = async (obj: any) => {
         [Role.TL, Role.CLUSTER_MANAGER].includes(userRole)
       ) {
         const states: IZoneStateMaster[] = await ZoneStateMaster.find({
-          Zone: { $in: user.zone },
+          Zone: { $in: user?.zone },
         });
 
         processedObj["hospitalDetails.providerState"] = {

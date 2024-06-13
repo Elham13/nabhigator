@@ -21,16 +21,15 @@ const router = createEdgeRouter<NextRequest, {}>();
 router.post(async (req) => {
   const filter = await req?.json();
 
-  const sort = filter?.sort || null;
-  const updatedFilter = await processGetDataFilters(filter);
-
-  const userRole = filter?.user?.activeRole
-    ? filter?.user?.activeRole
-    : filter?.source === "Investigators"
-    ? Role.INTERNAL_INVESTIGATOR
-    : undefined;
-
   try {
+    const sort = filter?.sort || null;
+    const updatedFilter = await processGetDataFilters(filter);
+
+    const userRole = filter?.user?.activeRole
+      ? filter?.user?.activeRole
+      : filter?.source === "Investigators"
+      ? Role.INTERNAL_INVESTIGATOR
+      : undefined;
     await connectDB(Databases.FNI);
 
     const pipeline: PipelineStage[] = [
