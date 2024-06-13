@@ -27,22 +27,21 @@ import User from "../Models/user";
 import ZoneStateMaster from "../Models/zoneStateMaster";
 dayjs.extend(utc);
 dayjs.extend(timezone);
-
 function chunkArray(array: Array<any>, size: number) {
   const chunkedArr: Array<any> = [];
-  for (let i = 0; i < array.length; i += size) {
-    chunkedArr.push(array.slice(i, i + size));
+  for (let i = 0; i < array?.length; i += size) {
+    chunkedArr?.push(array?.slice(i, i + size));
   }
   return chunkedArr;
 }
 
 function convertDateToDayJsFormat(dateStr: string) {
   // Split the date string into parts [day, month, year]
-  const parts = dateStr.split("-");
+  const parts = dateStr?.split("-");
 
   // Convert the month part to the correct case
   const month =
-    parts[1].charAt(0).toUpperCase() + parts[1].slice(1).toLowerCase();
+    parts[1]?.charAt(0)?.toUpperCase() + parts[1]?.slice(1)?.toLowerCase();
 
   // Reassemble the date string in the correct format
   return `${parts[0]}-${month}-${parts[2]}`;
@@ -79,10 +78,10 @@ const getToken = async () => {
       authPayload,
       { headers: commonHeaders }
     );
-    if (!data.Token) throw new Error("Failed to get auth token");
-    return { success: true, token: data.Token };
+    if (!data?.Token) throw new Error("Failed to get auth token");
+    return { success: true, token: data?.Token };
   } catch (error: any) {
-    return { success: false, message: error.message };
+    return { success: false, message: error?.message };
   }
 };
 
@@ -93,9 +92,9 @@ const getFniData = async (claimId: string, claimType: string) => {
     await connectDB(Databases.FNI);
 
     const tokenRes = await getToken();
-    if (!tokenRes.success)
+    if (!tokenRes?.success)
       throw new Error(`Get token api failure: ${tokenRes.message}`);
-    const token = tokenRes.token;
+    const token = tokenRes?.token;
 
     const headers = { ...commonHeaders, Authorization: `Bearer ${token}` };
 
@@ -164,10 +163,10 @@ const getFniData = async (claimId: string, claimType: string) => {
       );
 
     let claimingMemberId;
-    const memberList = claimHistory.PolicyClaims.MemberList;
+    const memberList = claimHistory?.PolicyClaims?.MemberList;
     for (let member of memberList) {
-      if (member.memberNo === memberNo) {
-        claimingMemberId = member.membershipId;
+      if (member?.memberNo === memberNo) {
+        claimingMemberId = member?.membershipId;
       }
     }
 
@@ -182,13 +181,15 @@ const getFniData = async (claimId: string, claimType: string) => {
 
     const claimNumbers: (string | null | undefined)[] = [];
     const claimResults: { [claimId: string]: any } = {};
+    const fcuResults: { [claimId: string]: any } = {};
+    const dsClaimIdResults: { [claimId: string]: any } = {};
 
     // Iterate through the MemberList array
     for (const member of claimHistory.PolicyClaims.MemberList) {
       // Iterate through the ClaimHistory array of each member
       for (const claim of member.ClaimHistory) {
-        const claimNumber = claim.Claim_Number;
-        claimNumbers.push(claimNumber);
+        const claimNumber = claim?.Claim_Number;
+        claimNumbers?.push(claimNumber);
       }
     }
 
@@ -200,7 +201,7 @@ const getFniData = async (claimId: string, claimType: string) => {
     };
 
     const processClaimsChunk = async (claimsChunk: string[]) => {
-      const promises = claimsChunk.map((claimNumber) => {
+      const promises = claimsChunk?.map((claimNumber) => {
         const claimId = claimNumber?.replace(/^(P|R)_/, "");
         const claimType = claimNumber?.charAt(0);
 
@@ -251,12 +252,11 @@ const getFniData = async (claimId: string, claimType: string) => {
       }
     }
 
-    // TODO: Fix here
     results.forEach(({ claimNumber, diagnosisDetails, fcu, dsClaimId }) => {
       if (claimNumber) {
         claimResults[claimNumber] = diagnosisDetails;
-        claimResults[`fcu_${claimNumber}`] = fcu;
-        claimResults[`dsClaimId_${claimNumber}`] = dsClaimId;
+        fcuResults[claimNumber] = fcu;
+        dsClaimIdResults[claimNumber] = dsClaimId;
       }
     });
 
@@ -266,13 +266,15 @@ const getFniData = async (claimId: string, claimType: string) => {
       { headers }
     );
 
-    const contracts = contractDetail.ContractDetails.Contracts;
-    contracts.sort((a, b) => Number(a.RENEW_YEAR_NO) - Number(b.RENEW_YEAR_NO));
+    const contracts = contractDetail?.ContractDetails?.Contracts;
+    contracts.sort(
+      (a, b) => Number(a?.RENEW_YEAR_NO) - Number(b?.RENEW_YEAR_NO)
+    );
     const firstContract = contracts[0];
-    const lastContract = contracts[contracts.length - 1];
+    const lastContract = contracts[contracts?.length - 1];
 
     const customerFromCustomerPolicy = customerPolicyDetail?.CUSTOMERS?.[0];
-    const appNumber = customerFromCustomerPolicy.CONTRACTS[0]?.APP_NO;
+    const appNumber = customerFromCustomerPolicy?.CONTRACTS[0]?.APP_NO;
 
     const { data: applicationIdDetails } =
       await axios.post<ApplicationIdDetails>(
@@ -281,12 +283,12 @@ const getFniData = async (claimId: string, claimType: string) => {
         { headers }
       );
 
-    const applications = applicationIdDetails.preIssuanceStatusData;
+    const applications = applicationIdDetails?.preIssuanceStatusData;
     const newApplicationIds = applications
-      .filter((app: any) => app.BusinessType === "New Application")
-      .map((app: any) => app.ApplicationID);
+      ?.filter((app: any) => app?.BusinessType === "New Application")
+      ?.map((app: any) => app?.ApplicationID);
     const applicationId =
-      newApplicationIds.length > 0 ? newApplicationIds[0] : null;
+      newApplicationIds?.length > 0 ? newApplicationIds[0] : null;
     const membersCovered = customerFromCustomerPolicy?.MEMBERS;
     const memberListFromHistory = claimHistory?.PolicyClaims?.MemberList;
     const claimHistoryObj = memberListFromHistory?.find(
@@ -298,10 +300,10 @@ const getFniData = async (claimId: string, claimType: string) => {
     let currentClaim: ClaimHistory | null = null;
 
     // Iterate through the MemberList array
-    for (const member of claimHistory.PolicyClaims.MemberList) {
+    for (const member of claimHistory?.PolicyClaims?.MemberList) {
       // Iterate through the ClaimHistory array of each member
-      for (const claim of member.ClaimHistory) {
-        if (claim.Claim_Number === currentClaimNumber) {
+      for (const claim of member?.ClaimHistory) {
+        if (claim?.Claim_Number === currentClaimNumber) {
           currentClaim = claim;
 
           break; // Found the matching claim, no need to continue searching
@@ -329,12 +331,12 @@ const getFniData = async (claimId: string, claimType: string) => {
       throw new Error("Failed to find provider details");
 
     const teamLead = await getUser(
-      provider.ProviderData?.providerState,
+      provider?.ProviderData?.providerState,
       Role.TL
     );
 
     const clusterManager = await getUser(
-      provider.ProviderData?.providerState,
+      provider?.ProviderData?.providerState,
       Role.CLUSTER_MANAGER
     );
 
@@ -349,9 +351,9 @@ const getFniData = async (claimId: string, claimType: string) => {
         "DD-MMM-YYYY"
       );
       const today = dayjs();
-      if (dod.isBefore(today, "day")) {
+      if (dod?.isBefore(today, "day")) {
         admissionType = AdmissionType.POST_FACTO;
-      } else if (doa.isAfter(today, "day")) {
+      } else if (doa?.isAfter(today, "day")) {
         admissionType = AdmissionType.PLANNED;
       } else {
         admissionType = AdmissionType.ADMITTED;
@@ -523,8 +525,8 @@ const getFniData = async (claimId: string, claimType: string) => {
           claim_number: clh?.Claim_Number,
           claims_Status: clh?.Final_Status,
           diagnosis: claimResults[clh?.Claim_Number],
-          fcu: claimResults[`fcu_${clh?.Claim_Number}`] || "",
-          dsClaimId: claimResults[`dsClaimId_${clh?.Claim_Number}`] || "",
+          fcu: fcuResults[clh?.Claim_Number] || "",
+          dsClaimId: dsClaimIdResults[clh?.Claim_Number] || "",
           DOA: clh?.Hospitilization_Date || null,
           DOD: clh?.Discharge_Date || null,
           claimAmount: clh?.Approved_Amount,
@@ -538,7 +540,7 @@ const getFniData = async (claimId: string, claimType: string) => {
             (obj, index, self) =>
               index ===
               self?.findIndex(
-                (t) => t.FRAUD_INDICATOR_DESC === obj?.FRAUD_INDICATOR_DESC
+                (t) => t?.FRAUD_INDICATOR_DESC === obj?.FRAUD_INDICATOR_DESC
               )
           ) || [],
         remarks:

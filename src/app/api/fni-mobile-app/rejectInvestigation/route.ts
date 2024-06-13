@@ -160,9 +160,6 @@ router.post(async (req) => {
 
     if (!success) throw new Error(`Failed to send Email ${mailerMsg}`);
 
-    await investigator.save();
-    await dashboardData.save();
-
     await captureCaseEvent({
       claimId: dashboardData?.claimId,
       intimationDate:
@@ -173,6 +170,9 @@ router.post(async (req) => {
       userName: investigator?.investigatorName || "",
       eventRemarks: `Investigation rejected with comment ${remark}`,
     });
+
+    await investigator.save();
+    await dashboardData.save();
 
     return NextResponse.json(
       {

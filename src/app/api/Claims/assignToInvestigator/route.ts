@@ -266,6 +266,7 @@ router.post(async (req) => {
     });
 
     // Update investigators daily and/or monthly assign
+    // TODO: Change the logic of threshold here
     for (let i = 0; i < investigators?.length; i++) {
       const inv = investigators[i];
       inv?.email?.length > 0 &&
