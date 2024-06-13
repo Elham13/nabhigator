@@ -1332,3 +1332,40 @@ const getFniData = {
     },
   ],
 };
+
+const getClaimFniDetails = {
+  Status: "true",
+  StatusMessage: "Success",
+  PolicyNo: "30118640201200",
+  PolicyClaimsOther: {
+    ClaimFNIDetails: {
+      Member_Name: "Ms.ANNAPURNA NEKKANTI",
+      membershipId: "12071015",
+      COI: "",
+      FNI: {
+        SR_NUMBER: "",
+        Recommendations: "",
+        Executive_Summary: "",
+        Other_Remarks:
+          "1. POLICY IS 5 DAYS OLD.\r\n2. HTN SINCE 2-3 MONTHS\r\n3.ADMITTED WITH C/O SEIZURES, H/O OF SIMILAR EPISODE 9 YRS BACK.\r\n4. NEED TO RULE OUT PED.",
+        FRAUD_INDICATORS: [
+          {
+            FRAUD_INDICATOR_DESC: "Others",
+            Values: {
+              CL_Selected: "TRUE",
+              FI_Selected: "TRUE",
+            },
+          },
+          {
+            FRAUD_INDICATOR_DESC:
+              "Possible non disclosure/ misrepresentation of material facts.",
+            Values: {
+              CL_Selected: "TRUE",
+              FI_Selected: "TRUE",
+            },
+          },
+        ],
+      },
+    },
+  },
+};

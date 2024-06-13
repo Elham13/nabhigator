@@ -425,3 +425,23 @@ export interface IGetFNIData {
   StatusMessage: string;
   ClaimsData: IClaimsData[];
 }
+
+export interface IGetClaimFNIDetails {
+  Status: string;
+  StatusMessage: string;
+  PolicyNo: string;
+  PolicyClaimsOther: {
+    ClaimFNIDetails: {
+      Member_Name: string;
+      membershipId: string;
+      COI: string;
+      FNI: {
+        SR_NUMBER: string;
+        Recommendations: string;
+        Executive_Summary: string;
+        Other_Remarks: string;
+        FRAUD_INDICATORS: IFraudIndicator[];
+      };
+    };
+  };
+}
