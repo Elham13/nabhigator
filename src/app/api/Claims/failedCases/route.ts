@@ -7,17 +7,26 @@ import { NextRequest, NextResponse } from "next/server";
 
 const router = createEdgeRouter<NextRequest, {}>();
 
-router.get(async (req) => {
+router.post(async (req) => {
+  const { limit, skip } = await req?.json();
+
   try {
     await connectDB(Databases.FNI);
 
-    const data = await DashboardFeedingLog.find({}).limit(5);
+    const data = await DashboardFeedingLog.aggregate([
+      { $sort: { updatedAt: -1 } },
+      { $skip: skip && limit ? skip * limit : 0 },
+      { $limit: limit || 10 },
+    ]);
+
+    const count = await DashboardFeedingLog.countDocuments({});
 
     return NextResponse.json(
       {
         success: true,
         message: "Fetched success",
         data,
+        count,
       },
       { status: 200 }
     );
@@ -33,6 +42,6 @@ router.get(async (req) => {
   }
 });
 
-export async function GET(request: NextRequest, ctx: RequestContext) {
+export async function POST(request: NextRequest, ctx: RequestContext) {
   return router.run(request, ctx) as Promise<void>;
 }

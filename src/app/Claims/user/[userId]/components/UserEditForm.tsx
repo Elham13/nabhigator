@@ -66,27 +66,41 @@ const UserEditForm = ({ userId, getUserId }: PropTypes) => {
         description={user?.password}
         icon={MdPassword}
       />
-      <EditFormItem
-        title="Zone"
-        description={user?.zone?.join(", ")}
-        icon={CiLocationOn}
-      />
-      <EditFormItem
-        title="State"
-        description={user?.state?.join(", ")}
-        icon={CiLocationOn}
-      />
-      <EditFormItem title="City" description={user?.city} icon={CiLocationOn} />
-      <EditFormItem
-        title="District"
-        description={user?.district}
-        icon={CiLocationOn}
-      />
-      <EditFormItem
-        title="PinCode"
-        description={user?.pinCode}
-        icon={CiLocationOn}
-      />
+      {user?.zone && user?.zone?.length > 0 ? (
+        <EditFormItem
+          title="Zone"
+          description={user?.zone?.join(", ")}
+          icon={CiLocationOn}
+        />
+      ) : null}
+      {user?.state && user?.state?.length > 0 ? (
+        <EditFormItem
+          title="State"
+          description={user?.state?.join(", ")}
+          icon={CiLocationOn}
+        />
+      ) : null}
+      {user?.city ? (
+        <EditFormItem
+          title="City"
+          description={user?.city}
+          icon={CiLocationOn}
+        />
+      ) : null}
+      {user?.district ? (
+        <EditFormItem
+          title="District"
+          description={user?.district}
+          icon={CiLocationOn}
+        />
+      ) : null}
+      {user?.pinCode ? (
+        <EditFormItem
+          title="PinCode"
+          description={user?.pinCode}
+          icon={CiLocationOn}
+        />
+      ) : null}
       <EditFormItem
         title="Status"
         description={user?.status}

@@ -271,7 +271,7 @@ router.post(async (req) => {
       const inv = investigators[i];
       inv?.email?.length > 0 &&
         inv?.email?.map(async (mail: string) => {
-          const cc_recipients: string[] = [];
+          const cc_recipients: string[] = ["FIAllocation@nivabupa.com"];
           if (dashboardData?.teamLead) {
             const tl = await User.findById(dashboardData?.teamLead);
             if (tl) cc_recipients?.push(tl?.email);

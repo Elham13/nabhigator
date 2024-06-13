@@ -122,6 +122,7 @@ router.post(async (req) => {
     const ccRecipients: string[] = [
       "FIAllocation@nivabupa.com",
       "Sanjay.kumar16@nivabupa.com",
+      "Nanit.Kumar@nivabupa.com",
     ];
 
     if (allocatorUser?.email) allocationUserEmails?.push(allocatorUser?.email);
