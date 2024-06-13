@@ -13,6 +13,7 @@ import {
   ContractAllDetailsRes,
   CustomerPolicyDetailRes,
   GetAuthRes,
+  IGetClaimFNIDetails,
   ProviderDetailRes,
 } from "../utils/types/maximusResponseTypes";
 import { Databases, EndPoints } from "../utils/types/enums";
@@ -25,8 +26,10 @@ import {
 } from "../utils/types/fniDataTypes";
 import User from "../Models/user";
 import ZoneStateMaster from "../Models/zoneStateMaster";
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
+
 function chunkArray(array: Array<any>, size: number) {
   const chunkedArr: Array<any> = [];
   for (let i = 0; i < array?.length; i += size) {
@@ -104,9 +107,6 @@ const getFniData = async (claimId: string, claimType: string) => {
       { headers }
     );
 
-    // const currentClaimNumber =
-    //   sampleClaimDetail.PolicyClaims.ClaimDetail.Claim_Number;
-
     //from claim history get membershipId by searching memberNo
     //customer policyDetail do a match on MEMBERSHIP_NO
 
@@ -119,6 +119,17 @@ const getFniData = async (claimId: string, claimType: string) => {
     const currentClaimNumber =
       claimDetail?.PolicyClaims?.ClaimDetail?.Claim_Number || "";
 
+    const { data: claimFNIDetail } = await axios.post<IGetClaimFNIDetails>(
+      `${baseUrl}${EndPoints.GET_CLAIM_FNI_DETAILS}`,
+      { ClaimID: claimId, ClaimType: claimType },
+      { headers }
+    );
+
+    if (["False", "false"].includes(claimFNIDetail?.Status))
+      throw new Error(
+        `${EndPoints.GET_CLAIM_FNI_DETAILS} api error: ${claimFNIDetail?.StatusMessage}`
+      );
+
     const { data: claimOtherDetail } = await axios.post<ClaimOtherDetailRes>(
       `${baseUrl}${EndPoints.GET_CLAIM_OTHER_DETAILS}`,
       { ClaimID: claimId, ClaimType: claimType },
@@ -127,13 +138,13 @@ const getFniData = async (claimId: string, claimType: string) => {
 
     if (["False", "false"].includes(claimOtherDetail?.Status))
       throw new Error(
-        `Claim other details api error: ${claimOtherDetail?.StatusMessage}`
+        `${EndPoints.GET_CLAIM_OTHER_DETAILS} api error: ${claimOtherDetail?.StatusMessage}`
       );
 
     const memberNo =
-      claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.membershipId || "";
+      claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.membershipId || "";
 
-    const policyNo = claimDetail?.PolicyNo || claimOtherDetail?.PolicyNo;
+    const policyNo = claimDetail?.PolicyNo || claimFNIDetail?.PolicyNo;
 
     if (!policyNo)
       throw new Error(
@@ -470,12 +481,12 @@ const getFniData = async (claimId: string, claimType: string) => {
           claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.ClaimDetailsOther
             ?.FRAUDREASON,
         spotNumber:
-          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.FNI?.SR_NUMBER,
+          claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.FNI?.SR_NUMBER,
         spotInvestigationRecommendation:
-          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.FNI
+          claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.FNI
             ?.Recommendations,
         spotInvestigationFindings:
-          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.FNI
+          claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.FNI
             ?.Executive_Summary,
         noOfClaimsCorrespondingToPivotalId: "",
         claimTrigger:
@@ -533,10 +544,8 @@ const getFniData = async (claimId: string, claimType: string) => {
         })),
       })),
       fraudIndicators: {
-        // indicatorsList:
-        //   claimOtherDetail.PolicyClaimsOther.MemberDetails.FNI.FRAUD_INDICATORS,
         indicatorsList:
-          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.FNI?.FRAUD_INDICATORS?.filter(
+          claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.FNI?.FRAUD_INDICATORS?.filter(
             (obj, index, self) =>
               index ===
               self?.findIndex(
@@ -544,7 +553,7 @@ const getFniData = async (claimId: string, claimType: string) => {
               )
           ) || [],
         remarks:
-          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.FNI
+          claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.FNI
             ?.Other_Remarks || "",
       },
       applicationId: applicationId,
