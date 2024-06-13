@@ -56,6 +56,7 @@ export enum EndPoints {
   GET_CLAIM_DETAIL_BY_ID = "claim/getclaimdetialbyid",
   GET_CUSTOMER_POLICY_DETAIL = "policy/getcustomerpolicydetail",
   GET_CLAIM_OTHER_DETAILS = "claim/getclaimotherdetails",
+  GET_CLAIM_FNI_DETAILS = "claim/getclaimfnidetails",
   GET_CLAIM_HISTORY = "claim/getclaimhistory",
   GET_PROVIDER_DETAILS = "claim/getproviderdetails",
   GET_CONTRACT_DETAILS = "contract/getcontractalldetails",
