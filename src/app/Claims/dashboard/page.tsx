@@ -71,16 +71,19 @@ const Dashboard = () => {
               number={counts?.preAuth?.green}
               color="Green"
               claimType="PreAuth"
+              user={user}
             />
             <Card
               number={counts?.preAuth?.amber}
               color="Amber"
               claimType="PreAuth"
+              user={user}
             />
             <Card
               number={counts?.preAuth?.red}
               color="Red"
               claimType="PreAuth"
+              user={user}
             />
           </Stack>
         </Grid.Col>
@@ -98,16 +101,19 @@ const Dashboard = () => {
               number={counts?.reimbursement?.green}
               color="Green"
               claimType="Reimbursement"
+              user={user}
             />
             <Card
               number={counts?.reimbursement?.amber}
               color="Amber"
               claimType="Reimbursement"
+              user={user}
             />
             <Card
               number={counts?.reimbursement?.red}
               color="Red"
               claimType="Reimbursement"
+              user={user}
             />
           </Stack>
         </Grid.Col>
@@ -125,16 +131,19 @@ const Dashboard = () => {
               number={counts?.PAOrCI?.green}
               color="Green"
               claimType="Reimbursement"
+              user={user}
             />
             <Card
               number={counts?.PAOrCI?.amber}
               color="Amber"
               claimType="Reimbursement"
+              user={user}
             />
             <Card
               number={counts?.PAOrCI?.red}
               color="Red"
               claimType="Reimbursement"
+              user={user}
             />
           </Stack>
         </Grid.Col>
@@ -152,13 +161,20 @@ const Dashboard = () => {
               number={counts?.total?.green}
               color="Green"
               claimType="Total"
+              user={user}
             />
             <Card
               number={counts?.total?.amber}
               color="Amber"
               claimType="Total"
+              user={user}
             />
-            <Card number={counts?.total?.red} color="Red" claimType="Total" />
+            <Card
+              number={counts?.total?.red}
+              color="Red"
+              claimType="Total"
+              user={user}
+            />
           </Stack>
         </Grid.Col>
       </Grid>
