@@ -359,7 +359,7 @@ export const findInvestigators = async (
 
 export const updateInvestigators = async (
   investigator: Investigator,
-  isManual: boolean
+  isManual?: boolean
 ): Promise<IUpdateInvReturnType> => {
   const payload: IUpdateInvReturnType = {
     success: true,
