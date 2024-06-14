@@ -457,11 +457,6 @@ export default function InvestigationSummary({
         caseDetails?.postQARecommendation?.regulatoryReportingRecommendation ||
         "-",
     },
-    // TODO: Fix the documents type error in below code
-    // {
-    //   key: "Documents",
-    //   value: caseDetails?.postQARecommendation?.documents || "-",
-    // },
   ];
 
   const tasksAssigned = caseDetails?.tasksAssigned.map((item, index) => {
