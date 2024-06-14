@@ -123,7 +123,7 @@ router.post(async (req) => {
         !Array.isArray(investigatorId) ||
         investigatorId?.length < 1
       )
-        throw new Error("investigationId is required");
+        throw new Error("investigatorId is required");
 
       const investigators: Investigator[] = await ClaimInvestigator.find({
         _id: {

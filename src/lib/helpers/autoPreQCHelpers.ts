@@ -1,5 +1,5 @@
+import { HydratedDocument, ObjectId, PipelineStage, Types } from "mongoose";
 import dayjs from "dayjs";
-import { PipelineStage, Types } from "mongoose";
 import axios from "axios";
 import {
   AdmissionType,
@@ -15,12 +15,12 @@ import {
   IUpdateFNIDetailsRes,
 } from "../utils/types/maximusResponseTypes";
 import MaximusResponseLog from "../Models/maximusResponseLog";
-
-interface IAllocationType {
-  allocationType: "Single" | "Dual";
-  investigatorType?: "Internal" | "External";
-  fallbackAllocationType?: IAllocationType;
-}
+import {
+  IAllocationType,
+  IFindInvestigatorReturnType,
+  IFindInvestigatorsProps,
+  IUpdateInvReturnType,
+} from "../utils/types/apiTypes";
 
 export const getAllocationType = (data: IDashboardData) => {
   const payload: IAllocationType = {
@@ -114,12 +114,10 @@ export const claimCasePayload = {
   },
 };
 
-interface IFindInvestigatorsProps {
-  allocation: IAllocationType;
-  dashboardData: IDashboardData;
-}
-
-const getDualInvestigators = async (data: IDashboardData) => {
+const getDualInvestigators = async (
+  data: IDashboardData,
+  excludedIds?: ObjectId[]
+) => {
   let investigators: Investigator[] = [];
   const claimId = data?.claimId;
   const claimSubType = data?.claimSubType;
@@ -129,7 +127,6 @@ const getDualInvestigators = async (data: IDashboardData) => {
   const matchStage: PipelineStage.Match["$match"] = {
     rejectedCases: { $ne: claimId },
     userStatus: "active",
-    Type: "Internal",
     role: { $ne: "TeamMate" },
     $or: [
       {
@@ -139,11 +136,15 @@ const getDualInvestigators = async (data: IDashboardData) => {
     ],
     $expr: {
       $and: [
-        { $lt: ["$dailyAssign", "$dailyThreshold"] },
-        { $lt: ["$monthlyAssigned", "$monthlyThreshold"] },
+        { $lte: ["$dailyAssign", "$dailyThreshold"] },
+        { $lte: ["$monthlyAssigned", "$monthlyThreshold"] },
       ],
     },
   };
+
+  if (excludedIds && excludedIds?.length > 0) {
+    matchStage["_id"] = { $nin: excludedIds };
+  }
 
   const pipeline: PipelineStage[] = [
     {
@@ -213,18 +214,14 @@ const getDualInvestigators = async (data: IDashboardData) => {
   return investigators;
 };
 
-export const findInvestigators = async (props: IFindInvestigatorsProps) => {
-  const { allocation, dashboardData } = props;
+export const findInvestigators = async (
+  props: IFindInvestigatorsProps
+): Promise<IFindInvestigatorReturnType> => {
+  const { allocation, dashboardData, excludedIds } = props;
   const { claimId, claimType, claimSubType } = dashboardData;
   const provider = dashboardData.hospitalDetails;
 
-  type TResponse = {
-    success: boolean;
-    investigators: Investigator[];
-    message: string;
-  };
-
-  const response: TResponse = {
+  const response: IFindInvestigatorReturnType = {
     success: true,
     investigators: [],
     message: "Found successfully",
@@ -244,7 +241,6 @@ export const findInvestigators = async (props: IFindInvestigatorsProps) => {
       const matchStage: PipelineStage.Match["$match"] = {
         rejectedCases: { $ne: claimId },
         userStatus: "active",
-        Type: "Internal",
         role: { $ne: "TeamMate" },
         $or: [
           {
@@ -254,11 +250,15 @@ export const findInvestigators = async (props: IFindInvestigatorsProps) => {
         ],
         $expr: {
           $and: [
-            { $lt: ["$dailyAssign", "$dailyThreshold"] },
-            { $lt: ["$monthlyAssigned", "$monthlyThreshold"] },
+            { $lte: ["$dailyAssign", "$dailyThreshold"] },
+            { $lte: ["$monthlyAssigned", "$monthlyThreshold"] },
           ],
         },
       };
+
+      if (excludedIds && excludedIds?.length > 0) {
+        matchStage["_id"] = { $nin: excludedIds };
+      }
 
       const pipeline: PipelineStage[] = [
         {
@@ -326,12 +326,18 @@ export const findInvestigators = async (props: IFindInvestigatorsProps) => {
           // @ts-ignore
           pipeline[0]["$match"].Type = { $in: ["Internal", "External"] };
         } else {
-          response.investigators = await getDualInvestigators(dashboardData);
+          response.investigators = await getDualInvestigators(
+            dashboardData,
+            excludedIds
+          );
           break;
         }
       }
     } else {
-      response.investigators = await getDualInvestigators(dashboardData);
+      response.investigators = await getDualInvestigators(
+        dashboardData,
+        excludedIds
+      );
     }
 
     if (
@@ -351,34 +357,95 @@ export const findInvestigators = async (props: IFindInvestigatorsProps) => {
   }
 };
 
-export const updateInvestigators = async (investigator: Investigator) => {
-  const currentDate = dayjs();
-  const oneMonthAgo = currentDate.subtract(1, "month");
+export const updateInvestigators = async (
+  investigator: Investigator,
+  isManual: boolean
+): Promise<IUpdateInvReturnType> => {
+  const payload: IUpdateInvReturnType = {
+    success: true,
+    message: "Update Success",
+    recycle: false,
+  };
 
   try {
-    // Check if "updatedDate" is before one month
-    if (dayjs(investigator?.updatedDate).isBefore(oneMonthAgo)) {
-      await ClaimInvestigator.findByIdAndUpdate(
-        investigator._id,
-        {
-          $inc: { dailyAssign: 1, monthlyAssigned: 1 },
-          $set: { updatedDate: new Date() },
-        },
-        { useFindAndModify: false }
+    const inv: HydratedDocument<Investigator> | null =
+      await ClaimInvestigator.findById(investigator?._id);
+
+    if (!inv)
+      throw new Error(
+        `Failed to find an investigator with the id ${investigator?._id}`
       );
+
+    if (isManual) {
+      // Blindly increase daily and monthly assign
+      inv.dailyAssign += 1;
+      inv.monthlyAssigned += 1;
+      inv.updatedDate = new Date();
+      await inv.save();
     } else {
-      await ClaimInvestigator.findByIdAndUpdate(
-        investigator._id,
-        {
-          $inc: { dailyAssign: 1 },
-          $set: { updatedDate: new Date() },
-        },
-        { useFindAndModify: false }
-      );
+      const monthlyLimitReached =
+        inv?.monthlyThreshold - inv?.monthlyAssigned <= 1;
+      const dailyLimitReached = inv?.dailyThreshold - inv?.dailyAssign <= 1;
+
+      if (monthlyLimitReached) {
+        if (inv?.updatedDate) {
+          const noOfMonthsSinceUpdated = dayjs()
+            .startOf("month")
+            .diff(dayjs(inv?.updatedDate).startOf("month"), "month");
+
+          if (noOfMonthsSinceUpdated > 0) {
+            // It is updated last month, therefore restart the monthly and daily assign
+            inv.dailyAssign = 1;
+            inv.monthlyAssigned = 1;
+            inv.updatedDate = new Date();
+            await inv.save();
+          } else {
+            // Means monthly assign limit reached for this month, don't let to assign, instead find another investigator
+            payload.recycle = true;
+            payload.excludedInv = inv?._id as unknown as ObjectId;
+            return payload;
+          }
+        } else {
+          // updatedDate is undefined, therefor we know it's the first time this investigator is getting assigned
+          inv.dailyAssign = 1;
+          inv.monthlyAssigned = 1;
+          inv.updatedDate = new Date();
+          await inv.save();
+        }
+      } else if (dailyLimitReached) {
+        if (inv?.updatedDate) {
+          const noOfDaysSinceUpdated = dayjs()
+            .startOf("day")
+            .diff(dayjs(inv?.updatedDate).startOf("day"), "day");
+          if (noOfDaysSinceUpdated > 0) {
+            // It is not updated today, therefor restart the daily assign and increase the monthly assign
+            inv.dailyAssign = 1;
+            inv.monthlyAssigned += 1;
+            inv.updatedDate = new Date();
+          } else {
+            // daily assign limit reached, don't let to assign, instead find another investigator
+            payload.recycle = true;
+            payload.excludedInv = inv?._id as unknown as ObjectId;
+            return payload;
+          }
+        } else {
+          // updatedDate is undefined/null, means it is the first time this investigator is getting assigned
+          inv.dailyAssign = 1;
+          inv.monthlyAssigned = 1;
+          inv.updatedDate = new Date();
+          await inv.save();
+        }
+      } else {
+        // Neither monthly nor daily assign limit is reached, means we have to start from the beginning
+        inv.dailyAssign = 1;
+        inv.monthlyAssigned = 1;
+        inv.updatedDate = new Date();
+        await inv.save();
+      }
     }
-    return { success: true };
+    return payload;
   } catch (error: any) {
-    throw new Error(error);
+    return { ...payload, message: error?.message };
   }
 };
 

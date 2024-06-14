@@ -541,7 +541,6 @@ export interface IDashboardData {
   intimationDate: string | null;
   isReInvestigated: boolean;
   investigationCount: number;
-  investigationId: string;
   caseId: CaseDetail | string | null;
   dateOfOS: Date | null;
   dateOfClosure: Date | null;

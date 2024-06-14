@@ -10,25 +10,23 @@ import {
   AssignToInvestigatorRes,
   IUser,
   IDashboardData as DashboardDataType,
-  Role,
   NumericStage,
-  CaseDetail,
   EventNames,
   Investigator,
 } from "@/lib/utils/types/fniDataTypes";
-import { HydratedDocument, Types } from "mongoose";
+import { HydratedDocument } from "mongoose";
 import DashboardData from "@/lib/Models/dashboardData";
 import {
-  findInvestigators,
   tellMaximusCaseIsAssigned,
   updateInvestigators,
 } from "@/lib/helpers/autoPreQCHelpers";
-import ClaimInvestigator from "@/lib/Models/claimInvestigator";
 import ClaimCase from "@/lib/Models/claimCase";
 import { captureCaseEvent } from "../caseEvent/helpers";
 import { compareArrOfObjBasedOnProp } from "@/lib/helpers";
 import User from "@/lib/Models/user";
 import sendEmail from "@/lib/helpers/sendEmail";
+import { defineInvestigator } from "@/lib/helpers/assignToInvHelpers";
+import { IUpdateInvReturnType } from "@/lib/utils/types/apiTypes";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -65,106 +63,69 @@ router.post(async (req) => {
     if (!dashboardData)
       throw new Error(`No record found with the id ${dashboardDataId}`);
 
-    let investigators: any = null;
-
-    if (isManual) {
-      if (!investigator?.length) {
-        if (user?.activeRole !== Role.ALLOCATION) {
-          dashboardData.stage = NumericStage.PENDING_FOR_ALLOCATION;
-          dashboardData.dateOfFallingIntoAllocationBucket = new Date();
-          dashboardData.teamLead = dashboardData.teamLead || null;
-          await dashboardData?.save();
-          return NextResponse.json(
-            {
-              ...responseObj,
-              message: "Case moved to allocation bucket",
-            },
-            { status: statusCode }
-          );
-        } else {
-          const response = await findInvestigators({
-            allocation: { allocationType },
-            dashboardData,
-          });
-          if (response?.success) investigators = response.investigators;
-          else throw new Error(response?.message);
-        }
-      } else {
-        investigators = await ClaimInvestigator.find({
-          _id: {
-            $in: investigator?.map((id: string) => new Types.ObjectId(id)),
-          },
-        });
-      }
-    } else {
-      // Auto assign
-      const response = await findInvestigators({
-        allocation: { allocationType },
+    let investigators: Investigator[] = [];
+    while (true) {
+      const defineInvRes = await defineInvestigator({
+        body,
         dashboardData,
+        isManual,
+        user,
       });
-      if (response?.success) investigators = response.investigators;
-      else {
-        if (dashboardData?.caseId) {
-          await ClaimCase.findByIdAndUpdate(
-            dashboardData?.caseId,
-            {
-              ...body,
-              documents: new Map(body?.documents || []),
-              intimationDate: dashboardData?.intimationDate,
-              assignedBy: user?._id,
-              outSourcingDate: new Date(),
-            },
-            { useFindAndModify: false }
-          );
-        } else {
-          const newCase: HydratedDocument<CaseDetail> = await ClaimCase.create({
-            ...body,
-            documents: new Map(body?.documents || []),
-            intimationDate: dashboardData?.intimationDate,
-            assignedBy: user?._id,
-            outSourcingDate: new Date(),
-          });
-          dashboardData.caseId = newCase._id as string;
-        }
-        dashboardData.stage = NumericStage.PENDING_FOR_ALLOCATION;
-        dashboardData.dateOfFallingIntoAllocationBucket = new Date();
-        dashboardData.teamLead = dashboardData.teamLead || null;
-        dashboardData.actionsTaken = dashboardData?.actionsTaken
-          ? [
-              ...dashboardData?.actionsTaken,
-              {
-                actionName: EventNames.MOVE_TO_ALLOCATION_BUCKET,
-                userId: user?._id,
-              },
-            ]
-          : [
-              {
-                actionName: EventNames.MOVE_TO_ALLOCATION_BUCKET,
-                userId: user?._id,
-              },
-            ];
 
-        await captureCaseEvent({
-          eventName: EventNames.MOVE_TO_ALLOCATION_BUCKET,
-          eventRemarks: `${response?.message}`,
-          intimationDate:
-            dashboardData?.intimationDate ||
-            dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
-          stage: NumericStage.PENDING_FOR_ALLOCATION,
-          claimId: dashboardData?.claimId,
-          userName: user?.name,
-        });
-
-        await dashboardData?.save();
-
+      if (!defineInvRes?.success) throw new Error(defineInvRes?.message);
+      if (defineInvRes?.shouldSendRes) {
         return NextResponse.json(
           {
             ...responseObj,
-            message: `Case automatically moved to allocation bucket because ${response?.message}`,
+            message: defineInvRes?.message,
+            data: defineInvRes?.investigators,
           },
           { status: statusCode }
         );
       }
+
+      investigators = defineInvRes?.investigators;
+
+      const tempRes: IUpdateInvReturnType = {
+        success: true,
+        message: "Update Success",
+        recycle: false,
+      };
+
+      // Update investigators daily and/or monthly assign
+      for (let i = 0; i < investigators?.length; i++) {
+        const inv = investigators[i];
+        const updateRes = await updateInvestigators(inv, isManual);
+        if (!updateRes?.success) throw new Error(updateRes?.message);
+
+        if (updateRes?.recycle) {
+          tempRes.recycle = true;
+          investigators = [];
+          break;
+        }
+
+        inv?.email?.length > 0 &&
+          inv?.email?.map(async (mail: string) => {
+            const cc_recipients: string[] = ["FIAllocation@nivabupa.com"];
+            if (dashboardData?.teamLead) {
+              const tl = await User.findById(dashboardData?.teamLead);
+              if (tl) cc_recipients?.push(tl?.email);
+            }
+            if (dashboardData?.clusterManager) {
+              const cm = await User.findById(dashboardData?.clusterManager);
+              if (cm) cc_recipients?.push(cm?.email);
+            }
+            await sendEmail({
+              from: FromEmails.DO_NOT_REPLY,
+              recipients: mail,
+              cc_recipients,
+              subject: `New Case assigned (${dashboardData?.claimId})`,
+              bodyText: `Dear ${inv?.investigatorName} \nA new case has been assigned to you with the id ${dashboardData?.claimId}\n\n\nWish you best of luck\nNabhigator`,
+            });
+          });
+      }
+
+      if (!tempRes.recycle) break;
     }
 
     const isReInvestigated = dashboardData?.claimInvestigators?.length > 0;
@@ -264,32 +225,6 @@ router.post(async (req) => {
       userName: isManual ? user?.name : "FNI System",
       investigatorIds: investigators?.map((el: Investigator) => el?._id),
     });
-
-    // Update investigators daily and/or monthly assign
-    // TODO: Change the logic of threshold here
-    for (let i = 0; i < investigators?.length; i++) {
-      const inv = investigators[i];
-      inv?.email?.length > 0 &&
-        inv?.email?.map(async (mail: string) => {
-          const cc_recipients: string[] = ["FIAllocation@nivabupa.com"];
-          if (dashboardData?.teamLead) {
-            const tl = await User.findById(dashboardData?.teamLead);
-            if (tl) cc_recipients?.push(tl?.email);
-          }
-          if (dashboardData?.clusterManager) {
-            const cm = await User.findById(dashboardData?.clusterManager);
-            if (cm) cc_recipients?.push(cm?.email);
-          }
-          await sendEmail({
-            from: FromEmails.DO_NOT_REPLY,
-            recipients: mail,
-            cc_recipients,
-            subject: `New Case assigned (${dashboardData?.claimId})`,
-            bodyText: `Dear ${inv?.investigatorName} \nA new case has been assigned to you with the id ${dashboardData?.claimId}\n\n\nWish you best of luck\nNabhigator`,
-          });
-        });
-      await updateInvestigators(inv);
-    }
 
     const maximusRes = await tellMaximusCaseIsAssigned(
       dashboardData?.toJSON(),

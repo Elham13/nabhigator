@@ -253,10 +253,6 @@ const DashboardDataSchema = new Schema(
       type: Number,
       default: 0,
     },
-    investigationId: {
-      type: String,
-      default: "",
-    },
     applicationId: { type: String },
     teamLead: {
       type: Schema.Types.ObjectId,
