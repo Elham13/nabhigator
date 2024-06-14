@@ -386,7 +386,6 @@ const UserEdit = () => {
                       onChange={handleChange}
                     />
 
-                    {/* TODO: Unique team leads should be created */}
                     <MultiSelect
                       label="Zone"
                       className="w-full"
