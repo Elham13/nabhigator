@@ -294,6 +294,11 @@ const getFniData = async (claimId: string, claimType: string) => {
         { headers }
       );
 
+    if (["False", "false"].includes(applicationIdDetails?.Status))
+      throw new Error(
+        `getpreissuancestatus api failure: ${applicationIdDetails?.StatusMessage}`
+      );
+
     const applications = applicationIdDetails?.preIssuanceStatusData;
     const newApplicationIds = applications
       ?.filter((app: any) => app?.BusinessType === "New Application")
