@@ -157,7 +157,7 @@ router.post(async (req) => {
               if (!foundDashboardData) {
                 const data = await getFniData(
                   obj?.claimId,
-                  obj?.claimType,
+                  obj?.claimType as "P" | "R",
                   sourceSystem
                 );
                 if (data?.success) {
