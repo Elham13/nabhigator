@@ -31,7 +31,7 @@ const FeedingLogTable = dynamic(() => import("./components/FeedingLogTable"), {
   loading: () => <Spin />,
 });
 
-const formDataInitials = { claimId: "", claimType: "" };
+const formDataInitials = { claimId: "", claimType: "", sourceSystem: "" };
 
 const FeedingLogs = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -131,6 +131,22 @@ const FeedingLogs = () => {
                 setFormData((prev) => ({ ...prev, claimType: val as string }))
               }
               data={["P", "R"]}
+              clearable
+            />
+            <Select
+              title="Source System"
+              placeholder="Select Source System"
+              value={formData.sourceSystem}
+              onChange={(val) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  sourceSystem: val as string,
+                }))
+              }
+              data={[
+                { label: "Maximus", value: "M" },
+                { label: "Phoenix", value: "P" },
+              ]}
               clearable
             />
             <Button type="submit" loading={submitting}>
