@@ -160,7 +160,7 @@ const getFniData = async (
 
     if (!policyNo)
       throw new Error(
-        `Failed to find policy no from claimDetails or claimFniDetails`
+        `Failed to find policy no from claimDetails, claimFniDetails or claimOtherDetail`
       );
 
     const { data: customerPolicyDetail } =
