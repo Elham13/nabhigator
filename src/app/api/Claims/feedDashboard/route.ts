@@ -215,7 +215,7 @@ router.post(async (req) => {
             }
           }
 
-          totalRecords = response?.data?.length;
+          totalRecords += response?.data?.length;
         }
       }
     }
