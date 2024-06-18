@@ -14,6 +14,8 @@ import {
   CustomerPolicyDetailRes,
   GetAuthRes,
   IGetClaimFNIDetails,
+  IGetMemberBenefitCover,
+  Member,
   ProviderDetailRes,
 } from "../utils/types/maximusResponseTypes";
 import { Databases, EndPoints } from "../utils/types/enums";
@@ -23,6 +25,7 @@ import {
   IUser,
   IZoneStateMaster,
   Role,
+  Member as IMember,
 } from "../utils/types/fniDataTypes";
 import User from "../Models/user";
 import ZoneStateMaster from "../Models/zoneStateMaster";
@@ -112,7 +115,7 @@ const getFniData = async (claimId: string, claimType: string) => {
 
     if (["False", "false"].includes(claimDetail?.Status)) {
       throw new Error(
-        `Claim details api failure: ${claimDetail?.StatusMessage}`
+        `${EndPoints.GET_CLAIM_DETAIL_BY_ID} api failure: ${claimDetail?.StatusMessage}`
       );
     }
 
@@ -148,7 +151,7 @@ const getFniData = async (claimId: string, claimType: string) => {
 
     if (!policyNo)
       throw new Error(
-        `Failed to find policy no from claimDetails or claimOtherDetails`
+        `Failed to find policy no from claimDetails or claimFniDetails`
       );
 
     const { data: customerPolicyDetail } =
@@ -159,7 +162,7 @@ const getFniData = async (claimId: string, claimType: string) => {
       );
     if (["False", "false"].includes(customerPolicyDetail?.Status))
       throw new Error(
-        `Customer policy api failure: ${customerPolicyDetail?.StatusMessage}`
+        `${EndPoints.GET_CUSTOMER_POLICY_DETAIL} api failure: ${customerPolicyDetail?.StatusMessage}`
       );
 
     const { data: claimHistory } = await axios.post<ClaimHistoryRes>(
@@ -170,7 +173,7 @@ const getFniData = async (claimId: string, claimType: string) => {
 
     if (["False", "false"].includes(claimHistory?.Status))
       throw new Error(
-        `Claim History api failure: ${claimHistory?.StatusMessage}`
+        `${EndPoints.GET_CLAIM_HISTORY} api failure: ${claimHistory?.StatusMessage}`
       );
 
     let claimingMemberId;
@@ -181,12 +184,48 @@ const getFniData = async (claimId: string, claimType: string) => {
       }
     }
 
-    let claimingMemberDetails;
+    const { data: memberBenefitCoverRes } =
+      await axios.post<IGetMemberBenefitCover>(
+        `${baseUrl}${EndPoints.GET_MEMBER_BENEFIT_COVER}`,
+        { ClaimID: claimId },
+        { headers }
+      );
 
-    const members = customerPolicyDetail?.CUSTOMERS[0]?.MEMBERS;
+    if (["False", "false"].includes(memberBenefitCoverRes?.Status))
+      throw new Error(
+        `${EndPoints.GET_MEMBER_BENEFIT_COVER} api failure: ${memberBenefitCoverRes?.StatusMessage}`
+      );
+
+    let claimingMemberDetails: Member | undefined;
+    const customizedMembers: IMember[] = [];
+
+    const customerFromCustomerPolicy = customerPolicyDetail?.CUSTOMERS?.[0];
+    const members = customerFromCustomerPolicy?.MEMBERS;
     for (let member of members) {
+      const payload: IMember = {
+        DOB: member?.MEMBER_DATE_OF_BIRTH,
+        membershipName: member?.MEMBER_NAME,
+        relation: member?.RELATION,
+        membershipNumber: member?.MEMBERSHIP_NO
+          ? parseInt(member?.MEMBERSHIP_NO)
+          : 0,
+        benefitsCovered: [],
+      };
+
       if (member.MEMBERSHIP_NO === claimingMemberId) {
         claimingMemberDetails = member;
+        const covers =
+          memberBenefitCoverRes?.MemberBenefitCover?.Benefit_Covers;
+        payload.benefitsCovered =
+          covers && covers?.length > 0
+            ? covers?.map((el) => ({
+                benefitType: el?.Benefit_Type,
+                benefitTypeIndicator: el?.Benefit_Type_Indicator,
+              }))
+            : [];
+        customizedMembers.push(payload);
+      } else {
+        customizedMembers.push(payload);
       }
     }
 
@@ -277,6 +316,11 @@ const getFniData = async (claimId: string, claimType: string) => {
       { headers }
     );
 
+    if (["False", "false"].includes(contractDetail?.Status))
+      throw new Error(
+        `${EndPoints.GET_CONTRACT_DETAILS} api failure: ${contractDetail?.StatusMessage}`
+      );
+
     const contracts = contractDetail?.ContractDetails?.Contracts;
     contracts.sort(
       (a, b) => Number(a?.RENEW_YEAR_NO) - Number(b?.RENEW_YEAR_NO)
@@ -284,7 +328,6 @@ const getFniData = async (claimId: string, claimType: string) => {
     const firstContract = contracts[0];
     const lastContract = contracts[contracts?.length - 1];
 
-    const customerFromCustomerPolicy = customerPolicyDetail?.CUSTOMERS?.[0];
     const appNumber = customerFromCustomerPolicy?.CONTRACTS[0]?.APP_NO;
 
     const { data: applicationIdDetails } =
@@ -296,7 +339,7 @@ const getFniData = async (claimId: string, claimType: string) => {
 
     if (["False", "false"].includes(applicationIdDetails?.Status))
       throw new Error(
-        `getpreissuancestatus api failure: ${applicationIdDetails?.StatusMessage}`
+        `${EndPoints.GET_APPLICATION_ID_DETAILS} api failure: ${applicationIdDetails?.StatusMessage}`
       );
 
     const applications = applicationIdDetails?.preIssuanceStatusData;
@@ -305,7 +348,6 @@ const getFniData = async (claimId: string, claimType: string) => {
       ?.map((app: any) => app?.ApplicationID);
     const applicationId =
       newApplicationIds?.length > 0 ? newApplicationIds[0] : null;
-    const membersCovered = customerFromCustomerPolicy?.MEMBERS;
     const memberListFromHistory = claimHistory?.PolicyClaims?.MemberList;
     const claimHistoryObj = memberListFromHistory?.find(
       (obj) => obj?.memberNo == memberNo
@@ -394,7 +436,7 @@ const getFniData = async (claimId: string, claimType: string) => {
           customerFromCustomerPolicy?.PREVIOUS_INSURANCE_COMPANY,
         insuredSince: customerFromCustomerPolicy?.INSURED_SINCE,
         NBHIPolicyStartDate: firstContract?.POLICY_START_DATE,
-        membersCovered: membersCovered?.length || 0,
+        membersCovered: members?.length || 0,
         agentName: customerFromCustomerPolicy?.CONTRACTS?.[0]?.AGENT_NAME,
         currentStatus: lastContract?.STATUS,
         agentCode: customerFromCustomerPolicy?.CONTRACTS?.[0]?.AGENT_CODE,
@@ -407,7 +449,7 @@ const getFniData = async (claimId: string, claimType: string) => {
             : customerFromCustomerPolicy?.CONTRACTS?.[0]?.SourceSystem,
         bancaDetails: customerFromCustomerPolicy?.CONTRACTS?.[0]?.AGENT_NAME,
       },
-      members: membersCovered?.map((item) => ({
+      members: members?.map((item) => ({
         membershipNumber: item?.MEMBERSHIP_NO,
         membershipName: item?.MEMBER_NAME,
         DOB: item?.MEMBER_DATE_OF_BIRTH,

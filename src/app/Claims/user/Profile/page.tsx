@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Avatar, Button, Card, Flex, Group, Select, Text } from "@mantine/core";
 import { useLocalStorage } from "@mantine/hooks";
 import axios from "axios";
@@ -31,6 +31,7 @@ const UserDetail = ({ label, value }: { label: string; value?: string }) => {
 };
 
 const Profile = () => {
+  const isFirstMount = useRef(true);
   const router = useRouter();
   const [user] = useLocalStorage<IUserFromSession | null>({
     key: StorageKeys.USER,
@@ -47,7 +48,7 @@ const Profile = () => {
 
   useEffect(() => {
     (async () => {
-      if (user && user?._id && !apiUser) {
+      if (user && user?._id && !apiUser && isFirstMount.current) {
         try {
           const { data } = await axios.get<SingleResponseType<IUser>>(
             `${EndPoints.USER}?id=${user?._id}`
@@ -55,6 +56,8 @@ const Profile = () => {
           setApiUser(data?.data);
         } catch (error: any) {
           showError(error);
+        } finally {
+          isFirstMount.current = false;
         }
       }
     })();

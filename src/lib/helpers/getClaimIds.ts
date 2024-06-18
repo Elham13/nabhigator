@@ -176,7 +176,7 @@ const processResponse = (data: DataType[]) => {
   });
 };
 
-export default async function getClaimIds() {
+export default async function getClaimIds(SourceSystem: "M" | "P") {
   try {
     const { data: token } = await axios.post(
       `${baseUrl}auth/getauthtoken`,
@@ -196,7 +196,7 @@ export default async function getClaimIds() {
     const getFniDataUrl = `${baseUrl}claim/getfnidata`;
     const payload = {
       ClaimType: "FnI",
-      SourceSystem: "M",
+      SourceSystem,
     };
     const getFniDataHeaders = {
       headers: { ...headers, Authorization: `Bearer ${token?.Token}` },

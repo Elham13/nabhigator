@@ -14,11 +14,20 @@ interface ILockedSchema extends Omit<ILocked, "_id" | "role">, Document {
   role: string;
 }
 
+const BenefitCoveredSchema = new Schema({
+  benefitType: { type: String },
+  benefitTypeIndicator: { type: String },
+});
+
 const MemberSchema = new Schema({
   membershipNumber: { type: Number },
   membershipName: { type: String },
   DOB: { type: Date },
   relation: { type: String },
+  benefitsCovered: {
+    type: [BenefitCoveredSchema],
+    default: [],
+  },
 });
 
 const ClaimDetailsSchema = new Schema({

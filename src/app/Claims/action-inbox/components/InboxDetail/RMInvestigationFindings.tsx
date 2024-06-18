@@ -79,6 +79,8 @@ type PropTypes = {
   setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
 };
 
+// TODO: Handle this for the post qa change investigation findings
+
 const RMInvestigationFindings = ({
   dashboardData,
   caseDetail,

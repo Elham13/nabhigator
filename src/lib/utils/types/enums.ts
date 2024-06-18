@@ -58,6 +58,7 @@ export enum EndPoints {
   GET_CLAIM_OTHER_DETAILS = "claim/getclaimotherdetails",
   GET_CLAIM_FNI_DETAILS = "claim/getclaimfnidetails",
   GET_CLAIM_HISTORY = "claim/getclaimhistory",
+  GET_MEMBER_BENEFIT_COVER = "claim/getmemberbenefitcover",
   GET_PROVIDER_DETAILS = "claim/getproviderdetails",
   GET_CONTRACT_DETAILS = "contract/getcontractalldetails",
   GET_APPLICATION_ID_DETAILS = "common/getpreissuancestatus",
