@@ -117,94 +117,94 @@ router.post(async (req) => {
       }
     } else {
       // This is multiple entries, which gets the claim ids from the api
-      const sourceSystems = ["M", "P"] as const;
+      // const sourceSystems = ["M", "P"] as const;
 
-      for (const sourceSystem of sourceSystems) {
-        const response = await getClaimIds(sourceSystem);
+      // for (const sourceSystem of sourceSystems) {
+      const response = await getClaimIds("M");
 
-        if (!response?.success) {
-          throw new Error(`Failed to get claim Ids, ${response?.message}`);
-        }
+      if (!response?.success) {
+        throw new Error(`Failed to get claim Ids, ${response?.message}`);
+      }
 
-        if (!!response.data) {
-          for (let obj of response?.data) {
-            // Check if the claim was previously rejected
-            const foundLog = await DashboardFeedingLog.findOne({
-              skippedClaimIds: obj?.claimId,
-            });
+      if (!!response.data) {
+        for (let obj of response?.data) {
+          // Check if the claim was previously rejected
+          const foundLog = await DashboardFeedingLog.findOne({
+            skippedClaimIds: obj?.claimId,
+          });
 
-            if (foundLog) {
-              skipped += 1;
-              skippedReasons?.push(
-                `The case is found in already rejected list for ${obj.Claims}`
-              );
-              skippedClaimIds?.push(obj?.claimId);
-            } else {
-              // Check if the claim is already in the db if not, store it otherwise don't
-              const foundDashboardData: HydratedDocument<IDashboardData> | null =
-                await DashboardData.findOne({
+          if (foundLog) {
+            skipped += 1;
+            skippedReasons?.push(
+              `The case is found in already rejected list for ${obj.Claims}`
+            );
+            skippedClaimIds?.push(obj?.claimId);
+          } else {
+            // Check if the claim is already in the db if not, store it otherwise don't
+            const foundDashboardData: HydratedDocument<IDashboardData> | null =
+              await DashboardData.findOne({
+                claimId: obj?.claimId,
+                claimType: convertClaimType(obj?.claimType),
+              });
+            if (!foundDashboardData) {
+              const data = await getFniData(obj?.claimId, obj?.claimType);
+              if (data?.success) {
+                const newData = await DashboardData.create({
                   claimId: obj?.claimId,
                   claimType: convertClaimType(obj?.claimType),
+                  claimSubType: obj?.claimSubType,
+                  benefitType: obj?.benefitType,
+                  lossType: obj?.lossType?.trim(),
+                  cataractOrDayCareProcedure: obj?.cataractOrDayCareProcedure,
+                  referralType: "API",
+                  ...data?.data,
                 });
-              if (!foundDashboardData) {
-                const data = await getFniData(obj?.claimId, obj?.claimType);
-                if (data?.success) {
-                  const newData = await DashboardData.create({
-                    claimId: obj?.claimId,
-                    claimType: convertClaimType(obj?.claimType),
-                    claimSubType: obj?.claimSubType,
-                    benefitType: obj?.benefitType,
-                    lossType: obj?.lossType?.trim(),
-                    cataractOrDayCareProcedure: obj?.cataractOrDayCareProcedure,
-                    referralType: "API",
-                    ...data?.data,
-                  });
 
-                  await performSystemPreQc(newData, fniManager);
+                await performSystemPreQc(newData, fniManager);
 
-                  await CaseEvent.create({
-                    claimId: obj?.claimId,
-                    claimType: convertClaimType(obj?.claimType),
-                    contractNumber: data?.data?.contractDetails?.contractNo,
-                    membershipNumber: data?.data?.claimDetails?.memberNo,
-                    pivotalCustomerId:
-                      data?.data?.claimDetails?.pivotalCustomerId,
-                    eventName: "Intimation/Referral",
-                    userName: "Maximus",
-                    eventRemarks: "API",
-                  });
+                await CaseEvent.create({
+                  claimId: obj?.claimId,
+                  claimType: convertClaimType(obj?.claimType),
+                  contractNumber: data?.data?.contractDetails?.contractNo,
+                  membershipNumber: data?.data?.claimDetails?.memberNo,
+                  pivotalCustomerId:
+                    data?.data?.claimDetails?.pivotalCustomerId,
+                  eventName: "Intimation/Referral",
+                  userName: "Maximus",
+                  eventRemarks: "API",
+                });
 
-                  await newData.save();
+                await newData.save();
 
-                  inserted += 1;
-                } else {
-                  skipped += 1;
-                  skippedReasons?.push(
-                    `${data?.message} for claimId ${obj?.claimType}_${obj?.claimId}`
-                  );
-                  skippedClaimIds?.push(obj?.claimId);
-                }
+                inserted += 1;
               } else {
-                if (foundDashboardData?.stage === NumericStage.REJECTED) {
-                  foundDashboardData.stage =
-                    NumericStage.IN_FIELD_REINVESTIGATION;
-                  foundDashboardData.dateOfFallingIntoReInvestigation =
-                    new Date();
-                  await foundDashboardData.save();
-                } else {
-                  skipped += 1;
-                  skippedReasons?.push(
-                    `Case already exist for claimId: ${obj?.claimType}_${obj?.claimId}`
-                  );
-                  skippedClaimIds?.push(obj?.claimId);
-                }
+                skipped += 1;
+                skippedReasons?.push(
+                  `${data?.message} for claimId ${obj?.claimType}_${obj?.claimId}`
+                );
+                skippedClaimIds?.push(obj?.claimId);
+              }
+            } else {
+              if (foundDashboardData?.stage === NumericStage.REJECTED) {
+                foundDashboardData.stage =
+                  NumericStage.IN_FIELD_REINVESTIGATION;
+                foundDashboardData.dateOfFallingIntoReInvestigation =
+                  new Date();
+                await foundDashboardData.save();
+              } else {
+                skipped += 1;
+                skippedReasons?.push(
+                  `Case already exist for claimId: ${obj?.claimType}_${obj?.claimId}`
+                );
+                skippedClaimIds?.push(obj?.claimId);
               }
             }
           }
-
-          totalRecords = response?.data?.length;
         }
+
+        totalRecords = response?.data?.length;
       }
+      // }
     }
 
     await DashboardFeedingLog.create({
