@@ -14,6 +14,7 @@ import {
   CustomerPolicyDetailRes,
   GetAuthRes,
   IGetClaimFNIDetails,
+  Member,
   ProviderDetailRes,
 } from "../utils/types/maximusResponseTypes";
 import { Databases, EndPoints } from "../utils/types/enums";
@@ -112,7 +113,7 @@ const getFniData = async (claimId: string, claimType: string) => {
 
     if (["False", "false"].includes(claimDetail?.Status)) {
       throw new Error(
-        `Claim details api failure: ${claimDetail?.StatusMessage}`
+        `${EndPoints.GET_CLAIM_DETAIL_BY_ID} api failure: ${claimDetail?.StatusMessage}`
       );
     }
 
@@ -148,7 +149,7 @@ const getFniData = async (claimId: string, claimType: string) => {
 
     if (!policyNo)
       throw new Error(
-        `Failed to find policy no from claimDetails or claimOtherDetails`
+        `Failed to find policy no from claimDetails or claimFniDetails`
       );
 
     const { data: customerPolicyDetail } =
@@ -159,7 +160,7 @@ const getFniData = async (claimId: string, claimType: string) => {
       );
     if (["False", "false"].includes(customerPolicyDetail?.Status))
       throw new Error(
-        `Customer policy api failure: ${customerPolicyDetail?.StatusMessage}`
+        `${EndPoints.GET_CUSTOMER_POLICY_DETAIL} api failure: ${customerPolicyDetail?.StatusMessage}`
       );
 
     const { data: claimHistory } = await axios.post<ClaimHistoryRes>(
@@ -170,7 +171,7 @@ const getFniData = async (claimId: string, claimType: string) => {
 
     if (["False", "false"].includes(claimHistory?.Status))
       throw new Error(
-        `Claim History api failure: ${claimHistory?.StatusMessage}`
+        `${EndPoints.GET_CLAIM_HISTORY} api failure: ${claimHistory?.StatusMessage}`
       );
 
     let claimingMemberId;
@@ -181,7 +182,7 @@ const getFniData = async (claimId: string, claimType: string) => {
       }
     }
 
-    let claimingMemberDetails;
+    let claimingMemberDetails: Member | undefined;
 
     const members = customerPolicyDetail?.CUSTOMERS[0]?.MEMBERS;
     for (let member of members) {
@@ -277,6 +278,11 @@ const getFniData = async (claimId: string, claimType: string) => {
       { headers }
     );
 
+    if (["False", "false"].includes(contractDetail?.Status))
+      throw new Error(
+        `${EndPoints.GET_CONTRACT_DETAILS} api failure: ${contractDetail?.StatusMessage}`
+      );
+
     const contracts = contractDetail?.ContractDetails?.Contracts;
     contracts.sort(
       (a, b) => Number(a?.RENEW_YEAR_NO) - Number(b?.RENEW_YEAR_NO)
@@ -296,7 +302,7 @@ const getFniData = async (claimId: string, claimType: string) => {
 
     if (["False", "false"].includes(applicationIdDetails?.Status))
       throw new Error(
-        `getpreissuancestatus api failure: ${applicationIdDetails?.StatusMessage}`
+        `${EndPoints.GET_APPLICATION_ID_DETAILS} api failure: ${applicationIdDetails?.StatusMessage}`
       );
 
     const applications = applicationIdDetails?.preIssuanceStatusData;
