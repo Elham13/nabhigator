@@ -128,16 +128,16 @@ const getFniData = async (
     const currentClaimNumber =
       claimDetail?.PolicyClaims?.ClaimDetail?.Claim_Number || "";
 
-    const { data: claimFNIDetail } = await axios.post<IGetClaimFNIDetails>(
-      `${baseUrl}${EndPoints.GET_CLAIM_FNI_DETAILS}`,
-      { ClaimID: claimId, ClaimType: claimType },
-      { headers }
-    );
+    // const { data: claimFNIDetail } = await axios.post<IGetClaimFNIDetails>(
+    //   `${baseUrl}${EndPoints.GET_CLAIM_FNI_DETAILS}`,
+    //   { ClaimID: claimId, ClaimType: claimType },
+    //   { headers }
+    // );
 
-    if (["False", "false"].includes(claimFNIDetail?.Status))
-      throw new Error(
-        `${EndPoints.GET_CLAIM_FNI_DETAILS} api error: ${claimFNIDetail?.StatusMessage}`
-      );
+    // if (["False", "false"].includes(claimFNIDetail?.Status))
+    //   throw new Error(
+    //     `${EndPoints.GET_CLAIM_FNI_DETAILS} api error: ${claimFNIDetail?.StatusMessage}`
+    //   );
 
     const { data: claimOtherDetail } = await axios.post<ClaimOtherDetailRes>(
       `${baseUrl}${EndPoints.GET_CLAIM_OTHER_DETAILS}`,
@@ -151,11 +151,11 @@ const getFniData = async (
       );
 
     const memberNo =
-      claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.membershipId || "";
+      claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.membershipId || "";
 
     const policyNo =
       sourceSystem === "M"
-        ? claimDetail?.PolicyNo || claimFNIDetail?.PolicyNo
+        ? claimDetail?.PolicyNo || claimOtherDetail?.PolicyNo
         : claimOtherDetail?.PolicyNo;
 
     if (!policyNo)
@@ -551,12 +551,12 @@ const getFniData = async (
           claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.ClaimDetailsOther
             ?.FRAUDREASON,
         spotNumber:
-          claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.FNI?.SR_NUMBER,
+          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.FNI?.SR_NUMBER,
         spotInvestigationRecommendation:
-          claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.FNI
+          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.FNI
             ?.Recommendations,
         spotInvestigationFindings:
-          claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.FNI
+          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.FNI
             ?.Executive_Summary,
         noOfClaimsCorrespondingToPivotalId: "",
         claimTrigger:
@@ -615,7 +615,7 @@ const getFniData = async (
       })),
       fraudIndicators: {
         indicatorsList:
-          claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.FNI?.FRAUD_INDICATORS?.filter(
+          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.FNI?.FRAUD_INDICATORS?.filter(
             (obj, index, self) =>
               index ===
               self?.findIndex(
@@ -623,7 +623,7 @@ const getFniData = async (
               )
           ) || [],
         remarks:
-          claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.FNI
+          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.FNI
             ?.Other_Remarks || "",
       },
       applicationId: applicationId,
