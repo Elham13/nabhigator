@@ -352,12 +352,18 @@ export type RejectionReason = {
   remark: string;
 };
 
+export interface IBenefitsCovered {
+  benefitType: string;
+  benefitTypeIndicator: string;
+}
+
 export interface Member {
-  _id: string;
+  _id?: string;
   membershipNumber: number;
   membershipName: string;
   DOB: string;
   relation: string;
+  benefitsCovered: IBenefitsCovered[];
 }
 
 export interface History {

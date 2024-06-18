@@ -828,3 +828,40 @@ const getClaimFniDetails = {
     },
   },
 };
+
+const getMemberBenefitCover = {
+  Status: "true",
+  StatusMessage: "Success",
+  PolicyNo: "50297100202200",
+  MemberBenefitCover: {
+    Member_Name: "Mr.NARESH KUMAR",
+    membershipId: "0004404010",
+    COI: "113004049663",
+    Benefit_Covers: [
+      {
+        Benefit_Type: "02A - Pre and Post Hospitalization Medical Expenses",
+        Benefit_Type_Indicator: "Y",
+      },
+      {
+        Benefit_Type: "04A - Domiciliary Hospitalization",
+        Benefit_Type_Indicator: "Y",
+      },
+      {
+        Benefit_Type: "05A - Organ Transplant",
+        Benefit_Type_Indicator: "Y",
+      },
+      {
+        Benefit_Type: "21A - Sub-limit on specified illness/conditions",
+        Benefit_Type_Indicator: "Y",
+      },
+      {
+        Benefit_Type: "00A - In - patient Hospitalization",
+        Benefit_Type_Indicator: "Y",
+      },
+      {
+        Benefit_Type: "01A - Day Care Treatment",
+        Benefit_Type_Indicator: "Y",
+      },
+    ],
+  },
+};

@@ -445,3 +445,18 @@ export interface IGetClaimFNIDetails {
     };
   };
 }
+
+export interface IGetMemberBenefitCover {
+  Status: string;
+  StatusMessage: string;
+  PolicyNo: string;
+  MemberBenefitCover: {
+    Member_Name: string;
+    membershipId: string;
+    COI: string;
+    Benefit_Covers: {
+      Benefit_Type: string;
+      Benefit_Type_Indicator: string;
+    }[];
+  };
+}
