@@ -18,6 +18,7 @@ import CaseEvent from "@/lib/Models/caseEvent";
 import { performSystemPreQc } from "@/lib/helpers/performSystemPreQc";
 import getClaimIds from "@/lib/helpers/getClaimIds";
 import DashboardFeedingLog from "@/lib/Models/dashboardFeedingLog";
+import { TSourceSystem } from "@/lib/utils/types/maximusResponseTypes";
 
 dayjs.extend(tz);
 
@@ -47,6 +48,13 @@ router.post(async (req) => {
     const skippedClaimIds: string[] = [];
 
     if (body?.claimId && body?.claimType) {
+      const sourceSystem = body?.sourceSystem as TSourceSystem;
+
+      if (!sourceSystem) throw new Error("sourceSystem is required!");
+
+      if (!["M", "P"].includes(sourceSystem))
+        throw new Error(`Wrong sourceSystem: ${sourceSystem}`);
+
       const claimId = body?.claimId.toString();
       const claimType = body?.claimType;
 
@@ -74,13 +82,13 @@ router.post(async (req) => {
           );
         }
         throw new Error(
-          `Record with claimId of ${body?.claimType}_${claimId} already exists in DashboardData`
+          `Record with claimId of ${claimType}_${claimId} already exists in DashboardData`
         );
       } else {
-        const data = await getFniData(claimId, claimType);
+        const data = await getFniData(claimId, claimType, sourceSystem);
         if (!data?.success) {
           throw new Error(
-            `${data?.message} for claimId ${body?.claimType}_${claimId}`
+            `${data?.message} for claimId ${claimType}_${claimId}`
           );
         } else {
           const newlyInserted = await DashboardData.create({
@@ -147,7 +155,11 @@ router.post(async (req) => {
                   claimType: convertClaimType(obj?.claimType),
                 });
               if (!foundDashboardData) {
-                const data = await getFniData(obj?.claimId, obj?.claimType);
+                const data = await getFniData(
+                  obj?.claimId,
+                  obj?.claimType,
+                  sourceSystem
+                );
                 if (data?.success) {
                   const newData = await DashboardData.create({
                     claimId: obj?.claimId,

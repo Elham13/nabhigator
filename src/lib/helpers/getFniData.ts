@@ -17,6 +17,7 @@ import {
   IGetMemberBenefitCover,
   Member,
   ProviderDetailRes,
+  TSourceSystem,
 } from "../utils/types/maximusResponseTypes";
 import { Databases, EndPoints } from "../utils/types/enums";
 import connectDB from "../db/dbConnectWithMongoose";
@@ -26,6 +27,7 @@ import {
   IZoneStateMaster,
   Role,
   Member as IMember,
+  IBenefitsCovered,
 } from "../utils/types/fniDataTypes";
 import User from "../Models/user";
 import ZoneStateMaster from "../Models/zoneStateMaster";
@@ -91,7 +93,11 @@ const getToken = async () => {
   }
 };
 
-const getFniData = async (claimId: string, claimType: string) => {
+const getFniData = async (
+  claimId: string,
+  claimType: "P" | "R",
+  sourceSystem: TSourceSystem
+) => {
   try {
     if (!claimId || !claimType)
       throw new Error("claimId and claimType is required");
@@ -147,7 +153,10 @@ const getFniData = async (claimId: string, claimType: string) => {
     const memberNo =
       claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.membershipId || "";
 
-    const policyNo = claimDetail?.PolicyNo || claimFNIDetail?.PolicyNo;
+    const policyNo =
+      sourceSystem === "M"
+        ? claimDetail?.PolicyNo || claimFNIDetail?.PolicyNo
+        : claimOtherDetail?.PolicyNo;
 
     if (!policyNo)
       throw new Error(
@@ -167,7 +176,13 @@ const getFniData = async (claimId: string, claimType: string) => {
 
     const { data: claimHistory } = await axios.post<ClaimHistoryRes>(
       `${baseUrl}${EndPoints.GET_CLAIM_HISTORY}`,
-      { PolicyNo_COI: policyNo, Membership_No_ID: "" },
+      {
+        PolicyNo_COI:
+          sourceSystem === "M"
+            ? policyNo
+            : claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.COI,
+        Membership_No_ID: "",
+      },
       { headers }
     );
 
@@ -184,17 +199,32 @@ const getFniData = async (claimId: string, claimType: string) => {
       }
     }
 
-    const { data: memberBenefitCoverRes } =
-      await axios.post<IGetMemberBenefitCover>(
-        `${baseUrl}${EndPoints.GET_MEMBER_BENEFIT_COVER}`,
-        { ClaimID: claimId },
-        { headers }
-      );
+    let benefitsCovered: IBenefitsCovered[] = [];
 
-    if (["False", "false"].includes(memberBenefitCoverRes?.Status))
-      throw new Error(
-        `${EndPoints.GET_MEMBER_BENEFIT_COVER} api failure: ${memberBenefitCoverRes?.StatusMessage}`
-      );
+    if (claimType === "R") {
+      const { data: memberBenefitCoverRes } =
+        await axios.post<IGetMemberBenefitCover>(
+          `${baseUrl}${EndPoints.GET_MEMBER_BENEFIT_COVER}`,
+          { ClaimID: claimId },
+          { headers }
+        );
+
+      if (["False", "false"].includes(memberBenefitCoverRes?.Status))
+        throw new Error(
+          `${EndPoints.GET_MEMBER_BENEFIT_COVER} api failure: ${memberBenefitCoverRes?.StatusMessage}`
+        );
+
+      benefitsCovered =
+        memberBenefitCoverRes?.MemberBenefitCover?.Benefit_Covers &&
+        memberBenefitCoverRes?.MemberBenefitCover?.Benefit_Covers?.length > 0
+          ? memberBenefitCoverRes?.MemberBenefitCover?.Benefit_Covers?.map(
+              (el) => ({
+                benefitType: el?.Benefit_Type,
+                benefitTypeIndicator: el?.Benefit_Type_Indicator,
+              })
+            )
+          : [];
+    }
 
     let claimingMemberDetails: Member | undefined;
     const customizedMembers: IMember[] = [];
@@ -214,15 +244,8 @@ const getFniData = async (claimId: string, claimType: string) => {
 
       if (member.MEMBERSHIP_NO === claimingMemberId) {
         claimingMemberDetails = member;
-        const covers =
-          memberBenefitCoverRes?.MemberBenefitCover?.Benefit_Covers;
         payload.benefitsCovered =
-          covers && covers?.length > 0
-            ? covers?.map((el) => ({
-                benefitType: el?.Benefit_Type,
-                benefitTypeIndicator: el?.Benefit_Type_Indicator,
-              }))
-            : [];
+          benefitsCovered && benefitsCovered?.length > 0 ? benefitsCovered : [];
         customizedMembers.push(payload);
       } else {
         customizedMembers.push(payload);
@@ -310,6 +333,7 @@ const getFniData = async (claimId: string, claimType: string) => {
       }
     });
 
+    // TODO: Change this api
     const { data: contractDetail } = await axios.post<ContractAllDetailsRes>(
       `${baseUrl}${EndPoints.GET_CONTRACT_DETAILS}`,
       { ContractNo: claimDetail?.PolicyClaims?.ClaimDetail?.Contract_Number },
@@ -379,8 +403,7 @@ const getFniData = async (claimId: string, claimType: string) => {
       `${baseUrl}${EndPoints.GET_PROVIDER_DETAILS}`,
       {
         providerId: currentClaim?.Provider_Code,
-        // providerId: claimHistoryObj?.ClaimHistory?.[0]?.Provider_Code,
-        sourceSystem: "M",
+        sourceSystem,
       },
       { headers }
     );

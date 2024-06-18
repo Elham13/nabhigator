@@ -460,3 +460,5 @@ export interface IGetMemberBenefitCover {
     }[];
   };
 }
+
+export type TSourceSystem = "M" | "P";
