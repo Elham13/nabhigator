@@ -130,7 +130,10 @@ const FeedingLogs = () => {
               onChange={(val) =>
                 setFormData((prev) => ({ ...prev, claimType: val as string }))
               }
-              data={["P", "R"]}
+              data={[
+                { label: "PreAuth", value: "P" },
+                { label: "Reimbursement", value: "R" },
+              ]}
               clearable
             />
             <Select
