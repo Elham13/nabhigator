@@ -129,6 +129,7 @@ router.post(async (req) => {
 
       for (const sourceSystem of sourceSystems) {
         const response = await getClaimIds(sourceSystem);
+        const apiType = sourceSystem === "M" ? "Maximus" : "Phoenix";
 
         if (!response?.success) {
           throw new Error(`Failed to get claim Ids, ${response?.message}`);
@@ -144,7 +145,7 @@ router.post(async (req) => {
             if (foundLog) {
               skipped += 1;
               skippedReasons?.push(
-                `The case is found in already rejected list for ${obj.Claims}`
+                `${apiType}: The case is found in already rejected list for ${obj.Claims}`
               );
               skippedClaimIds?.push(obj?.claimId);
             } else {
@@ -192,7 +193,7 @@ router.post(async (req) => {
                 } else {
                   skipped += 1;
                   skippedReasons?.push(
-                    `${data?.message} for claimId ${obj?.claimType}_${obj?.claimId}`
+                    `${apiType}: ${data?.message} for claimId ${obj?.claimType}_${obj?.claimId}`
                   );
                   skippedClaimIds?.push(obj?.claimId);
                 }
@@ -206,7 +207,7 @@ router.post(async (req) => {
                 } else {
                   skipped += 1;
                   skippedReasons?.push(
-                    `Case already exist for claimId: ${obj?.claimType}_${obj?.claimId}`
+                    `${apiType}: Case already exist for claimId: ${obj?.claimType}_${obj?.claimId}`
                   );
                   skippedClaimIds?.push(obj?.claimId);
                 }
