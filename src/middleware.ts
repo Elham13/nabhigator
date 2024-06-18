@@ -11,6 +11,7 @@ router.use(async (request, event, next) => {
     "/Claims/action-inbox/documents",
     "/api/Claims/feedDashboard",
     "/api/Claims/deployVerify",
+    "/api/Claims/test-api",
   ];
 
   if (publicRoutes.includes(pathname)) return next();
