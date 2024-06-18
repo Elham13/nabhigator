@@ -7,6 +7,7 @@ import getFniData from "../helpers/getFniData";
 interface IDataType {
   ClaimNo: number;
   ClaimType: "P" | "R";
+  SourceSystem: "M" | "P";
 }
 
 const uploadDashboardData = async (data: FormData) => {
@@ -33,6 +34,7 @@ const uploadDashboardData = async (data: FormData) => {
     for (let obj of jsonData) {
       const claimId = obj.ClaimNo?.toString();
       const claimType = obj.ClaimType;
+      const sourceSystem = obj?.SourceSystem;
 
       const found = await DashboardData.findOne({
         claimId,
@@ -40,7 +42,7 @@ const uploadDashboardData = async (data: FormData) => {
       });
 
       if (!found) {
-        const res = await getFniData(claimId, claimType);
+        const res = await getFniData(claimId, claimType, sourceSystem);
 
         if (res?.success) {
           await DashboardData.create({
