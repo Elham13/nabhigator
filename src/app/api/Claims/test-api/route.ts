@@ -685,14 +685,13 @@ router.post(async (req) => {
 
   try {
     await connectDB(Databases.FNI);
-
-    const yesterday = dayjs().startOf("day").subtract(2, "day");
+    addUnwantedFNIData();
     return NextResponse.json(
       {
         success: true,
         message: "Success",
         data: {
-          date: dayjs().startOf("day").diff(yesterday, "day"),
+          date: null,
         },
       },
       { status: 200 }
