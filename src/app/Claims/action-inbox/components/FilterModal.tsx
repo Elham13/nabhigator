@@ -127,6 +127,12 @@ const FilterModal = ({
         value: NumericStage.INVESTIGATION_SKIPPED_AND_COMPLETING.toString(),
         label: getStageLabel(NumericStage.INVESTIGATION_SKIPPED_AND_COMPLETING),
       },
+      {
+        value: NumericStage.INVESTIGATION_SKIPPED_AND_RE_ASSIGNING.toString(),
+        label: getStageLabel(
+          NumericStage.INVESTIGATION_SKIPPED_AND_RE_ASSIGNING
+        ),
+      },
     ];
     return stages;
   }, []);

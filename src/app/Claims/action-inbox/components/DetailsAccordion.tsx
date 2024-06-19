@@ -169,6 +169,7 @@ type PropTypes = {
   caseDetail: CaseDetail | null;
   skipInvestigationRoleCheck: boolean;
   showElement: IShowElement;
+  origin: "consolidated" | "inbox";
   setData: Dispatch<SetStateAction<IDashboardData | null>>;
   setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
   setShowElement: Dispatch<SetStateAction<IShowElement>>;
@@ -179,6 +180,7 @@ const DetailsAccordion = ({
   caseDetail,
   skipInvestigationRoleCheck,
   showElement,
+  origin,
   setData,
   setCaseDetail,
   setShowElement,
@@ -437,7 +439,7 @@ const DetailsAccordion = ({
           },
         ]
       : []),
-    ...(skipInvestigationRoleCheck &&
+    ...([Role.ALLOCATION].includes(user?.activeRole) &&
     data?.stage === NumericStage.INVESTIGATION_SKIPPED_AND_RE_ASSIGNING &&
     origin === "consolidated"
       ? [
