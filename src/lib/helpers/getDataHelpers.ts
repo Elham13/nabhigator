@@ -399,7 +399,7 @@ export const processGetDataFilters = async (obj: any) => {
       delete processedObj["stage"];
       processedObj["actionsTaken.userId"] = new Types.ObjectId(user?._id);
     } else if (origin === "Consolidated") {
-      if (userRole && [Role.ALLOCATION, Role.POST_QA].includes(userRole)) {
+      if (userRole && [Role.POST_QA].includes(userRole)) {
         processedObj["actionsTaken.userId"] = new Types.ObjectId(user?._id);
       } else if (
         userRole &&

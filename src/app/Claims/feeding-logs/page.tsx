@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Accordion,
   Box,
@@ -26,12 +26,17 @@ import PageWrapper from "@/components/ClaimsComponents/PageWrapper";
 import LoaderPlaceholder from "@/components/ClaimsComponents/LoaderPlaceholder";
 import dynamic from "next/dynamic";
 import { Spin } from "antd";
+import { useDebouncedValue } from "@mantine/hooks";
 const FeedingLogTable = dynamic(() => import("./components/FeedingLogTable"), {
   ssr: false,
   loading: () => <Spin />,
 });
 
-const formDataInitials = { claimId: "", claimType: "", sourceSystem: "" };
+const formDataInitials = {
+  claimId: "",
+  claimType: "",
+  sourceSystem: "",
+};
 
 const FeedingLogs = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -44,6 +49,8 @@ const FeedingLogs = () => {
     page: 1,
     count: 0,
   });
+  const [claimId, setClaimId] = useState<string>("");
+  const [debouncedClaimId] = useDebouncedValue(claimId, 300);
 
   const handleFeed = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -58,7 +65,7 @@ const FeedingLogs = () => {
         {
           claimId: formData.claimId,
           claimType: formData.claimType,
-          sourceSystem: formData.sourceSystem
+          sourceSystem: formData.sourceSystem,
         }
       );
       toast.success(data?.message);
@@ -71,39 +78,47 @@ const FeedingLogs = () => {
     }
   };
 
+  const getLogs = useCallback(async () => {
+    setLoading(true);
+    try {
+      const payload = {
+        limit: pagination?.limit,
+        skip: pagination?.page - 1,
+        claimId: debouncedClaimId,
+      };
+      const { data } = await axios.post<ResponseType<IDDataFeedingLog>>(
+        EndPoints.FAILED_CASES,
+        payload
+      );
+      setPagination((prev) => ({ ...prev, count: data?.count }));
+      const tmpArr = data?.data?.map((el) => {
+        return el?.skippedClaimIds?.map((id, ind) => ({
+          claimId: id,
+          failureReason: el?.skippedReasons[ind],
+        }));
+      });
+      setData(tmpArr);
+    } catch (error: any) {
+      showError(error);
+    } finally {
+      setLoading(false);
+    }
+  }, [pagination?.page, pagination?.limit, debouncedClaimId]);
+
   useEffect(() => {
-    const getLogs = async () => {
-      setLoading(true);
-      try {
-        const payload = {
-          limit: pagination?.limit,
-          skip: pagination?.page - 1,
-        };
-        const { data } = await axios.post<ResponseType<IDDataFeedingLog>>(
-          EndPoints.FAILED_CASES,
-          payload
-        );
-        setPagination((prev) => ({ ...prev, count: data?.count }));
-        const tmpArr = data?.data?.map((el) => {
-          return el?.skippedClaimIds?.map((id, ind) => ({
-            claimId: id,
-            failureReason: el?.skippedReasons[ind],
-          }));
-        });
-        setData(tmpArr);
-      } catch (error: any) {
-        showError(error);
-      } finally {
-        setLoading(false);
-      }
-    };
     getLogs();
-  }, [pagination?.page, pagination?.limit]);
+  }, [pagination?.page, pagination?.limit, debouncedClaimId, getLogs]);
 
   return (
     <PageWrapper title="Failed Cases">
       <Paper w="100%" p={20}>
         <Box className="flex items-center justify-end mb-4 gap-x-4">
+          <NumberInput
+            title="Claim Id (Global)"
+            placeholder="Claim Id (Global)"
+            value={claimId}
+            onChange={(val) => setClaimId(val as string)}
+          />
           <Text>
             Total: <strong>{pagination?.count}</strong>
           </Text>

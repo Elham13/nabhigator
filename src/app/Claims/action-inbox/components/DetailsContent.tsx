@@ -202,6 +202,7 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
                 caseDetail,
                 skipInvestigationRoleCheck,
                 showElement,
+                origin,
                 setData,
                 setCaseDetail,
                 setShowElement,
