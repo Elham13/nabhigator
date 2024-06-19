@@ -51,6 +51,7 @@ const Documents = async ({ searchParams }: PropTypes) => {
             height={100}
             width={100}
             alt="Uploaded Image"
+            unoptimized
           />
         ) : (
           <iframe src={signedUrl} className="h-[90vh] w-[70vw]"></iframe>
