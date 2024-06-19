@@ -47,11 +47,10 @@ const Documents = async ({ searchParams }: PropTypes) => {
         isImageUrl(signedUrl?.split("?")[0]) ? (
           <Image
             src={signedUrl}
-            className="h-[90vh] block"
+            className="h-[90vh] block w-auto"
             height={100}
             width={100}
             alt="Uploaded Image"
-            unoptimized
           />
         ) : (
           <iframe src={signedUrl} className="h-[90vh] w-[70vw]"></iframe>
