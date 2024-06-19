@@ -58,6 +58,7 @@ const FeedingLogs = () => {
         {
           claimId: formData.claimId,
           claimType: formData.claimType,
+          sourceSystem: formData.sourceSystem
         }
       );
       toast.success(data?.message);
