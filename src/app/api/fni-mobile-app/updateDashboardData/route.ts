@@ -360,13 +360,13 @@ router.post(async (req) => {
         ? [
             ...dashboardData?.actionsTaken,
             {
-              actionName: EventNames.INVESTIGATION_SKIPPED_AND_RE_ASSIGNING,
+              actionName: "Claim Sub Type changed",
               userId,
             },
           ]
         : [
             {
-              actionName: EventNames.INVESTIGATION_SKIPPED_AND_RE_ASSIGNING,
+              actionName: "Claim Sub Type changed",
               userId,
             },
           ];

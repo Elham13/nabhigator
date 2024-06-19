@@ -122,7 +122,7 @@ const UserEditForm = ({ userId, getUserId }: PropTypes) => {
       ) : null}
       {user?.config?.leadView && user?.config?.leadView?.length > 0 ? (
         <EditFormItem
-          title="Lead View"
+          title="Claim Type"
           description={user.config?.leadView?.join(", ")}
           icon={BsCardChecklist}
         />

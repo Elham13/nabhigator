@@ -597,7 +597,7 @@ const UserEdit = () => {
                       clearable
                     />
                     <MultiSelect
-                      label="Lead View"
+                      label="Claim Type"
                       placeholder="Specify the leads which should be visible to him"
                       value={values.config?.leadView}
                       onChange={(val) => {
