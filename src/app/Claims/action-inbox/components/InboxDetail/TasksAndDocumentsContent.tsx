@@ -66,7 +66,9 @@ const TasksAndDocumentsContent = ({ tasks, documents }: PropTypes) => {
                                   variant="light"
                                   onClick={() => {
                                     window.open(
-                                      `/Claims/action-inbox/documents?url=${url}&name=${el.name}`,
+                                      `/Claims/action-inbox/documents?url=${encodeURIComponent(
+                                        url
+                                      )}&name=${el.name}`,
                                       "_blank"
                                     );
                                   }}
