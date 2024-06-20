@@ -313,6 +313,7 @@ export interface ClaimDetails {
   noOfClaimsCorrespondingToPivotalId: string;
   claimTrigger: string;
   fraudStatus: string;
+  prePostIndicator: string;
 }
 
 export interface HospitalDetails {

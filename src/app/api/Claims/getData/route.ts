@@ -23,7 +23,7 @@ router.post(async (req) => {
 
   try {
     const sort = filter?.sort || null;
-    const updatedFilter = await processGetDataFilters(filter);
+    const updatedFilter: any = await processGetDataFilters(filter);
 
     const userRole = filter?.user?.activeRole
       ? filter?.user?.activeRole

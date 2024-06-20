@@ -1,4 +1,5 @@
 import {
+  ClaimDetails,
   ILocked,
   NumericStage,
   UserExpedition,
@@ -13,6 +14,7 @@ interface IExpeditionSchema
 interface ILockedSchema extends Omit<ILocked, "_id" | "role">, Document {
   role: string;
 }
+interface IClaimDetailSchema extends Omit<ClaimDetails, "_id">, Document {}
 
 const BenefitCoveredSchema = new Schema({
   benefitType: { type: String },
@@ -30,7 +32,7 @@ const MemberSchema = new Schema({
   },
 });
 
-const ClaimDetailsSchema = new Schema({
+const ClaimDetailsSchema = new Schema<IClaimDetailSchema>({
   claimStatus: { type: String },
   claimStatusUpdated: { type: String },
   noOfClaimsInHistory: { type: Number },
@@ -63,6 +65,7 @@ const ClaimDetailsSchema = new Schema({
   spotInvestigationFindings: { type: String },
   noOfClaimsCorrespondingToPivotalId: { type: String },
   claimTrigger: { type: String },
+  prePostIndicator: { type: String },
 });
 
 const ContractDetailsSchema = new Schema({
