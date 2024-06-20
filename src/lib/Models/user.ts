@@ -56,6 +56,7 @@ const ConfigSchema = new Schema<IConfigSchema>(
       from: { type: Date, default: null },
       to: { type: Date, default: null },
     },
+    thresholdUpdatedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );
@@ -145,11 +146,6 @@ const UserSchema = new Schema<IUserSchema>(
         type: [ExpeditionSchema],
         default: [],
       },
-    },
-    assignedCases: {
-      type: [Schema.Types.ObjectId],
-      ref: "User",
-      default: null,
     },
   },
   { timestamps: true }

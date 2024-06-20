@@ -633,6 +633,13 @@ const changePostQaValues = async () => {
         "config.reportReceivedTime.to": user?.config?.reportReceivedTime?.to
           ? new Date(user?.config?.reportReceivedTime?.to)
           : dayjs().endOf("day").toDate(),
+        "config.thresholdUpdatedAt": new Date(),
+        "config.dailyThreshold": user?.config?.dailyThreshold || 30,
+        "config.dailyAssign": user?.config?.dailyAssign || 0,
+        "config.leadView":
+          user?.config?.leadView && user?.config?.leadView?.length > 0
+            ? user?.config?.leadView
+            : ["PreAuth"],
       },
     });
   }

@@ -118,7 +118,7 @@ router.post(async (req) => {
 
     // console.log("pipeline: ", pipeline);
 
-    let data = await DashboardData.aggregate(pipeline);
+    let data = await DashboardData.aggregate(pipeline, { allowDiskUse: true });
     const count = await DashboardData.countDocuments(updatedFilter);
 
     data = await addColorCodes(data, userRole);
