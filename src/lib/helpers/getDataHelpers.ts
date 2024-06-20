@@ -370,7 +370,12 @@ export const processGetDataFilters = async (obj: any) => {
 
   if (
     userRole &&
-    ![Role.ADMIN, Role.CENTRAL_OPERATION, Role.POST_QA_LEAD].includes(userRole)
+    ![
+      Role.ADMIN,
+      Role.CENTRAL_OPERATION,
+      Role.POST_QA_LEAD,
+      Role.POST_QA,
+    ].includes(userRole)
   ) {
     const leadView: string[] | undefined = user?.config?.leadView;
     let geography: string[] = user?.state || [];

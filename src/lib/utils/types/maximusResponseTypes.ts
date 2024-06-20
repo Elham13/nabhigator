@@ -311,6 +311,9 @@ export interface ClaimDetailsOther {
   FCU: string;
   DS_Claim_Id: string;
   Claim_Trigger: string;
+  Main_Claim: string;
+  PrePost_Ind: string;
+  Member_Type: string;
 }
 
 export interface IFraudIndicator {
