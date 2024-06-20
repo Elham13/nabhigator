@@ -2,11 +2,7 @@ import DashboardData from "@/lib/Models/dashboardData";
 import User from "@/lib/Models/user";
 import connectDB from "@/lib/db/dbConnectWithMongoose";
 import { Databases } from "@/lib/utils/types/enums";
-import {
-  EventNames,
-  IDashboardData,
-  IUser,
-} from "@/lib/utils/types/fniDataTypes";
+import { EventNames, IDashboardData } from "@/lib/utils/types/fniDataTypes";
 import { HydratedDocument, PipelineStage } from "mongoose";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
@@ -61,8 +57,8 @@ router.post(async (req) => {
       await User.findByIdAndUpdate(
         userId,
         {
-          $push: { assignedCases: dashboardData?._id },
           $inc: { "config.dailyAssign": 1 },
+          $set: { "config.thresholdUpdatedAt": new Date() },
         },
         { useFindAndModify: false }
       );

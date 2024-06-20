@@ -32,65 +32,6 @@ import UnwantedFNIData from "@/lib/Models/uwantedFNIData";
 
 const router = createEdgeRouter<NextRequest, {}>();
 
-const addClaimAmountManually = async () => {
-  try {
-    const data = await DashboardData.find({}).lean();
-
-    for (let doc of data) {
-      await DashboardData.findByIdAndUpdate(doc._id, {
-        $set: {
-          // "claimDetails.claimAmount": Math.floor(
-          //   Math.random() * 10000000 + 10000
-          // ).toString(),
-          referralType: "API",
-        },
-      });
-    }
-    return data;
-  } catch (error: any) {
-    throw new Error(error);
-  }
-};
-
-const filterDataBasedOnTimeRange = async () => {
-  try {
-    // Example time range: greater than 5 am and less than 6 pm in UTC
-    const twoHoursBeforeNow = dayjs.utc().subtract(2, "hours");
-
-    const data = await DashboardData.find({
-      $expr: {
-        $and: [
-          {
-            $lte: [
-              {
-                $hour: {
-                  date: "$intimationDate",
-                  timezone: "UTC",
-                },
-              },
-              dayjs().utc().hour(),
-            ],
-          },
-          {
-            $gt: [
-              {
-                $hour: {
-                  date: "$intimationDate",
-                  timezone: "UTC",
-                },
-              },
-              dayjs(twoHoursBeforeNow).utc().hour(),
-            ],
-          },
-        ],
-      },
-    });
-    return data;
-  } catch (error: any) {
-    throw new Error(error);
-  }
-};
-
 const addHospitalDetailsToDashboardData = async () => {
   try {
     const hospitals = [
@@ -680,12 +621,37 @@ const addUnwantedFNIData = async () => {
   await UnwantedFNIData.insertMany(claimsData);
 };
 
+const changePostQaValues = async () => {
+  const users: IUser[] = await User.find({ role: "Post QA" }).lean();
+
+  for (const user of users) {
+    await User.findByIdAndUpdate(user?._id, {
+      $set: {
+        "config.reportReceivedTime.from": user?.config?.reportReceivedTime?.from
+          ? new Date(user?.config?.reportReceivedTime?.from)
+          : dayjs().startOf("day").toDate(),
+        "config.reportReceivedTime.to": user?.config?.reportReceivedTime?.to
+          ? new Date(user?.config?.reportReceivedTime?.to)
+          : dayjs().endOf("day").toDate(),
+        "config.thresholdUpdatedAt": new Date(),
+        "config.dailyThreshold": user?.config?.dailyThreshold || 30,
+        "config.dailyAssign": user?.config?.dailyAssign || 0,
+        "config.leadView":
+          user?.config?.leadView && user?.config?.leadView?.length > 0
+            ? user?.config?.leadView
+            : ["PreAuth"],
+      },
+    });
+  }
+};
+
 router.post(async (req) => {
   const {} = await req?.json();
 
   try {
     await connectDB(Databases.FNI);
-    addUnwantedFNIData();
+    changePostQaValues();
+
     return NextResponse.json(
       {
         success: true,

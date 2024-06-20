@@ -23,6 +23,7 @@ export type UserConfig = {
   dailyThreshold?: number;
   dailyAssign?: number;
   reportReceivedTime?: TReportReceivedTime;
+  thresholdUpdatedAt?: Date;
 };
 
 export enum Role {
@@ -94,7 +95,6 @@ export interface IUser {
   claimAmountThreshold: TClaimAmountThreshold;
   leave?: IUserLeave;
   zone: string[];
-  assignedCases?: string[];
   createdAt: string;
   updatedAt: string;
 }
