@@ -436,9 +436,9 @@ export const updateInvestigators = async (
           await inv.save();
         }
       } else {
-        // Neither monthly nor daily assign limit is reached, means we have to start from the beginning
-        inv.dailyAssign = 1;
-        inv.monthlyAssigned = 1;
+        // Neither monthly nor daily assign limit is reached
+        inv.dailyAssign += 1;
+        inv.monthlyAssigned += 1;
         inv.updatedDate = new Date();
         await inv.save();
       }

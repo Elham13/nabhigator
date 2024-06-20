@@ -21,9 +21,6 @@ import { captureCaseEvent } from "../../Claims/caseEvent/helpers";
 import User from "@/lib/Models/user";
 import ZoneStateMaster from "@/lib/Models/zoneStateMaster";
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
-
 const router = createEdgeRouter<NextRequest, {}>();
 
 interface IProps {
@@ -75,18 +72,18 @@ const findPostQaUser = async (props: IProps) => {
     {
       $match: {
         $expr: {
-          $lt: ["$config.dailyAssign", "$config.dailyThreshold"],
+          $lte: ["$config.dailyAssign", "$config.dailyThreshold"],
         },
       },
     },
     { $addFields: addField },
     { $match: match },
+    { $sort: { "config.thresholdUpdatedAt": 1 } },
   ];
 
   const users: IUser[] = await User.aggregate(pipeline);
 
-  if (users && users?.length > 0) return users[0];
-  return null;
+  return users;
 };
 
 router.post(async (req) => {
@@ -122,25 +119,74 @@ router.post(async (req) => {
 
     caseDetail.invReportReceivedDate = new Date();
 
-    const user: IUser | null = await findPostQaUser({
+    const users: IUser[] = await findPostQaUser({
       claimType: dashboardData?.claimType,
       providerState: dashboardData?.hospitalDetails?.providerState,
     });
 
-    if (user) {
-      dashboardData.postQa = user?._id;
-      eventRemarks = eventRemarks += `, and assigned to post qa ${user?.name}`;
-      await User.findByIdAndUpdate(
-        user?._id,
-        {
-          $push: { assignedCases: dashboardData?._id },
-          $inc: { "config.dailyAssign": 1 },
-        },
-        { useFindAndModify: false }
-      );
-    } else {
-      eventRemarks =
-        eventRemarks += `, and moved to Post QA Lead bucket because no Post Qa matched`;
+    if (users && users?.length > 0) {
+      let isAssigned = false;
+      for (const obj of users) {
+        const user: HydratedDocument<IUser> | null = await User.findById(
+          obj?._id
+        );
+
+        if (!user)
+          throw new Error(`Failed to find a user with the id ${obj?._id}`);
+
+        const dailyThreshold = user?.config?.dailyThreshold || 0;
+        const dailyAssign = user?.config?.dailyAssign || 0;
+        const updatedAt = user?.config?.thresholdUpdatedAt || null;
+
+        const dailyLimitReached = dailyThreshold - dailyAssign <= 1;
+
+        if (dailyLimitReached) {
+          if (updatedAt) {
+            const noOfDaysSinceUpdated = dayjs()
+              .startOf("day")
+              .diff(dayjs(updatedAt).startOf("day"), "day");
+
+            if (noOfDaysSinceUpdated > 0) {
+              // It is not updated today, therefore reset the daily assign
+              user.config.dailyAssign = 1;
+              user.config.thresholdUpdatedAt = new Date();
+              dashboardData.postQa = user?._id;
+              eventRemarks =
+                eventRemarks += `, and assigned to post qa ${user?.name}`;
+              await user.save();
+              isAssigned = true;
+              break;
+            }
+          } else {
+            // There is no updated date, so we know that it's the first time this user is getting assigned
+            user.config.dailyAssign = 1;
+            user.config.thresholdUpdatedAt = new Date();
+            dashboardData.postQa = user?._id;
+            eventRemarks =
+              eventRemarks += `, and assigned to post qa ${user?.name}`;
+            await user.save();
+            isAssigned = true;
+            break;
+          }
+        } else {
+          // Limit is not reached
+          user.config.dailyAssign = user?.config?.dailyAssign
+            ? user.config.dailyAssign + 1
+            : 1;
+          user.config.thresholdUpdatedAt = new Date();
+          dashboardData.postQa = user?._id;
+          eventRemarks =
+            eventRemarks += `, and assigned to post qa ${user?.name}`;
+          await user.save();
+          isAssigned = true;
+          break;
+        }
+      }
+
+      if (!isAssigned) {
+        eventRemarks =
+          eventRemarks += `, and moved to Post QA Lead bucket because no Post Qa matched`;
+      }
     }
 
     dashboardData.stage = stage;
@@ -159,6 +205,8 @@ router.post(async (req) => {
           },
         ];
 
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
     await captureCaseEvent({
       claimId: dashboardData?.claimId,
       intimationDate:
