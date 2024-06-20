@@ -58,7 +58,7 @@ const ClaimDetailsContent = ({ data }: PropTypes) => {
       <GridCol span={{ sm: 12, md: 6 }}>
         <KeyValueContainer
           label="Pre-Post Indicator"
-          value={"-"} //TODO: Need to find this value
+          value={data?.claimDetails?.prePostIndicator || "-"}
         />
       </GridCol>
       <GridCol span={{ sm: 12, md: 6 }}>

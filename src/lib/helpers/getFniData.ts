@@ -562,6 +562,9 @@ const getFniData = async (
         claimTrigger:
           claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.ClaimDetailsOther
             ?.Claim_Trigger,
+        prePostIndicator:
+          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.ClaimDetailsOther
+            ?.PrePost_Ind,
       },
       hospitalDetails: {
         providerNo: provider?.ProviderData?.providerNumber,
