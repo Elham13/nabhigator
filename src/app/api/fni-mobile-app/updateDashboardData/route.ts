@@ -98,7 +98,7 @@ router.post(async (req) => {
         const postQaUserEmail = postQaUser?.email || "";
 
         const recipients: string[] = [
-          "Pre.Auth@nivabupa.com",
+          // "Pre.Auth@nivabupa.com",
           "Preauth.Team@nivabupa.com",
           "Rohit.Choudhary@nivabupa.com",
           "Sudeshna.Mallick@nivabupa.com",
