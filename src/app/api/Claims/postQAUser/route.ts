@@ -32,7 +32,10 @@ router.post(async (req) => {
 
     if (action === "list") {
       const { sort, skip, limit } = body;
-      const match: PipelineStage.Match["$match"] = { role: "Post QA" };
+      const match: PipelineStage.Match["$match"] = {
+        role: "Post QA",
+        status: "Active",
+      };
 
       const pipeline: PipelineStage[] = [
         { $match: match },

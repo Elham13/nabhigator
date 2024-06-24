@@ -66,6 +66,7 @@ const getUser = async (state: string, role: Role.TL | Role.CLUSTER_MANAGER) => {
   const user: HydratedDocument<IUser> | null = await User.findOne({
     role,
     zone: zoneState?.Zone,
+    status: "Active",
   });
   if (!user) return null;
 
