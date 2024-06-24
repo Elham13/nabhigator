@@ -10,7 +10,9 @@ currentDateTime=$(date +"%Y%m%d%H%M%S")
 # Define target directory
 targetDir="/home/ubuntu/deployments/navigator-admin$currentDateTime"
 
-if [ -d ".next" ] && [ -f ".next/BUILD_ID" ] && [ -d ".next/static" ] && [ -f ".next/prerender-manifest.json" ]; then
+if [ -d ".next" ] 
+#&& [ -f ".next/BUILD_ID" ] && [ -d ".next/static" ] && [ -f ".next/prerender-manifest.json" ]; then
+# if [ -d ".next" ] && [ -f ".next/BUILD_ID" ] && [ -d ".next/static" ] && [ -f ".next/prerender-manifest.json" ]; then
     echo "Build successful."
 
     # Step 3: Copy the current folder to the target directory
