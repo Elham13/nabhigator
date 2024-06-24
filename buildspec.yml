@@ -51,5 +51,4 @@ artifacts:
     - yarn.lock
     - package-lock.json
     - global.d.ts
-    - next.config.ts
-    -
+    - next.config.mjs
