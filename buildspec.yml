@@ -1,0 +1,45 @@
+version: 0.2
+
+env:
+  variables:
+    PROJECT_KEY: awsIntegration # Set the desired project to run the cli scanning with
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+
+    commands:
+      # install npm
+      - n 18
+      - npm install
+
+  build:
+    commands:
+      - npm install
+  # post_build:
+  #   commands:
+  #     - curl -sfL 'https://raw.githubusercontent.com/orcasecurity/orca-cli/main/install.sh' | bash # download installation script
+  #     - orca-cli --project-key "awsIntegration" --api-token "aHR0cHM6Ly9hcHAuaW4ub3JjYXNlY3VyaXR5LmlvfHxyWnR6bTdscXYyUE10N1hGemNlSG96OGZGRkFUUE5icg==" fs scan "$PWD"
+
+artifacts:
+  # include all files required to run application
+  # notably excluded is node_modules, as this will cause overwrite error on deploy
+  files:
+    - assets/**/*
+    - components/**/*
+    - containers/**/*
+    - pages/**/*
+    - public/**/*
+    - scripts/**/*
+    - settings/**/*
+    - styles/**/*
+    - jsconfig.json
+    - package.json
+    - appspec.yml
+    - postcss.config.js
+    - tailwind.config.js
+    - lib/**/*
+    - .env
+    - next.config.js
+    - .eslintrc.json
