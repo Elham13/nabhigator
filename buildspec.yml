@@ -43,3 +43,4 @@ artifacts:
     - .env
     - next.config.js
     - .eslintrc.json
+    - src/**/*
