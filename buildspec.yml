@@ -52,3 +52,4 @@ artifacts:
     - package-lock.json
     - global.d.ts
     - next.config.mjs
+    - .eslintrc.json
