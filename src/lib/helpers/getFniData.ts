@@ -153,10 +153,31 @@ const getFniData = async (
     const memberNo =
       claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.membershipId || "";
 
-    const policyNo =
-      sourceSystem === "M"
-        ? claimDetail?.PolicyNo || claimFNIDetail?.PolicyNo
-        : claimOtherDetail?.PolicyNo;
+    let policyNo: string = "";
+    let policyNoForUI: string = "";
+
+    if (sourceSystem === "M") {
+      if (
+        claimDetail?.PolicyClaims?.ClaimDetail?.Product_Type?.startsWith("MHP")
+      ) {
+        policyNo = claimDetail?.PolicyClaims?.membershipId;
+      } else if (claimDetail?.PolicyNo) {
+        policyNo = claimDetail?.PolicyNo;
+      } else if (claimFNIDetail?.PolicyNo) {
+        policyNo = claimFNIDetail?.PolicyNo;
+      } else {
+        policyNo = claimOtherDetail?.PolicyNo;
+      }
+      policyNoForUI = policyNo;
+    } else {
+      if (claimDetail?.PolicyClaims?.COI) {
+        policyNo = claimDetail?.PolicyClaims?.COI;
+      } else {
+        policyNo =
+          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.COI || "";
+      }
+      policyNoForUI = claimOtherDetail?.PolicyNo;
+    }
 
     if (!policyNo)
       throw new Error(
@@ -177,10 +198,7 @@ const getFniData = async (
     const { data: claimHistory } = await axios.post<ClaimHistoryRes>(
       `${baseUrl}${EndPoints.GET_CLAIM_HISTORY}`,
       {
-        PolicyNo_COI:
-          sourceSystem === "M"
-            ? policyNo
-            : claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.COI,
+        PolicyNo_COI: policyNo,
         Membership_No_ID: "",
       },
       { headers }
@@ -446,7 +464,7 @@ const getFniData = async (
         contractNo: claimDetail?.PolicyClaims?.ClaimDetail?.Contract_Number,
         // product: customerFromCustomerPolicy?.PLANS?.[0]?.PRODUCT_NAME,
         product: customerFromCustomerPolicy?.PLANS?.[0]?.PLAN_DESC,
-        policyNo,
+        policyNo: policyNoForUI,
         policyStartDate:
           customerFromCustomerPolicy?.CONTRACTS?.[0]
             ?.EFFECTIVE_DATE_OF_CONTRACT,
