@@ -219,6 +219,7 @@ const ClaimCaseSchema = new Schema<IClaimCase>(
     investigationFindings: InvestigationFindingSchema,
     postQaFindings: InvestigationFindingSchema,
     rmFindings: { type: RMInvestigationFindingSchema, default: null },
+    rmFindingsPostQA: { type: RMInvestigationFindingSchema, default: null },
     invReportReceivedDate: { type: Date, default: null },
     reportSubmissionDateQa: { type: Date, default: null },
     outSourcingDate: { type: Date, default: null },

@@ -16,7 +16,7 @@ import { NextRequest, NextResponse } from "next/server";
 const router = createEdgeRouter<NextRequest, {}>();
 
 router.post(async (req) => {
-  const { id, name, payload } = await req?.json();
+  const { id, name, payload, isQa } = await req?.json();
 
   try {
     if (!id) throw new Error("id is required");
@@ -32,40 +32,68 @@ router.post(async (req) => {
     if (!claimCase) throw new Error(`No Date found with the id ${id}`);
 
     const tempFindings: IRMFindings = claimCase?.rmFindings || {};
+    const tempFindingsQa: IRMFindings = claimCase?.rmFindingsPostQA || {};
 
     if (taskName === "TheCommonForm") {
-      tempFindings.discrepanciesOrIrregularitiesObserved =
-        payload?.discrepanciesOrIrregularitiesObserved || "";
-      tempFindings.investigationSummary = payload?.investigationSummary || "";
-      tempFindings.recommendation = payload?.recommendation || null;
-      tempFindings.otherRecommendation = payload?.otherRecommendation || null;
+      const discObserved = payload?.discrepanciesOrIrregularitiesObserved || "";
+      const invSummary = payload?.investigationSummary || "";
 
-      if (tempFindings?.recommendation?.value) {
-        const dashboardData: HydratedDocument<IDashboardData> | null =
-          await DashboardData.findOne({
-            caseId: new Types.ObjectId(id),
-          });
+      if (isQa) {
+        tempFindingsQa.discrepanciesOrIrregularitiesObserved = discObserved;
+        tempFindingsQa.investigationSummary = invSummary;
+        tempFindingsQa.recommendation = payload?.recommendation || null;
+        tempFindingsQa.otherRecommendation =
+          payload?.otherRecommendation || null;
+      } else {
+        tempFindings.discrepanciesOrIrregularitiesObserved = discObserved;
+        tempFindingsQa.discrepanciesOrIrregularitiesObserved = discObserved;
+        tempFindings.investigationSummary = invSummary;
+        tempFindingsQa.investigationSummary = invSummary;
+        tempFindings.recommendation = payload?.recommendation || null;
+        tempFindingsQa.recommendation = payload?.recommendation || null;
+        tempFindings.otherRecommendation = payload?.otherRecommendation || null;
+        tempFindingsQa.otherRecommendation =
+          payload?.otherRecommendation || null;
 
-        if (!dashboardData)
-          throw new Error(`Failed to find dashboardData with the caseId ${id}`);
+        if (tempFindings?.recommendation?.value) {
+          const dashboardData: HydratedDocument<IDashboardData> | null =
+            await DashboardData.findOne({
+              caseId: new Types.ObjectId(id),
+            });
 
-        dashboardData.investigatorRecommendation =
-          tempFindings?.recommendation?.value;
-        await dashboardData.save();
+          if (!dashboardData)
+            throw new Error(
+              `Failed to find dashboardData with the caseId ${id}`
+            );
+
+          dashboardData.investigatorRecommendation =
+            tempFindings?.recommendation?.value;
+          await dashboardData.save();
+        }
       }
     } else {
-      tempFindings[taskName] = payload;
+      if (isQa) {
+        tempFindingsQa[taskName] = payload;
+      } else {
+        tempFindings[taskName] = payload;
+        tempFindingsQa[taskName] = payload;
+      }
     }
 
-    claimCase.rmFindings = tempFindings;
+    if (isQa) {
+      claimCase.rmFindingsPostQA = tempFindingsQa;
+    } else {
+      claimCase.rmFindings = tempFindings;
+      claimCase.rmFindingsPostQA = tempFindingsQa;
 
-    let tasks: Task[] = claimCase?.tasksAssigned || [];
+      let tasks: Task[] = claimCase?.tasksAssigned || [];
 
-    tasks = tasks?.map((el) =>
-      el?.name === taskName ? { ...el, completed: true } : el
-    );
+      tasks = tasks?.map((el) =>
+        el?.name === taskName ? { ...el, completed: true } : el
+      );
 
-    claimCase.tasksAssigned = tasks;
+      claimCase.tasksAssigned = tasks;
+    }
 
     const data = await claimCase.save();
 

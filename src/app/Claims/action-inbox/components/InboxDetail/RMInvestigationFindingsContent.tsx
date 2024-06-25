@@ -21,7 +21,7 @@ import { BiLink } from "react-icons/bi";
 import { IRMFindings } from "@/lib/utils/types/rmDataTypes";
 
 type PropTypes = {
-  findings?: IRMFindings;
+  findings?: IRMFindings | null;
 };
 
 const RMInvestigationFindingsContent = ({ findings }: PropTypes) => {

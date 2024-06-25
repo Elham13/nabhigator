@@ -245,7 +245,7 @@ const DetailsAccordion = ({
                     />
                   ) : (
                     <RMInvestigationFindingsContent
-                      findings={caseDetail?.rmFindings}
+                      findings={caseDetail?.rmFindingsPostQA}
                     />
                   )}
                 </Box>
@@ -261,9 +261,11 @@ const DetailsAccordion = ({
                   />
                 ) : (
                   <RMInvestigationRecommendationContent
-                    recommendation={caseDetail?.rmFindings?.recommendation}
+                    recommendation={
+                      caseDetail?.rmFindingsPostQA?.recommendation
+                    }
                     otherRecommendation={
-                      caseDetail?.rmFindings?.otherRecommendation
+                      caseDetail?.rmFindingsPostQA?.otherRecommendation
                     }
                   />
                 )

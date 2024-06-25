@@ -790,7 +790,8 @@ export interface CaseDetail {
   postQARecommendation?: RevisedQaApproveFormValues;
   investigationFindings?: RevisedInvestigationFindings;
   postQaFindings?: RevisedInvestigationFindings;
-  rmFindings?: IRMFindings;
+  rmFindings?: IRMFindings | null;
+  rmFindingsPostQA?: IRMFindings | null;
   invReportReceivedDate: Date | null;
   reportSubmissionDateQa: Date | null;
   investigationRejected?: IInvestigationRejected;

@@ -24,8 +24,8 @@ const connectDB = async (dbName: string) => {
   if (!connectionString)
     throw new Error("Mongodb connectionString is undefined");
 
-  connectionString = connectionString?.replace(/27017\//, `27017/${dbName}`);
-  // connectionString = connectionString?.replace(/\/test\b/, `/${dbName}`);
+  // connectionString = connectionString?.replace(/27017\//, `27017/${dbName}`);
+  connectionString = connectionString?.replace(/\/test\b/, `/${dbName}`);
 
   if (cached.conn) return cached.conn;
 
