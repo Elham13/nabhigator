@@ -47,9 +47,9 @@ artifacts:
     - tailwind.config.ts
     - README.md
     - tsconfig.json
-    - postcss.config.ts
     - yarn.lock
     - package-lock.json
     - global.d.ts
     - next.config.mjs
     - .eslintrc.json
+    - postcss.config.mjs
