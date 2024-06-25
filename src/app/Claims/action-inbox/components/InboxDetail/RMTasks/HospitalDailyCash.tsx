@@ -79,7 +79,7 @@ const HospitalDailyCash = ({ data, caseDetail, setCaseDetail }: PropTypes) => {
   );
 
   useEffect(() => {
-    const findings = caseDetail?.rmFindings?.[taskName];
+    const findings = caseDetail?.rmFindingsPostQA?.[taskName];
     if (
       !findings?.insuredCooperationDetail?.nameOfInsuredSystem &&
       data?.insuredDetails?.insuredName
@@ -142,13 +142,13 @@ const HospitalDailyCash = ({ data, caseDetail, setCaseDetail }: PropTypes) => {
   }, [
     data?.insuredDetails,
     data?.hospitalizationDetails,
-    caseDetail?.rmFindings,
+    caseDetail?.rmFindingsPostQA,
     form,
   ]);
 
   useEffect(() => {
-    if (caseDetail?.rmFindings?.[taskName]) {
-      const obj = caseDetail?.rmFindings?.[taskName];
+    if (caseDetail?.rmFindingsPostQA?.[taskName]) {
+      const obj = caseDetail?.rmFindingsPostQA?.[taskName];
       Object.entries(obj).map(([key, value]: any) => {
         if (typeof value === "object") {
           Object.entries(value).map(([innerKey, innerValue]: any) => {
@@ -163,7 +163,7 @@ const HospitalDailyCash = ({ data, caseDetail, setCaseDetail }: PropTypes) => {
         }
       });
     }
-  }, [caseDetail?.rmFindings, form]);
+  }, [caseDetail?.rmFindingsPostQA, form]);
 
   return (
     <FormContainer<IHospitalDailyCashPart>

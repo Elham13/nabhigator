@@ -40,13 +40,13 @@ const RandomVicinityVerification = ({
   );
 
   useEffect(() => {
-    if (caseDetail?.rmFindings?.[taskName]?.verificationSummary) {
+    if (caseDetail?.rmFindingsPostQA?.[taskName]?.verificationSummary) {
       form.setFieldValue(
         "verificationSummary",
-        caseDetail?.rmFindings?.[taskName]?.verificationSummary
+        caseDetail?.rmFindingsPostQA?.[taskName]?.verificationSummary
       );
     }
-  }, [caseDetail?.rmFindings, form]);
+  }, [caseDetail?.rmFindingsPostQA, form]);
 
   return (
     <FormContainer<IRandomVicinityVerification>

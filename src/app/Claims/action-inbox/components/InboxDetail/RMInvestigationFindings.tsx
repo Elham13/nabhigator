@@ -149,8 +149,8 @@ const RMInvestigationFindings = ({
   }, [caseDetail, dashboardData, setCaseDetail]);
 
   useEffect(() => {
-    if (caseDetail?.rmFindings) {
-      const values = caseDetail?.rmFindings;
+    if (caseDetail?.rmFindingsPostQA) {
+      const values = caseDetail?.rmFindingsPostQA;
       if (values?.discrepanciesOrIrregularitiesObserved) {
         form.setFieldValue(
           "discrepanciesOrIrregularitiesObserved",
@@ -185,7 +185,7 @@ const RMInvestigationFindings = ({
         );
       }
     }
-  }, [caseDetail?.rmFindings, form]);
+  }, [caseDetail?.rmFindingsPostQA, form]);
 
   return (
     <div>

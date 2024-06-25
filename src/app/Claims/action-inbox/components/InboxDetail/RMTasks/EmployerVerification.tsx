@@ -53,8 +53,8 @@ const EmployerVerification = ({ caseDetail, setCaseDetail }: PropTypes) => {
   );
 
   useEffect(() => {
-    if (caseDetail?.rmFindings?.[taskName]) {
-      const obj = caseDetail?.rmFindings?.[taskName];
+    if (caseDetail?.rmFindingsPostQA?.[taskName]) {
+      const obj = caseDetail?.rmFindingsPostQA?.[taskName];
       Object.entries(obj).map(([key, value]: any) => {
         if (key === "employers") {
           form.setFieldValue(
@@ -69,7 +69,7 @@ const EmployerVerification = ({ caseDetail, setCaseDetail }: PropTypes) => {
         } else form.setFieldValue(key, value);
       });
     }
-  }, [caseDetail?.rmFindings, form]);
+  }, [caseDetail?.rmFindingsPostQA, form]);
 
   return (
     <FormContainer<IEmployerVerification>

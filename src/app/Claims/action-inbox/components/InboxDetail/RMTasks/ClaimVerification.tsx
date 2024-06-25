@@ -37,13 +37,13 @@ const ClaimVerification = ({ caseDetail, setCaseDetail }: PropTypes) => {
   );
 
   useEffect(() => {
-    if (caseDetail?.rmFindings?.[taskName]?.finalObservation) {
+    if (caseDetail?.rmFindingsPostQA?.[taskName]?.finalObservation) {
       form.setFieldValue(
         "finalObservation",
-        caseDetail?.rmFindings?.[taskName]?.finalObservation
+        caseDetail?.rmFindingsPostQA?.[taskName]?.finalObservation
       );
     }
-  }, [caseDetail?.rmFindings, form]);
+  }, [caseDetail?.rmFindingsPostQA, form]);
 
   return (
     <FormContainer<IClaimVerification>
