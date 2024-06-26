@@ -231,6 +231,7 @@ export interface ContractDetails {
   port: string;
   prevInsuranceCompany: string;
   insuredSince: string;
+  mbrRegDate: string;
   NBHIPolicyStartDate: string;
   membersCovered: number;
   agentName: string;
