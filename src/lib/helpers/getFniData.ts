@@ -352,24 +352,7 @@ const getFniData = async (
       }
     });
 
-    // TODO: Change this api
-    const { data: contractDetail } = await axios.post<ContractAllDetailsRes>(
-      `${baseUrl}${EndPoints.GET_CONTRACT_DETAILS}`,
-      { ContractNo: claimDetail?.PolicyClaims?.ClaimDetail?.Contract_Number },
-      { headers }
-    );
-
-    if (["False", "false"].includes(contractDetail?.Status))
-      throw new Error(
-        `${EndPoints.GET_CONTRACT_DETAILS} api failure: ${contractDetail?.StatusMessage}`
-      );
-
-    const contracts = contractDetail?.ContractDetails?.Contracts;
-    contracts.sort(
-      (a, b) => Number(a?.RENEW_YEAR_NO) - Number(b?.RENEW_YEAR_NO)
-    );
-    const firstContract = contracts[0];
-    const lastContract = contracts[contracts?.length - 1];
+    const contracts = customerFromCustomerPolicy?.CONTRACTS;
 
     const appNumber = customerFromCustomerPolicy?.CONTRACTS[0]?.APP_NO;
 
@@ -477,10 +460,14 @@ const getFniData = async (
         prevInsuranceCompany:
           customerFromCustomerPolicy?.PREVIOUS_INSURANCE_COMPANY,
         insuredSince: customerFromCustomerPolicy?.INSURED_SINCE,
-        NBHIPolicyStartDate: firstContract?.POLICY_START_DATE,
+        NBHIPolicyStartDate: contracts[0]?.EFFECTIVE_DATE_OF_CONTRACT,
         membersCovered: members?.length || 0,
         agentName: customerFromCustomerPolicy?.CONTRACTS?.[0]?.AGENT_NAME,
-        currentStatus: lastContract?.STATUS,
+        currentStatus: contracts[0]?.EFFECTIVE_DATE_OF_CONTRACT
+          ? dayjs(contracts[0]?.EFFECTIVE_DATE_OF_CONTRACT).isBefore(dayjs())
+            ? "Inactive"
+            : "Active"
+          : "-",
         agentCode: customerFromCustomerPolicy?.CONTRACTS?.[0]?.AGENT_CODE,
         branchLocation: provider?.ProviderData?.providerState,
         sourcing:
