@@ -55,9 +55,11 @@ const ContractDetailsContent = ({ data }: PropTypes) => {
       <GridCol span={{ sm: 12, md: 6 }}>
         <KeyValueContainer
           label="Mbr Reg.Date"
-          value={dayjs(data?.contractDetails?.insuredSince).format(
-            "DD-MMM-YYYY"
-          )}
+          value={
+            data?.contractDetails?.mbrRegDate
+              ? dayjs(data?.contractDetails?.mbrRegDate).format("DD-MMM-YYYY")
+              : "-"
+          }
         />
       </GridCol>
       <GridCol span={{ sm: 12, md: 6 }}>

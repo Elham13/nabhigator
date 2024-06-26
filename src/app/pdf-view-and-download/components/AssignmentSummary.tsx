@@ -286,8 +286,8 @@ const AssignmentSummary = ({
     },
     {
       key: "Mbr Reg.Date",
-      value: data?.contractDetails?.insuredSince
-        ? dayjs(data?.contractDetails?.insuredSince).format("DD-MMM-YYYY")
+      value: data?.contractDetails?.mbrRegDate
+        ? dayjs(data?.contractDetails?.mbrRegDate).format("DD-MMM-YYYY")
         : "-",
     },
     {
