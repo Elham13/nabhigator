@@ -27,6 +27,10 @@ import LoaderPlaceholder from "@/components/ClaimsComponents/LoaderPlaceholder";
 import dynamic from "next/dynamic";
 import { Spin } from "antd";
 import { useDebouncedValue } from "@mantine/hooks";
+import {
+  benefitTypeOptions,
+  claimSubTypeOptions,
+} from "@/lib/utils/constants/options";
 const FeedingLogTable = dynamic(() => import("./components/FeedingLogTable"), {
   ssr: false,
   loading: () => <Spin />,
@@ -35,6 +39,8 @@ const FeedingLogTable = dynamic(() => import("./components/FeedingLogTable"), {
 const formDataInitials = {
   claimId: "",
   claimType: "",
+  claimSubType: "",
+  benefitType: "",
   sourceSystem: "",
 };
 
@@ -60,13 +66,17 @@ const FeedingLogs = () => {
     setSubmitting(true);
 
     try {
+      const payload = {
+        claimId: formData.claimId,
+        claimType: formData.claimType,
+        claimSubType: formData.claimSubType,
+        benefitType: formData.benefitType,
+        sourceSystem: formData.sourceSystem,
+      };
+
       const { data } = await axios.post<ResponseType<any>>(
         EndPoints.FEED_DASHBOARD,
-        {
-          claimId: formData.claimId,
-          claimType: formData.claimType,
-          sourceSystem: formData.sourceSystem,
-        }
+        payload
       );
       toast.success(data?.message);
       setFormData(formDataInitials);
@@ -150,6 +160,29 @@ const FeedingLogs = () => {
                 { label: "PreAuth", value: "P" },
                 { label: "Reimbursement", value: "R" },
               ]}
+              clearable
+            />
+            <Select
+              title="Claim Sub-Type"
+              placeholder="Select claim sub-type"
+              value={formData.claimSubType}
+              onChange={(val) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  claimSubType: val as string,
+                }))
+              }
+              data={claimSubTypeOptions}
+              clearable
+            />
+            <Select
+              title="Benefit Type"
+              placeholder="Select benefit type"
+              value={formData.benefitType}
+              onChange={(val) =>
+                setFormData((prev) => ({ ...prev, benefitType: val as string }))
+              }
+              data={benefitTypeOptions}
               clearable
             />
             <Select

@@ -49,8 +49,11 @@ router.post(async (req) => {
 
     if (body?.claimId && body?.claimType) {
       const sourceSystem = body?.sourceSystem as TSourceSystem;
+      const { claimSubType, benefitType } = body;
 
       if (!sourceSystem) throw new Error("sourceSystem is required!");
+      if (!claimSubType) throw new Error("claimSubType is required!");
+      if (!benefitType) throw new Error("benefitType is required!");
 
       if (!["M", "P"].includes(sourceSystem))
         throw new Error(`Wrong sourceSystem: ${sourceSystem}`);
@@ -94,6 +97,8 @@ router.post(async (req) => {
           const newlyInserted = await DashboardData.create({
             claimId,
             claimType: convertClaimType(claimType),
+            claimSubType,
+            benefitType,
             referralType: "Manual",
             ...data?.data,
           });
