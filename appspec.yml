@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /home/ubuntu/navigator-admin
+    destination: /home/ubuntu/navigator-admin-prod
     #destination: /home/ubuntu/magnus-uat
     overwrite: true
 permissions:

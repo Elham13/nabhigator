@@ -2,7 +2,7 @@
 set -e
 
 # Change directory to the project folder
-cd /home/ubuntu/navigator-admin
+cd /home/ubuntu/navigator-admin-prod
 
 # Get current date and time
 currentDateTime=$(date +"%Y%m%d%H%M%S")
