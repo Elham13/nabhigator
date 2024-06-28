@@ -53,3 +53,4 @@ artifacts:
     - next.config.mjs
     - .eslintrc.json
     - postcss.config.mjs
+    - next-env.d.ts
