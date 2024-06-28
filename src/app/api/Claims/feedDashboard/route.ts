@@ -7,6 +7,7 @@ import tz from "dayjs/plugin/timezone";
 import dayjs from "dayjs";
 import { HydratedDocument } from "mongoose";
 import {
+  EventNames,
   IAutoPreQC,
   IDashboardData,
   NumericStage,
@@ -106,7 +107,7 @@ router.post(async (req) => {
             contractNumber: data?.data?.contractDetails?.contractNo,
             membershipNumber: data?.data?.claimDetails?.memberNo,
             pivotalCustomerId: data?.data?.claimDetails?.pivotalCustomerId,
-            eventName: "Intimation/Referral",
+            eventName: EventNames.INTIMATION_OR_REFERRAL,
             userName: "Maximus",
             eventRemarks: "Manual",
           });
@@ -183,7 +184,7 @@ router.post(async (req) => {
                     membershipNumber: data?.data?.claimDetails?.memberNo,
                     pivotalCustomerId:
                       data?.data?.claimDetails?.pivotalCustomerId,
-                    eventName: "Intimation/Referral",
+                    eventName: EventNames.INTIMATION_OR_REFERRAL,
                     userName: "Maximus",
                     eventRemarks: "API",
                   });
