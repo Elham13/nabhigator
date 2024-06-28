@@ -458,6 +458,7 @@ const getFniData = async (
         prevInsuranceCompany:
           customerFromCustomerPolicy?.PREVIOUS_INSURANCE_COMPANY,
         insuredSince: customerFromCustomerPolicy?.INSURED_SINCE,
+        mbrRegDate: claimingMemberDetails?.MEMBER_REGISTRATION_DATE || "-",
         NBHIPolicyStartDate: firstContract?.POLICY_START_DATE,
         membersCovered: members?.length || 0,
         agentName: customerFromCustomerPolicy?.CONTRACTS?.[0]?.AGENT_NAME,

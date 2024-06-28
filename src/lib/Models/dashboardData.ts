@@ -74,6 +74,7 @@ const ContractDetailsSchema = new Schema({
   port: { type: String },
   prevInsuranceCompany: { type: String },
   insuredSince: { type: String },
+  mbrRegDate: { type: String },
   NBHIPolicyStartDate: { type: String },
   membersCovered: { type: Number },
   agentName: { type: String },
