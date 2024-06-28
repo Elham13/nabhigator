@@ -1,2 +1,2 @@
 cd /home/ubuntu/
-rm -rf multi-stage-form
+rm -rf navigator-admin-prod
