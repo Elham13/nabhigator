@@ -21,6 +21,10 @@ const TriageSummary = dynamic(
     loading: () => <Spin />,
   }
 );
+const ConsolidatedDetail = dynamic(() => import("./ConsolidatedDetail"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
 const FraudIndicatorTable = dynamic(
   () => import("@/components/ClaimsComponents/FraudIndicators"),
   {
@@ -90,27 +94,6 @@ const InvestigationFindings = dynamic(
 );
 const RMInvestigationFindings = dynamic(
   () => import("./InboxDetail/RMInvestigationFindings"),
-  {
-    ssr: false,
-    loading: () => <Spin />,
-  }
-);
-const ClaimDetailsContent = dynamic(
-  () => import("./InboxDetail/ClaimDetailsContent"),
-  {
-    ssr: false,
-    loading: () => <Spin />,
-  }
-);
-const InsuredDetailsContent = dynamic(
-  () => import("./InboxDetail/InsuredDetailsContent"),
-  {
-    ssr: false,
-    loading: () => <Spin />,
-  }
-);
-const HospitalDetailsContent = dynamic(
-  () => import("./InboxDetail/HospitalDetailsContent"),
   {
     ssr: false,
     loading: () => <Spin />,
@@ -298,21 +281,9 @@ const DetailsAccordion = ({
     ...(data?.claimType !== "PreAuth"
       ? [
           {
-            value: "Insured Details",
-            content: value === "Insured Details" && (
-              <InsuredDetailsContent data={data} />
-            ),
-          },
-          {
-            value: "Claim Details",
-            content: value === "Claim Details" && (
-              <ClaimDetailsContent data={data} />
-            ),
-          },
-          {
-            value: "Hospital Details & Hospitalization Details",
-            content: value === "Hospital Details & Hospitalization Details" && (
-              <HospitalDetailsContent data={data} />
+            value: "Consolidated Details",
+            content: value === "Consolidated Details" && (
+              <ConsolidatedDetail data={data} />
             ),
           },
           {
