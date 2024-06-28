@@ -5,6 +5,7 @@ import { Databases } from "@/lib/utils/types/enums";
 import {
   CaseDetail,
   IDashboardData,
+  IInvestigationFindings,
   Task,
 } from "@/lib/utils/types/fniDataTypes";
 import { HydratedDocument, Types } from "mongoose";
@@ -13,6 +14,70 @@ import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
 
 const router = createEdgeRouter<NextRequest, {}>();
+
+const initialValues: IInvestigationFindings = {
+  dateOfVisitToInsured: null,
+  dateOfVisitToHospital: null,
+  hospitalizationStatus: {
+    value: "",
+    differedAdmission: "",
+    cancelledAdmission: "",
+  },
+  hospitalizationDetails: {
+    dateOfAdmission: null,
+    timeOfAdmission: null,
+    dateOfDischarge: null,
+    timeOfDischarge: null,
+    tentativeDateOfAdmission: null,
+    tentativeDateOfDischarge: null,
+    proposedDateOfAdmission: null,
+    proposedDateOfDischarge: null,
+  },
+  patientDetails: {
+    patientName: "",
+    patientAge: 0,
+    patientGender: "Male",
+    revisedPatientName: "",
+    revisedPatientAge: 0,
+    revisedPatientGender: undefined,
+  },
+  attendantDetails: {
+    status: "NA",
+    name: "",
+  },
+  occupationOfInsured: "",
+  workPlaceDetails: "",
+  anyOtherPolicyWithNBHI: "",
+  anyPreviousClaimWithNBHI: "No",
+  insurancePolicyOtherThanNBHI: {
+    hasPolicy: "No",
+  },
+  classOfAccommodation: {
+    status: "",
+  },
+  changeInClassOfAccommodation: {
+    status: "",
+  },
+  patientOnActiveLineOfTreatment: {
+    status: "",
+  },
+  mismatchInDiagnosis: {
+    status: "",
+  },
+  discrepancies: {
+    status: "",
+  },
+  patientHabit: [],
+  pedOrNoneDisclosure: "NA",
+  ailment: [],
+  insuredOrAttendantCooperation: "No",
+  providerCooperation: "No",
+  investigationSummary: "",
+  recommendation: "",
+  otherRecommendation: [],
+  frcuGroundOfRepudiation: [],
+  evidenceDocs: [],
+};
 
 router.post(async (req) => {
   const { id, key, value, isPostQa } = await req?.json();
@@ -36,8 +101,20 @@ router.post(async (req) => {
 
         if (caseDetail?.postQaFindings) {
           const caseData = caseDetail?.toJSON();
-          const findings = caseData?.investigationFindings;
-          if (findings && Object.values(findings)?.every((val) => !!val)) {
+          const findings = caseData?.postQaFindings;
+
+          let completed: boolean = true;
+          if (findings && Object.keys(findings)?.length > 0) {
+            for (let key of Object.keys(initialValues)) {
+              // @ts-expect-error
+              if (!findings[key]) {
+                completed = false;
+                break;
+              }
+            }
+          }
+
+          if (completed) {
             let tasks: Task[] = caseDetail?.tasksAssigned || [];
             tasks = tasks?.map((el) => ({ ...el, completed: true }));
             caseDetail.tasksAssigned = tasks;
@@ -59,7 +136,19 @@ router.post(async (req) => {
         if (caseDetail?.investigationFindings) {
           const caseData = caseDetail?.toJSON();
           const findings = caseData?.investigationFindings;
-          if (findings && Object.values(findings)?.every((val) => !!val)) {
+
+          let completed: boolean = true;
+          if (findings && Object.keys(findings)?.length > 0) {
+            for (let key of Object.keys(initialValues)) {
+              // @ts-expect-error
+              if (!findings[key]) {
+                completed = false;
+                break;
+              }
+            }
+          }
+
+          if (completed) {
             let tasks: Task[] = caseDetail?.tasksAssigned || [];
             tasks = tasks?.map((el) => ({ ...el, completed: true }));
             caseDetail.tasksAssigned = tasks;
