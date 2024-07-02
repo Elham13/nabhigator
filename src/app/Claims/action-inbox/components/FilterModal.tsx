@@ -250,9 +250,12 @@ const FilterModal = ({
         <SimpleGrid cols={{ sm: 1, md: 2 }} mb={20}>
           {origin === "Consolidated" ||
           (origin === "Inbox" &&
-            [Role.ADMIN, Role.TL, Role.CLUSTER_MANAGER].includes(
-              user?.activeRole
-            )) ? (
+            [
+              Role.ADMIN,
+              Role.TL,
+              Role.CLUSTER_MANAGER,
+              Role.CENTRAL_OPERATION,
+            ].includes(user?.activeRole)) ? (
             <MultiSelect
               label="Stage"
               placeholder="Investigation Stage"
