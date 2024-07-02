@@ -1,6 +1,7 @@
 import { Dayjs } from "dayjs";
 import { ObjectId } from "mongoose";
 import { IRMFindings } from "./rmDataTypes";
+import { TSourceSystem } from "./maximusResponseTypes";
 
 export type SortOrder = 1 | -1 | null;
 
@@ -575,6 +576,7 @@ export interface IDashboardData {
   dateOfFallingIntoPostQaBucket: Date | null;
   dateOfFallingIntoReInvestigation: Date | null;
   investigatorRecommendation?: string;
+  sourceSystem: TSourceSystem;
   createdAt: string;
   updatedAt: string;
 }
