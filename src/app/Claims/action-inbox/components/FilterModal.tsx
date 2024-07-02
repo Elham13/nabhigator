@@ -176,7 +176,8 @@ const FilterModal = ({
   const getInvestigators = useCallback(async () => {
     try {
       const { data } = await axios.post<ResponseType<Investigator>>(
-        EndPoints.INVESTIGATORS
+        EndPoints.INVESTIGATORS,
+        {}
       );
       if (data?.data?.length > 0) {
         setOptions((prev) => ({
