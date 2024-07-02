@@ -365,6 +365,10 @@ export const processGetDataFilters = async (obj: any) => {
     } else if (userRole === Role.POST_QA_LEAD) {
       processedObj["stage"] = NumericStage.POST_QC;
       processedObj["postQa"] = null;
+    } else if (origin === "Inbox") {
+      processedObj["stage"] = {
+        $nin: [NumericStage.CLOSED, NumericStage.REJECTED],
+      };
     }
   }
 
