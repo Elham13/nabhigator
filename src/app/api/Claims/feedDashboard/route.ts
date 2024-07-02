@@ -101,6 +101,7 @@ router.post(async (req) => {
             claimSubType,
             benefitType,
             referralType: "Manual",
+            sourceSystem,
             ...data?.data,
           });
 
@@ -176,6 +177,7 @@ router.post(async (req) => {
                     lossType: obj?.lossType?.trim(),
                     cataractOrDayCareProcedure: obj?.cataractOrDayCareProcedure,
                     referralType: "API",
+                    sourceSystem,
                     ...data?.data,
                   });
 

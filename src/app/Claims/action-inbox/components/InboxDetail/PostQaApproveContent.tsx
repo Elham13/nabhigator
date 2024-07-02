@@ -149,7 +149,7 @@ const PostQaApproveContent = ({
           CLAIM_NO: data?.claimId?.toString(),
           CLAIM_TYPE: data?.claimType === "PreAuth" ? "P" : "R",
           POLICY_NUMBER: data?.contractDetails?.policyNo,
-          SourceSystem: "M",
+          SourceSystem: data?.sourceSystem,
         },
         Case_Assignment: {
           CASE_ASSIGNMENT_FLAG: "0",

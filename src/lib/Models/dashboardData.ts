@@ -334,6 +334,7 @@ const DashboardDataSchema = new Schema(
     investigatorRecommendation: {
       type: String,
     },
+    sourceSystem: { type: String },
   },
   { timestamps: true }
 );

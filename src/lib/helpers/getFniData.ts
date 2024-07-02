@@ -356,24 +356,30 @@ const getFniData = async (
 
     const appNumber = customerFromCustomerPolicy?.CONTRACTS[0]?.APP_NO;
 
-    const { data: applicationIdDetails } =
-      await axios.post<ApplicationIdDetails>(
-        `${baseUrl}${EndPoints.GET_APPLICATION_ID_DETAILS}`,
-        { ApplicationNumber: appNumber, MobileNumber: "" },
-        { headers }
-      );
+    let applicationId: string | null = null;
 
-    if (["False", "false"].includes(applicationIdDetails?.Status))
-      throw new Error(
-        `${EndPoints.GET_APPLICATION_ID_DETAILS} api failure: ${applicationIdDetails?.StatusMessage}`
-      );
+    if (sourceSystem === "M") {
+      const { data: applicationIdDetails } =
+        await axios.post<ApplicationIdDetails>(
+          `${baseUrl}${EndPoints.GET_APPLICATION_ID_DETAILS}`,
+          { ApplicationNumber: appNumber, MobileNumber: "" },
+          { headers }
+        );
 
-    const applications = applicationIdDetails?.preIssuanceStatusData;
-    const newApplicationIds = applications
-      ?.filter((app: any) => app?.BusinessType === "New Application")
-      ?.map((app: any) => app?.ApplicationID);
-    const applicationId =
-      newApplicationIds?.length > 0 ? newApplicationIds[0] : null;
+      if (["False", "false"].includes(applicationIdDetails?.Status))
+        throw new Error(
+          `${EndPoints.GET_APPLICATION_ID_DETAILS} api failure: ${applicationIdDetails?.StatusMessage}`
+        );
+
+      const applications = applicationIdDetails?.preIssuanceStatusData;
+
+      const newApplicationIds = applications
+        ?.filter((app: any) => app?.BusinessType === "New Application")
+        ?.map((app: any) => app?.ApplicationID);
+      applicationId =
+        newApplicationIds?.length > 0 ? newApplicationIds[0] : null;
+    }
+
     const memberListFromHistory = claimHistory?.PolicyClaims?.MemberList;
     const claimHistoryObj = memberListFromHistory?.find(
       (obj) => obj?.memberNo == memberNo
