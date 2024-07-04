@@ -310,7 +310,7 @@ const getFniData = async (
             return {
               claimNumber,
               diagnosisDetails: cdo?.DiasnosisDetails,
-              fcu: cdo?.FCU,
+              fcu: cdo?.FINAL_OUTCOME,
               dsClaimId: cdo?.DS_Claim_Id,
             };
           })
@@ -526,7 +526,8 @@ const getFniData = async (
         pivotalCustomerId: customerFromCustomerPolicy?.PIVOTAL_CUSTOMER_ID,
         claimType: currentClaim?.Claim_Type,
         mainClaim:
-          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.FNI?.Main_Claim,
+          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.ClaimDetailsOther
+            ?.Main_Claim,
         hospitalizationType:
           claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.ClaimDetailsOther
             ?.HOSPITALIZAITONTYPE || "",
@@ -545,7 +546,7 @@ const getFniData = async (
             ?.DIAG_CODE3,
         icdCode: currentClaim?.Illness,
         lineOfTreatment:
-          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.FNI
+          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.ClaimDetailsOther
             ?.Line_Of_Treatement,
         billedAmount: currentClaim?.Billed_Amount,
         preAuthNo: claimId,
