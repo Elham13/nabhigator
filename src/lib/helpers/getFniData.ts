@@ -470,8 +470,8 @@ const getFniData = async (
         NBHIPolicyStartDate: contracts[0]?.EFFECTIVE_DATE_OF_CONTRACT,
         membersCovered: members?.length || 0,
         agentName: customerFromCustomerPolicy?.CONTRACTS?.[0]?.AGENT_NAME,
-        currentStatus: contracts[0]?.EFFECTIVE_DATE_OF_CONTRACT
-          ? dayjs(contracts[0]?.EFFECTIVE_DATE_OF_CONTRACT).isBefore(dayjs())
+        currentStatus: contracts[0]?.CONTRACT_TERMINATION_DATE
+          ? dayjs(contracts[0]?.CONTRACT_TERMINATION_DATE).isBefore(dayjs())
             ? "Inactive"
             : "Active"
           : "-",
