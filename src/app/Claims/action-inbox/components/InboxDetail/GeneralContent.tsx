@@ -13,7 +13,7 @@ const GeneralContent = ({ data }: PropTypes) => {
   return (
     <Grid>
       {/* <GridCol span={{ sm: 12, md: 6 }}>
-        <KeyValueContainer label="Referral Type" value={data?.referralType} />
+        <KeyValueContainer label="Referral Type" value={data?.claimDetails?.claimTrigger} />
       </GridCol> */}
       <GridCol span={{ sm: 12, md: 6 }}>
         <KeyValueContainer

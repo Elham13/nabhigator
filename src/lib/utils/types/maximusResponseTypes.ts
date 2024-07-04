@@ -314,6 +314,7 @@ export interface ClaimDetailsOther {
   Main_Claim: string;
   PrePost_Ind: string;
   Member_Type: string;
+  Line_Of_Treatement: string;
 }
 
 export interface IFraudIndicator {
