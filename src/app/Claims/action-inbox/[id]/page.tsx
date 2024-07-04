@@ -1,7 +1,12 @@
 import React from "react";
-import DetailsContent from "../components/DetailsContent";
 import { Title } from "@mantine/core";
 import PageWrapper from "@/components/ClaimsComponents/PageWrapper";
+import dynamic from "next/dynamic";
+import { Spin } from "antd";
+const DetailsContent = dynamic(() => import("../components/DetailsContent"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
 
 type PropTypes = {
   params: { id?: string };
