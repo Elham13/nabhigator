@@ -48,25 +48,26 @@ router.get(async (req) => {
           NumericStage.INVESTIGATION_SKIPPED_AND_RE_ASSIGNING,
         ],
       };
-    }
-
-    if (user?.activeRole === Role.PRE_QC)
+    } else if (user?.activeRole === Role.PRE_QC) {
       commonFilters["stage"] = NumericStage.PENDING_FOR_PRE_QC;
-
-    if (user?.activeRole === Role.POST_QA) {
+    } else if (user?.activeRole === Role.POST_QA) {
       commonFilters["stage"] = NumericStage.POST_QC;
       commonFilters["postQa"] = user?._id;
-    }
-
-    if (user?.activeRole === Role.POST_QA_LEAD) {
+    } else if (user?.activeRole === Role.POST_QA_LEAD) {
       commonFilters["stage"] = NumericStage.POST_QC;
       commonFilters["postQa"] = null;
+    } else {
+      commonFilters["stage"] = {
+        $nin: [NumericStage.REJECTED, NumericStage.CLOSED],
+      };
     }
 
     const geography = user?.state;
 
     if (
-      ![Role.ADMIN, Role.CENTRAL_OPERATION, Role.POST_QA_LEAD].includes(user?.activeRole)
+      ![Role.ADMIN, Role.CENTRAL_OPERATION, Role.POST_QA_LEAD].includes(
+        user?.activeRole
+      )
     ) {
       if (geography && geography?.length > 0 && !geography?.includes("All")) {
         commonFilters["hospitalDetails.providerState"] = { $in: geography };
