@@ -22,6 +22,11 @@ export const claimSubTypeOptions: ValueLabel[] = [
 export const moreFiltersOptions: IMoreFiltersOptions[] = [
   { value: "intimationDate", label: "Date of Int", type: "date" },
   { value: "dateOfOS", label: "Date of OS", type: "date" },
+  {
+    value: "dateOfFallingIntoPostQaBucket",
+    label: "Date of Falling in Post QA",
+    type: "date",
+  },
   { value: "dateOfClosure", label: "Date of Closure", type: "date" },
   { value: "clusterManager", label: "Cluster Manager", type: "array" },
   { value: "claimInvestigators", label: "Field Investigator", type: "array" },
