@@ -78,6 +78,11 @@ export const visibleColumnsOptions: IVisibleColumn[] = [
     visible: true,
   },
   {
+    value: "dateOfFallingIntoPostQaBucket",
+    label: "Date Of Falling In Post QA",
+    visible: true,
+  },
+  {
     value: "invReportReceivedDate",
     label: "Report Received Date",
     visible: true,
