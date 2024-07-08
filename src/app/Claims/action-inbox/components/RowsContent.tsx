@@ -105,6 +105,16 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
               }
             />
             <TableCell
+              columnName="dateOfFallingIntoPostQaBucket"
+              value={
+                el?.dateOfFallingIntoPostQaBucket
+                  ? dayjs(el?.dateOfFallingIntoPostQaBucket).format(
+                      "DD-MMM-YYYY"
+                    )
+                  : "-"
+              }
+            />
+            <TableCell
               columnName="invReportReceivedDate"
               value={
                 el?.caseId &&
