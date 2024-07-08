@@ -287,7 +287,7 @@ export const otherRecommendationDetailsOptions = [
   { value: "Fraud", label: "Fraud" },
 ];
 
-export const FRCUGroundOfRepudiationOptions: ComboboxData = [
+export const QAFRCUGroundOfRepudiationOptions: ComboboxData = [
   {
     value: "PED/NDC_FC",
     label: "PED/NDC",
@@ -330,7 +330,7 @@ export const FRCUGroundOfRepudiationOptions: ComboboxData = [
   },
 ];
 
-export const FRCUGroundOfRepudiationProdOptions: ComboboxData = [
+export const QAFRCUGroundOfRepudiationProdOptions: ComboboxData = [
   {
     value: "PED/NDC_FP",
     label: "PED/NDC",
@@ -373,7 +373,7 @@ export const FRCUGroundOfRepudiationProdOptions: ComboboxData = [
   },
 ];
 
-export const QAFRCUGroundOfRepudiationOptions: ComboboxData = [
+export const FRCUGroundOfRepudiationOptions: ComboboxData = [
   {
     value: "PED/NDC_FC",
     label: "PED/NDC",
@@ -452,7 +452,7 @@ export const QAFRCUGroundOfRepudiationOptions: ComboboxData = [
   },
 ];
 
-export const QAFRCUGroundOfRepudiationProdOptions: ComboboxData = [
+export const FRCUGroundOfRepudiationProdOptions: ComboboxData = [
   {
     value: "PED/NDC_FP",
     label: "PED/NDC",
