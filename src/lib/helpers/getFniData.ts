@@ -10,7 +10,6 @@ import {
   ClaimHistoryRes,
   ClaimOtherDetailRes,
   ClaimsGetByIdRes,
-  ContractAllDetailsRes,
   CustomerPolicyDetailRes,
   GetAuthRes,
   IGetClaimFNIDetails,
@@ -66,6 +65,7 @@ const getUser = async (state: string, role: Role.TL | Role.CLUSTER_MANAGER) => {
   const user: HydratedDocument<IUser> | null = await User.findOne({
     role,
     zone: zoneState?.Zone,
+    status: "Active",
   });
   if (!user) return null;
 
@@ -128,16 +128,16 @@ const getFniData = async (
     const currentClaimNumber =
       claimDetail?.PolicyClaims?.ClaimDetail?.Claim_Number || "";
 
-    // const { data: claimFNIDetail } = await axios.post<IGetClaimFNIDetails>(
-    //   `${baseUrl}${EndPoints.GET_CLAIM_FNI_DETAILS}`,
-    //   { ClaimID: claimId, ClaimType: claimType },
-    //   { headers }
-    // );
+    const { data: claimFNIDetail } = await axios.post<IGetClaimFNIDetails>(
+      `${baseUrl}${EndPoints.GET_CLAIM_FNI_DETAILS}`,
+      { ClaimID: claimId, ClaimType: claimType },
+      { headers }
+    );
 
-    // if (["False", "false"].includes(claimFNIDetail?.Status))
-    //   throw new Error(
-    //     `${EndPoints.GET_CLAIM_FNI_DETAILS} api error: ${claimFNIDetail?.StatusMessage}`
-    //   );
+    if (["False", "false"].includes(claimFNIDetail?.Status))
+      throw new Error(
+        `${EndPoints.GET_CLAIM_FNI_DETAILS} api error: ${claimFNIDetail?.StatusMessage}`
+      );
 
     const { data: claimOtherDetail } = await axios.post<ClaimOtherDetailRes>(
       `${baseUrl}${EndPoints.GET_CLAIM_OTHER_DETAILS}`,
@@ -151,12 +151,33 @@ const getFniData = async (
       );
 
     const memberNo =
-      claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.membershipId || "";
+      claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.membershipId || "";
 
-    const policyNo =
-      sourceSystem === "M"
-        ? claimDetail?.PolicyNo || claimOtherDetail?.PolicyNo
-        : claimOtherDetail?.PolicyNo;
+    let policyNo: string = "";
+    let policyNoForUI: string = "";
+
+    if (sourceSystem === "M") {
+      if (
+        claimDetail?.PolicyClaims?.ClaimDetail?.Product_Type?.startsWith("MHP")
+      ) {
+        policyNo = claimDetail?.PolicyClaims?.membershipId;
+      } else if (claimDetail?.PolicyNo) {
+        policyNo = claimDetail?.PolicyNo;
+      } else if (claimFNIDetail?.PolicyNo) {
+        policyNo = claimFNIDetail?.PolicyNo;
+      } else {
+        policyNo = claimOtherDetail?.PolicyNo;
+      }
+      policyNoForUI = policyNo;
+    } else {
+      if (claimDetail?.PolicyClaims?.COI) {
+        policyNo = claimDetail?.PolicyClaims?.COI;
+      } else {
+        policyNo =
+          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.COI || "";
+      }
+      policyNoForUI = claimOtherDetail?.PolicyNo;
+    }
 
     if (!policyNo)
       throw new Error(
@@ -177,10 +198,7 @@ const getFniData = async (
     const { data: claimHistory } = await axios.post<ClaimHistoryRes>(
       `${baseUrl}${EndPoints.GET_CLAIM_HISTORY}`,
       {
-        PolicyNo_COI:
-          sourceSystem === "M"
-            ? policyNo
-            : claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.COI,
+        PolicyNo_COI: policyNo,
         Membership_No_ID: "",
       },
       { headers }
@@ -291,7 +309,7 @@ const getFniData = async (
             return {
               claimNumber,
               diagnosisDetails: cdo?.DiasnosisDetails,
-              fcu: cdo?.FCU,
+              fcu: cdo?.FINAL_OUTCOME,
               dsClaimId: cdo?.DS_Claim_Id,
             };
           })
@@ -333,45 +351,34 @@ const getFniData = async (
       }
     });
 
-    // TODO: Change this api
-    const { data: contractDetail } = await axios.post<ContractAllDetailsRes>(
-      `${baseUrl}${EndPoints.GET_CONTRACT_DETAILS}`,
-      { ContractNo: claimDetail?.PolicyClaims?.ClaimDetail?.Contract_Number },
-      { headers }
-    );
-
-    if (["False", "false"].includes(contractDetail?.Status))
-      throw new Error(
-        `${EndPoints.GET_CONTRACT_DETAILS} api failure: ${contractDetail?.StatusMessage}`
-      );
-
-    const contracts = contractDetail?.ContractDetails?.Contracts;
-    contracts.sort(
-      (a, b) => Number(a?.RENEW_YEAR_NO) - Number(b?.RENEW_YEAR_NO)
-    );
-    const firstContract = contracts[0];
-    const lastContract = contracts[contracts?.length - 1];
+    const contracts = customerFromCustomerPolicy?.CONTRACTS;
 
     const appNumber = customerFromCustomerPolicy?.CONTRACTS[0]?.APP_NO;
 
-    const { data: applicationIdDetails } =
-      await axios.post<ApplicationIdDetails>(
-        `${baseUrl}${EndPoints.GET_APPLICATION_ID_DETAILS}`,
-        { ApplicationNumber: appNumber, MobileNumber: "" },
-        { headers }
-      );
+    let applicationId: string | null = null;
 
-    if (["False", "false"].includes(applicationIdDetails?.Status))
-      throw new Error(
-        `${EndPoints.GET_APPLICATION_ID_DETAILS} api failure: ${applicationIdDetails?.StatusMessage}`
-      );
+    if (sourceSystem === "M") {
+      const { data: applicationIdDetails } =
+        await axios.post<ApplicationIdDetails>(
+          `${baseUrl}${EndPoints.GET_APPLICATION_ID_DETAILS}`,
+          { ApplicationNumber: appNumber, MobileNumber: "" },
+          { headers }
+        );
 
-    const applications = applicationIdDetails?.preIssuanceStatusData;
-    const newApplicationIds = applications
-      ?.filter((app: any) => app?.BusinessType === "New Application")
-      ?.map((app: any) => app?.ApplicationID);
-    const applicationId =
-      newApplicationIds?.length > 0 ? newApplicationIds[0] : null;
+      if (["False", "false"].includes(applicationIdDetails?.Status))
+        throw new Error(
+          `${EndPoints.GET_APPLICATION_ID_DETAILS} api failure: ${applicationIdDetails?.StatusMessage}`
+        );
+
+      const applications = applicationIdDetails?.preIssuanceStatusData;
+
+      const newApplicationIds = applications
+        ?.filter((app: any) => app?.BusinessType === "New Application")
+        ?.map((app: any) => app?.ApplicationID);
+      applicationId =
+        newApplicationIds?.length > 0 ? newApplicationIds[0] : null;
+    }
+
     const memberListFromHistory = claimHistory?.PolicyClaims?.MemberList;
     const claimHistoryObj = memberListFromHistory?.find(
       (obj) => obj?.memberNo == memberNo
@@ -446,7 +453,7 @@ const getFniData = async (
         contractNo: claimDetail?.PolicyClaims?.ClaimDetail?.Contract_Number,
         // product: customerFromCustomerPolicy?.PLANS?.[0]?.PRODUCT_NAME,
         product: customerFromCustomerPolicy?.PLANS?.[0]?.PLAN_DESC,
-        policyNo,
+        policyNo: policyNoForUI,
         policyStartDate:
           customerFromCustomerPolicy?.CONTRACTS?.[0]
             ?.EFFECTIVE_DATE_OF_CONTRACT,
@@ -459,10 +466,14 @@ const getFniData = async (
           customerFromCustomerPolicy?.PREVIOUS_INSURANCE_COMPANY,
         insuredSince: customerFromCustomerPolicy?.INSURED_SINCE,
         mbrRegDate: claimingMemberDetails?.MEMBER_REGISTRATION_DATE || "-",
-        NBHIPolicyStartDate: firstContract?.POLICY_START_DATE,
+        NBHIPolicyStartDate: contracts[0]?.EFFECTIVE_DATE_OF_CONTRACT,
         membersCovered: members?.length || 0,
         agentName: customerFromCustomerPolicy?.CONTRACTS?.[0]?.AGENT_NAME,
-        currentStatus: lastContract?.STATUS,
+        currentStatus: contracts[0]?.CONTRACT_TERMINATION_DATE
+          ? dayjs(contracts[0]?.CONTRACT_TERMINATION_DATE).isBefore(dayjs())
+            ? "Inactive"
+            : "Active"
+          : "-",
         agentCode: customerFromCustomerPolicy?.CONTRACTS?.[0]?.AGENT_CODE,
         branchLocation: provider?.ProviderData?.providerState,
         sourcing:
@@ -514,7 +525,8 @@ const getFniData = async (
         pivotalCustomerId: customerFromCustomerPolicy?.PIVOTAL_CUSTOMER_ID,
         claimType: currentClaim?.Claim_Type,
         mainClaim:
-          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.FNI?.Main_Claim,
+          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.ClaimDetailsOther
+            ?.Main_Claim,
         hospitalizationType:
           claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.ClaimDetailsOther
             ?.HOSPITALIZAITONTYPE || "",
@@ -533,7 +545,7 @@ const getFniData = async (
             ?.DIAG_CODE3,
         icdCode: currentClaim?.Illness,
         lineOfTreatment:
-          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.FNI
+          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.ClaimDetailsOther
             ?.Line_Of_Treatement,
         billedAmount: currentClaim?.Billed_Amount,
         preAuthNo: claimId,
@@ -552,12 +564,12 @@ const getFniData = async (
           claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.ClaimDetailsOther
             ?.FRAUDREASON,
         spotNumber:
-          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.FNI?.SR_NUMBER,
+          claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.FNI?.SR_NUMBER,
         spotInvestigationRecommendation:
-          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.FNI
+          claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.FNI
             ?.Recommendations,
         spotInvestigationFindings:
-          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.FNI
+          claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.FNI
             ?.Executive_Summary,
         noOfClaimsCorrespondingToPivotalId: "",
         claimTrigger:
@@ -619,7 +631,7 @@ const getFniData = async (
       })),
       fraudIndicators: {
         indicatorsList:
-          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.FNI?.FRAUD_INDICATORS?.filter(
+          claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.FNI?.FRAUD_INDICATORS?.filter(
             (obj, index, self) =>
               index ===
               self?.findIndex(
@@ -627,7 +639,7 @@ const getFniData = async (
               )
           ) || [],
         remarks:
-          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.FNI
+          claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.FNI
             ?.Other_Remarks || "",
       },
       applicationId: applicationId,
