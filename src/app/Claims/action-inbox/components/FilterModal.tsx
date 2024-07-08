@@ -20,7 +20,6 @@ import axios from "axios";
 import { DateInput, DatePicker } from "@mantine/dates";
 import {
   DashboardFilters,
-  IMoreFiltersOptions,
   IUser,
   Investigator,
   NumericStage,
