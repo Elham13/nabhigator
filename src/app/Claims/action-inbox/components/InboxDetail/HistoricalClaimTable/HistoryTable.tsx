@@ -93,7 +93,9 @@ const HistoryTable = ({ history, dashboardData }: PropTypes) => {
                 bg={isPresentClaim ? "blue" : undefined}
                 c={isPresentClaim ? "white" : undefined}
               >
-                <Table.Td className="whitespace-nowrap">{claimNo}</Table.Td>
+                <Table.Td className="whitespace-nowrap">
+                  {elem?.claim_number}
+                </Table.Td>
                 <Table.Td className="whitespace-nowrap">
                   {elem?.dsClaimId || "-"}
                 </Table.Td>
