@@ -13,7 +13,7 @@ const MembersTable = ({ members }: PropTypes) => {
     <Table>
       <Table.Thead>
         <Table.Tr>
-          <Table.Th>No</Table.Th>
+          <Table.Th>Member ID</Table.Th>
           <Table.Th>Name</Table.Th>
           <Table.Th>DOB</Table.Th>
           <Table.Th>Relation</Table.Th>
