@@ -458,6 +458,7 @@ export enum EventNames {
   EXPEDITION_MESSAGE_SENT = "Expedition Message Sent",
   SENT_BACK_TO_PRE_QC_DUE_TO_PA = "Case came back to Pre-QC",
   MANUALLY_ASSIGNED_TO_POST_QA = "Manually assigned to Post QA user",
+  CLAIM_SUB_TYPE_CHANGED = "Claim Sub-Type changed",
 }
 
 export interface INewCityMaster {
