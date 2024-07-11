@@ -91,6 +91,20 @@ export const processGetDataFilters = async (obj: any) => {
     };
   }
 
+  if (processedObj["dateOfFallingIntoPostQaBucket"]) {
+    const actualDate = dayjs(
+      processedObj["dateOfFallingIntoPostQaBucket"]
+    ).toDate();
+    const plusOneDay = dayjs(processedObj["dateOfFallingIntoPostQaBucket"])
+      .add(1, "day")
+      .toDate();
+
+    processedObj["dateOfFallingIntoPostQaBucket"] = {
+      $gte: actualDate,
+      $lte: plusOneDay,
+    };
+  }
+
   if (processedObj["dateOfClosure"]) {
     const actualDate = dayjs(processedObj["dateOfClosure"]).toDate();
     const plusOneDay = dayjs(processedObj["dateOfClosure"])

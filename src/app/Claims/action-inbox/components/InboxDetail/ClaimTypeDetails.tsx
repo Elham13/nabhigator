@@ -1,14 +1,16 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { Grid, Loader, Select } from "@mantine/core";
+import { Button, Grid, Loader, Select } from "@mantine/core";
 import KeyValueContainer from "./KeyValueContainer";
 import axios from "axios";
 import {
   IDashboardData,
   SingleResponseType,
 } from "@/lib/utils/types/fniDataTypes";
-import { EndPoints } from "@/lib/utils/types/enums";
+import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
 import { showError } from "@/lib/helpers";
 import { claimSubTypeOptions } from "@/lib/utils/constants/options";
+import { IUserFromSession } from "@/lib/utils/types/authTypes";
+import { useLocalStorage } from "@mantine/hooks";
 
 type PropTypes = {
   data: IDashboardData | null;
@@ -16,15 +18,19 @@ type PropTypes = {
 };
 
 const ClaimTypeDetails = ({ data, setData }: PropTypes) => {
+  const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
   const [value, setValue] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleChange = async (val: string | null) => {
+  const handleChange = (val: string | null) => setValue(val || "");
+
+  const handleSave = async () => {
     setLoading(true);
     try {
       const payload = {
         id: data?._id,
-        claimSubType: val || "",
+        claimSubType: value || "",
+        userName: user?.name,
       };
       const { data: res } = await axios.post<
         SingleResponseType<IDashboardData>
@@ -47,7 +53,7 @@ const ClaimTypeDetails = ({ data, setData }: PropTypes) => {
         <KeyValueContainer label="Claim Type" value={data?.claimType} />
       </Grid.Col>
       <Grid.Col span={{ sm: 12, md: 6 }}>
-        <div className="flex items-end">
+        <div className="flex gap-2 items-end">
           <Select
             className="w-full"
             label="Claim Subtype"
@@ -59,7 +65,9 @@ const ClaimTypeDetails = ({ data, setData }: PropTypes) => {
             clearable
             searchable
           />
-          {loading ? <Loader size="md" type="dots" /> : null}
+          <Button loading={loading} onClick={handleSave}>
+            Save
+          </Button>
         </div>
       </Grid.Col>
     </Grid>

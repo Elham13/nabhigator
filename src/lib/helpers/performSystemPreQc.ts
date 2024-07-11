@@ -99,22 +99,50 @@ const runTriage = async (fni: IDashboardData) => {
             fni?.contractDetails?.NBHIPolicyStartDate
           );
 
-          const isWithinOneYear = admissionDate.isBefore(
-            policyStartDate.add(1, "year")
+          const isWithin3Months = admissionDate.isBefore(
+            policyStartDate.add(3, "month")
           );
+
+          tempObj["variable"] = "Proximity";
+          tempObj["logic"] =
+            "The difference between Date of Admission from Policy Start Date";
+          tempObj["result"] = "Early Claim";
+          tempObj["acceptOrReject"] = {
+            condition: isWithin3Months,
+            text: isWithin3Months ? accepted : rejected,
+          };
+          break;
+        }
+
+        case 5: {
+          const contractStartDate = dayjs(
+            fni?.contractDetails?.NBHIPolicyStartDate,
+            "DD-MMM-YYYY"
+          );
+          const contractEndDate = dayjs(fni?.contractDetails?.policyEndDate);
+
+          const isWithin90DaysFromStartDate = dayjs().isBefore(
+            contractStartDate.add(90, "days")
+          );
+
+          const isWithin60DaysFromEndDate = dayjs().isAfter(
+            contractEndDate.subtract(60, "days")
+          );
+
+          const cond = isWithin90DaysFromStartDate || isWithin60DaysFromEndDate;
 
           tempObj["variable"] = "Proximity";
           tempObj["logic"] =
             "The difference between Date of Admission from Policy Start Date";
           tempObj["result"] = "Before renewal- claim in first year policy";
           tempObj["acceptOrReject"] = {
-            condition: isWithinOneYear,
-            text: isWithinOneYear ? accepted : rejected,
+            condition: cond,
+            text: cond ? accepted : rejected,
           };
           break;
         }
 
-        case 5: {
+        case 6: {
           let isFirstClaimWithin3Years = false;
           fni?.historicalClaim?.map((el) => {
             const found = el?.history?.find((h) => {
@@ -136,7 +164,7 @@ const runTriage = async (fni: IDashboardData) => {
           break;
         }
 
-        case 6: {
+        case 7: {
           const isFAndCProvider =
             !!fni?.hospitalDetails?.coutionList ||
             (!!fni?.hospitalDetails?.fraudList &&
@@ -152,7 +180,7 @@ const runTriage = async (fni: IDashboardData) => {
           break;
         }
 
-        case 7: {
+        case 8: {
           let isRejectedBefore: boolean = false;
 
           const found = fni?.historicalClaim.find(
@@ -179,7 +207,7 @@ const runTriage = async (fni: IDashboardData) => {
           break;
         }
 
-        case 8: {
+        case 9: {
           let isNonPreferredProvider: boolean =
             fni?.hospitalDetails?.preferredPartnerList !== "True";
 
@@ -193,7 +221,7 @@ const runTriage = async (fni: IDashboardData) => {
           break;
         }
 
-        case 9:
+        case 10:
           tempObj["variable"] = "Diagnosis";
           tempObj["logic"] =
             "Chemotherapy/Radiotherapy/Haemodialysis- 1st Claim";
@@ -210,7 +238,7 @@ const runTriage = async (fni: IDashboardData) => {
           };
           break;
 
-        case 7:
+        case 11:
           tempObj["variable"] = "Diagnosis";
           tempObj["logic"] = "Radiotherapy-1st  Claim";
           tempObj["result"] = "Diagnosis-Radiotherapy- 1st Claim";
@@ -223,7 +251,7 @@ const runTriage = async (fni: IDashboardData) => {
           };
           break;
 
-        case 8:
+        case 12:
           tempObj["variable"] = "Diagnosis";
           tempObj["logic"] = "MHD- 1st Claim";
           tempObj["result"] = "Diagnosis-MHD- 1st Claim";
@@ -234,7 +262,7 @@ const runTriage = async (fni: IDashboardData) => {
           };
           break;
 
-        case 9:
+        case 13:
           tempObj["variable"] = "Diagnosis";
           tempObj["logic"] = "If chemo/radio/mhd- 2nd and subsequent claim";
           tempObj["result"] =
@@ -251,7 +279,7 @@ const runTriage = async (fni: IDashboardData) => {
           };
           break;
 
-        case 10: {
+        case 14: {
           tempObj["variable"] = "Demography";
           tempObj["logic"] =
             "Fraud & Cautious Geography- Yes- De-dupe in Master";
@@ -262,7 +290,7 @@ const runTriage = async (fni: IDashboardData) => {
           };
           break;
         }
-        case 11:
+        case 15:
           tempObj["variable"] = "Claim Decision";
           tempObj["logic"] = "Discharged- final approval given";
           tempObj["result"] = "Final approved";

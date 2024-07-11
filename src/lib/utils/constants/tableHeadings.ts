@@ -72,6 +72,11 @@ export const mainDashboardTableHeaders: ITableHeader[] = [
     sortable: true,
   },
   {
+    value: "dateOfFallingIntoPostQaBucket",
+    label: "Date Of Falling In Post QA",
+    sortable: true,
+  },
+  {
     value: "invReportReceivedDate",
     label: "Report Received Date",
     sortable: false,

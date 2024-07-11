@@ -131,7 +131,6 @@ const DownloadExcelBtn = ({ filters, sort, searchTerm }: PropTypes) => {
         expedition: undefined,
         locked: undefined,
         dateOfFallingIntoReInvestigation: undefined,
-        dateOfFallingIntoPostQaBucket: undefined,
         dateOfFallingIntoAllocationBucket: undefined,
         caseId: undefined,
         createdAt: undefined,
@@ -164,6 +163,11 @@ const DownloadExcelBtn = ({ filters, sort, searchTerm }: PropTypes) => {
           : "-",
         policyEndDate: el?.contractDetails?.policyEndDate
           ? dayjs(el?.contractDetails?.policyEndDate).format(
+              "DD-MMM-YYYY hh:mm:ss a"
+            )
+          : "-",
+        dateOfFallingIntoPostQaBucket: el?.dateOfFallingIntoPostQaBucket
+          ? dayjs(el?.dateOfFallingIntoPostQaBucket).format(
               "DD-MMM-YYYY hh:mm:ss a"
             )
           : "-",

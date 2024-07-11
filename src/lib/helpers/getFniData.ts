@@ -485,12 +485,7 @@ const getFniData = async (
             : customerFromCustomerPolicy?.CONTRACTS?.[0]?.SourceSystem,
         bancaDetails: customerFromCustomerPolicy?.CONTRACTS?.[0]?.AGENT_NAME,
       },
-      members: members?.map((item) => ({
-        membershipNumber: item?.MEMBERSHIP_NO,
-        membershipName: item?.MEMBER_NAME,
-        DOB: item?.MEMBER_DATE_OF_BIRTH,
-        relation: item?.RELATION,
-      })),
+      members: customizedMembers,
       insuredDetails: {
         insuredName: claimingMemberDetails?.MEMBER_NAME,
         gender: claimingMemberDetails?.GENDER,
@@ -506,7 +501,9 @@ const getFniData = async (
         state: customerFromCustomerPolicy?.CURRENT_ADDRESS_STATE,
         contactNo: claimingMemberDetails?.MOBILE_NO,
         emailId: claimingMemberDetails?.CUST_EMAIL,
-        memberType: "Not Found",
+        memberType:
+          claimOtherDetail?.PolicyClaimsOther?.MemberDetails?.ClaimDetailsOther
+            ?.Member_Type,
         memberId: claimingMemberDetails?.MEMBER_ID,
         pivotalCustomerId: customerFromCustomerPolicy?.PIVOTAL_CUSTOMER_ID,
         height: claimingMemberDetails?.INSURE_MEMBER_HEIGHT,

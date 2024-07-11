@@ -715,6 +715,34 @@ const UserEdit = () => {
                       clearable
                     />
                     <Select
+                      label="Trigger Sub type"
+                      placeholder="Select Trigger Sub type"
+                      value={values.config?.triggerSubType || ""}
+                      onChange={(val) => {
+                        setValues((prev) => ({
+                          ...prev,
+                          config: {
+                            ...prev.config,
+                            triggerSubType: val as
+                              | "Mandatory"
+                              | "Non Mandatory",
+                          },
+                        }));
+                        setUpdatedValues((prev) => ({
+                          ...prev,
+                          config: {
+                            ...prev.config,
+                            triggerSubType: val as
+                              | "Mandatory"
+                              | "Non Mandatory",
+                          },
+                        }));
+                      }}
+                      data={["Mandatory", "Non Mandatory"]}
+                      checkIconPosition="right"
+                      clearable
+                    />
+                    <Select
                       label="Can export consolidated inbox"
                       placeholder="Decide whether this user can export as excel the consolidated inbox"
                       value={values?.config?.canExportConsolidatedInbox}

@@ -22,6 +22,11 @@ export const claimSubTypeOptions: ValueLabel[] = [
 export const moreFiltersOptions: IMoreFiltersOptions[] = [
   { value: "intimationDate", label: "Date of Int", type: "date" },
   { value: "dateOfOS", label: "Date of OS", type: "date" },
+  {
+    value: "dateOfFallingIntoPostQaBucket",
+    label: "Date of Falling in Post QA",
+    type: "date",
+  },
   { value: "dateOfClosure", label: "Date of Closure", type: "date" },
   { value: "clusterManager", label: "Cluster Manager", type: "array" },
   { value: "claimInvestigators", label: "Field Investigator", type: "array" },
@@ -282,7 +287,7 @@ export const otherRecommendationDetailsOptions = [
   { value: "Fraud", label: "Fraud" },
 ];
 
-export const FRCUGroundOfRepudiationOptions: ComboboxData = [
+export const QAFRCUGroundOfRepudiationOptions: ComboboxData = [
   {
     value: "PED/NDC_FC",
     label: "PED/NDC",
@@ -325,7 +330,7 @@ export const FRCUGroundOfRepudiationOptions: ComboboxData = [
   },
 ];
 
-export const FRCUGroundOfRepudiationProdOptions: ComboboxData = [
+export const QAFRCUGroundOfRepudiationProdOptions: ComboboxData = [
   {
     value: "PED/NDC_FP",
     label: "PED/NDC",
@@ -368,7 +373,7 @@ export const FRCUGroundOfRepudiationProdOptions: ComboboxData = [
   },
 ];
 
-export const QAFRCUGroundOfRepudiationOptions: ComboboxData = [
+export const FRCUGroundOfRepudiationOptions: ComboboxData = [
   {
     value: "PED/NDC_FC",
     label: "PED/NDC",
@@ -447,7 +452,7 @@ export const QAFRCUGroundOfRepudiationOptions: ComboboxData = [
   },
 ];
 
-export const QAFRCUGroundOfRepudiationProdOptions: ComboboxData = [
+export const FRCUGroundOfRepudiationProdOptions: ComboboxData = [
   {
     value: "PED/NDC_FP",
     label: "PED/NDC",
@@ -1660,30 +1665,42 @@ export const mainObjectOptionsMap: IMainOptions[] = [
 export const rmMainObjectOptionsMap: IMainOptions[] = [
   {
     name: "NPS Confirmation",
-    options: [{ label: "NPS Confirmation", value: "NPS Confirmation" }],
+    options: [],
   },
   {
     name: "Pre-Post Verification",
     options: [
-      { label: "Pre-Post Verification", value: "Pre-Post Verification" },
+      {
+        label: "Pre-Post Verification Documents",
+        value: "Pre-Post Verification Documents",
+      },
     ],
   },
   {
     name: "Hospital Daily Cash Part",
     options: [
-      { label: "Hospital Daily Cash Part", value: "Hospital Daily Cash Part" },
+      {
+        label: "Hospital Daily Cash Verification Documents",
+        value: "Hospital Daily Cash Verification Documents",
+      },
     ],
   },
   {
     name: "OPD Verification Part",
     options: [
-      { label: "OPD Verification Part", value: "OPD Verification Part" },
+      {
+        label: "OPD verification Documents",
+        value: "OPD verification Documents",
+      },
     ],
   },
   {
     name: "AHC Verification Part",
     options: [
-      { label: "AHC Verification Part", value: "AHC Verification Part" },
+      {
+        label: "AHC verification Documents",
+        value: "AHC verification Documents",
+      },
     ],
   },
   {
@@ -1692,19 +1709,39 @@ export const rmMainObjectOptionsMap: IMainOptions[] = [
   },
   {
     name: "Insured Verification",
-    options: insuredPartDocNames,
+    options: [
+      {
+        label: "Insured Verification Documents",
+        value: "Insured Verification Documents",
+      },
+    ],
   },
   {
     name: "Vicinity Verification",
-    options: vicinityCheckDocNames,
+    options: [
+      {
+        label: "Vicinity Verification Documents",
+        value: "Vicinity Verification Documents",
+      },
+    ],
   },
   {
     name: "Hospital Verification",
-    options: hospitalPartDocNames,
+    options: [
+      {
+        label: "Hospital Verification Documents",
+        value: "Hospital Verification Documents",
+      },
+    ],
   },
   {
     name: "Treating Doctor Verification",
-    options: treatingDoctorDocNames,
+    options: [
+      {
+        label: "Treating Doctor Verification Document",
+        value: "Treating Doctor Verification Document",
+      },
+    ],
   },
   {
     name: "Family Doctor Part/Referring Doctor Verification",
@@ -1717,11 +1754,21 @@ export const rmMainObjectOptionsMap: IMainOptions[] = [
   },
   {
     name: "Lab Part/Pathologist Verification",
-    options: labOrPathologistDocNames,
+    options: [
+      {
+        label: "Lab Part/Pathologist Verification Documents",
+        value: "Lab Part/Pathologist Verification Documents",
+      },
+    ],
   },
   {
     name: "Chemist Verification",
-    options: chemistDocNames,
+    options: [
+      {
+        label: "Chemist Verification Documents",
+        value: "Chemist Verification Documents",
+      },
+    ],
   },
   {
     name: "Employer Verification",

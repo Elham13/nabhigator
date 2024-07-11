@@ -208,10 +208,20 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setSubmitting(true);
+  const validateValues = () => {
     try {
+      if (values?.caseType && values?.caseType?.length > 0) {
+        if (user?.config?.triggerSubType === "Mandatory") {
+          values?.caseType?.map((item) => {
+            const subTrigger = values?.caseTypeDependencies?.[item];
+            if (!subTrigger || subTrigger?.length === 0)
+              throw new Error(`Sub-Trigger ${item} is required`);
+          });
+        }
+      } else {
+        throw new Error("Triggers is required");
+      }
+
       if (values?.allocationType === "Single" && selected.length > 1)
         throw new Error(
           "You have selected more than 1 investigators in Single allocation"
@@ -231,28 +241,41 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
         }
       }
 
-      const payload = {
-        ...values,
-        documents: values?.documents
-          ? values?.documents instanceof Map
-            ? Array.from(values?.documents?.entries())
-            : Array.from(new Map(Object.entries(values?.documents)).entries())
-          : null,
-        investigator: isManual && selected?.length > 0 ? selected : undefined,
-        caseStatus: "Accepted",
-        isManual,
-        user,
-      };
+      return true;
+    } catch (err: any) {
+      showError(err);
+      return false;
+    }
+  };
 
-      const { data } = await axios.post<
-        SingleResponseType<AssignToInvestigatorRes>
-      >(EndPoints.ASSIGN_TO_INVESTIGATOR, payload);
-      toast.success(data.message);
-      router.replace("/Claims/action-inbox");
-    } catch (error) {
-      showError(error);
-    } finally {
-      setSubmitting(false);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (validateValues()) {
+      setSubmitting(true);
+      try {
+        const payload = {
+          ...values,
+          documents: values?.documents
+            ? values?.documents instanceof Map
+              ? Array.from(values?.documents?.entries())
+              : Array.from(new Map(Object.entries(values?.documents)).entries())
+            : null,
+          investigator: isManual && selected?.length > 0 ? selected : undefined,
+          caseStatus: "Accepted",
+          isManual,
+          user,
+        };
+
+        const { data } = await axios.post<
+          SingleResponseType<AssignToInvestigatorRes>
+        >(EndPoints.ASSIGN_TO_INVESTIGATOR, payload);
+        toast.success(data.message);
+        router.replace("/Claims/action-inbox");
+      } catch (error) {
+        showError(error);
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
 
@@ -731,6 +754,7 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
                   disabled={
                     dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
                   }
+                  required={user?.config?.triggerSubType === "Mandatory"}
                 />
               ) : null;
             })}

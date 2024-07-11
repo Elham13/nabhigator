@@ -32,7 +32,8 @@ router.post(async (req) => {
 
     if (!data) throw new Error(`No record found with the id ${id}`);
 
-    data.claimSubType = claimSubType;
+    let benefitType =
+      claimSubType === "Critical Illness" ? "Benefit" : "Indemnity";
 
     if (claimSubType === "PA/CI" && origin === "investigator") {
       data.stage = NumericStage.PENDING_FOR_PRE_QC;
@@ -47,7 +48,25 @@ router.post(async (req) => {
           "Case came back to Pre-QC bucket because investigator selected",
         userName,
       });
+    } else {
+      await captureCaseEvent({
+        eventName: EventNames.CLAIM_SUB_TYPE_CHANGED,
+        intimationDate:
+          data?.intimationDate ||
+          dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
+        stage: data?.stage,
+        claimId: data?.claimId,
+        eventRemarks: `${EventNames.CLAIM_SUB_TYPE_CHANGED} from ${
+          data?.claimSubType || "-"
+        } to ${claimSubType}, and benefit type from ${
+          data.benefitType
+        } to ${benefitType}`,
+        userName,
+      });
     }
+
+    data.benefitType = benefitType;
+    data.claimSubType = claimSubType;
 
     const response = await data.save();
 
