@@ -25,6 +25,7 @@ export type UserConfig = {
   dailyAssign?: number;
   reportReceivedTime?: TReportReceivedTime;
   thresholdUpdatedAt?: Date;
+  triggerSubType?: "Mandatory" | "Non Mandatory";
 };
 
 export enum Role {

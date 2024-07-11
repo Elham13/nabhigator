@@ -57,6 +57,7 @@ const ConfigSchema = new Schema<IConfigSchema>(
       to: { type: Date, default: null },
     },
     thresholdUpdatedAt: { type: Date, default: null },
+    triggerSubType: { type: String, default: "Non Mandatory" },
   },
   { timestamps: true }
 );
