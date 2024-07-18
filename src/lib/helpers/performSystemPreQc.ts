@@ -379,8 +379,8 @@ const runTriage = async (fni: IDashboardData) => {
           tempObj["logic"] = "If  provider is newly added to NBHI network";
           tempObj["result"] = "New Provider";
           tempObj["acceptOrReject"] = {
-            condition: !fraudIsNone,
-            text: fraudIsNone ? rejected : accepted,
+            condition: false,
+            text: rejected,
           };
           break;
 
