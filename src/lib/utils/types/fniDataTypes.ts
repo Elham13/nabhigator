@@ -662,6 +662,7 @@ export interface DocumentData {
   name: string;
   docUrl: string[];
   hiddenDocUrls: string[];
+  replacedDocUrls: string[];
   location: IDocLocation | null;
 }
 

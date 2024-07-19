@@ -31,6 +31,8 @@ const UploadProof = ({
   const doc = {
     docUrl: fieldValue,
     location: null,
+    hiddenDocUrls: [],
+    replacedDocUrls: [],
     name: "",
     _id: "",
   };

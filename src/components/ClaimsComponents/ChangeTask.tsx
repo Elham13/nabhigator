@@ -73,16 +73,23 @@ const ChangeTask = ({
 
   const handleSelectDocument = (docName: string, val: string[]) => {
     let newDoc = new Map(values.documents as DocumentMap);
+    const docObj = {
+      name: "",
+      docUrl: [],
+      location: null,
+      hiddenDocUrls: [],
+      replacedDocUrls: [],
+    };
     if (newDoc) {
       newDoc.set(
         docName,
-        val.map((v) => ({ name: v, docUrl: [], location: null }))
+        val.map((v) => ({ ...docObj, name: v }))
       );
     } else {
       newDoc = new Map();
       newDoc.set(
         docName,
-        val.map((v) => ({ name: v, docUrl: [], location: null }))
+        val.map((v) => ({ ...docObj, name: v }))
       );
     }
 
@@ -97,6 +104,13 @@ const ChangeTask = ({
     value: string | string[] | null
   ) => {
     if (name === "tasksAssigned" && Array.isArray(value)) {
+      const docObj = {
+        name: "",
+        docUrl: [],
+        location: null,
+        hiddenDocUrls: [],
+        replacedDocUrls: [],
+      };
       let documents = values.documents as DocumentMap;
       if (documents && documents?.size > 0) {
         if (documents?.size < value?.length) {
@@ -105,9 +119,8 @@ const ChangeTask = ({
             (el) => el.name === lastEl
           )?.options;
           const options = tempOptions?.map((el) => ({
+            ...docObj,
             name: el.value,
-            docUrl: [],
-            location: null,
           }));
           documents?.set(lastEl, options || []);
         } else {
@@ -122,9 +135,8 @@ const ChangeTask = ({
         )?.options;
         const options =
           tempOptions?.map((el) => ({
+            ...docObj,
             name: el.value,
-            docUrl: [],
-            location: null,
           })) || [];
         if (documents === null) {
           const map = new Map();

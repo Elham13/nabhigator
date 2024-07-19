@@ -189,7 +189,6 @@ const InvestigationFindings = ({
 
       const docKey = await uploadFile(file, dashboardData?.claimId || 0);
 
-      console.log("key: ", docKey);
       if (docKey) {
         if (
           values.evidenceDocs &&

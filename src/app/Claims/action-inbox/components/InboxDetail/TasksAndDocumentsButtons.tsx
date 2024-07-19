@@ -33,7 +33,7 @@ const TasksAndDocumentsButtons = (props: PropTypes) => {
   } = props;
   const [loadings, setLoadings] = useState({ replace: false, delete: false });
 
-  const handleDelete = async () => {
+  const handleDocumentUpdate = async () => {
     setLoadings((prev) => ({ ...prev, delete: true }));
     try {
       const { success, message } = await modifyDocument({
@@ -51,6 +51,33 @@ const TasksAndDocumentsButtons = (props: PropTypes) => {
       showError(error);
     } finally {
       setLoadings((prev) => ({ ...prev, delete: false }));
+    }
+  };
+
+  const handleFileChange = async (file: File | null) => {
+    try {
+      if (!file) throw new Error("No file selected");
+      setLoadings((prev) => ({ ...prev, replace: true }));
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const { success, message } = await modifyDocument({
+        action: "replace",
+        taskName,
+        name,
+        caseId,
+        userName,
+        docIndex,
+        data: formData,
+      });
+      if (!success) throw new Error(message);
+      refetchCaseDetail();
+      toast.success(message);
+    } catch (error: any) {
+      showError(error);
+    } finally {
+      setLoadings((prev) => ({ ...prev, replace: false }));
     }
   };
 
@@ -82,12 +109,12 @@ const TasksAndDocumentsButtons = (props: PropTypes) => {
             size="compact-sm"
             color={isHidden ? "green" : "red"}
             title={isHidden ? "Restore" : "Delete"}
-            onClick={handleDelete}
+            onClick={handleDocumentUpdate}
             loading={loadings?.delete}
           >
             {isHidden ? <MdRestore /> : <BiTrash />}
           </Button>
-          <FileButton onChange={() => {}} accept="image/png,image/jpeg">
+          <FileButton onChange={handleFileChange} accept="image/png,image/jpeg">
             {(props) => (
               <Button
                 {...props}

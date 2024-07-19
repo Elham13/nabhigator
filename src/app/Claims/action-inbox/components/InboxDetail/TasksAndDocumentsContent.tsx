@@ -1,12 +1,7 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React from "react";
 import { ActionIcon, Box, Divider, Table, Text, Title } from "@mantine/core";
 import { HiLocationMarker } from "react-icons/hi";
-import {
-  CaseDetail,
-  DocumentData,
-  Role,
-  Task,
-} from "@/lib/utils/types/fniDataTypes";
+import { DocumentData, Role, Task } from "@/lib/utils/types/fniDataTypes";
 import { Flex, Spin } from "antd";
 import dynamic from "next/dynamic";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
@@ -86,19 +81,25 @@ const TasksAndDocumentsContent = ({
                             <Flex gap={4}>
                               {el?.docUrl &&
                                 el?.docUrl?.length > 0 &&
-                                el?.docUrl?.map((url, ind) => (
-                                  <TasksAndDocumentsButtons
-                                    key={ind}
-                                    docIndex={ind}
-                                    caseId={caseId}
-                                    url={url}
-                                    name={el?.name}
-                                    taskName={docKey}
-                                    userName={user?.name}
-                                    isHidden={el?.hiddenDocUrls?.includes(url)}
-                                    refetchCaseDetail={refetchCaseDetail}
-                                  />
-                                ))}
+                                el?.docUrl?.map((url, ind) => {
+                                  return el?.replacedDocUrls?.includes(
+                                    url
+                                  ) ? null : (
+                                    <TasksAndDocumentsButtons
+                                      key={ind}
+                                      docIndex={ind}
+                                      caseId={caseId}
+                                      url={url}
+                                      name={el?.name}
+                                      taskName={docKey}
+                                      userName={user?.name}
+                                      isHidden={el?.hiddenDocUrls?.includes(
+                                        url
+                                      )}
+                                      refetchCaseDetail={refetchCaseDetail}
+                                    />
+                                  );
+                                })}
                             </Flex>
                           </Table.Td>
                           <Table.Td>
@@ -127,7 +128,11 @@ const TasksAndDocumentsContent = ({
                               {el?.docUrl &&
                                 el?.docUrl?.length > 0 &&
                                 el?.docUrl?.map((url, ind) => {
-                                  return el?.hiddenDocUrls?.includes(url) ? (
+                                  return el?.replacedDocUrls?.includes(
+                                    url
+                                  ) ? null : el?.hiddenDocUrls?.includes(
+                                      url
+                                    ) ? (
                                     "-"
                                   ) : (
                                     <ActionIcon

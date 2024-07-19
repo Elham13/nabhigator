@@ -139,6 +139,8 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
             name: el.value,
             docUrl: [],
             location: null,
+            hiddenDocUrls: [],
+            replacedDocUrls: [],
           }));
           documents?.set(lastEl, options || []);
         } else {
@@ -156,6 +158,8 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
             name: el.value,
             docUrl: [],
             location: null,
+            hiddenDocUrls: [],
+            replacedDocUrls: [],
           })) || [];
         if (documents === null) {
           const map = new Map();
@@ -192,13 +196,25 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
     if (newDoc) {
       newDoc.set(
         docName,
-        val.map((v) => ({ name: v, docUrl: [], location: null }))
+        val.map((v) => ({
+          name: v,
+          docUrl: [],
+          location: null,
+          hiddenDocUrls: [],
+          replacedDocUrls: [],
+        }))
       );
     } else {
       newDoc = new Map();
       newDoc.set(
         docName,
-        val.map((v) => ({ name: v, docUrl: [], location: null }))
+        val.map((v) => ({
+          name: v,
+          docUrl: [],
+          location: null,
+          hiddenDocUrls: [],
+          replacedDocUrls: [],
+        }))
       );
     }
 
@@ -303,6 +319,8 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
             name: el?.value,
             docUrl: [],
             location: null,
+            hiddenDocUrls: [],
+            replacedDocUrls: [],
           }));
 
         newDocs.set("Pre-Auth Investigation", preAuthDocs || []);
@@ -316,6 +334,13 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
           documents: newDocs,
         }));
       } else {
+        const docObj = {
+          name: "",
+          docUrl: [],
+          location: null,
+          hiddenDocUrls: [],
+          replacedDocUrls: [],
+        };
         const newDocs = new Map<string, DocumentData[]>();
         const newTasks: Task[] = [];
         if (dashboardData?.claimSubType === "In-patient Hospitalization") {
@@ -331,9 +356,8 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
               ].includes(el?.name)
             ) {
               const tempDocs = el?.options?.map((op) => ({
+                ...docObj,
                 name: op?.value,
-                docUrl: [],
-                location: null,
               }));
               newTasks?.push({ name: el?.name, completed: false, comment: "" });
               newDocs?.set(el?.name, tempDocs);
@@ -352,9 +376,8 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
             newDocs.set(
               tempOption?.name,
               tempOption?.options?.map((op) => ({
+                ...docObj,
                 name: op?.value,
-                docUrl: [],
-                location: null,
               }))
             );
           }
@@ -371,9 +394,8 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
             newDocs.set(
               tempOption?.name,
               tempOption?.options?.map((op) => ({
+                ...docObj,
                 name: op?.value,
-                docUrl: [],
-                location: null,
               }))
             );
           }
@@ -390,9 +412,8 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
             newDocs.set(
               tempOption?.name,
               tempOption?.options?.map((op) => ({
+                ...docObj,
                 name: op?.value,
-                docUrl: [],
-                location: null,
               }))
             );
           }
@@ -409,9 +430,8 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
             newDocs.set(
               tempOption?.name,
               tempOption?.options?.map((op) => ({
+                ...docObj,
                 name: op?.value,
-                docUrl: [],
-                location: null,
               }))
             );
           }
@@ -428,9 +448,8 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
             newDocs.set(
               tempOption?.name,
               tempOption?.options?.map((op) => ({
+                ...docObj,
                 name: op?.value,
-                docUrl: [],
-                location: null,
               }))
             );
           }
@@ -449,9 +468,8 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
                 ].includes(op?.value)
               )
               ?.map((op) => ({
+                ...docObj,
                 name: op?.value,
-                docUrl: [],
-                location: null,
               }));
             newTasks.push({ name: el?.name, completed: false, comment: "" });
             newDocs.set(el?.name, tempDocs);
