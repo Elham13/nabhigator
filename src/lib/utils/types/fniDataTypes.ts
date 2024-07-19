@@ -460,6 +460,9 @@ export enum EventNames {
   SENT_BACK_TO_PRE_QC_DUE_TO_PA = "Case came back to Pre-QC",
   MANUALLY_ASSIGNED_TO_POST_QA = "Manually assigned to Post QA user",
   CLAIM_SUB_TYPE_CHANGED = "Claim Sub-Type changed",
+  DOCUMENT_DELETED = "Document Deleted",
+  DOCUMENT_RESTORED = "Document Restored",
+  DOCUMENT_REPLACED = "Document Replaced",
 }
 
 export interface INewCityMaster {
@@ -658,6 +661,7 @@ export interface DocumentData {
   _id?: string;
   name: string;
   docUrl: string[];
+  hiddenDocUrls: string[];
   location: IDocLocation | null;
 }
 

@@ -1,15 +1,41 @@
-import React from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import { ActionIcon, Box, Divider, Table, Text, Title } from "@mantine/core";
-import { BiLink } from "react-icons/bi";
 import { HiLocationMarker } from "react-icons/hi";
-import { DocumentData, Task } from "@/lib/utils/types/fniDataTypes";
+import {
+  CaseDetail,
+  DocumentData,
+  Role,
+  Task,
+} from "@/lib/utils/types/fniDataTypes";
+import { Flex, Spin } from "antd";
+import dynamic from "next/dynamic";
+import { IUserFromSession } from "@/lib/utils/types/authTypes";
+import { StorageKeys } from "@/lib/utils/types/enums";
+import { useLocalStorage } from "@mantine/hooks";
+import { BsEye } from "react-icons/bs";
+const TasksAndDocumentsButtons = dynamic(
+  () => import("./TasksAndDocumentsButtons"),
+  {
+    ssr: false,
+    loading: () => <Spin />,
+  }
+);
 
 type PropTypes = {
+  caseId: string;
   tasks: Task[];
   documents: Record<string, DocumentData[]>;
+  refetchCaseDetail: () => void;
 };
 
-const TasksAndDocumentsContent = ({ tasks, documents }: PropTypes) => {
+const TasksAndDocumentsContent = ({
+  caseId,
+  tasks,
+  documents,
+  refetchCaseDetail,
+}: PropTypes) => {
+  const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
+
   return (
     <Box>
       <Title order={4} ta="center" c="green" my={8}>
@@ -52,51 +78,98 @@ const TasksAndDocumentsContent = ({ tasks, documents }: PropTypes) => {
                     </Table.Tr>
                   </Table.Thead>
                   <Table.Tbody>
-                    {doc.map((el, index) => (
-                      <Table.Tr key={index}>
-                        <Table.Td>{el?.name}</Table.Td>
-                        <Table.Td>
-                          <Box className="flex items-center gap-x-4">
-                            {el?.docUrl &&
-                              el?.docUrl?.length > 0 &&
-                              el?.docUrl?.map((url, ind) => (
-                                <ActionIcon
-                                  key={ind}
-                                  disabled={!url}
-                                  variant="light"
-                                  onClick={() => {
-                                    window.open(
-                                      `/Claims/action-inbox/documents?url=${encodeURIComponent(
-                                        url
-                                      )}&name=${el.name}`,
-                                      "_blank"
-                                    );
-                                  }}
-                                >
-                                  <BiLink />
-                                </ActionIcon>
-                              ))}
-                          </Box>
-                        </Table.Td>
-                        <Table.Td>
-                          <ActionIcon
-                            disabled={!el?.location}
-                            variant="light"
-                            onClick={() => {
-                              window.open(
-                                `https://www.google.com/maps?q=${el?.location?.latitude},${el?.location?.longitude}`,
-                                "_blank"
-                              );
-                            }}
-                          >
-                            <HiLocationMarker />
-                          </ActionIcon>
-                        </Table.Td>
-                        <Table.Td>
-                          {el?.docUrl?.length > 0 ? "Yes" : "No"}
-                        </Table.Td>
-                      </Table.Tr>
-                    ))}
+                    {doc.map((el, index) => {
+                      return [Role.ADMIN].includes(user?.activeRole) ? (
+                        <Table.Tr key={index}>
+                          <Table.Td>{el?.name}</Table.Td>
+                          <Table.Td>
+                            <Flex gap={4}>
+                              {el?.docUrl &&
+                                el?.docUrl?.length > 0 &&
+                                el?.docUrl?.map((url, ind) => (
+                                  <TasksAndDocumentsButtons
+                                    key={ind}
+                                    docIndex={ind}
+                                    caseId={caseId}
+                                    url={url}
+                                    name={el?.name}
+                                    taskName={docKey}
+                                    userName={user?.name}
+                                    isHidden={el?.hiddenDocUrls?.includes(url)}
+                                    refetchCaseDetail={refetchCaseDetail}
+                                  />
+                                ))}
+                            </Flex>
+                          </Table.Td>
+                          <Table.Td>
+                            <ActionIcon
+                              disabled={!el?.location}
+                              variant="light"
+                              onClick={() => {
+                                window.open(
+                                  `https://www.google.com/maps?q=${el?.location?.latitude},${el?.location?.longitude}`,
+                                  "_blank"
+                                );
+                              }}
+                            >
+                              <HiLocationMarker />
+                            </ActionIcon>
+                          </Table.Td>
+                          <Table.Td>
+                            {el?.docUrl?.length > 0 ? "Yes" : "No"}
+                          </Table.Td>
+                        </Table.Tr>
+                      ) : (
+                        <Table.Tr key={index}>
+                          <Table.Td>{el?.name}</Table.Td>
+                          <Table.Td>
+                            <Flex gap={4}>
+                              {el?.docUrl &&
+                                el?.docUrl?.length > 0 &&
+                                el?.docUrl?.map((url, ind) => {
+                                  return el?.hiddenDocUrls?.includes(url) ? (
+                                    "-"
+                                  ) : (
+                                    <ActionIcon
+                                      key={ind}
+                                      disabled={!url}
+                                      variant="light"
+                                      title="View"
+                                      onClick={() => {
+                                        window.open(
+                                          `/Claims/action-inbox/documents?url=${encodeURIComponent(
+                                            url
+                                          )}&name=${el?.name}`,
+                                          "_blank"
+                                        );
+                                      }}
+                                    >
+                                      <BsEye />
+                                    </ActionIcon>
+                                  );
+                                })}
+                            </Flex>
+                          </Table.Td>
+                          <Table.Td>
+                            <ActionIcon
+                              disabled={!el?.location}
+                              variant="light"
+                              onClick={() => {
+                                window.open(
+                                  `https://www.google.com/maps?q=${el?.location?.latitude},${el?.location?.longitude}`,
+                                  "_blank"
+                                );
+                              }}
+                            >
+                              <HiLocationMarker />
+                            </ActionIcon>
+                          </Table.Td>
+                          <Table.Td>
+                            {el?.docUrl?.length > 0 ? "Yes" : "No"}
+                          </Table.Td>
+                        </Table.Tr>
+                      );
+                    })}
                   </Table.Tbody>
                 </Table>
               )}

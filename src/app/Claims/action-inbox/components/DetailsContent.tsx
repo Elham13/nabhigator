@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useState } from "react";
 import { Box, Center, Loader } from "@mantine/core";
 import dayjs from "dayjs";
 import axios from "axios";
@@ -90,7 +90,7 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
   const [showElement, setShowElement] =
     useState<IShowElement>(showElementInitials);
 
-  const getData = async () => {
+  const getData = useCallback(async () => {
     setLoading(true);
     try {
       const { data } = await axios.get<SingleResponseType<IDashboardData>>(
@@ -102,29 +102,28 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [dashboardDataId]);
+
+  const getCaseDetail = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data } = await axios.get<SingleResponseType<CaseDetail>>(
+        `${EndPoints.CASE_DETAIL}?dashboardDataId=${dashboardDataId}`
+      );
+      setCaseDetail(data?.data);
+    } catch (error) {
+      showError(error);
+    } finally {
+      setLoading(false);
+    }
+  }, [dashboardDataId]);
 
   useEffect(() => {
     if (dashboardDataId) {
       getData();
-
-      const getCaseDetail = async () => {
-        setLoading(true);
-        try {
-          const { data } = await axios.get<SingleResponseType<CaseDetail>>(
-            `${EndPoints.CASE_DETAIL}?dashboardDataId=${dashboardDataId}`
-          );
-          setCaseDetail(data?.data);
-        } catch (error) {
-          showError(error);
-        } finally {
-          setLoading(false);
-        }
-      };
       getCaseDetail();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dashboardDataId]);
+  }, [dashboardDataId, getCaseDetail, getData]);
 
   const skipInvestigationRoleCheck = [
     Role.ADMIN,
@@ -213,6 +212,7 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
                 setData,
                 setCaseDetail,
                 setShowElement,
+                refetchCaseDetail: getCaseDetail,
               }}
             />
 

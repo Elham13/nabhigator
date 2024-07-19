@@ -153,6 +153,7 @@ type PropTypes = {
   skipInvestigationRoleCheck: boolean;
   showElement: IShowElement;
   origin: "consolidated" | "inbox";
+  refetchCaseDetail: () => void;
   setData: Dispatch<SetStateAction<IDashboardData | null>>;
   setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
   setShowElement: Dispatch<SetStateAction<IShowElement>>;
@@ -164,6 +165,7 @@ const DetailsAccordion = ({
   skipInvestigationRoleCheck,
   showElement,
   origin,
+  refetchCaseDetail,
   setData,
   setCaseDetail,
   setShowElement,
@@ -196,8 +198,10 @@ const DetailsAccordion = ({
             value: "Tasks and Documents Assigned",
             content: value === "Tasks and Documents Assigned" && (
               <TasksAndDocumentsContent
+                caseId={caseDetail?._id as string}
                 tasks={caseDetail?.tasksAssigned || []}
                 documents={caseDetail?.documents as any}
+                refetchCaseDetail={refetchCaseDetail}
               />
             ),
           },

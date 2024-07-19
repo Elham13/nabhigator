@@ -4,7 +4,7 @@ import { Databases } from "@/lib/utils/types/enums";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
-import { Types } from "mongoose";
+import { PipelineStage, Types } from "mongoose";
 
 const router = createEdgeRouter<NextRequest, {}>();
 
@@ -22,46 +22,47 @@ router.get(async (req) => {
     let data: any[] | null = null;
     let count = 0;
 
-    if (dashboardDataId) {
-      const pipeline = [
-        {
-          $match: {
-            dashboardDataId: new Types.ObjectId(dashboardDataId as string),
-          },
+    const matchStage: PipelineStage.Match["$match"] = {};
+
+    if (id) matchStage["_id"] = new Types.ObjectId(id as string);
+    else if (dashboardDataId)
+      matchStage["dashboardDataId"] = new Types.ObjectId(
+        dashboardDataId as string
+      );
+
+    const pipeline: PipelineStage[] = [
+      {
+        $match: {
+          dashboardDataId: new Types.ObjectId(dashboardDataId as string),
         },
-        {
-          $lookup: {
-            from: "claiminvestigators",
-            localField: "investigator",
-            foreignField: "_id",
-            as: "investigator",
-          },
+      },
+      {
+        $lookup: {
+          from: "claiminvestigators",
+          localField: "investigator",
+          foreignField: "_id",
+          as: "investigator",
         },
-        {
-          $lookup: {
-            from: "users",
-            localField: "assignedBy",
-            foreignField: "_id",
-            as: "assignedBy",
-          },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "assignedBy",
+          foreignField: "_id",
+          as: "assignedBy",
         },
-      ];
-      data = await ClaimCase.aggregate(pipeline);
-      if (data?.length > 0) data = data[0];
-      else data = null;
-      count = await ClaimCase.countDocuments({
-        dashboardDataId,
-      });
-    } else if (id) {
-      data = await ClaimCase.findById(id);
-    }
+      },
+    ];
+    data = await ClaimCase.aggregate(pipeline);
+    if (data?.length > 0) data = data[0];
+    else data = null;
 
     return NextResponse.json(
       {
         success: true,
         message: "Fetched",
         data,
-        count,
+        count: !!data ? 1 : 0,
       },
       { status: 200 }
     );

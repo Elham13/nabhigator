@@ -153,6 +153,7 @@ const ClaimCaseSchema = new Schema<IClaimCase>(
         {
           name: String,
           docUrl: [String],
+          hiddenDocUrls: [String],
           location: { latitude: Number, longitude: Number },
         },
       ],
