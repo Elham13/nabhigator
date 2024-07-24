@@ -4,7 +4,6 @@ import KeyValueContainer from "./InboxDetail/KeyValueContainer";
 import { IDashboardData } from "@/lib/utils/types/fniDataTypes";
 import { convertToIndianFormat } from "@/lib/helpers";
 import dayjs from "dayjs";
-import MembersTable from "./InboxDetail/MembersTable";
 
 type PropTypes = {
   data: IDashboardData | null;
