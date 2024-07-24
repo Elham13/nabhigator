@@ -281,8 +281,8 @@ const DetailsAccordion = ({
     ...(data?.claimType !== "PreAuth"
       ? [
           {
-            value: "Insured Details",
-            content: value === "Insured Details" && (
+            value: "Claim Details",
+            content: value === "Claim Details" && (
               <ConsolidatedDetail data={data} />
             ),
           },
