@@ -199,6 +199,12 @@ const ConsolidatedDetail = ({ data }: PropTypes) => {
           }
         />
       </GridCol>
+      <GridCol span={{ sm: 12, md: 6 }}>
+        <KeyValueContainer
+          label="Exclusion Remarks"
+          value={data?.claimDetails?.exclusionRemark || "-"}
+        />
+      </GridCol>
       <GridCol span={{ sm: 12 }}>
         <Title order={3} ta="center" c="blue" my={4}>
           Hospital & Hospitalization Details
