@@ -118,9 +118,7 @@ const Login = () => {
               onChange={handleChange}
               onBlur={handleBlur}
             />
-            <Button loading={loading} type="submit" fullWidth mt="xl">
-              Sign in
-            </Button>
+            <Button loading={loading} type="submit" fullWidth mt="xl"></Button>
           </Paper>
         </form>
       </Container>
