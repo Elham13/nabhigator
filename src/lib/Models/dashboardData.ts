@@ -86,6 +86,7 @@ const ContractDetailsSchema = new Schema({
   branchLocation: { type: String },
   sourcing: { type: String },
   bancaDetails: { type: String },
+  customerType: { type: String },
 });
 
 const HistorySchema = new Schema({

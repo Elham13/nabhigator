@@ -242,6 +242,7 @@ export interface ContractDetails {
   branchLocation: string;
   sourcing: string;
   bancaDetails: string;
+  customerType: string;
 }
 
 export interface InsuredDetails {

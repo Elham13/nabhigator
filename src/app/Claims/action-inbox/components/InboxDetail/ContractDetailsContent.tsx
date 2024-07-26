@@ -116,6 +116,12 @@ const ContractDetailsContent = ({ data }: PropTypes) => {
           value={data?.contractDetails?.currentStatus}
         />
       </GridCol>
+      <GridCol span={{ sm: 12, md: 6 }}>
+        <KeyValueContainer
+          label="Customer Type"
+          value={data?.contractDetails?.customerType}
+        />
+      </GridCol>
     </Grid>
   );
 };

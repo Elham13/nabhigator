@@ -10,7 +10,6 @@ import {
   ClaimHistoryRes,
   ClaimOtherDetailRes,
   ClaimsGetByIdRes,
-  ContractAllDetailsRes,
   CustomerPolicyDetailRes,
   GetAuthRes,
   IGetClaimFNIDetails,
@@ -484,6 +483,12 @@ const getFniData = async (
             ? "Phoenix"
             : customerFromCustomerPolicy?.CONTRACTS?.[0]?.SourceSystem,
         bancaDetails: customerFromCustomerPolicy?.CONTRACTS?.[0]?.AGENT_NAME,
+        customerType:
+          claimDetail?.PolicyClaims?.Customer_Type === "I"
+            ? "Retail"
+            : claimDetail?.PolicyClaims?.Customer_Type === "C"
+            ? "Group"
+            : claimDetail?.PolicyClaims?.Customer_Type,
       },
       members: customizedMembers,
       insuredDetails: {
