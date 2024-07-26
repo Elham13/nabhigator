@@ -30,6 +30,8 @@ export interface ClaimsGetByIdRes {
     Member_Name: string;
     membershipId: string;
     COI: any;
+    SourceSystem: string;
+    Customer_Type: string;
     ClaimDetail: ClaimDetail;
   };
 }
