@@ -3,7 +3,6 @@ import { Button } from "@mantine/core";
 import { IoCloudDownloadOutline } from "react-icons/io5";
 import * as xlsx from "xlsx";
 import dayjs from "dayjs";
-import { useLocalStorage } from "@mantine/hooks";
 import axios from "axios";
 import {
   DashboardFilters,
@@ -11,8 +10,7 @@ import {
   ResponseType,
   SortOrder,
 } from "@/lib/utils/types/fniDataTypes";
-import { IUserFromSession } from "@/lib/utils/types/authTypes";
-import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
+import { EndPoints } from "@/lib/utils/types/enums";
 import { getStageLabel, removeEmptyProperties, showError } from "@/lib/helpers";
 
 type PropTypes = {
@@ -24,7 +22,6 @@ type PropTypes = {
 };
 
 const DownloadExcelBtn = ({ filters, sort, searchTerm }: PropTypes) => {
-  const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
   const [loading, setLoading] = useState<boolean>(false);
 
   const fetchData = async () => {
@@ -35,10 +32,8 @@ const DownloadExcelBtn = ({ filters, sort, searchTerm }: PropTypes) => {
 
     const payload = {
       ...filters,
-      user,
       sort: sort || undefined,
       claimId: searchTerm || undefined,
-      stage: stageValue,
       benefitType:
         filters?.benefitType && filters?.benefitType?.length > 0
           ? { $in: filters?.benefitType }
