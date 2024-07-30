@@ -4,6 +4,18 @@ import { buildMaximusUrl } from "./wdmsHelpers";
 import MaximusResponseLog from "../Models/maximusResponseLog";
 import { IGetFNIData } from "../utils/types/maximusResponseTypes";
 import UnwantedFNIData from "../Models/uwantedFNIData";
+import {
+  accidentalHospitalizationLossCodes,
+  benefitCodes,
+  criticalIllnessLossCodes,
+  criticalIllnessSubTypes,
+  deathLossCodes,
+  indemnityCodes,
+  personalAccidentSubTypes,
+  PPDLossCodes,
+  PTDLossCodes,
+  TTDLossCodes,
+} from "./getClaimIdsHelpers";
 
 const logsPayload: IMaximusResponseLog = {
   api: "",
@@ -15,90 +27,7 @@ const logsPayload: IMaximusResponseLog = {
   errorPayloadFromCatchBlock: null,
 };
 
-const benefitCodes = [
-  "1",
-  "2",
-  "28",
-  "36",
-  "37",
-  "40",
-  "42",
-  "43",
-  "44",
-  "45",
-  "P",
-  "Q",
-  "S",
-  "T",
-  "Z",
-];
-
 const travelCodes = ["20", "21", "47"];
-
-const indemnityCodes = [
-  "0",
-  "10",
-  "11",
-  "12",
-  "13",
-  "14",
-  "15",
-  "16",
-  "17",
-  "18",
-  "19",
-  "22",
-  "23",
-  "24",
-  "25",
-  "26",
-  "27",
-  "29",
-  "3",
-  "30",
-  "31",
-  "32",
-  "33",
-  "34",
-  "35",
-  "38",
-  "39",
-  "4",
-  "41",
-  "46",
-  "48",
-  "49",
-  "5",
-  "50",
-  "51",
-  "6",
-  "7",
-  "8",
-  "9",
-  "99",
-  "A",
-  "B",
-  "C",
-  "CT",
-  "D",
-  "E",
-  "F",
-  "G",
-  "H",
-  "I",
-  "J",
-  "K",
-  "L",
-  "M",
-  "N",
-  "O",
-  "R",
-  "U",
-  "V",
-  "W",
-  "X",
-  "Y",
-];
 
 const { baseUrl, authPayload, apiId } = buildMaximusUrl();
 
@@ -133,43 +62,41 @@ const processResponse = (data: DataType[]) => {
 
     const arrOfObj = el?.ClaimsBenefits?.map((cl) => {
       const tempArr = cl?.Benefit_Type?.split("-");
+      const benefitHead = cl?.Benefit_Head;
+      const code = benefitHead?.split("-")[0];
       return {
-        code: tempArr?.shift(),
-        subType: tempArr?.join("-"),
-        lossType:
-          tempArr?.join("-") === "Personal Accident/Accident Care"
-            ? cl?.Benefit_Head?.split("-")?.[1] || ""
-            : "",
+        subType: personalAccidentSubTypes.includes(code)
+          ? "Personal Accident"
+          : criticalIllnessSubTypes.includes(code)
+          ? "Critical Illness"
+          : tempArr?.join("-"),
+        benefitType: benefitCodes?.includes(code)
+          ? "Benefit"
+          : indemnityCodes?.includes(code)
+          ? "Indemnity"
+          : "Travel",
+        lossType: accidentalHospitalizationLossCodes.includes(code)
+          ? "Accidental Hospitalization/Accidental Medical Reimbursement"
+          : criticalIllnessLossCodes.includes(code)
+          ? "Critical Illness"
+          : deathLossCodes.includes(code)
+          ? "Death"
+          : PPDLossCodes.includes(code)
+          ? "PPD"
+          : PTDLossCodes?.includes(code)
+          ? "PTD"
+          : TTDLossCodes.includes(code)
+          ? "TTD"
+          : "-",
       };
     });
-
-    const claimCode =
-      arrOfObj?.find(
-        (elem) =>
-          benefitCodes?.includes(elem?.code || "") ||
-          travelCodes?.includes(elem?.code || "") ||
-          indemnityCodes?.includes(elem?.code || "")
-      )?.code || arrOfObj?.[0]?.code;
-
-    const benefitType = benefitCodes?.includes(claimCode || "")
-      ? "Benefit"
-      : travelCodes?.includes(claimCode || "")
-      ? "Travel"
-      : "Indemnity";
-
-    const claimSubType =
-      arrOfObj?.find((cd) => claimCode === cd?.code)?.subType || null;
-
-    const lossType =
-      arrOfObj?.find((cd) => claimCode === cd?.code)?.lossType || "";
 
     return {
       claimId,
       claimType,
-      benefitType,
-      claimSubType,
-      lossType,
-      claimCode,
+      benefitType: arrOfObj?.map((el) => el?.benefitType)?.join(", "),
+      claimSubType: arrOfObj?.map((el) => el?.subType)?.join(", "),
+      lossType: arrOfObj?.map((el) => el?.lossType)?.join(", "),
       Claims: el?.Claims,
       cataractOrDayCareProcedure: el?.ClaimsBenefits,
     };
