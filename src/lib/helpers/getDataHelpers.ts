@@ -420,14 +420,8 @@ export const processGetDataFilters = async (obj: any) => {
   if (origin && origin !== "Inbox") {
     if (origin === "Outbox") {
       delete processedObj["stage"];
-      processedObj["actionsTaken.userId"] = new Types.ObjectId(user?._id);
     } else if (origin === "Consolidated") {
-      if (userRole && [Role.POST_QA].includes(userRole)) {
-        processedObj["actionsTaken.userId"] = new Types.ObjectId(user?._id);
-      } else if (
-        userRole &&
-        [Role.TL, Role.CLUSTER_MANAGER].includes(userRole)
-      ) {
+      if (userRole && [Role.TL, Role.CLUSTER_MANAGER].includes(userRole)) {
         const states: IZoneStateMaster[] = await ZoneStateMaster.find({
           Zone: { $in: user?.zone },
         });
