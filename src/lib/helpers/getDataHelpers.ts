@@ -126,6 +126,55 @@ export const processGetDataFilters = async (obj: any) => {
     processedObj["intimationDateAsDate"] = { $gte: startDate, $lte: endDate };
   }
 
+  if (
+    processedObj["dateOfClosureRange"] &&
+    Array.isArray(processedObj["dateOfClosureRange"]) &&
+    processedObj["dateOfClosureRange"]?.length > 1
+  ) {
+    const startDate = new Date(processedObj["dateOfClosureRange"][0]);
+    const endDate = new Date(processedObj["dateOfClosureRange"][1]);
+    processedObj["dateOfClosure"] = {
+      $ne: null,
+      $gte: startDate,
+      $lte: endDate,
+    };
+    delete processedObj["dateOfClosureRange"];
+  }
+
+  if (
+    processedObj["dateOfOSRange"] &&
+    Array.isArray(processedObj["dateOfOSRange"]) &&
+    processedObj["dateOfOSRange"]?.length > 1
+  ) {
+    const startDate = new Date(processedObj["dateOfOSRange"][0]);
+    const endDate = new Date(processedObj["dateOfOSRange"][1]);
+    processedObj["dateOfOS"] = {
+      $ne: null,
+      $gte: startDate,
+      $lte: endDate,
+    };
+    delete processedObj["dateOfOSRange"];
+  }
+
+  if (
+    processedObj["dateOfFallingIntoPostQaBucketRange"] &&
+    Array.isArray(processedObj["dateOfFallingIntoPostQaBucketRange"]) &&
+    processedObj["dateOfFallingIntoPostQaBucketRange"]?.length > 1
+  ) {
+    const startDate = new Date(
+      processedObj["dateOfFallingIntoPostQaBucketRange"][0]
+    );
+    const endDate = new Date(
+      processedObj["dateOfFallingIntoPostQaBucketRange"][1]
+    );
+    processedObj["dateOfFallingIntoPostQaBucket"] = {
+      $ne: null,
+      $gte: startDate,
+      $lte: endDate,
+    };
+    delete processedObj["dateOfFallingIntoPostQaBucketRange"];
+  }
+
   if (processedObj["intimationDate"]) {
     const date = processedObj["intimationDate"]?.split(" ")[0];
     processedObj["intimationDate"] = { $regex: new RegExp(date, "i") };
