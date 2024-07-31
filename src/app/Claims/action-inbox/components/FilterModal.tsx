@@ -17,7 +17,7 @@ import {
 } from "@mantine/core";
 import { useLocalStorage } from "@mantine/hooks";
 import axios from "axios";
-import { DateInput, DatePicker } from "@mantine/dates";
+import { DateInput, DatePickerInput } from "@mantine/dates";
 import {
   DashboardFilters,
   IUser,
@@ -391,9 +391,11 @@ const FilterModal = ({
                   clearable
                 />
               ) : found?.type === "dateRange" ? (
-                <DatePicker
+                <DatePickerInput
                   key={ind}
                   type="range"
+                  label={found?.label}
+                  placeholder={found?.label}
                   value={filters?.[found?.value]}
                   onChange={(val) =>
                     setFilters((prev) => ({
