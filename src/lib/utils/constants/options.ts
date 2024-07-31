@@ -47,14 +47,29 @@ export const moreFiltersOptions: IMoreFiltersOptions[] = [
   { value: "insuredDetails.state", label: "Insured State", type: "text" },
   { value: "insuredDetails.city", label: "Insured City", type: "text" },
   {
+    value: "investigatorRecommendation",
+    label: "Investigation Recommendation",
+    type: "select",
+  },
+  {
     value: "intimationDateRange",
     label: "Intimation Date Range",
     type: "dateRange",
   },
   {
-    value: "investigatorRecommendation",
-    label: "Investigation Recommendation",
-    type: "select",
+    value: "dateOfClosureRange",
+    label: "Closure Date Range",
+    type: "dateRange",
+  },
+  {
+    value: "dateOfOSRange",
+    label: "OS Date Range",
+    type: "dateRange",
+  },
+  {
+    value: "dateOfFallingIntoPostQaBucketRange",
+    label: "Date Range of falling into post QA bucket",
+    type: "dateRange",
   },
 ];
 
