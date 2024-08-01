@@ -126,6 +126,8 @@ router.post(async (req) => {
       "FIAllocation@nivabupa.com",
       "Sanjay.kumar16@nivabupa.com",
       "Nanit.Kumar@nivabupa.com",
+      "Rajesh.Pahadia@nivabupa.com",
+      "Chandan.Gupta@nivabupa.com",
     ];
 
     if (allocatorUser?.email) allocationUserEmails?.push(allocatorUser?.email);
