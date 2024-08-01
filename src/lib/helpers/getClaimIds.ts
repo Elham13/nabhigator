@@ -7,6 +7,7 @@ import UnwantedFNIData from "../Models/uwantedFNIData";
 import {
   accidentalHospitalizationLossCodes,
   benefitCodes,
+  benefitCodesPreAuth,
   criticalIllnessLossCodes,
   criticalIllnessSubTypes,
   deathLossCodes,
@@ -14,6 +15,7 @@ import {
   personalAccidentSubTypes,
   PPDLossCodes,
   PTDLossCodes,
+  travelCodesPreAuth,
   TTDLossCodes,
 } from "./getClaimIdsHelpers";
 
@@ -26,8 +28,6 @@ const logsPayload: IMaximusResponseLog = {
   responseBody: null,
   errorPayloadFromCatchBlock: null,
 };
-
-const travelCodes = ["20", "21", "47"];
 
 const { baseUrl, authPayload, apiId } = buildMaximusUrl();
 
@@ -62,33 +62,53 @@ const processResponse = (data: DataType[]) => {
 
     const arrOfObj = el?.ClaimsBenefits?.map((cl) => {
       const tempArr = cl?.Benefit_Type?.split("-");
-      const benefitHead = cl?.Benefit_Head;
-      const code = benefitHead?.split("-")[0];
-      return {
-        subType: personalAccidentSubTypes.includes(code)
-          ? "Personal Accident"
-          : criticalIllnessSubTypes.includes(code)
-          ? "Critical Illness"
-          : tempArr?.join("-"),
-        benefitType: benefitCodes?.includes(code)
-          ? "Benefit"
-          : indemnityCodes?.includes(code)
-          ? "Indemnity"
-          : "-",
-        lossType: accidentalHospitalizationLossCodes.includes(code)
-          ? "Accidental Hospitalization/Accidental Medical Reimbursement"
-          : criticalIllnessLossCodes.includes(code)
-          ? "Critical Illness"
-          : deathLossCodes.includes(code)
-          ? "Death"
-          : PPDLossCodes.includes(code)
-          ? "PPD"
-          : PTDLossCodes?.includes(code)
-          ? "PTD"
-          : TTDLossCodes.includes(code)
-          ? "TTD"
-          : "-",
-      };
+
+      if (claimType === "P") {
+        // For PreAuth
+        const code = tempArr?.shift();
+
+        return {
+          subType: tempArr?.join("-"),
+          benefitType: benefitCodesPreAuth?.includes(code || "")
+            ? "Benefit"
+            : travelCodesPreAuth?.includes(code || "")
+            ? "Travel"
+            : "Indemnity",
+          lossType:
+            tempArr?.join("-") === "Personal Accident/Accident Care"
+              ? cl?.Benefit_Head?.split("-")?.[1] || ""
+              : "",
+        };
+      } else {
+        // For Reimbursement
+        const benefitHead = cl?.Benefit_Head;
+        const code = benefitHead?.split("-")[0];
+        return {
+          subType: personalAccidentSubTypes.includes(code)
+            ? "Personal Accident"
+            : criticalIllnessSubTypes.includes(code)
+            ? "Critical Illness"
+            : tempArr?.join("-"),
+          benefitType: benefitCodes?.includes(code)
+            ? "Benefit"
+            : indemnityCodes?.includes(code)
+            ? "Indemnity"
+            : "-",
+          lossType: accidentalHospitalizationLossCodes.includes(code)
+            ? "Accidental Hospitalization/Accidental Medical Reimbursement"
+            : criticalIllnessLossCodes.includes(code)
+            ? "Critical Illness"
+            : deathLossCodes.includes(code)
+            ? "Death"
+            : PPDLossCodes.includes(code)
+            ? "PPD"
+            : PTDLossCodes?.includes(code)
+            ? "PTD"
+            : TTDLossCodes.includes(code)
+            ? "TTD"
+            : "-",
+        };
+      }
     });
 
     return {
