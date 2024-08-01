@@ -29,7 +29,7 @@ const PDFViewAndDownload = async ({ searchParams }: PropTypes) => {
   const { claimId, docType, invType } = searchParams;
 
   if (!claimId) throw new Error("claimId is required");
-  const decryptedClaimId = decryptAppID(claimId) as string;
+  const decryptedClaimId = (await decryptAppID(claimId)) as string;
 
   await connectDB(Databases.FNI);
 
