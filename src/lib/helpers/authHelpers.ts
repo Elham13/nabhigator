@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { NextHandler } from "next-connect";
 import { IUser, Investigator } from "../utils/types/fniDataTypes";
 import dayjs from "dayjs";
-import crypto from "crypto";
 
 const secretKey =
   process.env.JWT_SECRET || "lkasjdfoi32ujroijlkajf983jfjaslkdfjlkadsjf";
@@ -144,7 +143,7 @@ const hexToBytes = (hex?: string) => {
   return bytes;
 };
 
-export const decryptAppID = (encryptedText: string) => {
+export const decryptAppID = async (encryptedText: string) => {
   const IV = process.env.IV;
   const KEY = process.env.KEY;
   const salt = process.env.SALT || "";
@@ -154,12 +153,26 @@ export const decryptAppID = (encryptedText: string) => {
 
   try {
     if (!decKey || !decIV) throw new Error("decKey or decIV is undefined");
-    const decipher = crypto.createDecipheriv("aes-256-cbc", decKey, decIV);
-    let decrypted = decipher.update(encryptedText, "hex", "utf8");
-    decrypted += decipher.final("utf8");
-    const originalPlainText = decrypted.slice(
+    const algorithm = { name: "AES-CBC", iv: decIV };
+    const cryptoKey = await crypto.subtle.importKey(
+      "raw",
+      decKey,
+      algorithm,
+      false,
+      ["decrypt"]
+    );
+
+    const encryptedArray = new Uint8Array(Buffer.from(encryptedText, "hex"));
+    const decryptedArrayBuffer = await crypto.subtle.decrypt(
+      algorithm,
+      cryptoKey,
+      encryptedArray
+    );
+
+    let decrypted = new TextDecoder().decode(decryptedArrayBuffer);
+    const originalPlainText = decrypted?.slice(
       0,
-      decrypted.length - salt?.length
+      decrypted?.length - salt?.length
     );
     return originalPlainText;
   } catch (error) {
@@ -172,18 +185,30 @@ export const decryptAppID = (encryptedText: string) => {
   }
 };
 
-export const encryptPlainText = (plaintext: string): string => {
+export const encryptPlainText = async (plaintext: string): Promise<string> => {
   const fixedKey = process.env.KEY as string;
   const fixedIV = process.env.IV as string;
-  const salt = crypto.randomBytes(8).toString("hex"); // generates a random 8-byte salt
+  const salt = process.env.SALT || ""; // generates a random 8-byte salt
   const strDecKey = hexToBytes(fixedKey);
   const strFixedIV = hexToBytes(fixedIV);
 
   if (!strDecKey || !strFixedIV) return "";
+  const algorithm = { name: "AES-CBC", iv: strFixedIV };
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    strDecKey,
+    algorithm,
+    false,
+    ["encrypt"]
+  );
 
-  const cipher = crypto.createCipheriv("aes-256-cbc", strDecKey, strFixedIV);
-  let encrypted = cipher.update(plaintext + salt, "utf8", "hex");
-  encrypted += cipher.final("hex");
+  const textToEncrypt = new TextEncoder().encode(plaintext + salt);
+  const encryptedArrayBuffer = await crypto.subtle.encrypt(
+    algorithm,
+    cryptoKey,
+    textToEncrypt
+  );
 
+  let encrypted = Buffer.from(encryptedArrayBuffer).toString("hex");
   return encrypted;
 };
