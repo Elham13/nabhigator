@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Table } from "@mantine/core";
+import { Table } from "@mantine/core";
 import dayjs from "dayjs";
 import { Member } from "@/lib/utils/types/fniDataTypes";
 import BenefitViewBtn from "./BenefitViewBtn";
@@ -13,7 +13,7 @@ const MembersTable = ({ members }: PropTypes) => {
     <Table>
       <Table.Thead>
         <Table.Tr>
-          <Table.Th>No</Table.Th>
+          <Table.Th>Member ID</Table.Th>
           <Table.Th>Name</Table.Th>
           <Table.Th>DOB</Table.Th>
           <Table.Th>Relation</Table.Th>

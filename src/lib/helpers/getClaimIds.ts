@@ -74,7 +74,7 @@ const processResponse = (data: DataType[]) => {
           ? "Benefit"
           : indemnityCodes?.includes(code)
           ? "Indemnity"
-          : "Travel",
+          : "-",
         lossType: accidentalHospitalizationLossCodes.includes(code)
           ? "Accidental Hospitalization/Accidental Medical Reimbursement"
           : criticalIllnessLossCodes.includes(code)
