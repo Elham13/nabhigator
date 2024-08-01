@@ -9,9 +9,12 @@ import {
   IDashboardData,
   ResponseType,
   SortOrder,
+  TDashboardOrigin,
 } from "@/lib/utils/types/fniDataTypes";
-import { EndPoints } from "@/lib/utils/types/enums";
+import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
 import { getStageLabel, removeEmptyProperties, showError } from "@/lib/helpers";
+import { useLocalStorage } from "@mantine/hooks";
+import { IUserFromSession } from "@/lib/utils/types/authTypes";
 
 type PropTypes = {
   filters: DashboardFilters;
@@ -19,9 +22,11 @@ type PropTypes = {
     [x: string]: SortOrder;
   } | null;
   searchTerm: string;
+  origin: TDashboardOrigin;
 };
 
-const DownloadExcelBtn = ({ filters, sort, searchTerm }: PropTypes) => {
+const DownloadExcelBtn = ({ filters, sort, searchTerm, origin }: PropTypes) => {
+  const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
   const [loading, setLoading] = useState<boolean>(false);
 
   const fetchData = async () => {
@@ -32,8 +37,10 @@ const DownloadExcelBtn = ({ filters, sort, searchTerm }: PropTypes) => {
 
     const payload = {
       ...filters,
+      user,
       sort: sort || undefined,
       claimId: searchTerm || undefined,
+      origin,
       benefitType:
         filters?.benefitType && filters?.benefitType?.length > 0
           ? { $in: filters?.benefitType }
