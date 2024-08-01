@@ -196,6 +196,7 @@ const InboxHeader = ({
             filters={filters}
             sort={sort}
             searchTerm={searchTerm}
+            origin={origin}
           />
         ) : null}
         <TableAdjustment />
