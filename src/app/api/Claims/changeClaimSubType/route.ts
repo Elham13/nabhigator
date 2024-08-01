@@ -58,9 +58,9 @@ router.post(async (req) => {
         claimId: data?.claimId,
         eventRemarks: `${EventNames.CLAIM_SUB_TYPE_CHANGED} from ${
           data?.claimSubType || "-"
-        } to ${claimSubType}, and benefit type from ${
-          data.benefitType
-        } to ${benefitType}`,
+        } to ${claimSubType || "-"}, and benefit type from ${
+          data.benefitType || "-"
+        } to ${benefitType || "-"}`,
         userName,
       });
     }
