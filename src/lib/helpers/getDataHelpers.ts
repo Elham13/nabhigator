@@ -752,8 +752,11 @@ export const addColorCodes = async (data: IDashboardData[], role?: Role) => {
 };
 
 export const addEncryptedClaimId = async (data: any[]) => {
-  return data?.map((el) => ({
-    ...el,
-    encryptedClaimId: encryptPlainText(el?.claimId?.toString()),
-  }));
+  const updatedData: any[] = [];
+  for (const obj of data) {
+    const encryptedClaimId = await encryptPlainText(obj?.claimId?.toString());
+    const updatedObj = { ...obj, encryptedClaimId };
+    updatedData.push(updatedObj);
+  }
+  return updatedData;
 };
