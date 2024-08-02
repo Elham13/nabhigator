@@ -41,12 +41,18 @@ const DownloadExcelBtn = ({ filters, sort, searchTerm, origin }: PropTypes) => {
       sort: sort || undefined,
       claimId: searchTerm || undefined,
       origin,
+      stage: stageValue,
       benefitType:
         filters?.benefitType && filters?.benefitType?.length > 0
           ? { $in: filters?.benefitType }
           : undefined,
       filterApplied: true,
       pagination: { limit: 10000, page: 1 },
+      intimationDate: filters?.intimationDate
+        ? dayjs(filters?.intimationDate)
+            .tz("Asia/Kolkata")
+            .format("DD-MMM-YYYY hh:mm:ss A")
+        : undefined,
     };
     delete payload?.moreFilters;
     try {
