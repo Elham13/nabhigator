@@ -241,6 +241,21 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
         }
       }
 
+      if (values?.tasksAssigned && values?.tasksAssigned?.length > 0) {
+        for (const task of values?.tasksAssigned) {
+          const documents = new Map(
+            values?.documents
+              ? values?.documents instanceof Map
+                ? values?.documents
+                : Object.entries(values?.documents)
+              : []
+          );
+          const doc = documents?.get(task?.name);
+          if (!doc || doc?.length < 1)
+            throw new Error(`Select some documents for the task ${task?.name}`);
+        }
+      } else throw new Error("Please select some tasks");
+
       return true;
     } catch (err: any) {
       showError(err);

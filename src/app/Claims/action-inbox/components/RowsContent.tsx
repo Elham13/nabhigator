@@ -16,11 +16,12 @@ import {
 
 type PropTypes = {
   data: IDashboardData[];
+  loading: boolean;
   fetchData: () => void;
   handleView: (id: string) => void;
 };
 
-const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
+const RowsContent = ({ data, loading, fetchData, handleView }: PropTypes) => {
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
 
   return (
@@ -29,6 +30,7 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
         return (
           <Table.Tr key={el?._id as string}>
             <TableCell
+              loading={loading}
               columnName="claimId"
               style={{ backgroundColor: el.rowColor, color: "#fff" }}
               value={
@@ -38,17 +40,28 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
                 />
               }
             />
-            <TableCell columnName="claimType" value={el?.claimType} />
             <TableCell
+              loading={loading}
+              columnName="claimType"
+              value={el?.claimType}
+            />
+            <TableCell
+              loading={loading}
               columnName="claimSubType"
               value={el?.claimSubType || "-"}
             />
-            <TableCell columnName="lossType" value={el?.lossType || "-"} />
             <TableCell
+              loading={loading}
+              columnName="lossType"
+              value={el?.lossType || "-"}
+            />
+            <TableCell
+              loading={loading}
               columnName="benefitType"
               value={el?.benefitType || "-"}
             />
             <TableCell
+              loading={loading}
               columnName="stage"
               value={
                 <Badge color={getStatusColor(el?.stage)}>
@@ -57,6 +70,7 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
               }
             />
             <TableCell
+              loading={loading}
               columnName="claimDetails.claimAmount"
               value={
                 el?.claimDetails?.claimAmount
@@ -65,22 +79,27 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
               }
             />
             <TableCell
+              loading={loading}
               columnName="insuredDetails.insuredName"
               value={el?.insuredDetails?.insuredName}
             />
             <TableCell
+              loading={loading}
               columnName="hospitalDetails.providerName"
               value={el?.hospitalDetails?.providerName}
             />
             <TableCell
+              loading={loading}
               columnName="hospitalDetails.providerCity"
               value={el?.hospitalDetails?.providerCity}
             />
             <TableCell
+              loading={loading}
               columnName="hospitalDetails.providerState"
               value={el?.hospitalDetails?.providerState}
             />
             <TableCell
+              loading={loading}
               columnName="hospitalizationDetails.dateOfAdmission"
               value={
                 el?.hospitalizationDetails?.dateOfAdmission
@@ -91,6 +110,7 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
               }
             />
             <TableCell
+              loading={loading}
               columnName="intimationDate"
               value={
                 el?.intimationDate
@@ -99,12 +119,14 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
               }
             />
             <TableCell
+              loading={loading}
               columnName="dateOfOS"
               value={
                 el?.dateOfOS ? dayjs(el?.dateOfOS).format("DD-MMM-YYYY") : "-"
               }
             />
             <TableCell
+              loading={loading}
               columnName="dateOfFallingIntoPostQaBucket"
               value={
                 el?.dateOfFallingIntoPostQaBucket
@@ -115,6 +137,7 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
               }
             />
             <TableCell
+              loading={loading}
               columnName="invReportReceivedDate"
               value={
                 el?.caseId &&
@@ -127,6 +150,7 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
               }
             />
             <TableCell
+              loading={loading}
               columnName="dateOfClosure"
               value={
                 el?.dateOfClosure
@@ -135,6 +159,7 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
               }
             />
             <TableCell
+              loading={loading}
               columnName="teamLead"
               value={
                 el?.teamLead?.length > 0
@@ -143,6 +168,7 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
               }
             />
             <TableCell
+              loading={loading}
               columnName="clusterManager"
               value={
                 el?.clusterManager && typeof el?.clusterManager !== "string"
@@ -151,6 +177,7 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
               }
             />
             <TableCell
+              loading={loading}
               columnName="postQa"
               value={
                 el?.postQa && typeof el?.postQa !== "string"
@@ -159,6 +186,7 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
               }
             />
             <TableCell
+              loading={loading}
               columnName="frcuRecommendationOnClaims"
               value={
                 el?.caseId &&
@@ -171,6 +199,7 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
               }
             />
             <TableCell
+              loading={loading}
               columnName="investigationFindings.recommendation"
               value={
                 el?.caseId &&
@@ -181,6 +210,7 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
               }
             />
             <TableCell
+              loading={loading}
               columnName="claimInvestigators"
               value={
                 el?.claimInvestigators?.length > 0
@@ -189,12 +219,22 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
               }
             />
             <TableCell
+              loading={loading}
               columnName="allocationType"
               value={el?.allocationType || "-"}
             />
-            <TableCell columnName="openTAT" value={el?.openTAT || 0} />
-            <TableCell columnName="closureTAT" value={el?.closureTAT || 0} />
             <TableCell
+              loading={loading}
+              columnName="openTAT"
+              value={el?.openTAT || 0}
+            />
+            <TableCell
+              loading={loading}
+              columnName="closureTAT"
+              value={el?.closureTAT || 0}
+            />
+            <TableCell
+              loading={loading}
               columnName="actions"
               value={
                 <div className="flex items-center gap-x-2">
