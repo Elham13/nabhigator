@@ -206,11 +206,11 @@ const PostQaApproveContent = ({
         },
       };
 
-      const { data: reverseRes } = await axios.post(EndPoints.REVERSE_API, {
+      const apiPayload = {
         payload: maximusPayload,
         recommendation,
         claimId: data?.claimId,
-      });
+      };
 
       const payload = {
         id: data?._id,
@@ -220,6 +220,11 @@ const PostQaApproveContent = ({
         userName: user?.name,
         postQARecommendation: preparedValues,
       };
+
+      const { data: reverseRes } = await axios.post(
+        EndPoints.REVERSE_API,
+        apiPayload
+      );
 
       const { data: res } = await axios.post<
         SingleResponseType<IDashboardData>
