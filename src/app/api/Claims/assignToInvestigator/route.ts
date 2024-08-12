@@ -36,7 +36,7 @@ const router = createEdgeRouter<NextRequest, {}>();
 router.post(async (req) => {
   const body = await req?.json();
 
-  const { dashboardDataId, isManual, investigator, allocationType } = body;
+  const { dashboardDataId, isManual, allocationType } = body;
 
   const user: IUser = body?.user;
   delete body.user;
