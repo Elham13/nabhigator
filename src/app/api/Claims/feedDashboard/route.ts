@@ -96,6 +96,7 @@ router.post(async (req) => {
             claimId,
             claimType: convertClaimType(claimType),
             referralType: "Manual",
+            sourceSystem,
             ...data?.data,
           });
 
@@ -172,6 +173,7 @@ router.post(async (req) => {
                     lossType: obj?.lossType?.trim(),
                     cataractOrDayCareProcedure: obj?.cataractOrDayCareProcedure,
                     referralType: "API",
+                    sourceSystem,
                     ...data?.data,
                   });
 
@@ -193,11 +195,18 @@ router.post(async (req) => {
 
                   inserted += 1;
                 } else {
-                  skipped += 1;
-                  skippedReasons?.push(
-                    `${apiType}: ${data?.message} for claimId ${obj?.claimType}_${obj?.claimId}`
-                  );
-                  skippedClaimIds?.push(obj?.claimId);
+                  // In case of timeout error try re-ingestion
+                  if (
+                    !data?.message?.includes(
+                      "Request failed with status code 504"
+                    )
+                  ) {
+                    skipped += 1;
+                    skippedReasons?.push(
+                      `${apiType}: ${data?.message} for claimId ${obj?.claimType}_${obj?.claimId}`
+                    );
+                    skippedClaimIds?.push(obj?.claimId);
+                  }
                 }
               } else {
                 if (foundDashboardData?.stage === NumericStage.REJECTED) {
