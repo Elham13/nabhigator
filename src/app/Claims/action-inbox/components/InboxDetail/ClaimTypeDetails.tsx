@@ -1,5 +1,5 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { Button, Grid, Select } from "@mantine/core";
+import { Button, Grid, Select, TextInput } from "@mantine/core";
 import KeyValueContainer from "./KeyValueContainer";
 import axios from "axios";
 import {
@@ -19,29 +19,33 @@ type PropTypes = {
   setData: Dispatch<SetStateAction<IDashboardData | null>>;
 };
 
+const initialValues = { claimSubType: "", remarks: "" };
+
 const ClaimTypeDetails = ({ data, setData }: PropTypes) => {
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
-  const [value, setValue] = useState<string>("");
+  const [values, setValues] = useState(initialValues);
   const [loadings, setLoadings] = useState({
     save: false,
     approved: false,
     disapproved: false,
   });
 
-  const handleChange = (val: string | null) => setValue(val || "");
-
   const handleSave = async () => {
     setLoadings((prev) => ({ ...prev, save: true }));
     try {
       const payload = {
         id: data?._id,
-        claimSubType: value || "",
         userName: user?.name,
+        origin: "web",
+        action: "amend",
+        ...values,
       };
       const { data: res } = await axios.post<
         SingleResponseType<IDashboardData>
       >(EndPoints.CHANGE_CLAIM_SUB_TYPE, payload);
       setData(res?.data);
+      toast.success(res.message);
+      setValues(initialValues);
     } catch (error: any) {
       showError(error);
     } finally {
@@ -60,12 +64,11 @@ const ClaimTypeDetails = ({ data, setData }: PropTypes) => {
     };
 
     try {
-      const { data } = await axios.post<SingleResponseType<IDashboardData>>(
-        EndPoints.CHANGE_CLAIM_SUB_TYPE,
-        payload
-      );
-      setData(data?.data);
-      toast.success(data?.message);
+      const { data: res } = await axios.post<
+        SingleResponseType<IDashboardData>
+      >(EndPoints.CHANGE_CLAIM_SUB_TYPE, payload);
+      setData(res?.data);
+      toast.success(res?.message);
     } catch (error: any) {
       showError(error);
     } finally {
@@ -74,7 +77,8 @@ const ClaimTypeDetails = ({ data, setData }: PropTypes) => {
   };
 
   useEffect(() => {
-    if (data?.claimSubType) setValue(data?.claimSubType);
+    if (data?.claimSubType)
+      setValues((prev) => ({ ...prev, claimSubType: data?.claimSubType }));
   }, [data?.claimSubType]);
 
   return (
@@ -84,22 +88,40 @@ const ClaimTypeDetails = ({ data, setData }: PropTypes) => {
       </Grid.Col>
 
       <Grid.Col span={{ sm: 12, md: 6 }}>
-        <div className="flex gap-2 items-end">
-          <Select
-            className="w-full"
-            label="Claim Subtype"
-            placeholder="Change claim sub type if it's incorrect"
-            data={claimSubTypeOptions}
-            value={value}
-            disabled={loadings?.save}
-            onChange={handleChange}
-            clearable
-            searchable
-          />
-          <Button loading={loadings?.save} onClick={handleSave}>
-            Save
-          </Button>
-        </div>
+        <Select
+          className="w-full"
+          label="Claim Subtype"
+          placeholder="Change claim sub type if it's incorrect"
+          data={claimSubTypeOptions}
+          value={values?.claimSubType}
+          disabled={loadings?.save}
+          onChange={(val) =>
+            setValues((prev) => ({ ...prev, claimSubType: val || "" }))
+          }
+          clearable
+          searchable
+        />
+      </Grid.Col>
+      <Grid.Col span={{ sm: 12, md: 6 }}>
+        <TextInput
+          className="w-full"
+          label="Remarks"
+          placeholder="Enter remarks"
+          value={values?.remarks}
+          disabled={loadings?.save}
+          onChange={(e) =>
+            setValues((prev) => ({ ...prev, remarks: e.target.value || "" }))
+          }
+        />
+      </Grid.Col>
+      <Grid.Col span={{ sm: 12, md: 6 }} className="flex items-end">
+        <Button
+          loading={loadings?.save}
+          onClick={handleSave}
+          disabled={!values?.claimSubType || !values?.remarks}
+        >
+          Save
+        </Button>
       </Grid.Col>
 
       {data?.tlInbox?.claimSubTypeChange?.value &&

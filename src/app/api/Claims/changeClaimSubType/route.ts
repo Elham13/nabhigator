@@ -155,7 +155,7 @@ router.post(async (req) => {
 
   try {
     if (!id) throw new Error("id is required");
-    if (!action) throw new Error("id is required");
+    if (!action) throw new Error("action is required");
     await connectDB(Databases.FNI);
 
     const data: HydratedDocument<IDashboardData> | null =
