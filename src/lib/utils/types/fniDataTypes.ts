@@ -458,9 +458,11 @@ export enum EventNames {
   INVESTIGATION_SKIPPED_AND_RE_ASSIGNING = "Investigation skipped And Re-Assigning",
   INVESTIGATION_SKIPPED_CANCELEd = "Investigation which was skipped, is canceled and sent back to where it was before",
   EXPEDITION_MESSAGE_SENT = "Expedition Message Sent",
+  INV_REQUESTED_TO_CHANGE_CLAIM_SUBTYPE = "Investigator requested to change claim sub-type",
   SENT_BACK_TO_PRE_QC_DUE_TO_PA = "Case came back to Pre-QC",
   MANUALLY_ASSIGNED_TO_POST_QA = "Manually assigned to Post QA user",
-  CLAIM_SUB_TYPE_CHANGED = "Claim Sub-Type changed",
+  CLAIM_SUB_TYPE_CHANGE_APPROVED = "Claim Sub-Type changed approved by TL",
+  CLAIM_SUB_TYPE_CHANGE_REJECTED = "Claim Sub-Type changed rejected by TL",
 }
 
 export interface INewCityMaster {
@@ -533,6 +535,10 @@ export interface ILocked {
   updatedAt?: string;
 }
 
+export interface ITLInbox {
+  claimSubTypeChange?: { value: string; remarks: string; origin: string };
+}
+
 export interface IDashboardData {
   _id: string | ObjectId;
   contractDetails: ContractDetails;
@@ -580,6 +586,7 @@ export interface IDashboardData {
   dateOfFallingIntoReInvestigation: Date | null;
   investigatorRecommendation?: string;
   sourceSystem: TSourceSystem;
+  tlInbox?: ITLInbox;
   createdAt: string;
   updatedAt: string;
 }
