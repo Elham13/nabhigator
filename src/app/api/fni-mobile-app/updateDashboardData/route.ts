@@ -84,6 +84,8 @@ router.post(async (req) => {
 
         message = "Case returned back to field investigator";
       } else if (stage === NumericStage.CLOSED) {
+        let recipients: string[] = [];
+        let ccRecipients: string[] = [];
         dashboardData.expedition =
           dashboardData?.expedition && dashboardData?.expedition?.length > 0
             ? dashboardData?.expedition?.map((el: any) => ({
@@ -97,23 +99,27 @@ router.post(async (req) => {
         );
         const postQaUserEmail = postQaUser?.email || "";
 
-        const recipients: string[] = [
-          // "Pre.Auth@nivabupa.com",
-          "Preauth.Team@nivabupa.com",
-          "Rohit.Choudhary@nivabupa.com",
-          "Sudeshna.Mallick@nivabupa.com",
-          // "Aditya.Srivastava@nivabupa.com",
-        ];
-
-        const ccRecipients: string[] = [
-          "Sanjay.Kumar16@nivabupa.com",
-          "FIallocation@nivabupa.com",
-          "Vikram.Singh9@nivabupa.com",
-          "Nandan.CA@nivabupa.com",
-          "Rakesh.Pandey@nivabupa.com",
-          "Nanit.Kumar@nivabupa.com",
-          postQaUserEmail,
-        ];
+        if (dashboardData?.claimType === "PreAuth") {
+          recipients = [
+            // "Pre.Auth@nivabupa.com",
+            "Preauth.Team@nivabupa.com",
+            "Rohit.Choudhary@nivabupa.com",
+            "Sudeshna.Mallick@nivabupa.com",
+            // "Aditya.Srivastava@nivabupa.com",
+          ];
+          ccRecipients = [
+            "Sanjay.Kumar16@nivabupa.com",
+            "FIallocation@nivabupa.com",
+            "Vikram.Singh9@nivabupa.com",
+            "Nandan.CA@nivabupa.com",
+            "Rakesh.Pandey@nivabupa.com",
+            "Nanit.Kumar@nivabupa.com",
+            postQaUserEmail,
+          ];
+        } else {
+          recipients = ["FIAllocation@nivabupa.com"];
+          ccRecipients = ["team.claims@nivabupa.com", postQaUserEmail];
+        }
 
         const invId = dashboardData?.claimInvestigators[0]?._id;
         const inv: HydratedDocument<Investigator> | null =
