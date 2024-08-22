@@ -2,10 +2,11 @@ import React, { useState, ChangeEvent } from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import { Divider, Progress } from "antd";
 import { toast } from "react-toastify";
-import { S3 } from "aws-sdk";
 import FileUploadFooter from "./FileUploadFooter";
 import dayjs from "dayjs";
 import { DocumentData } from "@/lib/utils/types/fniDataTypes";
+import { S3Client } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
 
 type PropType = {
   doc: DocumentData | Omit<DocumentData, "location">;
@@ -38,6 +39,20 @@ const FileUpload = ({ doc, docName, disabled, claimId, getUrl }: PropType) => {
       bucketName = process.env.NEXT_PUBLIC_S3_BUCKET_NAME_PROD;
 
     try {
+      const accessKeyId = process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID_UAT;
+      const secretAccessKey = process.env.NEXT_PUBLIC_AWS_SECRET_KEY_ID_UAT;
+
+      if (!accessKeyId || !secretAccessKey)
+        throw new Error("Failed to get environment variables");
+
+      const s3Client = new S3Client({
+        region: process.env.NEXT_PUBLIC_AWS_DEFAULT_REGION_UAT,
+        credentials: {
+          accessKeyId,
+          secretAccessKey,
+        },
+      });
+
       const params = {
         Bucket: bucketName || "",
         Key: `fni-docs/${claimId || "claimIdNotFound"}/${dayjs().unix()}-${
@@ -47,22 +62,23 @@ const FileUpload = ({ doc, docName, disabled, claimId, getUrl }: PropType) => {
         ContentType: file.type,
       };
 
-      const s3 = new S3({
-        accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID_UAT,
-        secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_KEY_ID_UAT,
-        region: process.env.NEXT_PUBLIC_AWS_DEFAULT_REGION_UAT,
+      const upload = new Upload({
+        client: s3Client,
+        params,
+        leavePartsOnError: false, // Optional, to clean up any parts if the upload fails
       });
 
-      const upload = s3.upload(params);
-
       upload.on("httpUploadProgress", (p) => {
-        const percent = Math.floor((p.loaded / p.total) * 100);
+        const loaded = p?.loaded || 0;
+        const total = p?.total || 0;
+        const percent = Math.floor((loaded / total) * 100);
+
         setProgress(percent);
         if (percent >= 100) {
           setTimeout(() => setProgress(0), 1000);
         }
       });
-      await upload.promise();
+      await upload.done();
 
       getUrl(doc._id as string, docName, params.Key, "Add");
     } catch (error: any) {

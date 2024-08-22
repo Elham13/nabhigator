@@ -243,6 +243,7 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
 
       if (values?.tasksAssigned && values?.tasksAssigned?.length > 0) {
         for (const task of values?.tasksAssigned) {
+          if (["NPS Confirmation"].includes(task?.name)) continue;
           const documents = new Map(
             values?.documents
               ? values?.documents instanceof Map

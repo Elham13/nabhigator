@@ -583,6 +583,7 @@ const InsuredVerificationSchema = new Schema<IInsuredVerificationSchema>(
     policyType: { type: PolicyTypeSchema },
     prevInsurancePolicyCopy: { type: String },
     anyClaimWithPrevInsurance: { type: String },
+    claimDetailsOfPreviousInsurance: { type: String },
     symptomsWithDuration: { type: String },
     firstConsultationDetails: {
       type: { value: { type: String }, remark: { type: String } },

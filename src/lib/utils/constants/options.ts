@@ -1680,12 +1680,7 @@ export const mainObjectOptionsMap: IMainOptions[] = [
 export const rmMainObjectOptionsMap: IMainOptions[] = [
   {
     name: "NPS Confirmation",
-    options: [
-      {
-        label: "NPS Confirmation Documents",
-        value: "NPS Confirmation Documents",
-      },
-    ],
+    options: [],
   },
   {
     name: "Pre-Post Verification",
