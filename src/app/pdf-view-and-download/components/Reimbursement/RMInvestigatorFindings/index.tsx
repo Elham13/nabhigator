@@ -2,6 +2,11 @@ import React from "react";
 import { CaseDetail } from "@/lib/utils/types/fniDataTypes";
 import AHCVerificationPart from "./AHCVerificationPart";
 import ChemistVerification from "./ChemistVerification";
+import ClaimVerification from "./ClaimVerification";
+import EmployerVerification from "./EmployerVerification";
+import EmploymentAndEstablishmentVerification from "./EmploymentAndEstablishmentVerification";
+import FamilyDoctorPartReferringDoctorVerification from "./FamilyDoctorPartReferringDoctorVerification";
+import HospitalDailyCashPart from "./HospitalDailyCashPart";
 
 type PropTypes = {
   caseData: CaseDetail | null;
@@ -16,6 +21,29 @@ const RMInvestigatorFindings = ({ caseData }: PropTypes) => {
       )}
       {!!rmFindings?.["Chemist Verification"] && (
         <ChemistVerification values={rmFindings?.["Chemist Verification"]} />
+      )}
+      {!!rmFindings?.["Claim Verification"] && (
+        <ClaimVerification values={rmFindings?.["Claim Verification"]} />
+      )}
+      {!!rmFindings?.["Employer Verification"] && (
+        <EmployerVerification values={rmFindings?.["Employer Verification"]} />
+      )}
+      {!!rmFindings?.["Employment & Establishment Verification"] && (
+        <EmploymentAndEstablishmentVerification
+          values={rmFindings?.["Employment & Establishment Verification"]}
+        />
+      )}
+      {!!rmFindings?.["Family Doctor Part/Referring Doctor Verification"] && (
+        <FamilyDoctorPartReferringDoctorVerification
+          values={
+            rmFindings?.["Family Doctor Part/Referring Doctor Verification"]
+          }
+        />
+      )}
+      {!!rmFindings?.["Hospital Daily Cash Part"] && (
+        <HospitalDailyCashPart
+          values={rmFindings?.["Hospital Daily Cash Part"]}
+        />
       )}
     </div>
   );

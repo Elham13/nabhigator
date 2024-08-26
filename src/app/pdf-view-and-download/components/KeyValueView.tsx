@@ -17,16 +17,35 @@ const styles = StyleSheet.create({
     maxWidth: "300px",
     color: "green",
   },
+  headingSection: {
+    display: "flex",
+    font: "bold",
+    marginTop: 15,
+  },
+  subheadText: {
+    fontWeight: "ultrabold",
+    padding: 3,
+    fontSize: 20,
+    backgroundColor: "#ba9607",
+    color: "white",
+    width: "100%",
+  },
 });
 
 type PropTypes = {
   left: string;
   right: string;
+  title?: string;
 };
 
-const KeyValueView = ({ left, right }: PropTypes) => {
+const KeyValueView = ({ left, right, title }: PropTypes) => {
   return (
     <View style={styles.detailSection}>
+      {!!title && (
+        <View style={styles.headingSection}>
+          <Text style={styles.subheadText}>{title}</Text>
+        </View>
+      )}
       <Text style={styles.keyText}>{left} :</Text>
       <Text style={styles.valueText}>{right}</Text>
     </View>

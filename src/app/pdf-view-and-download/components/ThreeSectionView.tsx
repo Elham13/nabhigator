@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
   },
 });
 
-type KeyValue = { key: string; value: any };
+type KeyValue = { key: string; value: any; title?: string };
 
 type PropTypes = {
   data: KeyValue[];
@@ -44,7 +44,12 @@ type PropTypes = {
 const ThreeSectionView = ({ data, topic, customStyle }: PropTypes) => {
   // Function to generate JSX for a detail section
   const detailSectionJsx = (entry: KeyValue, ind: number) => (
-    <KeyValueView key={ind} left={entry?.key} right={entry?.value} />
+    <KeyValueView
+      key={ind}
+      left={entry?.key}
+      right={entry?.value}
+      title={entry?.title}
+    />
   );
 
   // Calculate the split size for the array
@@ -57,7 +62,7 @@ const ThreeSectionView = ({ data, topic, customStyle }: PropTypes) => {
 
   return (
     <View style={customStyle}>
-      <SectionHeading>{topic}</SectionHeading>
+      {!!topic && <SectionHeading>{topic}</SectionHeading>}
       <View style={styles.Separator}>
         <View style={styles.subSeparator}>
           {firstSection.map((entry, ind) => detailSectionJsx(entry, ind))}
