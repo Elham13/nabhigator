@@ -7,6 +7,7 @@ import EmployerVerification from "./EmployerVerification";
 import EmploymentAndEstablishmentVerification from "./EmploymentAndEstablishmentVerification";
 import FamilyDoctorPartReferringDoctorVerification from "./FamilyDoctorPartReferringDoctorVerification";
 import HospitalDailyCashPart from "./HospitalDailyCashPart";
+import HospitalVerification from "./HospitalVerification";
 
 type PropTypes = {
   caseData: CaseDetail | null;
@@ -44,6 +45,9 @@ const RMInvestigatorFindings = ({ caseData }: PropTypes) => {
         <HospitalDailyCashPart
           values={rmFindings?.["Hospital Daily Cash Part"]}
         />
+      )}
+      {!!rmFindings?.["Hospital Verification"] && (
+        <HospitalVerification values={rmFindings?.["Hospital Verification"]} />
       )}
     </div>
   );

@@ -1,52 +1,50 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { IEmployerVerification } from "@/lib/utils/types/rmDataTypes";
-import SectionHeading from "../../SectionHeading";
-import KeyValueView from "../../KeyValueView";
 import dayjs from "dayjs";
+import ThreeSectionView from "../../ThreeSectionView";
 
 type PropTypes = {
   values: IEmployerVerification;
 };
 
 const EmployerVerification = ({ values }: PropTypes) => {
-  return (
-    <Fragment>
-      <SectionHeading>Employer Verification</SectionHeading>
-      {values?.employers &&
-        values?.employers?.length > 0 &&
-        values?.employers?.map((employer) => (
-          <Fragment key={employer?._id}>
-            <KeyValueView
-              left="Name of Employer"
-              right={employer?.nameOfEmployer || "-"}
-            />
-            <KeyValueView left="Address" right={employer?.address || "-"} />
-            <KeyValueView
-              left="Date of Joining"
-              right={
-                employer?.dateOfJoining
-                  ? dayjs(employer?.dateOfJoining).format("DD-MMM-YYYY")
-                  : "-"
-              }
-            />
-            <KeyValueView
-              left="Any Group Health Policy?"
-              right={employer?.anyGroupHealthPolicy || "-"}
-            />
-            {employer?.anyGroupHealthPolicy === "Yes" && (
-              <KeyValueView
-                left="Claim Details"
-                right={employer?.claimDetails || "-"}
-              />
-            )}
-          </Fragment>
-        ))}
-      <KeyValueView
-        left="Verification Summary"
-        right={values?.verificationSummary || "-"}
-      />
-    </Fragment>
-  );
+  const employers =
+    values?.employers && values?.employers?.length > 0
+      ? values?.employers?.flatMap((employer, ind) => [
+          {
+            title: `${ind + 1}`,
+            key: "Name of Employer",
+            value: employer?.nameOfEmployer || "-",
+          },
+          {
+            key: "Address",
+            value: employer?.address || "-",
+          },
+          {
+            key: "Date of Joining",
+            value: employer?.dateOfJoining
+              ? dayjs(employer?.dateOfJoining).format("DD-MMM-YYYY")
+              : "-",
+          },
+          {
+            key: "Any Group Health Policy?",
+            value: employer?.anyGroupHealthPolicy || "-",
+          },
+          ...(employer?.anyGroupHealthPolicy === "Yes"
+            ? [
+                {
+                  key: "Claim Details",
+                  value: employer?.claimDetails || "-",
+                },
+              ]
+            : []),
+        ])
+      : [];
+  const data = [
+    ...employers,
+    { key: "Verification Summary", value: values?.verificationSummary || "-" },
+  ];
+  return <ThreeSectionView data={data} topic="Employer Verification" />;
 };
 
 export default EmployerVerification;

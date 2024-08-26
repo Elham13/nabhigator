@@ -1,96 +1,97 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { IAHCVerificationPart } from "@/lib/utils/types/rmDataTypes";
-import KeyValueView from "../../KeyValueView";
-import SectionHeading from "../../SectionHeading";
+import ThreeSectionView from "../../ThreeSectionView";
 
 type PropTypes = {
   values: IAHCVerificationPart;
 };
 const AHCVerificationPart = ({ values }: PropTypes) => {
-  return (
-    <Fragment>
-      <SectionHeading>AHC Verification Part</SectionHeading>
-      <KeyValueView left="Lab Verified" right={values?.labVerified || "-"} />
-      {values?.labVerified === "Yes" && values?.labs && values?.labs?.length > 0
-        ? values?.labs?.map((lab, ind) => (
-            <Fragment key={ind}>
-              <KeyValueView left="Name of the lab" right={lab?.name || "-"} />
-              <KeyValueView left="Address" right={lab?.address || "-"} />
-              <KeyValueView left="City" right={lab?.city || "-"} />
-              <KeyValueView
-                left="QR Code Available on bill?"
-                right={lab?.qrCodeAvailableOnBill || "-"}
-              />
-              {lab?.qrCodeAvailableOnBill === "Yes" ? (
-                <>
-                  <KeyValueView
-                    left="Scan Result"
-                    right={lab?.codeScanResult || "-"}
-                  />
-                  <KeyValueView
-                    left="Bills & reports verified?"
-                    right={lab?.billsVerified || "-"}
-                  />
+  const labs =
+    values?.labVerified === "Yes" && values?.labs && values?.labs?.length > 0
+      ? values?.labs?.flatMap((lab, ind) => [
+          {
+            title: `${ind + 1}`,
+            key: "Name of the lab",
+            value: lab?.name || "-",
+          },
+          { key: "Address", value: lab?.address || "-" },
+          { key: "City", value: lab?.city || "-" },
+          {
+            key: "QR Code Available on bill?",
+            value: lab?.qrCodeAvailableOnBill || "-",
+          },
+          ...(lab?.qrCodeAvailableOnBill === "Yes"
+            ? [
+                {
+                  key: "Scan Result",
+                  value: lab?.codeScanResult || "-",
+                },
+                {
+                  key: "Bills & reports verified?",
+                  value: lab?.billsVerified || "-",
+                },
+                ...(lab?.billsVerified === "No"
+                  ? [
+                      {
+                        key: "Reason for bill not verified",
+                        value: lab?.reasonOfBillsNotVerified || "-",
+                      },
+                    ]
+                  : lab?.billsVerified === "Yes"
+                  ? [
+                      {
+                        key: "Discrepancy Status",
+                        value: lab?.discrepancyStatus || "-",
+                      },
+                      ...(lab?.discrepancyStatus === "Discrepant" &&
+                      lab?.codeScanResult === "Scan- discrepant bill"
+                        ? [
+                            {
+                              key: "Bill Verification Result",
+                              value:
+                                lab?.billVerificationResult &&
+                                lab?.billVerificationResult?.length > 0
+                                  ? lab?.billVerificationResult?.join(", ")
+                                  : "-",
+                            },
+                            ...(lab?.billVerificationResult?.includes("Others")
+                              ? [
+                                  {
+                                    key: "Remark",
+                                    value:
+                                      lab?.billVerificationResultRemark || "-",
+                                  },
+                                ]
+                              : []),
+                            ...(!!lab?.billVerificationResult &&
+                            lab?.billVerificationResult?.length > 0
+                              ? [
+                                  {
+                                    key: "Brief Summary of Discrepancy",
+                                    value:
+                                      lab?.briefSummaryOfDiscrepancy || "-",
+                                  },
+                                  {
+                                    key: "Observation",
+                                    value: lab?.observation || "-",
+                                  },
+                                ]
+                              : []),
+                          ]
+                        : []),
+                    ]
+                  : []),
+              ]
+            : []),
+          { key: "Final Observation", value: lab?.finalObservation || "-" },
+        ])
+      : [];
 
-                  {lab?.billsVerified === "No" ? (
-                    <KeyValueView
-                      left="Reason for bill not verified"
-                      right={lab?.reasonOfBillsNotVerified || "-"}
-                    />
-                  ) : lab?.billsVerified === "Yes" ? (
-                    <Fragment>
-                      <KeyValueView
-                        left="Discrepancy Status"
-                        right={lab?.discrepancyStatus || "-"}
-                      />
-                      {lab?.discrepancyStatus === "Discrepant" &&
-                      lab?.codeScanResult === "Scan- discrepant bill" ? (
-                        <Fragment>
-                          <KeyValueView
-                            left="Bill Verification Result"
-                            right={
-                              lab?.billVerificationResult &&
-                              lab?.billVerificationResult?.length > 0
-                                ? lab?.billVerificationResult?.join(", ")
-                                : "-"
-                            }
-                          />
-
-                          {lab?.billVerificationResult?.includes("Others") ? (
-                            <KeyValueView
-                              left="Remark"
-                              right={lab?.billVerificationResultRemark || "-"}
-                            />
-                          ) : null}
-
-                          {!!lab?.billVerificationResult &&
-                          lab?.billVerificationResult?.length > 0 ? (
-                            <Fragment>
-                              <KeyValueView
-                                left="Brief Summary of Discrepancy"
-                                right={lab?.briefSummaryOfDiscrepancy || "-"}
-                              />
-                              <KeyValueView
-                                left="Observation"
-                                right={lab?.observation || "-"}
-                              />
-                            </Fragment>
-                          ) : null}
-                        </Fragment>
-                      ) : null}
-                    </Fragment>
-                  ) : null}
-                </>
-              ) : null}
-            </Fragment>
-          ))
-        : null}
-      <KeyValueView
-        left="Final Observation"
-        right={values?.finalObservation || "-"}
-      />
-    </Fragment>
-  );
+  const data = [
+    { key: "Lab Verified", value: values?.labVerified || "-" },
+    ...labs,
+  ];
+  return <ThreeSectionView data={data} topic="AHC Verification" />;
 };
 
 export default AHCVerificationPart;
