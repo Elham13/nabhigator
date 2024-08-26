@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import dayjs from "dayjs";
 import Heading from "./Heading";
 import { TDocType } from "../page";
@@ -10,6 +10,9 @@ import { convertToIndianFormat } from "@/lib/helpers";
 import FraudIndicatorTable from "./FraudIndicatorTable";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import { CaseDetail, IDashboardData } from "@/lib/utils/types/fniDataTypes";
+import PreAuthDetails from "./PreaAuth/PreAuthDetails";
+import ContractDetails from "./Reimbursement/ContractDetails";
+import ClaimDetails from "./Reimbursement/ClaimDetails";
 
 const styles = StyleSheet.create({
   container: { display: "flex", flexDirection: "column", columnGap: 10 },
@@ -124,230 +127,6 @@ const AssignmentSummary = ({
   title,
   invType,
 }: PropTypes) => {
-  const preAuthDetailsData = [
-    ...(invType !== "External"
-      ? [
-          {
-            key: "Referral Type",
-            value: data?.claimType,
-          },
-        ]
-      : []),
-    {
-      key: "Claim Amount",
-      value: data?.claimDetails?.claimAmount
-        ? convertToIndianFormat(
-            parseInt(data?.claimDetails?.claimAmount?.toString()),
-            true
-          )
-        : "-",
-    },
-    {
-      key: "DOB",
-      value: data?.insuredDetails?.dob
-        ? dayjs(data?.insuredDetails?.dob).format("DD-MMM-YYYY")
-        : "-",
-    },
-    {
-      key: data?.claimType === "PreAuth" ? "Pre-Auth" : "Claim" + " Number",
-      value: data?.claimId,
-    },
-    {
-      key: "Insured Name",
-      value: data?.insuredDetails?.insuredName,
-    },
-    {
-      key: "Age",
-      value: `${data?.insuredDetails?.age} Years`,
-    },
-    {
-      key: "Relation",
-      value: data?.insuredDetails?.insuredType,
-    },
-    {
-      key: "Address",
-      value: data?.insuredDetails?.address,
-    },
-    {
-      key: "City",
-      value: data?.insuredDetails?.city,
-    },
-    {
-      key: "State",
-      value: data?.insuredDetails?.state,
-    },
-    {
-      key: "Mobile Number",
-      value: data?.insuredDetails?.contactNo,
-    },
-    {
-      key: "Provider Name",
-      value: data?.hospitalDetails?.providerName,
-    },
-    {
-      key: "Provider Code",
-      value: data?.hospitalDetails?.providerNo,
-    },
-    {
-      key: "Provider Address",
-      value: data?.hospitalDetails?.providerAddress,
-    },
-    {
-      key: "Provider City",
-      value: data?.hospitalDetails?.providerCity,
-    },
-    {
-      key: "Provider State",
-      value: data?.hospitalDetails?.providerState,
-    },
-    {
-      key: "Pre-Auth Status",
-      value: data?.claimDetails?.claimStatus,
-    },
-    {
-      key: "Diagnosis",
-      value: data?.claimDetails?.diagnosis,
-    },
-    {
-      key: "Treatment Type",
-      value: data?.claimDetails?.claimType || "-",
-    },
-    {
-      key: "Request Amount",
-      value: data?.claimDetails?.billedAmount
-        ? convertToIndianFormat(
-            parseInt(data?.claimDetails?.billedAmount),
-            true
-          )
-        : "0",
-    },
-    {
-      key: "Date of Admission",
-      value: data?.hospitalizationDetails?.dateOfAdmission
-        ? dayjs(data?.hospitalizationDetails?.dateOfAdmission).format(
-            "DD-MMM-YYYY"
-          )
-        : "-",
-    },
-    {
-      key: "Date of Discharge",
-      value: data?.hospitalizationDetails?.dateOfDischarge
-        ? dayjs(data?.hospitalizationDetails?.dateOfDischarge).format(
-            "DD-MMM-YYYY"
-          )
-        : "-",
-    },
-    {
-      key: "Pre-Auth Received Date",
-      value: data?.claimDetails?.receivedAt
-        ? dayjs(data?.claimDetails?.receivedAt).format("DD-MMM-YYYY")
-        : "-",
-    },
-    {
-      key: "Intimation Date",
-      value: data?.intimationDate
-        ? dayjs(data?.intimationDate).format("DD-MMM-YYYY")
-        : "-",
-    },
-    {
-      key: "Admission Type",
-      value: data?.hospitalizationDetails?.admissionType,
-    },
-  ];
-
-  const contractDetailsData = [
-    {
-      key: "Contract Number",
-      value: data?.contractDetails?.contractNo,
-    },
-    {
-      key: "Product",
-      value: data?.contractDetails?.product,
-    },
-    {
-      key: "Contract Renewal Date",
-      value: data?.contractDetails?.policyStartDate
-        ? dayjs(data?.contractDetails?.policyStartDate).format("DD-MMM-YYYY")
-        : "-",
-    },
-    {
-      key: "Policy End Date",
-      value: data?.contractDetails?.policyEndDate
-        ? dayjs(data?.contractDetails?.policyEndDate).format("DD-MMM-YYYY")
-        : "-",
-    },
-    {
-      key: "Port",
-      value: data?.contractDetails?.port,
-    },
-    {
-      key: "Previous Insurance Company",
-      value: data?.contractDetails?.prevInsuranceCompany,
-    },
-    {
-      key: "Mbr Reg.Date",
-      value: data?.contractDetails?.mbrRegDate
-        ? dayjs(data?.contractDetails?.mbrRegDate).format("DD-MMM-YYYY")
-        : "-",
-    },
-    {
-      key: "NBHI Policy Start Date",
-      value: data?.contractDetails?.NBHIPolicyStartDate
-        ? dayjs(data?.contractDetails?.NBHIPolicyStartDate).format(
-            "DD-MMM-YYYY"
-          )
-        : "-",
-    },
-    {
-      key: "Members Covered",
-      value: data?.contractDetails?.membersCovered.toString(),
-    },
-    ...(invType !== "External"
-      ? [
-          {
-            key: "Sourcing",
-            value: data?.claimDetails?.claimTrigger,
-          },
-        ]
-      : []),
-    {
-      key: "Agent Name",
-      value: data?.contractDetails?.agentName,
-    },
-    ...(invType !== "External"
-      ? [
-          {
-            key: "Agent Code",
-            value: data?.contractDetails?.agentCode,
-          },
-          {
-            key: "Branch Location",
-            value: data?.contractDetails?.branchLocation,
-          },
-        ]
-      : []),
-    {
-      key: "Banca Details",
-      value: data?.contractDetails?.bancaDetails,
-    },
-    {
-      key: "Membership Number",
-      value: data?.claimDetails?.memberNo,
-    },
-    {
-      key: "Member Name",
-      value: data?.insuredDetails?.insuredName,
-    },
-    {
-      key: "DOB",
-      value: dayjs(data?.insuredDetails?.dob).format("DD-MMM-YYYY"),
-    },
-    {
-      key: "Relation",
-      value: data?.insuredDetails?.insuredType,
-    },
-  ];
-
   const acceptedTriageDetails = extractAcceptedTriageSummary(data, caseData);
 
   const tasksAndDocuments = extractTasksAndDocuments(caseData);
@@ -361,26 +140,36 @@ const AssignmentSummary = ({
           {data?.claimId}
         </SingleLine>
 
-        <ThreeSectionView
-          data={preAuthDetailsData}
-          topic={`${
-            data?.claimType === "PreAuth" ? "Pre-Auth" : "Reimbursement"
-          } Details`}
-        />
+        {data?.claimType === "PreAuth" ? (
+          <Fragment>
+            <PreAuthDetails data={data} invType={invType} />
+          </Fragment>
+        ) : data?.claimType === "Reimbursement" ? (
+          <Fragment>
+            <ContractDetails data={data} invType={invType} />
+          </Fragment>
+        ) : null}
 
-        <SingleLine>
-          Exclusion Remarks: {data?.claimDetails?.exclusionRemark}
-        </SingleLine>
-        <SingleLine>
-          Member Fraud Status: {data?.claimDetails?.fraudStatus || "-"}
-        </SingleLine>
+        {data?.claimType === "PreAuth" ? (
+          <>
+            <SingleLine>
+              Exclusion Remarks: {data?.claimDetails?.exclusionRemark || "-"}
+            </SingleLine>
+            <SingleLine>
+              Member Fraud Status: {data?.claimDetails?.fraudStatus || "-"}
+            </SingleLine>
+          </>
+        ) : null}
         <SingleLine>
           Pre-Qc Observations: {caseData?.preQcObservation || "-"}
         </SingleLine>
-        <ThreeSectionView
-          data={contractDetailsData}
-          topic="Contract Details:"
-        />
+
+        {data?.claimType === "PreAuth" ? (
+          <ContractDetails data={data} invType={invType} />
+        ) : data?.claimType === "Reimbursement" ? (
+          <ClaimDetails data={data} />
+        ) : null}
+
         <SectionHeading>Historical Claims Details:</SectionHeading>
 
         {data?.historicalClaim && data?.historicalClaim?.length > 0
