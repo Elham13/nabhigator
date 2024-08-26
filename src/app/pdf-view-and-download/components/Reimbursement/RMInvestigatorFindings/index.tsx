@@ -1,6 +1,7 @@
-import { CaseDetail } from "@/lib/utils/types/fniDataTypes";
 import React from "react";
+import { CaseDetail } from "@/lib/utils/types/fniDataTypes";
 import AHCVerificationPart from "./AHCVerificationPart";
+import ChemistVerification from "./ChemistVerification";
 
 type PropTypes = {
   caseData: CaseDetail | null;
@@ -10,9 +11,12 @@ const RMInvestigatorFindings = ({ caseData }: PropTypes) => {
 
   return (
     <div>
-      {rmFindings?.["AHC Verification Part"] ? (
+      {!!rmFindings?.["AHC Verification Part"] && (
         <AHCVerificationPart values={rmFindings?.["AHC Verification Part"]} />
-      ) : null}
+      )}
+      {!!rmFindings?.["Chemist Verification"] && (
+        <ChemistVerification values={rmFindings?.["Chemist Verification"]} />
+      )}
     </div>
   );
 };

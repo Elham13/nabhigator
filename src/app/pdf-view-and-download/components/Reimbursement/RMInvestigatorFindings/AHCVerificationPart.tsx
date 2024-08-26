@@ -1,15 +1,15 @@
 import React, { Fragment } from "react";
 import { IAHCVerificationPart } from "@/lib/utils/types/rmDataTypes";
 import KeyValueView from "../../KeyValueView";
+import SectionHeading from "../../SectionHeading";
 
 type PropTypes = {
   values: IAHCVerificationPart;
 };
 const AHCVerificationPart = ({ values }: PropTypes) => {
-  const ahcData = [{ key: "", value: "" }];
-
   return (
-    <>
+    <Fragment>
+      <SectionHeading>AHC Verification Part</SectionHeading>
       <KeyValueView left="Lab Verified" right={values?.labVerified || "-"} />
       {values?.labVerified === "Yes" && values?.labs && values?.labs?.length > 0
         ? values?.labs?.map((lab, ind) => (
@@ -89,7 +89,7 @@ const AHCVerificationPart = ({ values }: PropTypes) => {
         left="Final Observation"
         right={values?.finalObservation || "-"}
       />
-    </>
+    </Fragment>
   );
 };
 
