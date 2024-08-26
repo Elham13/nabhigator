@@ -1,6 +1,7 @@
 import React from "react";
 import SectionHeading from "./SectionHeading";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
+import KeyValueView from "./KeyValueView";
 
 const styles = StyleSheet.create({
   detailSection: {
@@ -43,10 +44,7 @@ type PropTypes = {
 const ThreeSectionView = ({ data, topic, customStyle }: PropTypes) => {
   // Function to generate JSX for a detail section
   const detailSectionJsx = (entry: KeyValue, ind: number) => (
-    <View style={styles.detailSection} key={ind}>
-      <Text style={styles.keyText}>{entry.key} :</Text>
-      <Text style={styles.valueText}>{entry.value}</Text>
-    </View>
+    <KeyValueView key={ind} left={entry?.key} right={entry?.value} />
   );
 
   // Calculate the split size for the array
