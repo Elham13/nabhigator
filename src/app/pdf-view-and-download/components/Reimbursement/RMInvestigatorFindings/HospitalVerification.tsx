@@ -31,6 +31,30 @@ const HospitalVerification = ({ values }: PropTypes) => {
         ])
       : [];
 
+  const ailments =
+    values.pedOrNonDisclosure?.ailmentDetail &&
+    values.pedOrNonDisclosure?.ailmentDetail?.length > 0
+      ? values.pedOrNonDisclosure?.ailmentDetail?.flatMap((ailment, ind) => [
+          {
+            title: `Ailment ${ind + 1}`,
+            key: "Ailment",
+            value: ailment?.ailment || "-",
+          },
+          {
+            key: "Diagnosis",
+            value: ailment?.diagnosis || "-",
+          },
+          {
+            key: "Duration",
+            value: ailment?.duration || "-",
+          },
+          {
+            key: "On Medication",
+            value: ailment?.onMedication || "-",
+          },
+        ])
+      : [];
+
   const data = [
     {
       key: "Date of visit to hospital",
@@ -199,6 +223,19 @@ const HospitalVerification = ({ values }: PropTypes) => {
       value: values?.paymentReceipts || "-",
     },
     ...habits,
+    {
+      key: "PED/Non-Disclosure",
+      value: values?.pedOrNonDisclosure?.value || "-",
+    },
+    ...(values?.pedOrNonDisclosure?.value === "Yes" ? ailments : []),
+    {
+      key: "Verification Summary",
+      value: values?.verificationSummary || "-",
+    },
+    {
+      key: "Discrepancies/Irregularities Observed",
+      value: values?.discrepanciesOrIrregularitiesObserved || "-",
+    },
   ];
 
   return <ThreeSectionView data={data} topic="Hospital Verification" />;
