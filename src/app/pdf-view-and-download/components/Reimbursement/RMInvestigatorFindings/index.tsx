@@ -17,6 +17,7 @@ import PrePostVerification from "./PrePostVerification";
 import RandomVicinityVerification from "./RandomVicinityVerification";
 import TreatingDoctorVerification from "./TreatingDoctorVerification";
 import VicinityVerification from "./VicinityVerification";
+import CommonTasks from "./CommonTasks";
 
 type PropTypes = {
   caseData: CaseDetail | null;
@@ -99,6 +100,7 @@ const RMInvestigatorFindings = ({ caseData }: PropTypes) => {
       {!!rmFindings?.["Vicinity Verification"] && (
         <VicinityVerification values={rmFindings?.["Vicinity Verification"]} />
       )}
+      <CommonTasks values={rmFindings} />
     </div>
   );
 };
