@@ -14,6 +14,7 @@ import MiscellaneousVerification from "./MiscellaneousVerification";
 import NPSConfirmation from "./NPSConfirmation";
 import OPDVerificationPart from "./OPDVerificationPart";
 import PrePostVerification from "./PrePostVerification";
+import RandomVicinityVerification from "./RandomVicinityVerification";
 
 type PropTypes = {
   caseData: CaseDetail | null;
@@ -76,6 +77,17 @@ const RMInvestigatorFindings = ({ caseData }: PropTypes) => {
       )}
       {!!rmFindings?.["Pre-Post Verification"] && (
         <PrePostVerification values={rmFindings?.["Pre-Post Verification"]} />
+      )}
+      {!!rmFindings?.[
+        "Random Vicinity Hospital/Lab/Doctor/Chemist Verification"
+      ] && (
+        <RandomVicinityVerification
+          values={
+            rmFindings?.[
+              "Random Vicinity Hospital/Lab/Doctor/Chemist Verification"
+            ]
+          }
+        />
       )}
     </div>
   );
