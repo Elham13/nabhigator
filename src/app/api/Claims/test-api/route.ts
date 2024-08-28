@@ -657,7 +657,6 @@ router.post(async (req) => {
 
   try {
     await connectDB(Databases.FNI);
-    changePostQaValues();
 
     return NextResponse.json(
       {
