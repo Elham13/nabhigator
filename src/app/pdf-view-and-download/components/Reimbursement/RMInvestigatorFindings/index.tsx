@@ -9,6 +9,7 @@ import FamilyDoctorPartReferringDoctorVerification from "./FamilyDoctorPartRefer
 import HospitalDailyCashPart from "./HospitalDailyCashPart";
 import HospitalVerification from "./HospitalVerification";
 import InsuredVerification from "./InsuredVerification";
+import LabOrPathologistVerification from "./LabOrPathologistVerification";
 
 type PropTypes = {
   caseData: CaseDetail | null;
@@ -52,6 +53,11 @@ const RMInvestigatorFindings = ({ caseData }: PropTypes) => {
       )}
       {!!rmFindings?.["Insured Verification"] && (
         <InsuredVerification values={rmFindings?.["Insured Verification"]} />
+      )}
+      {!!rmFindings?.["Lab Part/Pathologist Verification"] && (
+        <LabOrPathologistVerification
+          values={rmFindings?.["Lab Part/Pathologist Verification"]}
+        />
       )}
     </div>
   );
