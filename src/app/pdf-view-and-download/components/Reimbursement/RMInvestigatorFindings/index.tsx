@@ -11,6 +11,7 @@ import HospitalVerification from "./HospitalVerification";
 import InsuredVerification from "./InsuredVerification";
 import LabOrPathologistVerification from "./LabOrPathologistVerification";
 import MiscellaneousVerification from "./MiscellaneousVerification";
+import NPSConfirmation from "./NPSConfirmation";
 
 type PropTypes = {
   caseData: CaseDetail | null;
@@ -64,6 +65,9 @@ const RMInvestigatorFindings = ({ caseData }: PropTypes) => {
         <MiscellaneousVerification
           values={rmFindings?.["Miscellaneous Verification"]}
         />
+      )}
+      {!!rmFindings?.["NPS Confirmation"] && (
+        <NPSConfirmation values={rmFindings?.["NPS Confirmation"]} />
       )}
     </div>
   );
