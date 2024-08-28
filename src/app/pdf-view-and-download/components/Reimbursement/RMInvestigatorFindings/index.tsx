@@ -13,6 +13,7 @@ import LabOrPathologistVerification from "./LabOrPathologistVerification";
 import MiscellaneousVerification from "./MiscellaneousVerification";
 import NPSConfirmation from "./NPSConfirmation";
 import OPDVerificationPart from "./OPDVerificationPart";
+import PrePostVerification from "./PrePostVerification";
 
 type PropTypes = {
   caseData: CaseDetail | null;
@@ -72,6 +73,9 @@ const RMInvestigatorFindings = ({ caseData }: PropTypes) => {
       )}
       {!!rmFindings?.["OPD Verification Part"] && (
         <OPDVerificationPart values={rmFindings?.["OPD Verification Part"]} />
+      )}
+      {!!rmFindings?.["Pre-Post Verification"] && (
+        <PrePostVerification values={rmFindings?.["Pre-Post Verification"]} />
       )}
     </div>
   );
