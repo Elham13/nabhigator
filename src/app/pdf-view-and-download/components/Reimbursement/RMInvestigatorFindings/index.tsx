@@ -15,6 +15,7 @@ import NPSConfirmation from "./NPSConfirmation";
 import OPDVerificationPart from "./OPDVerificationPart";
 import PrePostVerification from "./PrePostVerification";
 import RandomVicinityVerification from "./RandomVicinityVerification";
+import TreatingDoctorVerification from "./TreatingDoctorVerification";
 
 type PropTypes = {
   caseData: CaseDetail | null;
@@ -87,6 +88,11 @@ const RMInvestigatorFindings = ({ caseData }: PropTypes) => {
               "Random Vicinity Hospital/Lab/Doctor/Chemist Verification"
             ]
           }
+        />
+      )}
+      {!!rmFindings?.["Treating Doctor Verification"] && (
+        <TreatingDoctorVerification
+          values={rmFindings?.["Treating Doctor Verification"]}
         />
       )}
     </div>
