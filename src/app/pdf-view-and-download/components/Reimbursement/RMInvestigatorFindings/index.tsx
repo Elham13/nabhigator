@@ -12,6 +12,7 @@ import InsuredVerification from "./InsuredVerification";
 import LabOrPathologistVerification from "./LabOrPathologistVerification";
 import MiscellaneousVerification from "./MiscellaneousVerification";
 import NPSConfirmation from "./NPSConfirmation";
+import OPDVerificationPart from "./OPDVerificationPart";
 
 type PropTypes = {
   caseData: CaseDetail | null;
@@ -68,6 +69,9 @@ const RMInvestigatorFindings = ({ caseData }: PropTypes) => {
       )}
       {!!rmFindings?.["NPS Confirmation"] && (
         <NPSConfirmation values={rmFindings?.["NPS Confirmation"]} />
+      )}
+      {!!rmFindings?.["OPD Verification Part"] && (
+        <OPDVerificationPart values={rmFindings?.["OPD Verification Part"]} />
       )}
     </div>
   );
