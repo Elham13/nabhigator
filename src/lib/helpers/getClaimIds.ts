@@ -171,9 +171,7 @@ export default async function getClaimIds(SourceSystem: "M" | "P") {
 
     if (claimIds && claimIds?.length > 0) {
       const claimIdsSet = new Set(claimIds.map((id) => id?.Claims));
-      claimsData = claimsData?.filter(
-        (el) => el?.Claims?.startsWith("P_") && !claimIdsSet.has(el?.Claims)
-      );
+      claimsData = claimsData?.filter((el) => !claimIdsSet.has(el?.Claims));
     }
 
     return { success: true, data: processResponse(claimsData) };
