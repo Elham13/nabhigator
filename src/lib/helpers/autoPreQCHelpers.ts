@@ -82,7 +82,7 @@ export const claimCasePayload = {
       },
     ],
   },
-  preQcObservation: "",
+  preQcObservation: "This is system pre qc",
   tasksAssigned: [
     { name: "Pre-Auth Investigation", completed: false, comment: "" },
   ],

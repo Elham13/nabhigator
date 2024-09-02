@@ -45,6 +45,12 @@ type DataType = {
   ClaimsBenefits: ClaimsBenefits[];
 };
 
+const sanitizeBenefitSubtype = (subType: string) => {
+  if (subType.includes("A-")) return subType.replace("A-", "");
+  if (subType.includes("00-")) return subType.replace("00-", "");
+  return subType;
+};
+
 const processResponse = (data: DataType[]) => {
   // Sample data
   // const data = [{
@@ -61,21 +67,21 @@ const processResponse = (data: DataType[]) => {
     const claimId = el?.Claims?.split("_")?.[1];
 
     const arrOfObj = el?.ClaimsBenefits?.map((cl) => {
-      const tempArr = cl?.Benefit_Type?.split("-");
+      const tempBenefits = cl?.Benefit_Type?.split("-");
 
       if (claimType === "P") {
         // For PreAuth
-        const code = tempArr?.shift();
+        const code = tempBenefits?.shift();
 
         return {
-          subType: tempArr?.join("-"),
+          subType: sanitizeBenefitSubtype(tempBenefits?.join("-")),
           benefitType: benefitCodesPreAuth?.includes(code || "")
             ? "Benefit"
             : travelCodesPreAuth?.includes(code || "")
             ? "Travel"
             : "Indemnity",
           lossType:
-            tempArr?.join("-") === "Personal Accident/Accident Care"
+            tempBenefits?.join("-") === "Personal Accident/Accident Care"
               ? cl?.Benefit_Head?.split("-")?.[1] || ""
               : "",
         };
@@ -88,7 +94,7 @@ const processResponse = (data: DataType[]) => {
             ? "Personal Accident"
             : criticalIllnessSubTypes.includes(code)
             ? "Critical Illness"
-            : tempArr?.join("-"),
+            : tempBenefits?.join("-"),
           benefitType: benefitCodes?.includes(code)
             ? "Benefit"
             : indemnityCodes?.includes(code)
@@ -114,9 +120,9 @@ const processResponse = (data: DataType[]) => {
     return {
       claimId,
       claimType,
-      benefitType: arrOfObj?.map((el) => el?.benefitType)?.join(", "),
-      claimSubType: arrOfObj?.map((el) => el?.subType)?.join(", "),
-      lossType: arrOfObj?.map((el) => el?.lossType)?.join(", "),
+      benefitType: arrOfObj?.length > 0 ? arrOfObj[0]?.benefitType : "-",
+      claimSubType: arrOfObj?.length > 0 ? arrOfObj[0]?.subType : "-",
+      lossType: arrOfObj?.length > 0 ? arrOfObj[0]?.lossType : "-",
       Claims: el?.Claims,
       cataractOrDayCareProcedure: el?.ClaimsBenefits,
     };
@@ -171,9 +177,7 @@ export default async function getClaimIds(SourceSystem: "M" | "P") {
 
     if (claimIds && claimIds?.length > 0) {
       const claimIdsSet = new Set(claimIds.map((id) => id?.Claims));
-      claimsData = claimsData?.filter(
-        (el) => el?.Claims?.startsWith("P_") && !claimIdsSet.has(el?.Claims)
-      );
+      claimsData = claimsData?.filter((el) => !claimIdsSet.has(el?.Claims));
     }
 
     return { success: true, data: processResponse(claimsData) };
