@@ -43,13 +43,13 @@ import {
   ResponseType,
   Role,
   SingleResponseType,
-  Task,
 } from "@/lib/utils/types/fniDataTypes";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
 import { buildUrl, showError } from "@/lib/helpers";
 import { getStates } from "@/lib/helpers/getLocations";
 import { changeTaskInitialValues } from "@/lib/utils/constants";
+import { configureRMTasksAndDocuments } from "@/lib/helpers/autoPreQCHelpers";
 
 const dependentOptionsMap = {
   PED: pedOptionsArray,
@@ -332,147 +332,9 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
           documents: newDocs,
         }));
       } else {
-        const newDocs = new Map<string, DocumentData[]>();
-        const newTasks: Task[] = [];
-        if (dashboardData?.claimSubType === "In-patient Hospitalization") {
-          for (const el of rmMainObjectOptionsMap) {
-            if (
-              [
-                "NPS Confirmation",
-                "Insured Verification",
-                "Vicinity Verification",
-                "Hospital Verification",
-                "Lab Part/Pathologist Verification",
-                "Chemist Verification",
-              ].includes(el?.name)
-            ) {
-              const tempDocs = el?.options?.map((op) => ({
-                name: op?.value,
-                docUrl: [],
-                location: null,
-              }));
-              newTasks?.push({ name: el?.name, completed: false, comment: "" });
-              newDocs?.set(el?.name, tempDocs);
-            }
-          }
-        } else if (dashboardData?.claimSubType === "Pre-Post") {
-          const tempOption = rmMainObjectOptionsMap?.find(
-            (op) => op?.name === "Pre-Post Verification"
-          );
-          if (tempOption) {
-            newTasks?.push({
-              name: tempOption?.name,
-              completed: false,
-              comment: "",
-            });
-            newDocs.set(
-              tempOption?.name,
-              tempOption?.options?.map((op) => ({
-                name: op?.value,
-                docUrl: [],
-                location: null,
-              }))
-            );
-          }
-        } else if (dashboardData?.claimSubType === "Hospital Daily Cash") {
-          const tempOption = rmMainObjectOptionsMap?.find(
-            (op) => op?.name === "Hospital Daily Cash Part"
-          );
-          if (tempOption) {
-            newTasks?.push({
-              name: tempOption?.name,
-              completed: false,
-              comment: "",
-            });
-            newDocs.set(
-              tempOption?.name,
-              tempOption?.options?.map((op) => ({
-                name: op?.value,
-                docUrl: [],
-                location: null,
-              }))
-            );
-          }
-        } else if (dashboardData?.claimSubType === "OPD") {
-          const tempOption = rmMainObjectOptionsMap?.find(
-            (op) => op?.name === "OPD Verification Part"
-          );
-          if (tempOption) {
-            newTasks?.push({
-              name: tempOption?.name,
-              completed: false,
-              comment: "",
-            });
-            newDocs.set(
-              tempOption?.name,
-              tempOption?.options?.map((op) => ({
-                name: op?.value,
-                docUrl: [],
-                location: null,
-              }))
-            );
-          }
-        } else if (dashboardData?.claimSubType === "AHC") {
-          const tempOption = rmMainObjectOptionsMap?.find(
-            (op) => op?.name === "AHC Verification Part"
-          );
-          if (tempOption) {
-            newTasks?.push({
-              name: tempOption?.name,
-              completed: false,
-              comment: "",
-            });
-            newDocs.set(
-              tempOption?.name,
-              tempOption?.options?.map((op) => ({
-                name: op?.value,
-                docUrl: [],
-                location: null,
-              }))
-            );
-          }
-        } else if (!dashboardData?.claimSubType) {
-          const tempOption = rmMainObjectOptionsMap?.find(
-            (op) => op?.name === "Claim Verification"
-          );
-          if (tempOption) {
-            newTasks?.push({
-              name: tempOption?.name,
-              completed: false,
-              comment: "",
-            });
-            newDocs.set(
-              tempOption?.name,
-              tempOption?.options?.map((op) => ({
-                name: op?.value,
-                docUrl: [],
-                location: null,
-              }))
-            );
-          }
-        }
-
-        for (const el of rmMainObjectOptionsMap) {
-          if (["Miscellaneous Verification"].includes(el?.name)) {
-            const tempDocs = el?.options
-              ?.filter((op) =>
-                [
-                  "Miscellaneous Verification Documents",
-                  "Customer Feedback Form",
-                  "GPS Photo",
-                  "Call Recording",
-                  "AVR",
-                ].includes(op?.value)
-              )
-              ?.map((op) => ({
-                name: op?.value,
-                docUrl: [],
-                location: null,
-              }));
-            newTasks.push({ name: el?.name, completed: false, comment: "" });
-            newDocs.set(el?.name, tempDocs);
-          }
-        }
+        const { newTasks, newDocs } = configureRMTasksAndDocuments({
+          claimSubType: dashboardData?.claimSubType,
+        });
 
         setValues((prev) => ({
           ...prev,
