@@ -45,9 +45,11 @@ type DataType = {
   ClaimsBenefits: ClaimsBenefits[];
 };
 
-const sanitizeBenefitSubtype = (subType: string) => {
-  if (subType.includes("A-")) return subType.replace("A-", "");
-  if (subType.includes("00-")) return subType.replace("00-", "");
+const sanitizeBenefitSubtype = (subType?: string) => {
+  if (!!subType) {
+    if (subType.includes("A-")) return subType.replace("A-", "");
+    if (subType.includes("00-")) return subType.replace("00-", "");
+  }
   return subType;
 };
 
