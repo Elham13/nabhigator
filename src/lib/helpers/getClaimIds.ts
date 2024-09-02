@@ -96,7 +96,7 @@ const processResponse = (data: DataType[]) => {
             ? "Personal Accident"
             : criticalIllnessSubTypes.includes(code)
             ? "Critical Illness"
-            : tempBenefits?.join("-"),
+            : sanitizeBenefitSubtype(tempBenefits?.join("-")),
           benefitType: benefitCodes?.includes(code)
             ? "Benefit"
             : indemnityCodes?.includes(code)
