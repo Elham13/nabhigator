@@ -196,8 +196,8 @@ const DetailsAccordion = ({
             value: "Tasks and Documents Assigned",
             content: value === "Tasks and Documents Assigned" && (
               <TasksAndDocumentsContent
-                tasks={caseDetail?.tasksAssigned || []}
-                documents={caseDetail?.documents as any}
+                caseDetail={caseDetail}
+                dashboardData={data}
               />
             ),
           },
