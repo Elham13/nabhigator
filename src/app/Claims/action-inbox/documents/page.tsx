@@ -30,9 +30,9 @@ const Documents = async ({ searchParams }: PropTypes) => {
   });
 
   const bucketName =
-    process.env.NEXT_PUBLIC_CONFIG == "LOCAL"
-      ? process.env.NEXT_PUBLIC_S3_BUCKET_NAME_UAT
-      : process.env.NEXT_PUBLIC_S3_BUCKET_NAME_PROD;
+    process.env.NEXT_PUBLIC_CONFIG == "PROD"
+      ? process.env.NEXT_PUBLIC_S3_BUCKET_NAME_PROD
+      : process.env.NEXT_PUBLIC_S3_BUCKET_NAME_UAT;
 
   const signedUrl = s3.getSignedUrl("getObject", {
     Bucket: bucketName,
