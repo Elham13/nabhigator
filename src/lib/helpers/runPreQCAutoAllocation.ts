@@ -12,7 +12,6 @@ import {
 } from "../utils/types/fniDataTypes";
 import {
   claimCasePayload,
-  configureRMTasksAndDocuments,
   findInvestigators,
   getAllocationType,
   updateInvestigators,
@@ -21,6 +20,7 @@ import ClaimCase from "../Models/claimCase";
 import { captureCaseEvent } from "@/app/api/Claims/caseEvent/helpers";
 import sendEmail from "./sendEmail";
 import { FromEmails } from "../utils/types/enums";
+import { configureRMTasksAndDocuments } from ".";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);

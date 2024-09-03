@@ -1,5 +1,10 @@
 import { toast } from "react-toastify";
-import { NumericStage, TValueCode } from "../utils/types/fniDataTypes";
+import {
+  DocumentData,
+  NumericStage,
+  Task,
+  TValueCode,
+} from "../utils/types/fniDataTypes";
 import { DateInputProps } from "@mantine/dates";
 import {
   FRCUGroundOfRepudiationOptions,
@@ -10,6 +15,7 @@ import {
   QAFRCUGroundOfRepudiationProdOptions,
   recommendationOptions,
   recommendationProdOptions,
+  rmMainObjectOptionsMap,
 } from "../utils/constants/options";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -278,4 +284,137 @@ export const flattenObject = (
     }
   }
   return res;
+};
+
+interface IConfigureRMTasks {
+  claimSubType?: string;
+}
+
+export const configureRMTasksAndDocuments = ({
+  claimSubType,
+}: IConfigureRMTasks) => {
+  const newDocs = new Map<string, DocumentData[]>();
+  const newTasks: Task[] = [];
+
+  if (claimSubType === "In-patient Hospitalization") {
+    for (const el of rmMainObjectOptionsMap) {
+      if (
+        [
+          "NPS Confirmation",
+          "Insured Verification",
+          "Vicinity Verification",
+          "Hospital Verification",
+          "Lab Part/Pathologist Verification",
+          "Chemist Verification",
+        ].includes(el?.name)
+      ) {
+        const tempDocs = el?.options?.map((op) => ({
+          name: op?.value,
+          docUrl: [],
+          location: null,
+        }));
+        newTasks?.push({ name: el?.name, completed: false, comment: "" });
+        newDocs?.set(el?.name, tempDocs);
+      }
+    }
+  } else if (claimSubType === "Pre-Post") {
+    const tempOption = rmMainObjectOptionsMap?.find(
+      (op) => op?.name === "Pre-Post Verification"
+    );
+    if (tempOption) {
+      newTasks?.push({
+        name: tempOption?.name,
+        completed: false,
+        comment: "",
+      });
+      newDocs.set(
+        tempOption?.name,
+        tempOption?.options?.map((op) => ({
+          name: op?.value,
+          docUrl: [],
+          location: null,
+        }))
+      );
+    }
+  } else if (claimSubType === "Hospital Daily Cash") {
+    const tempOption = rmMainObjectOptionsMap?.find(
+      (op) => op?.name === "Hospital Daily Cash Part"
+    );
+    if (tempOption) {
+      newTasks?.push({
+        name: tempOption?.name,
+        completed: false,
+        comment: "",
+      });
+      newDocs.set(
+        tempOption?.name,
+        tempOption?.options?.map((op) => ({
+          name: op?.value,
+          docUrl: [],
+          location: null,
+        }))
+      );
+    }
+  } else if (claimSubType === "OPD") {
+    const tempOption = rmMainObjectOptionsMap?.find(
+      (op) => op?.name === "OPD Verification Part"
+    );
+    if (tempOption) {
+      newTasks?.push({
+        name: tempOption?.name,
+        completed: false,
+        comment: "",
+      });
+      newDocs.set(
+        tempOption?.name,
+        tempOption?.options?.map((op) => ({
+          name: op?.value,
+          docUrl: [],
+          location: null,
+        }))
+      );
+    }
+  } else if (claimSubType === "AHC") {
+    const tempOption = rmMainObjectOptionsMap?.find(
+      (op) => op?.name === "AHC Verification Part"
+    );
+    if (tempOption) {
+      newTasks?.push({
+        name: tempOption?.name,
+        completed: false,
+        comment: "",
+      });
+      newDocs.set(
+        tempOption?.name,
+        tempOption?.options?.map((op) => ({
+          name: op?.value,
+          docUrl: [],
+          location: null,
+        }))
+      );
+    }
+  }
+
+  for (const el of rmMainObjectOptionsMap) {
+    if (["Miscellaneous Verification"].includes(el?.name)) {
+      const tempDocs = el?.options
+        ?.filter((op) =>
+          [
+            "Miscellaneous Verification Documents",
+            "Customer Feedback Form",
+            "GPS Photo",
+            "Call Recording",
+            "AVR",
+          ].includes(op?.value)
+        )
+        ?.map((op) => ({
+          name: op?.value,
+          docUrl: [],
+          location: null,
+        }));
+      newTasks.push({ name: el?.name, completed: false, comment: "" });
+      newDocs.set(el?.name, tempDocs);
+    }
+  }
+  return { newDocs, newTasks };
 };
