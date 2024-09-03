@@ -2,14 +2,31 @@ import React from "react";
 import { ActionIcon, Box, Divider, Table, Text, Title } from "@mantine/core";
 import { BiLink } from "react-icons/bi";
 import { HiLocationMarker } from "react-icons/hi";
-import { DocumentData, Task } from "@/lib/utils/types/fniDataTypes";
+import {
+  CaseDetail,
+  IDashboardData,
+  ResponseDoc,
+} from "@/lib/utils/types/fniDataTypes";
+import ExtraUploads from "./ExtraUploads";
 
 type PropTypes = {
-  tasks: Task[];
-  documents: Record<string, DocumentData[]>;
+  caseDetail: CaseDetail | null;
+  dashboardData: IDashboardData | null;
 };
 
-const TasksAndDocumentsContent = ({ tasks, documents }: PropTypes) => {
+const TasksAndDocumentsContent = ({ caseDetail, dashboardData }: PropTypes) => {
+  if (!caseDetail || !dashboardData)
+    return (
+      <Box>
+        <Title order={4} ta="center" c="red" my={8}>
+          Nothing found
+        </Title>
+      </Box>
+    );
+
+  const { tasksAssigned: tasks } = caseDetail;
+  const documents = caseDetail?.documents as ResponseDoc;
+
   return (
     <Box>
       <Title order={4} ta="center" c="green" my={8}>
@@ -103,6 +120,8 @@ const TasksAndDocumentsContent = ({ tasks, documents }: PropTypes) => {
             </Box>
           );
         })}
+
+      <ExtraUploads dashboardData={dashboardData} caseDetail={caseDetail} />
     </Box>
   );
 };
