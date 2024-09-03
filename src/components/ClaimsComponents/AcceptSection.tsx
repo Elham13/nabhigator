@@ -46,10 +46,13 @@ import {
 } from "@/lib/utils/types/fniDataTypes";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
-import { buildUrl, showError } from "@/lib/helpers";
+import {
+  buildUrl,
+  configureRMTasksAndDocuments,
+  showError,
+} from "@/lib/helpers";
 import { getStates } from "@/lib/helpers/getLocations";
 import { changeTaskInitialValues } from "@/lib/utils/constants";
-import { configureRMTasksAndDocuments } from "@/lib/helpers/autoPreQCHelpers";
 
 const dependentOptionsMap = {
   PED: pedOptionsArray,
