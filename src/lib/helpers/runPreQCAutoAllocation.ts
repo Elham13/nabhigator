@@ -12,6 +12,7 @@ import {
 } from "../utils/types/fniDataTypes";
 import {
   claimCasePayload,
+  configureRMTasksAndDocuments,
   findInvestigators,
   getAllocationType,
   updateInvestigators,
@@ -36,6 +37,17 @@ export const runPreQCAutoAllocation = async (
     claimCasePayload["insuredAddress"] = data?.insuredDetails?.address;
     claimCasePayload["insuredCity"] = data?.insuredDetails?.city;
     claimCasePayload["insuredState"] = data?.insuredDetails?.state;
+
+    if (data?.claimType === "Reimbursement") {
+      const { newTasks, newDocs } = configureRMTasksAndDocuments({
+        claimSubType: data?.claimSubType,
+      });
+
+      claimCasePayload.tasksAssigned = newTasks;
+      // @ts-ignore
+      claimCasePayload.documents = newDocs;
+      claimCasePayload.caseType = ["PED/NDC", "Genuineness"];
+    }
 
     let investigators: Investigator[] = [];
     const investigatorsResponse = await findInvestigators({
