@@ -135,15 +135,16 @@ router.post(async (req) => {
       const sourceSystems = ["M", "P"] as const;
 
       for (const sourceSystem of sourceSystems) {
-        const response = await getClaimIds(sourceSystem);
+        const claimIdResponse = await getClaimIds(sourceSystem);
         const apiType = sourceSystem === "M" ? "Maximus" : "Phoenix";
 
-        if (!response?.success) {
-          throw new Error(`Failed to get claim Ids, ${response?.message}`);
-        }
+        if (!claimIdResponse?.success)
+          throw new Error(
+            `Failed to get claim Ids, ${claimIdResponse?.message}`
+          );
 
-        if (!!response.data) {
-          for (let obj of response?.data) {
+        if (!!claimIdResponse.data) {
+          for (let obj of claimIdResponse?.data) {
             // Check if the claim was previously rejected
             const foundLog = await DashboardFeedingLog.findOne({
               skippedClaimIds: obj?.claimId,
@@ -181,7 +182,7 @@ router.post(async (req) => {
                     ...data?.data,
                   });
 
-                  await performSystemPreQc(newData, fniManager);
+                  // await performSystemPreQc(newData, fniManager);
 
                   await CaseEvent.create({
                     claimId: obj?.claimId,
@@ -230,7 +231,7 @@ router.post(async (req) => {
             }
           }
 
-          totalRecords += response?.data?.length;
+          totalRecords += claimIdResponse?.data?.length;
         }
       }
     }
