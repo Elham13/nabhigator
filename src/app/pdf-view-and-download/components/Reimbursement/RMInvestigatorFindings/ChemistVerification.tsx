@@ -10,9 +10,10 @@ const ChemistVerification = ({ values }: PropTypes) => {
     values?.chemists && values?.chemists?.length > 0
       ? values?.chemists?.flatMap((chemist, ind) => [
           {
-            title: `${ind + 1}`,
+            title: `Chemist ${ind + 1}`,
             key: "Name of Chemist",
             value: chemist?.name || "-",
+            shouldWrap: true,
           },
           { key: "Address", value: chemist?.address || "-" },
           { key: "City", value: chemist?.city || "-" },
@@ -23,7 +24,11 @@ const ChemistVerification = ({ values }: PropTypes) => {
 
   const data = [
     ...chemists,
-    { key: "Verification Summary", value: values?.verificationSummary || "-" },
+    {
+      key: "Verification Summary",
+      value: values?.verificationSummary || "-",
+      isLongText: true,
+    },
   ];
 
   return <ThreeSectionView data={data} topic="Chemist Verification" />;

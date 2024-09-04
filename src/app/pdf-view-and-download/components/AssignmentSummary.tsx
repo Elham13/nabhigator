@@ -160,9 +160,6 @@ const AssignmentSummary = ({
             </SingleLine>
           </>
         ) : null}
-        <SingleLine>
-          Pre-Qc Observations: {caseData?.preQcObservation || "-"}
-        </SingleLine>
 
         {data?.claimType === "PreAuth" ? (
           <ContractDetails data={data} invType={invType} />
@@ -236,6 +233,9 @@ const AssignmentSummary = ({
           topic="Trigger Details:"
         />
 
+        <SingleLine>
+          Pre-Qc Observations: {caseData?.preQcObservation || "-"}
+        </SingleLine>
         {invType !== "External" ? (
           <FraudIndicatorTable
             indicatorsList={data?.fraudIndicators?.indicatorsList || []}

@@ -14,6 +14,7 @@ const LabOrPathologistVerification = ({ values }: PropTypes) => {
             title: `Lab ${ind + 1}`,
             key: "Name of the lab",
             value: lab?.name || "-",
+            shouldWrap: true,
           },
           { key: "Address", value: lab?.address || "-" },
           { key: "City", value: lab?.city || "-" },
@@ -72,7 +73,11 @@ const LabOrPathologistVerification = ({ values }: PropTypes) => {
 
   const data = [
     ...labs,
-    { key: "Verification Summary", value: values?.verificationSummary || "-" },
+    {
+      key: "Verification Summary",
+      value: values?.verificationSummary || "-",
+      isLongText: true,
+    },
   ];
   return (
     <ThreeSectionView data={data} topic="Lab Part/Pathologist Verification" />

@@ -11,10 +11,12 @@ const MiscellaneousVerification = ({ values }: PropTypes) => {
     {
       key: "Any Market Or Industry Feedback",
       value: values?.anyMarketOrIndustryFeedback || "-",
+      isLongText: true,
     },
     {
       key: "Verification Summary",
       value: values?.verificationSummary || "-",
+      isLongText: true,
     },
   ];
 

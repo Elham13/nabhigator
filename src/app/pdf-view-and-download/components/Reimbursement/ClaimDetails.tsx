@@ -109,7 +109,6 @@ const ClaimDetails = ({ data }: PropTypes) => {
   ];
   return (
     <Fragment>
-      <SingleLine>Claim Details:</SingleLine>
       <ThreeSectionView data={insuredDetailsData} topic="Insured Details" />
       <ThreeSectionView data={claimDetailsData} topic="Claim Details" />
       <ThreeSectionView

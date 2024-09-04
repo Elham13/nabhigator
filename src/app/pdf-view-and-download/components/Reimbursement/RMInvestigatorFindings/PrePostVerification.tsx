@@ -14,6 +14,7 @@ const PrePostVerification = ({ values }: PropTypes) => {
             title: `Pharmacy ${ind + 1}`,
             key: "Name of Pharmacy",
             value: pharmacy?.name || "-",
+            shouldWrap: true,
           },
           {
             key: "Address",
@@ -68,10 +69,12 @@ const PrePostVerification = ({ values }: PropTypes) => {
                             {
                               key: "Brief Summary of Discrepancy",
                               value: pharmacy?.briefSummaryOfDiscrepancy || "-",
+                              isLongText: true,
                             },
                             {
                               key: "Observation",
                               value: pharmacy?.observation || "-",
+                              isLongText: true,
                             },
                           ]
                         : []),

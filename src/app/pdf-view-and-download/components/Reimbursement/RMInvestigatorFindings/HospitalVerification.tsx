@@ -15,6 +15,7 @@ const HospitalVerification = ({ values }: PropTypes) => {
             title: `Personal/Social Habits ${ind + 1}`,
             key: "Habit",
             value: habit?.habit || "-",
+            shouldWrap: true,
           },
           {
             key: `Frequency`,
@@ -39,6 +40,7 @@ const HospitalVerification = ({ values }: PropTypes) => {
             title: `Ailment ${ind + 1}`,
             key: "Ailment",
             value: ailment?.ailment || "-",
+            shouldWrap: true,
           },
           {
             key: "Diagnosis",
@@ -179,6 +181,7 @@ const HospitalVerification = ({ values }: PropTypes) => {
     {
       key: "Remarks/Observations",
       value: values?.remarks || "-",
+      isLongText: true,
     },
     {
       key: "ICPs Collected?",
@@ -231,10 +234,12 @@ const HospitalVerification = ({ values }: PropTypes) => {
     {
       key: "Verification Summary",
       value: values?.verificationSummary || "-",
+      isLongText: true,
     },
     {
       key: "Discrepancies/Irregularities Observed",
       value: values?.discrepanciesOrIrregularitiesObserved || "-",
+      isLongText: true,
     },
   ];
 

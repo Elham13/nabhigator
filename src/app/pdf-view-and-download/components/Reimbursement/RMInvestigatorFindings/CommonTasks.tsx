@@ -14,6 +14,7 @@ const CommonTasks = ({ values }: PropTypes) => {
             title: `Other Recommendation ${ind + 1}`,
             key: "Recommendation",
             value: el?.value || "-",
+            shouldWrap: true,
           },
           {
             key: "Recommendation for",
@@ -28,10 +29,12 @@ const CommonTasks = ({ values }: PropTypes) => {
     {
       key: "Investigation Summary",
       value: values?.investigationSummary || "-",
+      isLongText: true,
     },
     {
       key: "Discrepancies Or Irregularities Observed",
       value: values?.discrepanciesOrIrregularitiesObserved || "-",
+      isLongText: true,
     },
     {
       key: "Recommendation",

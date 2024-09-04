@@ -14,6 +14,7 @@ const TreatingDoctorVerification = ({ values }: PropTypes) => {
             title: `Doctor ${ind + 1}`,
             key: "Name of treating Doctor",
             value: doctor?.name || "-",
+            shouldWrap: true,
           },
           {
             key: "Qualification",
@@ -55,7 +56,11 @@ const TreatingDoctorVerification = ({ values }: PropTypes) => {
 
   const data = [
     ...doctors,
-    { key: "Verification Summary", value: values?.verificationSummary || "-" },
+    {
+      key: "Verification Summary",
+      value: values?.verificationSummary || "-",
+      isLongText: true,
+    },
   ];
   return <ThreeSectionView data={data} topic="Treating Doctor Verification" />;
 };
