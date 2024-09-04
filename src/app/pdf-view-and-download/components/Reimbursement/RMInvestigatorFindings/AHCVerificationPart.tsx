@@ -10,9 +10,10 @@ const AHCVerificationPart = ({ values }: PropTypes) => {
     values?.labVerified === "Yes" && values?.labs && values?.labs?.length > 0
       ? values?.labs?.flatMap((lab, ind) => [
           {
-            title: `${ind + 1}`,
+            title: `Lab ${ind + 1}`,
             key: "Name of the lab",
             value: lab?.name || "-",
+            shouldWrap: true,
           },
           { key: "Address", value: lab?.address || "-" },
           { key: "City", value: lab?.city || "-" },
@@ -70,10 +71,12 @@ const AHCVerificationPart = ({ values }: PropTypes) => {
                                     key: "Brief Summary of Discrepancy",
                                     value:
                                       lab?.briefSummaryOfDiscrepancy || "-",
+                                    isLongText: true,
                                   },
                                   {
                                     key: "Observation",
                                     value: lab?.observation || "-",
+                                    isLongText: true,
                                   },
                                 ]
                               : []),

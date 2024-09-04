@@ -9,7 +9,11 @@ type PropTypes = {
 const VicinityVerification = ({ values }: PropTypes) => {
   const data = [
     { key: "Status", value: values?.status || "-" },
-    { key: "Verification Summary", value: values?.verificationSummary || "-" },
+    {
+      key: "Verification Summary",
+      value: values?.verificationSummary || "-",
+      isLongText: true,
+    },
   ];
   return <ThreeSectionView data={data} topic="Vicinity Verification" />;
 };

@@ -27,14 +27,40 @@ const RMInvestigatorFindings = ({ caseData }: PropTypes) => {
 
   return (
     <div>
-      {!!rmFindings?.["AHC Verification Part"] && (
-        <AHCVerificationPart values={rmFindings?.["AHC Verification Part"]} />
+      {!!rmFindings?.["Insured Verification"] && (
+        <InsuredVerification values={rmFindings?.["Insured Verification"]} />
+      )}
+
+      {!!rmFindings?.["Hospital Verification"] && (
+        <HospitalVerification values={rmFindings?.["Hospital Verification"]} />
+      )}
+      {!!rmFindings?.["Claim Verification"] && (
+        <ClaimVerification values={rmFindings?.["Claim Verification"]} />
+      )}
+      {!!rmFindings?.["Treating Doctor Verification"] && (
+        <TreatingDoctorVerification
+          values={rmFindings?.["Treating Doctor Verification"]}
+        />
       )}
       {!!rmFindings?.["Chemist Verification"] && (
         <ChemistVerification values={rmFindings?.["Chemist Verification"]} />
       )}
-      {!!rmFindings?.["Claim Verification"] && (
-        <ClaimVerification values={rmFindings?.["Claim Verification"]} />
+      {!!rmFindings?.["OPD Verification Part"] && (
+        <OPDVerificationPart values={rmFindings?.["OPD Verification Part"]} />
+      )}
+      {!!rmFindings?.["Lab Part/Pathologist Verification"] && (
+        <LabOrPathologistVerification
+          values={rmFindings?.["Lab Part/Pathologist Verification"]}
+        />
+      )}
+      {!!rmFindings?.["NPS Confirmation"] && (
+        <NPSConfirmation values={rmFindings?.["NPS Confirmation"]} />
+      )}
+      {!!rmFindings?.["AHC Verification Part"] && (
+        <AHCVerificationPart values={rmFindings?.["AHC Verification Part"]} />
+      )}
+      {!!rmFindings?.["Pre-Post Verification"] && (
+        <PrePostVerification values={rmFindings?.["Pre-Post Verification"]} />
       )}
       {!!rmFindings?.["Employer Verification"] && (
         <EmployerVerification values={rmFindings?.["Employer Verification"]} />
@@ -56,31 +82,7 @@ const RMInvestigatorFindings = ({ caseData }: PropTypes) => {
           values={rmFindings?.["Hospital Daily Cash Part"]}
         />
       )}
-      {!!rmFindings?.["Hospital Verification"] && (
-        <HospitalVerification values={rmFindings?.["Hospital Verification"]} />
-      )}
-      {!!rmFindings?.["Insured Verification"] && (
-        <InsuredVerification values={rmFindings?.["Insured Verification"]} />
-      )}
-      {!!rmFindings?.["Lab Part/Pathologist Verification"] && (
-        <LabOrPathologistVerification
-          values={rmFindings?.["Lab Part/Pathologist Verification"]}
-        />
-      )}
-      {!!rmFindings?.["Miscellaneous Verification"] && (
-        <MiscellaneousVerification
-          values={rmFindings?.["Miscellaneous Verification"]}
-        />
-      )}
-      {!!rmFindings?.["NPS Confirmation"] && (
-        <NPSConfirmation values={rmFindings?.["NPS Confirmation"]} />
-      )}
-      {!!rmFindings?.["OPD Verification Part"] && (
-        <OPDVerificationPart values={rmFindings?.["OPD Verification Part"]} />
-      )}
-      {!!rmFindings?.["Pre-Post Verification"] && (
-        <PrePostVerification values={rmFindings?.["Pre-Post Verification"]} />
-      )}
+
       {!!rmFindings?.[
         "Random Vicinity Hospital/Lab/Doctor/Chemist Verification"
       ] && (
@@ -92,13 +94,14 @@ const RMInvestigatorFindings = ({ caseData }: PropTypes) => {
           }
         />
       )}
-      {!!rmFindings?.["Treating Doctor Verification"] && (
-        <TreatingDoctorVerification
-          values={rmFindings?.["Treating Doctor Verification"]}
-        />
-      )}
+
       {!!rmFindings?.["Vicinity Verification"] && (
         <VicinityVerification values={rmFindings?.["Vicinity Verification"]} />
+      )}
+      {!!rmFindings?.["Miscellaneous Verification"] && (
+        <MiscellaneousVerification
+          values={rmFindings?.["Miscellaneous Verification"]}
+        />
       )}
       <CommonTasks values={rmFindings} />
     </div>

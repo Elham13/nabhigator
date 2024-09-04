@@ -15,6 +15,7 @@ const InsuredVerification = ({ values }: PropTypes) => {
             title: `Personal/Social Habits ${ind + 1}`,
             key: "Habit",
             value: habit?.habit || "-",
+            shouldWrap: true,
           },
           {
             key: `Frequency`,
@@ -39,6 +40,7 @@ const InsuredVerification = ({ values }: PropTypes) => {
             title: `Ailment ${ind + 1}`,
             key: "Ailment",
             value: ailment?.ailment || "-",
+            shouldWrap: true,
           },
           {
             key: "Diagnosis",
@@ -65,6 +67,7 @@ const InsuredVerification = ({ values }: PropTypes) => {
             title: `Class of accommodation ${ind + 1}`,
             key: "Name",
             value: values?.classOfAccommodation![ind],
+            shouldWrap: true,
           },
           {
             key: "From Date",
@@ -509,10 +512,12 @@ const InsuredVerification = ({ values }: PropTypes) => {
           {
             key: "Verification Summary",
             value: values?.verificationSummary || "-",
+            isLongText: true,
           },
           {
             key: "Discrepancies/Irregularities Observed",
             value: values?.discrepanciesOrIrregularitiesObserved || "-",
+            isLongText: true,
           },
         ]
       : [];

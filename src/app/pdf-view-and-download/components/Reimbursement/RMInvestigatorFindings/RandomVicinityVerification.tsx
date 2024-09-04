@@ -8,7 +8,11 @@ type PropTypes = {
 
 const RandomVicinityVerification = ({ values }: PropTypes) => {
   const data = [
-    { key: "Verification Summary", value: values?.verificationSummary || "-" },
+    {
+      key: "Verification Summary",
+      value: values?.verificationSummary || "-",
+      isLongText: true,
+    },
   ];
   return (
     <ThreeSectionView

@@ -219,6 +219,7 @@ const HospitalDailyCashPart = ({ values }: PropTypes) => {
                   value:
                     values?.hospitalCooperationDetail?.discrepanciesObserved ||
                     "-",
+                  isLongText: true,
                 },
               ]
             : []),
@@ -227,6 +228,7 @@ const HospitalDailyCashPart = ({ values }: PropTypes) => {
     {
       key: "Final Observation",
       value: values?.finalObservation || "-",
+      isLongText: true,
     },
   ];
   return <ThreeSectionView topic="Hospital Daily Cash" data={data} />;

@@ -11,9 +11,10 @@ const FamilyDoctorPartReferringDoctorVerification = ({ values }: PropTypes) => {
     values?.doctors && values?.doctors?.length > 0
       ? values?.doctors?.flatMap((doctor, ind) => [
           {
-            title: `${ind + 1}`,
+            title: `Doctor ${ind + 1}`,
             key: "Name of doctor",
             value: doctor?.name || "-",
+            shouldWrap: true,
           },
           { key: "Qualifications", value: doctor?.qualification || "-" },
           {
@@ -28,7 +29,11 @@ const FamilyDoctorPartReferringDoctorVerification = ({ values }: PropTypes) => {
       : [];
   const data = [
     ...doctors,
-    { key: "Verification Summary", value: values?.verificationSummary || "-" },
+    {
+      key: "Verification Summary",
+      value: values?.verificationSummary || "-",
+      isLongText: true,
+    },
   ];
   return (
     <ThreeSectionView

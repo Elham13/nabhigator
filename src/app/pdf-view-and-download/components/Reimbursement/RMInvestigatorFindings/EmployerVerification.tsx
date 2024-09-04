@@ -12,9 +12,10 @@ const EmployerVerification = ({ values }: PropTypes) => {
     values?.employers && values?.employers?.length > 0
       ? values?.employers?.flatMap((employer, ind) => [
           {
-            title: `${ind + 1}`,
+            title: `Employer ${ind + 1}`,
             key: "Name of Employer",
             value: employer?.nameOfEmployer || "-",
+            shouldWrap: true,
           },
           {
             key: "Address",
@@ -42,7 +43,11 @@ const EmployerVerification = ({ values }: PropTypes) => {
       : [];
   const data = [
     ...employers,
-    { key: "Verification Summary", value: values?.verificationSummary || "-" },
+    {
+      key: "Verification Summary",
+      value: values?.verificationSummary || "-",
+      isLongText: true,
+    },
   ];
   return <ThreeSectionView data={data} topic="Employer Verification" />;
 };

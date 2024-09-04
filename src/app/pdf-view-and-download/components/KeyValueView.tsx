@@ -3,7 +3,8 @@ import { StyleSheet, Text, View } from "@react-pdf/renderer";
 
 const styles = StyleSheet.create({
   detailSection: {
-    paddingBottom: 20,
+    paddingBottom: 10,
+    marginRight: 4,
   },
   keyText: {
     fontWeight: 700,
@@ -36,11 +37,13 @@ type PropTypes = {
   left: string;
   right: string;
   title?: string;
+  shouldWrap?: boolean;
 };
 
-const KeyValueView = ({ left, right, title }: PropTypes) => {
+const KeyValueView = ({ left, right, title, shouldWrap }: PropTypes) => {
+  const dynamicStyle = shouldWrap ? { flexBasis: "100%" } : { width: "30%" };
   return (
-    <View style={styles.detailSection}>
+    <View style={{ ...styles.detailSection, ...dynamicStyle }}>
       {!!title && (
         <View style={styles.headingSection}>
           <Text style={styles.subheadText}>{title}</Text>
