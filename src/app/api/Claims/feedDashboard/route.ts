@@ -236,20 +236,29 @@ router.post(async (req) => {
       }
     }
 
-    await DashboardFeedingLog.create({
+    const payload = {
       totalRecords,
       insertedRecords: inserted,
       skippedRecords: skipped,
       foundAndUpdatedRecords: foundAndUpdated,
       skippedReasons,
       skippedClaimIds,
-    });
+    };
+
+    await DashboardFeedingLog.create(payload);
 
     return NextResponse.json(
       {
         success: true,
-        message: "Fetched",
-        data: null,
+        message: "Success",
+        data: {
+          totalRecords,
+          insertedRecords: inserted,
+          skippedRecords: skipped,
+          foundAndUpdatedRecords: foundAndUpdated,
+          skippedReasons,
+          skippedClaimIds,
+        },
       },
       { status: 200 }
     );

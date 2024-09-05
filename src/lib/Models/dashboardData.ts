@@ -314,7 +314,7 @@ const DashboardDataSchema = new Schema(
       type: String,
       default: "",
     },
-    rejectionReasons: { type: [RejectionReasonSchema], default: null },
+    rejectionReasons: { type: [RejectionReasonSchema], default: [] },
     cataractOrDayCareProcedure: {
       type: [{ Benefit_Type: String, Benefit_Head: String }],
       default: [],
