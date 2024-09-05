@@ -50,13 +50,16 @@ const PostQaApproveContent = ({
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
   const [overRulingReason, setOverRulingReason] = useState<string>("");
 
-  const recommendation = `${
-    caseDetail?.investigationFindings?.recommendation?.value
-  }${
-    caseDetail?.investigationFindings?.recommendation?.code
-      ? `_${caseDetail?.investigationFindings?.recommendation?.code}`
-      : ""
-  }`;
+  const recommendation =
+    data?.claimType === "PreAuth"
+      ? `${caseDetail?.investigationFindings?.recommendation?.value}${
+          caseDetail?.investigationFindings?.recommendation?.code
+            ? `_${caseDetail?.investigationFindings?.recommendation?.code}`
+            : ""
+        }`
+      : data?.claimType === "Reimbursement"
+      ? caseDetail?.rmFindings?.recommendation?.value || ""
+      : "";
 
   const saveOverRuling = async () => {
     try {
@@ -242,15 +245,31 @@ const PostQaApproveContent = ({
   };
 
   useEffect(() => {
-    if (caseDetail?.investigationFindings?.investigationSummary) {
-      setApprovedValues((prev) => ({
-        ...prev,
-        summaryOfInvestigation:
-          caseDetail?.investigationFindings?.investigationSummary || "",
-        frcuRecommendationOnClaims: recommendation || "-",
-      }));
+    if (data?.claimType === "PreAuth") {
+      if (caseDetail?.investigationFindings?.investigationSummary) {
+        setApprovedValues((prev) => ({
+          ...prev,
+          summaryOfInvestigation:
+            caseDetail?.investigationFindings?.investigationSummary || "",
+          frcuRecommendationOnClaims: recommendation || "-",
+        }));
+      }
+    } else if (data?.claimType === "Reimbursement") {
+      if (caseDetail?.rmFindings?.investigationSummary) {
+        setApprovedValues((prev) => ({
+          ...prev,
+          summaryOfInvestigation:
+            caseDetail?.rmFindings?.investigationSummary || "",
+          frcuRecommendationOnClaims: recommendation || "-",
+        }));
+      }
     }
-  }, [caseDetail?.investigationFindings?.investigationSummary, recommendation]);
+  }, [
+    caseDetail?.investigationFindings?.investigationSummary,
+    caseDetail?.rmFindings?.investigationSummary,
+    data?.claimType,
+    recommendation,
+  ]);
 
   return (
     <Box className="mt-4">
