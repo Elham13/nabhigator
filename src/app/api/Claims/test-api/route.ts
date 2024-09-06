@@ -373,7 +373,7 @@ const addPostQaName = async () => {
   for (let data of dashboardData) {
     const claimCase = await ClaimCase.findOne({ dashboardDataId: data?._id });
     if (claimCase && claimCase.qaBy) {
-      const qa = await User.findOne({ name: claimCase.qaBy });
+      const qa = await User.findOne({ name: claimCase.qaBy, status: "Active" });
       if (qa) {
         await DashboardData.findByIdAndUpdate(data?._id, {
           $set: { postQa: qa?._id },
@@ -512,10 +512,14 @@ const gettingGeographies = async () => {
 const addTLAndClusterManager = async () => {
   // TODO: Run this function on prod deployment
   const data: IDashboardData[] = await DashboardData.find({}).lean();
-  const teamLeads: IUser[] = await User.find({ role: Role.TL }).lean();
+  const teamLeads: IUser[] = await User.find({
+    role: Role.TL,
+    status: "Active",
+  }).lean();
 
   const clusterManagers: IUser[] = await User.find({
     role: Role.CLUSTER_MANAGER,
+    status: "Active",
   }).lean();
   const zonalStates: IZoneStateMaster[] = await ZoneStateMaster.find({}).lean();
 

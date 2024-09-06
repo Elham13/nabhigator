@@ -140,12 +140,16 @@ const ClaimCaseSchema = new Schema<IClaimCase>(
     },
     tasksAssigned: {
       type: [TasksSchema],
+      required: true,
     },
     preQcObservation: {
       type: String,
+      required: true,
     },
     allocationType: {
       type: String,
+      enum: ["Single", "Dual"],
+      required: true,
     },
     documents: {
       type: Map,
@@ -168,20 +172,26 @@ const ClaimCaseSchema = new Schema<IClaimCase>(
     dashboardDataId: {
       type: Schema.Types.ObjectId,
       ref: "DashboardData",
-      default: null,
+      required: true,
+      unique: true,
     },
     intimationDate: {
       type: Date,
       default: null,
     },
-    rejectionReasons: { type: [RejectionReasonSchema], default: null },
+    rejectionReasons: {
+      type: [RejectionReasonSchema],
+      default: [],
+    },
     assignedBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      default: null,
     },
     updatedBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      default: null,
     },
     allocatorComment: { type: String },
     investigationRejected: {
@@ -212,13 +222,14 @@ const ClaimCaseSchema = new Schema<IClaimCase>(
       documents: { type: [String], default: [] },
     },
     investigatorComment: { type: String, default: "" },
-    insuredAddress: { type: String, default: "" },
-    insuredCity: { type: String, default: "" },
-    insuredState: { type: String, default: "" },
+    insuredAddress: { type: String },
+    insuredCity: { type: String },
+    insuredState: { type: String },
     insuredPinCode: { type: Number },
     investigationFindings: InvestigationFindingSchema,
     postQaFindings: InvestigationFindingSchema,
     rmFindings: { type: RMInvestigationFindingSchema, default: null },
+    rmFindingsPostQA: { type: RMInvestigationFindingSchema, default: null },
     invReportReceivedDate: { type: Date, default: null },
     reportSubmissionDateQa: { type: Date, default: null },
     outSourcingDate: { type: Date, default: null },

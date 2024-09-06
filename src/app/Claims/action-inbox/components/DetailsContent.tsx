@@ -58,6 +58,10 @@ const PostQaLeadFooter = dynamic(() => import("./PostQaLeadFooter"), {
   ssr: false,
   loading: () => <Spin />,
 });
+const FrozenRibbon = dynamic(() => import("./InboxDetail/FrozenRibbon"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
 
 const showElementInitials: IShowElement = {
   changeTask: false,
@@ -177,7 +181,8 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
           )}
           <Box>
             <Box className="bg-blue-900 text-white rounded-t-lg p-4 flex flex-col items-center justify-center">
-              <h2 className="text-xl font-semibold">
+              <h1 className="text-xl font-bold">{data?.claimId}</h1>
+              <h2 className="text-lg font-semibold">
                 {data?.stage === NumericStage.PENDING_FOR_PRE_QC
                   ? "Pre-QC"
                   : data?.stage === NumericStage.POST_QC
@@ -189,12 +194,14 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
               </h2>
               <h4 className="text-sm">
                 {data?.claimType},{" "}
-                <span className="text-orange-500">{data?.claimId}</span>,{" "}
                 <span className="text-yellow-400">
                   {data?.stage && getStageLabel(data?.stage)}
                 </span>
               </h4>
             </Box>
+            {data?.claimType === "Reimbursement" && (
+              <FrozenRibbon data={data} />
+            )}
 
             <DetailsAccordion
               {...{

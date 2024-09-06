@@ -458,6 +458,7 @@ export interface IInsuredVerification {
   policyType?: IPolicyType;
   prevInsurancePolicyCopy?: string;
   anyClaimWithPrevInsurance?: string;
+  claimDetailsOfPreviousInsurance?: string;
   symptomsWithDuration?: string;
   firstConsultationDetails?: { value: string; remark: string };
   firstConsultationOrReferralSlip?: { value: string; remark: string };

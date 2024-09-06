@@ -22,6 +22,7 @@ router.post(async (req) => {
 
     const result: HydratedDocument<IUser> | null = await User.findOne({
       userId,
+      status: "Active",
     });
 
     if (!result) throw new Error("Wrong userId");

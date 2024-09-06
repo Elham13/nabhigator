@@ -21,6 +21,10 @@ const TriageSummary = dynamic(
     loading: () => <Spin />,
   }
 );
+const ConsolidatedDetail = dynamic(() => import("./ConsolidatedDetail"), {
+  ssr: false,
+  loading: () => <Spin />,
+});
 const FraudIndicatorTable = dynamic(
   () => import("@/components/ClaimsComponents/FraudIndicators"),
   {
@@ -90,27 +94,6 @@ const InvestigationFindings = dynamic(
 );
 const RMInvestigationFindings = dynamic(
   () => import("./InboxDetail/RMInvestigationFindings"),
-  {
-    ssr: false,
-    loading: () => <Spin />,
-  }
-);
-const ClaimDetailsContent = dynamic(
-  () => import("./InboxDetail/ClaimDetailsContent"),
-  {
-    ssr: false,
-    loading: () => <Spin />,
-  }
-);
-const InsuredDetailsContent = dynamic(
-  () => import("./InboxDetail/InsuredDetailsContent"),
-  {
-    ssr: false,
-    loading: () => <Spin />,
-  }
-);
-const HospitalDetailsContent = dynamic(
-  () => import("./InboxDetail/HospitalDetailsContent"),
   {
     ssr: false,
     loading: () => <Spin />,
@@ -194,80 +177,75 @@ const DetailsAccordion = ({
       ? [
           {
             value: "Pre-Auth Details",
-            content:
-              value === "Pre-Auth Details" ? (
-                <GeneralContent data={data} />
-              ) : null,
+            content: value === "Pre-Auth Details" && (
+              <GeneralContent data={data} />
+            ),
           },
         ]
       : []),
     {
       value: "Contract Details",
-      content:
-        value === "Contract Details" ? (
-          <ContractDetailsContent data={data} />
-        ) : null,
+      content: value === "Contract Details" && (
+        <ContractDetailsContent data={data} />
+      ),
     },
     ...(data?.stage &&
     [NumericStage.POST_QC, NumericStage.CLOSED].includes(data?.stage)
       ? [
           {
             value: "Tasks and Documents Assigned",
-            content:
-              value === "Tasks and Documents Assigned" ? (
-                <TasksAndDocumentsContent
-                  tasks={caseDetail?.tasksAssigned || []}
-                  documents={caseDetail?.documents as any}
-                />
-              ) : null,
+            content: value === "Tasks and Documents Assigned" && (
+              <TasksAndDocumentsContent
+                caseDetail={caseDetail}
+                dashboardData={data}
+              />
+            ),
           },
           {
             value: "Investigation Findings",
-            content:
-              value === "Investigation Findings" ? (
-                <Box>
-                  <Box className="ml-auto w-fit mb-4">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        window.open(
-                          `/pdf-view-and-download?claimId=${data?.encryptedClaimId}&docType=investigation`,
-                          "_blank"
-                        );
-                      }}
-                    >
-                      Download
-                    </Button>
-                  </Box>
-                  {data?.claimType === "PreAuth" ? (
-                    <InvestigationFindingsContent
-                      findings={caseDetail?.investigationFindings}
-                    />
-                  ) : (
-                    <RMInvestigationFindingsContent
-                      findings={caseDetail?.rmFindings}
-                    />
-                  )}
+            content: value === "Investigation Findings" && (
+              <Box>
+                <Box className="ml-auto w-fit mb-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      window.open(
+                        `/pdf-view-and-download?claimId=${data?.encryptedClaimId}&docType=investigation`,
+                        "_blank"
+                      );
+                    }}
+                  >
+                    Download
+                  </Button>
                 </Box>
-              ) : null,
+                {data?.claimType === "PreAuth" ? (
+                  <InvestigationFindingsContent
+                    findings={caseDetail?.investigationFindings}
+                  />
+                ) : (
+                  <RMInvestigationFindingsContent
+                    findings={caseDetail?.rmFindingsPostQA}
+                  />
+                )}
+              </Box>
+            ),
           },
           {
             value: "Investigation Recommendation",
             content:
-              value === "Investigation Recommendation" ? (
-                data?.claimType === "PreAuth" ? (
-                  <InvestigationRecommendationContent
-                    findings={caseDetail?.investigationFindings}
-                  />
-                ) : (
-                  <RMInvestigationRecommendationContent
-                    recommendation={caseDetail?.rmFindings?.recommendation}
-                    otherRecommendation={
-                      caseDetail?.rmFindings?.otherRecommendation
-                    }
-                  />
-                )
-              ) : null,
+              value === "Investigation Recommendation" &&
+              (data?.claimType === "PreAuth" ? (
+                <InvestigationRecommendationContent
+                  findings={caseDetail?.investigationFindings}
+                />
+              ) : (
+                <RMInvestigationRecommendationContent
+                  recommendation={caseDetail?.rmFindingsPostQA?.recommendation}
+                  otherRecommendation={
+                    caseDetail?.rmFindingsPostQA?.otherRecommendation
+                  }
+                />
+              )),
           },
           ...([Role.ADMIN, Role.POST_QA].includes(user?.activeRole) &&
           data?.stage === NumericStage.POST_QC &&
@@ -276,26 +254,25 @@ const DetailsAccordion = ({
                 {
                   value: "Change investigation findings",
                   content:
-                    value === "Change investigation findings" ? (
-                      data?.claimType === "PreAuth" ? (
-                        <InvestigationFindings
-                          caseDetail={caseDetail}
-                          dashboardData={data}
-                          onClose={() =>
-                            setShowElement((prev) => ({
-                              ...prev,
-                              completeTasks: false,
-                            }))
-                          }
-                        />
-                      ) : (
-                        <RMInvestigationFindings
-                          dashboardData={data}
-                          caseDetail={caseDetail}
-                          setCaseDetail={setCaseDetail}
-                        />
-                      )
-                    ) : null,
+                    value === "Change investigation findings" &&
+                    (data?.claimType === "PreAuth" ? (
+                      <InvestigationFindings
+                        caseDetail={caseDetail}
+                        dashboardData={data}
+                        onClose={() =>
+                          setShowElement((prev) => ({
+                            ...prev,
+                            completeTasks: false,
+                          }))
+                        }
+                      />
+                    ) : (
+                      <RMInvestigationFindings
+                        dashboardData={data}
+                        caseDetail={caseDetail}
+                        setCaseDetail={setCaseDetail}
+                      />
+                    )),
                 },
               ]
             : []),
@@ -304,97 +281,76 @@ const DetailsAccordion = ({
     ...(data?.claimType !== "PreAuth"
       ? [
           {
-            value: "Insured Details",
-            content:
-              value === "Insured Details" ? (
-                <InsuredDetailsContent data={data} />
-              ) : null,
-          },
-          {
             value: "Claim Details",
-            content:
-              value === "Claim Details" ? (
-                <ClaimDetailsContent data={data} />
-              ) : null,
-          },
-          {
-            value: "Hospital Details & Hospitalization Details",
-            content:
-              value === "Hospital Details & Hospitalization Details" ? (
-                <HospitalDetailsContent data={data} />
-              ) : null,
+            content: value === "Claim Details" && (
+              <ConsolidatedDetail data={data} />
+            ),
           },
           {
             value: "Members",
-            content:
-              value === "Members" ? (
-                <MembersTable members={data?.members || []} />
-              ) : null,
+            content: value === "Members" && (
+              <MembersTable members={data?.members || []} />
+            ),
           },
           {
             value: "Claim Type Detail",
-            content:
-              value === "Claim Type Detail" ? (
-                <ClaimTypeDetails data={data} setData={setData} />
-              ) : null,
-          },
-          {
-            value: "Download Assignment Summary",
-            content:
-              value === "Download Assignment Summary" ? (
-                <DownloadAssignmentSummary data={data} caseData={caseDetail} />
-              ) : null,
+            content: value === "Claim Type Detail" && (
+              <ClaimTypeDetails data={data} setData={setData} />
+            ),
           },
         ]
       : []),
     {
       value: "Historical Claim",
-      content:
-        value === "Historical Claim" ? (
-          <HistoricalClaimTable data={data} />
-        ) : null,
+      content: value === "Historical Claim" && (
+        <HistoricalClaimTable data={data} />
+      ),
     },
     {
       value: "WDMS Document",
-      content:
-        value === "WDMS Document" ? (
-          <WDMSDocuments dashboardData={data} />
-        ) : null,
+      content: (
+        <Fragment>
+          {value === "WDMS Document" && <WDMSDocuments dashboardData={data} />}
+          {data?.claimType !== "PreAuth" &&
+            value === "Download Assignment Summary" && (
+              <DownloadAssignmentSummary data={data} caseData={caseDetail} />
+            )}
+        </Fragment>
+      ),
     },
     {
       value: "Triggers (Triaging Summary)",
-      content:
-        value === "Triggers (Triaging Summary)" ? (
-          <div>
-            <Title order={5} ta="center" c="green" my={4}>
-              Triggers
-            </Title>
-            <Box>
-              {caseDetail?.caseType &&
-                caseDetail?.caseType?.length > 0 &&
-                caseDetail?.caseType?.map((el, ind) => (
-                  <Text key={ind}>{el}</Text>
-                ))}
-            </Box>
-            <Divider />
-            <Title order={5} ta="center" c="green" my={4}>
-              Triaging Summary
-            </Title>
-            <TriageSummary
-              getCaseState={(status) => setCaseState(status)}
-              id={data?._id as string}
-              triageSummary={data?.triageSummary || []}
-            />
-            <Divider />
-            <Title order={5} ta="center" c="green" my={4}>
-              Model Fraud Indicator
-            </Title>
-            <FraudIndicatorTable
-              data={data?.fraudIndicators?.indicatorsList}
-              comments={data?.fraudIndicators?.remarks}
-            />
-          </div>
-        ) : null,
+      content: value === "Triggers (Triaging Summary)" && (
+        <div>
+          <Title order={5} ta="center" c="green" my={4}>
+            Triggers
+          </Title>
+          <Box>
+            {caseDetail?.caseType &&
+              caseDetail?.caseType?.length > 0 &&
+              caseDetail?.caseType?.map((el, ind) => (
+                <Text key={ind}>{el}</Text>
+              ))}
+          </Box>
+          <Divider />
+          <Title order={5} ta="center" c="green" my={4}>
+            Triaging Summary
+          </Title>
+          <TriageSummary
+            getCaseState={(status) => setCaseState(status)}
+            id={data?._id as string}
+            triageSummary={data?.triageSummary || []}
+          />
+          <Divider />
+          <Title order={5} ta="center" c="green" my={4}>
+            Model Fraud Indicator
+          </Title>
+          <FraudIndicatorTable
+            data={data?.fraudIndicators?.indicatorsList}
+            comments={data?.fraudIndicators?.remarks}
+          />
+        </div>
+      ),
     },
     ...(skipInvestigationRoleCheck &&
     data?.stage === NumericStage.INVESTIGATION_SKIPPED_AND_COMPLETING &&
@@ -402,40 +358,39 @@ const DetailsAccordion = ({
       ? [
           {
             value: "Complete investigation",
-            content:
-              value === "Complete investigation" ? (
-                <Fragment>
-                  {!showElement.completeTasks &&
+            content: value === "Complete investigation" && (
+              <Fragment>
+                {!showElement.completeTasks &&
+                !showElement.completeDocuments ? (
+                  <TasksAndDocsButtons setShowElement={setShowElement} />
+                ) : showElement.completeTasks &&
                   !showElement.completeDocuments ? (
-                    <TasksAndDocsButtons setShowElement={setShowElement} />
-                  ) : showElement.completeTasks &&
-                    !showElement.completeDocuments ? (
-                    <InvestigationFindings
-                      caseDetail={caseDetail}
-                      dashboardData={data}
-                      onClose={() =>
-                        setShowElement((prev) => ({
-                          ...prev,
-                          completeTasks: false,
-                        }))
-                      }
-                    />
-                  ) : showElement.completeDocuments &&
-                    !showElement.completeTasks ? (
-                    <CompleteDocuments
-                      caseDetail={caseDetail}
-                      claimId={data?.claimId}
-                      setCaseDetail={setCaseDetail}
-                      onClose={() =>
-                        setShowElement((prev) => ({
-                          ...prev,
-                          completeDocuments: false,
-                        }))
-                      }
-                    />
-                  ) : null}
-                </Fragment>
-              ) : null,
+                  <InvestigationFindings
+                    caseDetail={caseDetail}
+                    dashboardData={data}
+                    onClose={() =>
+                      setShowElement((prev) => ({
+                        ...prev,
+                        completeTasks: false,
+                      }))
+                    }
+                  />
+                ) : showElement.completeDocuments &&
+                  !showElement.completeTasks ? (
+                  <CompleteDocuments
+                    caseDetail={caseDetail}
+                    claimId={data?.claimId}
+                    setCaseDetail={setCaseDetail}
+                    onClose={() =>
+                      setShowElement((prev) => ({
+                        ...prev,
+                        completeDocuments: false,
+                      }))
+                    }
+                  />
+                ) : null}
+              </Fragment>
+            ),
           },
         ]
       : []),
@@ -467,30 +422,29 @@ const DetailsAccordion = ({
       ? [
           {
             value: "Allocation Feed",
-            content:
-              value === "Allocation Feed" ? (
-                <Fragment>
-                  {caseDetail?.investigationRejected
-                    ?.investigationRejectedReason && (
-                    <InvestigationRejectionDetails
-                      rejectionInfo={caseDetail?.investigationRejected || null}
-                    />
-                  )}
-                  <Allocation
-                    caseState={caseState}
-                    setCaseState={setCaseState}
-                    dashboardData={data}
-                    caseDetail={caseDetail}
-                    onClose={() =>
-                      setShowElement((prev) => ({
-                        ...prev,
-                        allocationAccept: false,
-                        allocationReject: false,
-                      }))
-                    }
+            content: value === "Allocation Feed" && (
+              <Fragment>
+                {caseDetail?.investigationRejected
+                  ?.investigationRejectedReason && (
+                  <InvestigationRejectionDetails
+                    rejectionInfo={caseDetail?.investigationRejected || null}
                   />
-                </Fragment>
-              ) : null,
+                )}
+                <Allocation
+                  caseState={caseState}
+                  setCaseState={setCaseState}
+                  dashboardData={data}
+                  caseDetail={caseDetail}
+                  onClose={() =>
+                    setShowElement((prev) => ({
+                      ...prev,
+                      allocationAccept: false,
+                      allocationReject: false,
+                    }))
+                  }
+                />
+              </Fragment>
+            ),
           },
         ]
       : []),

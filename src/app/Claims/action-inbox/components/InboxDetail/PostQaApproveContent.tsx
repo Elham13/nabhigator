@@ -50,13 +50,16 @@ const PostQaApproveContent = ({
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
   const [overRulingReason, setOverRulingReason] = useState<string>("");
 
-  const recommendation = `${
-    caseDetail?.investigationFindings?.recommendation?.value
-  }${
-    caseDetail?.investigationFindings?.recommendation?.code
-      ? `_${caseDetail?.investigationFindings?.recommendation?.code}`
-      : ""
-  }`;
+  const recommendation =
+    data?.claimType === "PreAuth"
+      ? `${caseDetail?.investigationFindings?.recommendation?.value}${
+          caseDetail?.investigationFindings?.recommendation?.code
+            ? `_${caseDetail?.investigationFindings?.recommendation?.code}`
+            : ""
+        }`
+      : data?.claimType === "Reimbursement"
+      ? caseDetail?.rmFindings?.recommendation?.value || ""
+      : "";
 
   const saveOverRuling = async () => {
     try {
@@ -149,7 +152,7 @@ const PostQaApproveContent = ({
           CLAIM_NO: data?.claimId?.toString(),
           CLAIM_TYPE: data?.claimType === "PreAuth" ? "P" : "R",
           POLICY_NUMBER: data?.contractDetails?.policyNo,
-          SourceSystem: "M",
+          SourceSystem: data?.sourceSystem,
         },
         Case_Assignment: {
           CASE_ASSIGNMENT_FLAG: "0",
@@ -206,11 +209,11 @@ const PostQaApproveContent = ({
         },
       };
 
-      const { data: reverseRes } = await axios.post(EndPoints.REVERSE_API, {
+      const apiPayload = {
         payload: maximusPayload,
         recommendation,
         claimId: data?.claimId,
-      });
+      };
 
       const payload = {
         id: data?._id,
@@ -220,6 +223,11 @@ const PostQaApproveContent = ({
         userName: user?.name,
         postQARecommendation: preparedValues,
       };
+
+      const { data: reverseRes } = await axios.post(
+        EndPoints.REVERSE_API,
+        apiPayload
+      );
 
       const { data: res } = await axios.post<
         SingleResponseType<IDashboardData>
@@ -237,15 +245,31 @@ const PostQaApproveContent = ({
   };
 
   useEffect(() => {
-    if (caseDetail?.investigationFindings?.investigationSummary) {
-      setApprovedValues((prev) => ({
-        ...prev,
-        summaryOfInvestigation:
-          caseDetail?.investigationFindings?.investigationSummary || "",
-        frcuRecommendationOnClaims: recommendation || "-",
-      }));
+    if (data?.claimType === "PreAuth") {
+      if (caseDetail?.investigationFindings?.investigationSummary) {
+        setApprovedValues((prev) => ({
+          ...prev,
+          summaryOfInvestigation:
+            caseDetail?.investigationFindings?.investigationSummary || "",
+          frcuRecommendationOnClaims: recommendation || "-",
+        }));
+      }
+    } else if (data?.claimType === "Reimbursement") {
+      if (caseDetail?.rmFindings?.investigationSummary) {
+        setApprovedValues((prev) => ({
+          ...prev,
+          summaryOfInvestigation:
+            caseDetail?.rmFindings?.investigationSummary || "",
+          frcuRecommendationOnClaims: recommendation || "-",
+        }));
+      }
     }
-  }, [caseDetail?.investigationFindings?.investigationSummary, recommendation]);
+  }, [
+    caseDetail?.investigationFindings?.investigationSummary,
+    caseDetail?.rmFindings?.investigationSummary,
+    data?.claimType,
+    recommendation,
+  ]);
 
   return (
     <Box className="mt-4">

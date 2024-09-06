@@ -150,11 +150,11 @@ const HospitalVerification = ({ caseDetail, setCaseDetail }: PropTypes) => {
       });
     };
 
-    if (caseDetail?.rmFindings?.[taskName]) {
-      const obj = caseDetail?.rmFindings?.[taskName];
+    if (caseDetail?.rmFindingsPostQA?.[taskName]) {
+      const obj = caseDetail?.rmFindingsPostQA?.[taskName];
       addDefaultValues(obj);
     }
-  }, [caseDetail?.rmFindings, form]);
+  }, [caseDetail?.rmFindingsPostQA, form]);
 
   return (
     <FormContainer<IHospitalVerification>

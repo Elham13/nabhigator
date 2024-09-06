@@ -20,6 +20,7 @@ import ClaimCase from "../Models/claimCase";
 import { captureCaseEvent } from "@/app/api/Claims/caseEvent/helpers";
 import sendEmail from "./sendEmail";
 import { FromEmails } from "../utils/types/enums";
+import { configureRMTasksAndDocuments } from ".";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -36,6 +37,17 @@ export const runPreQCAutoAllocation = async (
     claimCasePayload["insuredAddress"] = data?.insuredDetails?.address;
     claimCasePayload["insuredCity"] = data?.insuredDetails?.city;
     claimCasePayload["insuredState"] = data?.insuredDetails?.state;
+
+    if (data?.claimType === "Reimbursement") {
+      const { newTasks, newDocs } = configureRMTasksAndDocuments({
+        claimSubType: data?.claimSubType,
+      });
+
+      claimCasePayload.tasksAssigned = newTasks;
+      // @ts-ignore
+      claimCasePayload.documents = newDocs;
+      claimCasePayload.caseType = ["PED/NDC", "Genuineness"];
+    }
 
     let investigators: Investigator[] = [];
     const investigatorsResponse = await findInvestigators({

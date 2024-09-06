@@ -1,5 +1,7 @@
 import {
+  ClaimDetails,
   ILocked,
+  ITLInbox,
   NumericStage,
   UserExpedition,
 } from "../utils/types/fniDataTypes";
@@ -13,6 +15,9 @@ interface IExpeditionSchema
 interface ILockedSchema extends Omit<ILocked, "_id" | "role">, Document {
   role: string;
 }
+
+interface ITLInboxSchema extends Omit<ITLInbox, "_id">, Document {}
+interface IClaimDetailSchema extends Omit<ClaimDetails, "_id">, Document {}
 
 const BenefitCoveredSchema = new Schema({
   benefitType: { type: String },
@@ -30,7 +35,7 @@ const MemberSchema = new Schema({
   },
 });
 
-const ClaimDetailsSchema = new Schema({
+const ClaimDetailsSchema = new Schema<IClaimDetailSchema>({
   claimStatus: { type: String },
   claimStatusUpdated: { type: String },
   noOfClaimsInHistory: { type: Number },
@@ -63,6 +68,7 @@ const ClaimDetailsSchema = new Schema({
   spotInvestigationFindings: { type: String },
   noOfClaimsCorrespondingToPivotalId: { type: String },
   claimTrigger: { type: String },
+  prePostIndicator: { type: String },
 });
 
 const ContractDetailsSchema = new Schema({
@@ -83,6 +89,7 @@ const ContractDetailsSchema = new Schema({
   branchLocation: { type: String },
   sourcing: { type: String },
   bancaDetails: { type: String },
+  customerType: { type: String },
 });
 
 const HistorySchema = new Schema({
@@ -220,6 +227,13 @@ const LockedSchema = new Schema<ILockedSchema>(
   { timestamps: true }
 );
 
+const TLInboxSchema = new Schema<ITLInboxSchema>(
+  {
+    claimSubTypeChange: { value: String, remarks: String, origin: String },
+  },
+  { timestamps: true }
+);
+
 const DashboardDataSchema = new Schema(
   {
     claimId: {
@@ -300,7 +314,7 @@ const DashboardDataSchema = new Schema(
       type: String,
       default: "",
     },
-    rejectionReasons: { type: [RejectionReasonSchema], default: null },
+    rejectionReasons: { type: [RejectionReasonSchema], default: [] },
     cataractOrDayCareProcedure: {
       type: [{ Benefit_Type: String, Benefit_Head: String }],
       default: [],
@@ -332,6 +346,7 @@ const DashboardDataSchema = new Schema(
       type: String,
     },
     sourceSystem: { type: String },
+    tlInbox: { type: TLInboxSchema },
   },
   { timestamps: true }
 );

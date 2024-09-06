@@ -49,6 +49,7 @@ const findPostQaUser = async (props: IProps) => {
   const targetTime = dayjs().format("hh:mm:ss");
 
   const match: PipelineStage.Match["$match"] = {
+    status: "Active",
     "config.leadView": claimType,
     "config.reportReceivedTime": { $exists: true },
     $expr: {

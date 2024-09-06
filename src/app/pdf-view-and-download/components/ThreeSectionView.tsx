@@ -1,38 +1,42 @@
 import React from "react";
 import SectionHeading from "./SectionHeading";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
+import KeyValueView from "./KeyValueView";
 
 const styles = StyleSheet.create({
-  detailSection: {
-    paddingBottom: 20,
+  detailContainer: {
+    marginBottom: 20,
+    border: "1px solid gray",
+    padding: 16,
+    borderRadius: 12,
   },
-  keyText: {
+  longKeyText: {
     fontWeight: 700,
     paddingBottom: 1,
     fontSize: 16,
   },
-  valueText: {
+  longValueText: {
     fontWeight: 400,
     paddingBottom: 1,
     fontSize: 16,
-    maxWidth: "300px",
     color: "green",
   },
   Separator: {
     display: "flex",
     flexDirection: "row",
-    gap: "80px",
     marginTop: 5,
     marginBottom: 20,
-    width: "100%",
-  },
-  subSeparator: {
-    flexGrow: 1,
-    gap: "3px",
+    flexWrap: "wrap",
   },
 });
 
-type KeyValue = { key: string; value: any };
+type KeyValue = {
+  key: string;
+  value: any;
+  title?: string;
+  isLongText?: boolean;
+  shouldWrap?: boolean;
+};
 
 type PropTypes = {
   data: KeyValue[];
@@ -41,36 +45,32 @@ type PropTypes = {
 };
 
 const ThreeSectionView = ({ data, topic, customStyle }: PropTypes) => {
-  // Function to generate JSX for a detail section
-  const detailSectionJsx = (entry: KeyValue, ind: number) => (
-    <View style={styles.detailSection} key={ind}>
-      <Text style={styles.keyText}>{entry.key} :</Text>
-      <Text style={styles.valueText}>{entry.value}</Text>
-    </View>
-  );
+  const normalData = data?.filter((el) => !el?.isLongText);
 
-  // Calculate the split size for the array
-  const splitSize = Math.ceil(data.length / 3);
-
-  // Split the data into three sections
-  const firstSection = data.slice(0, splitSize);
-  const secondSection = data.slice(splitSize, 2 * splitSize);
-  const thirdSection = data.slice(2 * splitSize);
+  const longData = data.filter((el) => !!el?.isLongText);
 
   return (
     <View style={customStyle}>
-      <SectionHeading>{topic}</SectionHeading>
+      {!!topic && <SectionHeading>{topic}</SectionHeading>}
       <View style={styles.Separator}>
-        <View style={styles.subSeparator}>
-          {firstSection.map((entry, ind) => detailSectionJsx(entry, ind))}
-        </View>
-        <View style={styles.subSeparator}>
-          {secondSection.map((entry, ind) => detailSectionJsx(entry, ind))}
-        </View>
-        <View style={styles.subSeparator}>
-          {thirdSection.map((entry, ind) => detailSectionJsx(entry, ind))}
-        </View>
+        {normalData?.map((el, ind) => (
+          <KeyValueView
+            key={ind}
+            left={el?.key}
+            right={el?.value}
+            title={el?.title}
+            shouldWrap={el?.shouldWrap}
+          />
+        ))}
       </View>
+      {longData && longData?.length > 0
+        ? longData?.map((data, ind) => (
+            <View key={ind} style={styles.detailContainer}>
+              <Text style={styles.longKeyText}>{data?.key}</Text>
+              <Text style={styles.longValueText}>{data?.value}</Text>
+            </View>
+          ))
+        : null}
     </View>
   );
 };

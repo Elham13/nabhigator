@@ -172,6 +172,13 @@ const UserEditForm = ({ userId, getUserId }: PropTypes) => {
           icon={BsCardChecklist}
         />
       ) : null}
+      {user?.config?.triggerSubType ? (
+        <EditFormItem
+          title="Trigger Sub type"
+          description={user?.config?.triggerSubType}
+          icon={BsCardChecklist}
+        />
+      ) : null}
     </SimpleGrid>
   );
   return loading ? <Loader type="dots" /> : <Stack>{items}</Stack>;

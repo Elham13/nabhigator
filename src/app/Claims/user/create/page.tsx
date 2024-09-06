@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActionIcon,
   Button,
@@ -13,7 +14,6 @@ import {
   SimpleGrid,
   TextInput,
 } from "@mantine/core";
-import React, { useEffect, useRef, useState } from "react";
 import { Text } from "@mantine/core";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -568,6 +568,26 @@ const UserEdit = () => {
                         }))
                       }
                       data={yesNoOptions}
+                      checkIconPosition="right"
+                      clearable
+                    />
+                    <Select
+                      label="Trigger Sub type"
+                      placeholder="Select Trigger Sub type"
+                      required
+                      value={values.config?.triggerSubType || ""}
+                      onChange={(val) =>
+                        setValues((prev) => ({
+                          ...prev,
+                          config: {
+                            ...prev.config,
+                            triggerSubType: val as
+                              | "Mandatory"
+                              | "Non Mandatory",
+                          },
+                        }))
+                      }
+                      data={["Mandatory", "Non Mandatory"]}
                       checkIconPosition="right"
                       clearable
                     />

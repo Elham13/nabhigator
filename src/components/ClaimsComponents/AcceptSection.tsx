@@ -43,11 +43,14 @@ import {
   ResponseType,
   Role,
   SingleResponseType,
-  Task,
 } from "@/lib/utils/types/fniDataTypes";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
-import { buildUrl, showError } from "@/lib/helpers";
+import {
+  buildUrl,
+  configureRMTasksAndDocuments,
+  showError,
+} from "@/lib/helpers";
 import { getStates } from "@/lib/helpers/getLocations";
 import { changeTaskInitialValues } from "@/lib/utils/constants";
 
@@ -208,10 +211,20 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setSubmitting(true);
+  const validateValues = () => {
     try {
+      if (values?.caseType && values?.caseType?.length > 0) {
+        if (user?.config?.triggerSubType === "Mandatory") {
+          values?.caseType?.map((item) => {
+            const subTrigger = values?.caseTypeDependencies?.[item];
+            if (!subTrigger || subTrigger?.length === 0)
+              throw new Error(`Sub-Trigger ${item} is required`);
+          });
+        }
+      } else {
+        throw new Error("Triggers is required");
+      }
+
       if (values?.allocationType === "Single" && selected.length > 1)
         throw new Error(
           "You have selected more than 1 investigators in Single allocation"
@@ -231,28 +244,57 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
         }
       }
 
-      const payload = {
-        ...values,
-        documents: values?.documents
-          ? values?.documents instanceof Map
-            ? Array.from(values?.documents?.entries())
-            : Array.from(new Map(Object.entries(values?.documents)).entries())
-          : null,
-        investigator: isManual && selected?.length > 0 ? selected : undefined,
-        caseStatus: "Accepted",
-        isManual,
-        user,
-      };
+      if (values?.tasksAssigned && values?.tasksAssigned?.length > 0) {
+        for (const task of values?.tasksAssigned) {
+          if (["NPS Confirmation"].includes(task?.name)) continue;
+          const documents = new Map(
+            values?.documents
+              ? values?.documents instanceof Map
+                ? values?.documents
+                : Object.entries(values?.documents)
+              : []
+          );
+          const doc = documents?.get(task?.name);
+          if (!doc || doc?.length < 1)
+            throw new Error(`Select some documents for the task ${task?.name}`);
+        }
+      } else throw new Error("Please select some tasks");
 
-      const { data } = await axios.post<
-        SingleResponseType<AssignToInvestigatorRes>
-      >(EndPoints.ASSIGN_TO_INVESTIGATOR, payload);
-      toast.success(data.message);
-      router.replace("/Claims/action-inbox");
-    } catch (error) {
-      showError(error);
-    } finally {
-      setSubmitting(false);
+      return true;
+    } catch (err: any) {
+      showError(err);
+      return false;
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (validateValues()) {
+      setSubmitting(true);
+      try {
+        const payload = {
+          ...values,
+          documents: values?.documents
+            ? values?.documents instanceof Map
+              ? Array.from(values?.documents?.entries())
+              : Array.from(new Map(Object.entries(values?.documents)).entries())
+            : null,
+          investigator: isManual && selected?.length > 0 ? selected : undefined,
+          caseStatus: "Accepted",
+          isManual,
+          user,
+        };
+
+        const { data } = await axios.post<
+          SingleResponseType<AssignToInvestigatorRes>
+        >(EndPoints.ASSIGN_TO_INVESTIGATOR, payload);
+        toast.success(data.message);
+        router.replace("/Claims/action-inbox");
+      } catch (error) {
+        showError(error);
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
 
@@ -293,147 +335,9 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
           documents: newDocs,
         }));
       } else {
-        const newDocs = new Map<string, DocumentData[]>();
-        const newTasks: Task[] = [];
-        if (dashboardData?.claimSubType === "In-patient Hospitalization") {
-          for (const el of rmMainObjectOptionsMap) {
-            if (
-              [
-                "NPS Confirmation",
-                "Insured Verification",
-                "Vicinity Verification",
-                "Hospital Verification",
-                "Lab Part/Pathologist Verification",
-                "Chemist Verification",
-              ].includes(el?.name)
-            ) {
-              const tempDocs = el?.options?.map((op) => ({
-                name: op?.value,
-                docUrl: [],
-                location: null,
-              }));
-              newTasks?.push({ name: el?.name, completed: false, comment: "" });
-              newDocs?.set(el?.name, tempDocs);
-            }
-          }
-        } else if (dashboardData?.claimSubType === "Pre-Post") {
-          const tempOption = rmMainObjectOptionsMap?.find(
-            (op) => op?.name === "Pre-Post Verification"
-          );
-          if (tempOption) {
-            newTasks?.push({
-              name: tempOption?.name,
-              completed: false,
-              comment: "",
-            });
-            newDocs.set(
-              tempOption?.name,
-              tempOption?.options?.map((op) => ({
-                name: op?.value,
-                docUrl: [],
-                location: null,
-              }))
-            );
-          }
-        } else if (dashboardData?.claimSubType === "Hospital Daily Cash") {
-          const tempOption = rmMainObjectOptionsMap?.find(
-            (op) => op?.name === "Hospital Daily Cash Part"
-          );
-          if (tempOption) {
-            newTasks?.push({
-              name: tempOption?.name,
-              completed: false,
-              comment: "",
-            });
-            newDocs.set(
-              tempOption?.name,
-              tempOption?.options?.map((op) => ({
-                name: op?.value,
-                docUrl: [],
-                location: null,
-              }))
-            );
-          }
-        } else if (dashboardData?.claimSubType === "OPD") {
-          const tempOption = rmMainObjectOptionsMap?.find(
-            (op) => op?.name === "OPD Verification Part"
-          );
-          if (tempOption) {
-            newTasks?.push({
-              name: tempOption?.name,
-              completed: false,
-              comment: "",
-            });
-            newDocs.set(
-              tempOption?.name,
-              tempOption?.options?.map((op) => ({
-                name: op?.value,
-                docUrl: [],
-                location: null,
-              }))
-            );
-          }
-        } else if (dashboardData?.claimSubType === "AHC") {
-          const tempOption = rmMainObjectOptionsMap?.find(
-            (op) => op?.name === "AHC Verification Part"
-          );
-          if (tempOption) {
-            newTasks?.push({
-              name: tempOption?.name,
-              completed: false,
-              comment: "",
-            });
-            newDocs.set(
-              tempOption?.name,
-              tempOption?.options?.map((op) => ({
-                name: op?.value,
-                docUrl: [],
-                location: null,
-              }))
-            );
-          }
-        } else if (!dashboardData?.claimSubType) {
-          const tempOption = rmMainObjectOptionsMap?.find(
-            (op) => op?.name === "Claim Verification"
-          );
-          if (tempOption) {
-            newTasks?.push({
-              name: tempOption?.name,
-              completed: false,
-              comment: "",
-            });
-            newDocs.set(
-              tempOption?.name,
-              tempOption?.options?.map((op) => ({
-                name: op?.value,
-                docUrl: [],
-                location: null,
-              }))
-            );
-          }
-        }
-
-        for (const el of rmMainObjectOptionsMap) {
-          if (["Miscellaneous Verification"].includes(el?.name)) {
-            const tempDocs = el?.options
-              ?.filter((op) =>
-                [
-                  "Miscellaneous Verification Documents",
-                  "Customer Feedback Form",
-                  "GPS Photo",
-                  "Call Recording",
-                  "AVR",
-                ].includes(op?.value)
-              )
-              ?.map((op) => ({
-                name: op?.value,
-                docUrl: [],
-                location: null,
-              }));
-            newTasks.push({ name: el?.name, completed: false, comment: "" });
-            newDocs.set(el?.name, tempDocs);
-          }
-        }
+        const { newTasks, newDocs } = configureRMTasksAndDocuments({
+          claimSubType: dashboardData?.claimSubType,
+        });
 
         setValues((prev) => ({
           ...prev,
@@ -731,6 +635,7 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
                   disabled={
                     dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
                   }
+                  required={user?.config?.triggerSubType === "Mandatory"}
                 />
               ) : null;
             })}

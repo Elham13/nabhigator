@@ -8,6 +8,7 @@ import SectionHeading from "./SectionHeading";
 import AssignmentSummary from "./AssignmentSummary";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import { CaseDetail, IDashboardData } from "@/lib/utils/types/fniDataTypes";
+import InsuredVerification from "./Reimbursement/RMInvestigatorFindings/InsuredVerification";
 
 const styles = StyleSheet.create({ txt: { fontSize: 20 } });
 
@@ -25,36 +26,73 @@ const FinalInvestigationReport = ({
   invType,
 }: PropTypes) => {
   const findings = caseData?.postQaFindings;
+  const rmFindings = caseData?.rmFindingsPostQA;
+  const isRM = dashboardData?.claimType === "Reimbursement";
 
   const preAuthInvestigationSummary = [
     {
       key: "Date of Visit to Insured",
-      value: findings?.dateOfVisitToInsured
+      value: isRM
+        ? rmFindings?.["Insured Verification"]?.dateOfVisitToInsured
+          ? dayjs(
+              rmFindings?.["Insured Verification"]?.dateOfVisitToInsured
+            ).format("DD-MMM-YYYY")
+          : "-"
+        : findings?.dateOfVisitToInsured
         ? dayjs(findings?.dateOfVisitToInsured).format("DD-MMM-YYYY")
         : "-",
     },
     {
       key: "Time of Visit to Insured",
-      value: findings?.timeOfVisitToInsured
+      value: isRM
+        ? rmFindings?.["Insured Verification"]?.timeOfVisitToInsured
+          ? dayjs(
+              rmFindings?.["Insured Verification"]?.timeOfVisitToInsured
+            ).format("hh:mm:ss a")
+          : "-"
+        : findings?.timeOfVisitToInsured
         ? dayjs(findings?.timeOfVisitToInsured).format("hh:mm:ss a")
         : "-",
     },
     {
       key: "Date of Visit to Hospital",
-      value: findings?.dateOfVisitToHospital
+      value: isRM
+        ? rmFindings?.["Hospital Verification"]?.dateOfVisitToHospital
+          ? dayjs(
+              rmFindings?.["Hospital Verification"]?.dateOfVisitToHospital
+            ).format("DD-MMM-YYYY")
+          : "-"
+        : findings?.dateOfVisitToHospital
         ? dayjs(findings?.dateOfVisitToHospital).format("DD-MMM-YYYY")
         : "-",
     },
     {
       key: "Time of Visit to Hospital",
-      value: findings?.timeOfVisitToHospital
+      value: isRM
+        ? rmFindings?.["Hospital Verification"]?.timeOfVisitToHospital
+          ? dayjs(
+              rmFindings?.["Hospital Verification"]?.timeOfVisitToHospital
+            ).format("hh:mm:ss a")
+          : "-"
+        : findings?.timeOfVisitToHospital
         ? dayjs(findings?.timeOfVisitToHospital).format("hh:mm:ss a")
         : "-",
     },
-    {
-      key: "Hospitalization Status",
-      value: findings?.hospitalizationStatus?.value || "-",
-    },
+    ...(isRM
+      ? [
+          {
+            key: "Hospital Infrastructure",
+            value:
+              rmFindings?.["Hospital Verification"]?.hospitalInfrastructure
+                ?.value || "-",
+          },
+        ]
+      : [
+          {
+            key: "Hospitalization Status",
+            value: findings?.hospitalizationStatus?.value || "-",
+          },
+        ]),
   ];
 
   const hospitalizationDetails = [
@@ -361,28 +399,25 @@ const FinalInvestigationReport = ({
       : []),
   ];
 
-  // const mappedAilmentData = findings?.ailment.map((element) => {
-  //   return {
-  //     Ailment: element.ailment,
-  //     Diagnosis: element.diagnosis,
-  //     Duration: element.duration,
-  //     "On Medication": element.onMedication,
-  //   };
-  // });
-
-  // const ailmentsTableData = {
-  //   column: ["Ailment", "Diagnosis", "Duration", "On Medication"],
-  //   data: mappedAilmentData,
-  // };
-
-  const mappedHabitTable = findings?.patientHabit.map((element) => {
-    return {
-      Habit: element.habit,
-      Frequency: element.frequency,
-      Quantity: element.quantity,
-      Duration: element.duration,
-    };
-  });
+  const mappedHabitTable = isRM
+    ? rmFindings?.["Insured Verification"]?.personalOrSocialHabits?.map(
+        (element) => {
+          return {
+            Habit: element.habit,
+            Frequency: element.frequency,
+            Quantity: element.quantity,
+            Duration: element.duration,
+          };
+        }
+      )
+    : findings?.patientHabit.map((element) => {
+        return {
+          Habit: element.habit,
+          Frequency: element.frequency,
+          Quantity: element.quantity,
+          Duration: element.duration,
+        };
+      });
 
   const habitTableData = {
     column: ["Habit", "Frequency", "Quantity", "Duration"],
@@ -460,23 +495,41 @@ const FinalInvestigationReport = ({
         docType={docType}
         invType={invType}
       />
-      <TwoSectionView
-        data={preAuthInvestigationSummary}
-        topic="Pre-auth Investigation Summary"
-        customStyle={{ marginTop: 100 }}
-      />
-      <TwoSectionView
-        data={hospitalizationDetails}
-        topic="Hospitalization Details"
-      />
-      <TwoSectionView data={patientDetails} topic="Patient Details" />
-      {/* <SectionHeading>Ailment Details</SectionHeading>
-      <TableView tableData={ailmentsTableData} /> */}
-      <SectionHeading>Habit Details</SectionHeading>
-      <TableView tableData={habitTableData} />
+      {!isRM || (isRM && !!rmFindings?.["Insured Verification"]) ? (
+        <TwoSectionView
+          data={preAuthInvestigationSummary}
+          topic={`${!isRM ? "Pre-auth" : ""} Investigation Summary`}
+          customStyle={{ marginTop: 100 }}
+        />
+      ) : null}
+      {!isRM && (
+        <TwoSectionView
+          data={hospitalizationDetails}
+          topic="Hospitalization Details"
+        />
+      )}
+      {isRM ? (
+        !!rmFindings?.["Insured Verification"] ? (
+          <InsuredVerification values={rmFindings?.["Insured Verification"]} />
+        ) : null
+      ) : (
+        <TwoSectionView data={patientDetails} topic="Patient Details" />
+      )}
+      {!isRM ||
+      (isRM &&
+        !!rmFindings?.["Insured Verification"]?.personalOrSocialHabits &&
+        rmFindings?.["Insured Verification"]?.personalOrSocialHabits?.length >
+          0) ? (
+        <>
+          <SectionHeading>Habit Details</SectionHeading>
+          <TableView tableData={habitTableData} />
+        </>
+      ) : null}
       <SingleLine>Summary of investigation</SingleLine>
       <Text style={styles.txt}>
-        {caseData?.postQARecommendation?.summaryOfInvestigation}
+        {isRM
+          ? rmFindings?.investigationSummary
+          : caseData?.postQARecommendation?.summaryOfInvestigation}
       </Text>
       <TwoSectionView
         data={investigationConclusion}

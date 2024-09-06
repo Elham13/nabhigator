@@ -177,7 +177,10 @@ router.post(async (req) => {
         }
       }
     } else {
-      const users: IUser[] = await User.find({ role: userRole }).lean();
+      const users: IUser[] = await User.find({
+        role: userRole,
+        status: "Active",
+      }).lean();
 
       if (!users || users?.length === 0) throw new Error(`No user found`);
 

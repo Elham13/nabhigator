@@ -3,6 +3,7 @@ import connectDB from "@/lib/db/dbConnectWithMongoose";
 import {
   addColorCodes,
   addEncryptedClaimId,
+  addOpenAndClosureTAT,
   processGetDataFilters,
 } from "@/lib/helpers/getDataHelpers";
 import { Databases } from "@/lib/utils/types/enums";
@@ -209,6 +210,8 @@ router.get(async (req) => {
       throw new Error(`No record found with the id ${id || claimId}`);
 
     data = await addEncryptedClaimId(data);
+
+    data = await addOpenAndClosureTAT(data);
 
     data = data[0];
 

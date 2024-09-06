@@ -60,13 +60,15 @@ const FeedingLogs = () => {
     setSubmitting(true);
 
     try {
+      const payload = {
+        claimId: formData.claimId,
+        claimType: formData.claimType,
+        sourceSystem: formData.sourceSystem,
+      };
+
       const { data } = await axios.post<ResponseType<any>>(
         EndPoints.FEED_DASHBOARD,
-        {
-          claimId: formData.claimId,
-          claimType: formData.claimType,
-          sourceSystem: formData.sourceSystem,
-        }
+        payload
       );
       toast.success(data?.message);
       setFormData(formDataInitials);
