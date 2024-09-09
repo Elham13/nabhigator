@@ -653,7 +653,7 @@ const changePostQaValues = async () => {
 };
 
 router.post(async (req) => {
-  const {} = await req?.json();
+  const body = await req?.json();
 
   try {
     await connectDB(Databases.FNI);
@@ -662,9 +662,7 @@ router.post(async (req) => {
       {
         success: true,
         message: "Success",
-        data: {
-          date: null,
-        },
+        data: null,
       },
       { status: 200 }
     );
