@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Button, Container, Paper, Select, Title } from "@mantine/core";
+import { Button, Container, Loader, Paper, Select, Title } from "@mantine/core";
 import { useLocalStorage } from "@mantine/hooks";
 import axios from "axios";
 import Head from "next/head";
@@ -24,9 +24,14 @@ const SelectRole = () => {
 
   const [apiUser, setApiUser] = useState<IUser | null>(null);
   const [role, setRole] = useState<Role | null>(null);
+  const [loadings, setLoadings] = useState({
+    fetching: false,
+    submitting: false,
+  });
 
   const handleChange = async () => {
     if (role) {
+      setLoadings((prev) => ({ ...prev, submitting: true }));
       try {
         const { data } = await axios.post<SingleResponseType<IUser>>(
           EndPoints.USER,
@@ -40,6 +45,8 @@ const SelectRole = () => {
         router.replace("/Claims/dashboard");
       } catch (error: any) {
         showError(error);
+      } finally {
+        setLoadings((prev) => ({ ...prev, submitting: false }));
       }
     }
   };
@@ -47,6 +54,8 @@ const SelectRole = () => {
   useEffect(() => {
     (async () => {
       if (user && user?._id && !apiUser) {
+        setLoadings((prev) => ({ ...prev, fetching: true }));
+
         try {
           const { data } = await axios.get<SingleResponseType<IUser>>(
             `${EndPoints.USER}?id=${user?._id}`
@@ -54,6 +63,8 @@ const SelectRole = () => {
           setApiUser(data?.data);
         } catch (error: any) {
           showError(error);
+        } finally {
+          setLoadings((prev) => ({ ...prev, fetching: false }));
         }
       }
     })();
@@ -71,16 +82,26 @@ const SelectRole = () => {
       <Header />
       <Container size={420} my={40}>
         <Title ta="center">Select a role</Title>
-        <Select
-          mt={20}
-          label="Activate one role"
-          placeholder="This role will be active during the entire session"
-          data={apiUser?.role || []}
-          value={role}
-          onChange={(val) => setRole(val as Role)}
-          clearable
-        />
-        <Button mt={10} disabled={!role} onClick={handleChange}>
+        <div className="flex items-end">
+          <Select
+            className="w-full"
+            mt={20}
+            label="Activate one role"
+            placeholder="This role will be active during the entire session"
+            data={apiUser?.role || []}
+            value={role}
+            onChange={(val) => setRole(val as Role)}
+            clearable
+            disabled={loadings?.fetching}
+          />
+          {loadings.fetching && <Loader size="md" type="dots" />}
+        </div>
+        <Button
+          mt={10}
+          disabled={!role}
+          onClick={handleChange}
+          loading={loadings?.submitting}
+        >
           Change
         </Button>
       </Container>
