@@ -130,6 +130,7 @@ router.post(async (req) => {
 
     const isReInvestigated = dashboardData?.claimInvestigators?.length > 0;
 
+    let newCase: any = null;
     if (dashboardData?.caseId) {
       await ClaimCase.findByIdAndUpdate(
         dashboardData?.caseId,
@@ -144,7 +145,7 @@ router.post(async (req) => {
         { useFindAndModify: false }
       );
     } else {
-      const newCase = await ClaimCase.create({
+      newCase = new ClaimCase({
         ...body,
         documents: new Map(body?.documents || []),
         investigator: investigators?.map((inv: Investigator) => inv?._id),
@@ -243,6 +244,7 @@ router.post(async (req) => {
         : investigators[0].investigatorName
     }`;
     responseObj.data = investigators;
+    if (newCase !== null) await newCase.save();
     await dashboardData.save();
 
     return NextResponse.json(responseObj, { status: statusCode });
