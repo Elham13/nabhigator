@@ -463,6 +463,7 @@ export enum EventNames {
   MANUALLY_ASSIGNED_TO_POST_QA = "Manually assigned to Post QA user",
   CLAIM_SUB_TYPE_CHANGE_APPROVED = "Claim Sub-Type changed approved by TL",
   CLAIM_SUB_TYPE_CHANGE_REJECTED = "Claim Sub-Type changed rejected by TL",
+  CLAIM_SUB_TYPE_CHANGE = "Claim Sub-Type changed",
 }
 
 export interface INewCityMaster {
