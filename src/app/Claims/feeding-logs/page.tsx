@@ -27,6 +27,7 @@ import LoaderPlaceholder from "@/components/ClaimsComponents/LoaderPlaceholder";
 import dynamic from "next/dynamic";
 import { Spin } from "antd";
 import { useDebouncedValue } from "@mantine/hooks";
+import { claimSubTypeOptions } from "@/lib/utils/constants/options";
 const FeedingLogTable = dynamic(() => import("./components/FeedingLogTable"), {
   ssr: false,
   loading: () => <Spin />,
@@ -35,6 +36,7 @@ const FeedingLogTable = dynamic(() => import("./components/FeedingLogTable"), {
 const formDataInitials = {
   claimId: "",
   claimType: "",
+  claimSubType: "",
   sourceSystem: "",
 };
 
@@ -63,6 +65,7 @@ const FeedingLogs = () => {
       const payload = {
         claimId: formData.claimId,
         claimType: formData.claimType,
+        claimSubType: formData.claimSubType,
         sourceSystem: formData.sourceSystem,
       };
 
@@ -152,6 +155,19 @@ const FeedingLogs = () => {
                 { label: "PreAuth", value: "P" },
                 { label: "Reimbursement", value: "R" },
               ]}
+              clearable
+            />
+            <Select
+              title="Claim Sub-Type"
+              placeholder="Select claim sub-type"
+              value={formData.claimSubType}
+              onChange={(val) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  claimSubType: val as string,
+                }))
+              }
+              data={claimSubTypeOptions}
               clearable
             />
             <Select
