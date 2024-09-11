@@ -50,11 +50,10 @@ router.post(async (req) => {
 
     if (body?.claimId && body?.claimType) {
       const sourceSystem = body?.sourceSystem as TSourceSystem;
-      const { claimSubType, benefitType } = body;
+      const { claimSubType } = body;
 
       if (!sourceSystem) throw new Error("sourceSystem is required!");
       if (!claimSubType) throw new Error("claimSubType is required!");
-      if (!benefitType) throw new Error("benefitType is required!");
 
       if (!["M", "P"].includes(sourceSystem))
         throw new Error(`Wrong sourceSystem: ${sourceSystem}`);
@@ -99,7 +98,6 @@ router.post(async (req) => {
             claimId,
             claimType: convertClaimType(claimType),
             claimSubType,
-            benefitType,
             referralType: "Manual",
             sourceSystem,
             ...data?.data,
@@ -236,20 +234,22 @@ router.post(async (req) => {
       }
     }
 
-    await DashboardFeedingLog.create({
+    const payload = {
       totalRecords,
       insertedRecords: inserted,
       skippedRecords: skipped,
       foundAndUpdatedRecords: foundAndUpdated,
       skippedReasons,
       skippedClaimIds,
-    });
+    };
+
+    await DashboardFeedingLog.create(payload);
 
     return NextResponse.json(
       {
         success: true,
         message: "Fetched",
-        data: null,
+        data: payload,
       },
       { status: 200 }
     );
