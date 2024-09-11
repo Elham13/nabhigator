@@ -27,10 +27,7 @@ import LoaderPlaceholder from "@/components/ClaimsComponents/LoaderPlaceholder";
 import dynamic from "next/dynamic";
 import { Spin } from "antd";
 import { useDebouncedValue } from "@mantine/hooks";
-import {
-  benefitTypeOptions,
-  claimSubTypeOptions,
-} from "@/lib/utils/constants/options";
+import { claimSubTypeOptions } from "@/lib/utils/constants/options";
 const FeedingLogTable = dynamic(() => import("./components/FeedingLogTable"), {
   ssr: false,
   loading: () => <Spin />,
@@ -40,7 +37,6 @@ const formDataInitials = {
   claimId: "",
   claimType: "",
   claimSubType: "",
-  benefitType: "",
   sourceSystem: "",
 };
 
@@ -70,7 +66,6 @@ const FeedingLogs = () => {
         claimId: formData.claimId,
         claimType: formData.claimType,
         claimSubType: formData.claimSubType,
-        benefitType: formData.benefitType,
         sourceSystem: formData.sourceSystem,
       };
 
@@ -173,16 +168,6 @@ const FeedingLogs = () => {
                 }))
               }
               data={claimSubTypeOptions}
-              clearable
-            />
-            <Select
-              title="Benefit Type"
-              placeholder="Select benefit type"
-              value={formData.benefitType}
-              onChange={(val) =>
-                setFormData((prev) => ({ ...prev, benefitType: val as string }))
-              }
-              data={benefitTypeOptions}
               clearable
             />
             <Select

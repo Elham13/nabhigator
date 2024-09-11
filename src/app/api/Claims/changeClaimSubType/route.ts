@@ -31,7 +31,7 @@ dayjs.extend(timezone);
 const router = createEdgeRouter<NextRequest, {}>();
 
 const changeTasksAndDocs = async (caseId: string | null, subType: string) => {
-  if (!caseId) throw new Error("caseId missing in dashboard data");
+  if (!caseId) return;
 
   const caseDetail: HydratedDocument<CaseDetail> | null =
     await ClaimCase.findById(caseId);
@@ -172,156 +172,181 @@ router.post(async (req) => {
         ? "https://www.nivabupa.com/Claims/login"
         : "https://appform.nivabupa.com/Claims/login";
 
-    const tl: HydratedDocument<IUser> | null = await User.findById(
-      data?.teamLead
-    );
-
-    if (!tl)
-      throw new Error(`Failed to find a TL with the id ${data?.teamLead}`);
-
-    if (action === "amend") {
+    if (action === "amend" && origin === "web") {
       if (data?.claimSubType === claimSubType)
         throw new Error(`The claim sub-type is already ${claimSubType}`);
-      if (!data?.teamLead) throw new Error("No team lead found for this case");
-
-      tlInbox.claimSubTypeChange = { value: claimSubType, origin, remarks };
-
-      data.tlInbox = tlInbox;
 
       await captureCaseEvent({
-        eventName: EventNames.INV_REQUESTED_TO_CHANGE_CLAIM_SUBTYPE,
+        eventName: EventNames.CLAIM_SUB_TYPE_CHANGE,
         intimationDate:
           data?.intimationDate ||
           dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
         stage: data?.stage,
         claimId: data?.claimId,
-        eventRemarks: `Investigator request to change the claim sub-type from ${
+        eventRemarks: `Claim sub-type changed from ${
           data?.claimSubType || "-"
         } to ${claimSubType || "-"}`,
         userName,
       });
 
-      const bodyText = `Dear ${
-        tl?.name
-      } \nThe investigator ${userName} has requested to change claim sub-type from ${
-        data?.claimSubType || "-"
-      } to ${claimSubType || "-"} with the remarks "${
-        remarks || "-"
-      }"\n\nPlease take an action (Approve or Reject) by following bellow steps.\n\n1- Login to <a href="${webUrl}">Nbhigator</a> with your credentials.\n2- If you have multiple roles please select TL as your active role.\n3- Go to Action Inbox and click on the ${
-        data?.claimId
-      } ${
-        data?.claimType === "PreAuth" ? "PreAuth ID" : "Claim ID"
-      }\n4- Open the Claim Type Detail, review the change and approve or reject.\n\n\nThanks & Regards`;
-
-      await sendEmail({
-        from: FromEmails.DO_NOT_REPLY,
-        recipients: tl?.email,
-        subject: `${userName} request to change claim sub-type`,
-        bodyText,
-      });
+      await changeTasksAndDocs(data?.caseId as string, claimSubType);
 
       response = await data.save();
-      statusMessage = "Your change request is now pending for the TL approval";
-    } else if (action === "tlApprove") {
-      if (!status) throw new Error("status is required");
-      if (!tlInbox?.claimSubTypeChange?.value)
-        throw new Error("Changing claim sub-type value not captured");
-      let benefitType =
-        tlInbox?.claimSubTypeChange?.value === "Critical Illness"
-          ? "Benefit"
-          : "Indemnity";
-      let eventRemarks = "";
+      statusMessage = "You have successfully changed the claim sub type";
+    } else {
+      const tl: HydratedDocument<IUser> | null = await User.findById(
+        data?.teamLead
+      );
 
-      if (status === "approved") {
-        if (
-          tlInbox?.claimSubTypeChange?.value === "PA/CI" &&
-          tlInbox?.claimSubTypeChange?.origin === "investigator"
-        ) {
-          data.stage = NumericStage.PENDING_FOR_PRE_QC;
+      if (!tl)
+        throw new Error(`Failed to find a TL with the id ${data?.teamLead}`);
 
-          eventRemarks = `TL approved the change request from ${
+      if (action === "amend") {
+        if (data?.claimSubType === claimSubType)
+          throw new Error(`The claim sub-type is already ${claimSubType}`);
+        if (!data?.teamLead)
+          throw new Error("No team lead found for this case");
+
+        tlInbox.claimSubTypeChange = { value: claimSubType, origin, remarks };
+
+        data.tlInbox = tlInbox;
+
+        await captureCaseEvent({
+          eventName: EventNames.INV_REQUESTED_TO_CHANGE_CLAIM_SUBTYPE,
+          intimationDate:
+            data?.intimationDate ||
+            dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
+          stage: data?.stage,
+          claimId: data?.claimId,
+          eventRemarks: `Investigator request to change the claim sub-type from ${
             data?.claimSubType || "-"
-          } to ${
-            tlInbox?.claimSubTypeChange?.value || "-"
-          }, and benefit type from ${data.benefitType || "-"} to ${
-            benefitType || "-"
-          } and sent the case back to Pending for Pre-QC due to PA/CI`;
-        } else {
-          eventRemarks = `TL approved the change request from ${
+          } to ${claimSubType || "-"}`,
+          userName,
+        });
+
+        const bodyText = `Dear ${
+          tl?.name
+        } \nThe investigator ${userName} has requested to change claim sub-type from ${
+          data?.claimSubType || "-"
+        } to ${claimSubType || "-"} with the remarks "${
+          remarks || "-"
+        }"\n\nPlease take an action (Approve or Reject) by following bellow steps.\n\n1- Login to <a href="${webUrl}">Nbhigator</a> with your credentials.\n2- If you have multiple roles please select TL as your active role.\n3- Go to Action Inbox and click on the ${
+          data?.claimId
+        } ${
+          data?.claimType === "PreAuth" ? "PreAuth ID" : "Claim ID"
+        }\n4- Open the Claim Type Detail, review the change and approve or reject.\n\n\nThanks & Regards`;
+
+        await sendEmail({
+          from: FromEmails.DO_NOT_REPLY,
+          recipients: tl?.email,
+          subject: `${userName} request to change claim sub-type`,
+          bodyText,
+        });
+
+        response = await data.save();
+        statusMessage =
+          "Your change request is now pending for the TL approval";
+      } else if (action === "tlApprove") {
+        if (!status) throw new Error("status is required");
+        if (!tlInbox?.claimSubTypeChange?.value)
+          throw new Error("Changing claim sub-type value not captured");
+        let benefitType =
+          tlInbox?.claimSubTypeChange?.value === "Critical Illness"
+            ? "Benefit"
+            : "Indemnity";
+        let eventRemarks = "";
+
+        if (status === "approved") {
+          if (
+            tlInbox?.claimSubTypeChange?.value === "PA/CI" &&
+            tlInbox?.claimSubTypeChange?.origin === "investigator"
+          ) {
+            data.stage = NumericStage.PENDING_FOR_PRE_QC;
+
+            eventRemarks = `TL approved the change request from ${
+              data?.claimSubType || "-"
+            } to ${
+              tlInbox?.claimSubTypeChange?.value || "-"
+            }, and benefit type from ${data.benefitType || "-"} to ${
+              benefitType || "-"
+            } and sent the case back to Pending for Pre-QC due to PA/CI`;
+          } else {
+            eventRemarks = `TL approved the change request from ${
+              data?.claimSubType || "-"
+            } to ${
+              tlInbox?.claimSubTypeChange?.value || "-"
+            }, and benefit type from ${data.benefitType || "-"} to ${
+              benefitType || "-"
+            }`;
+
+            await changeTasksAndDocs(
+              data?.caseId as string,
+              tlInbox?.claimSubTypeChange?.value
+            );
+          }
+          data.benefitType = benefitType;
+          data.claimSubType = tlInbox?.claimSubTypeChange?.value;
+          data.tlInbox = { claimSubTypeChange: undefined };
+
+          statusMessage = "Approved successfully";
+        } else if (status === "disapproved") {
+          // TL disapproved the change request and changes the claim subType himself
+          eventRemarks = `TL disapproved the change request from ${
             data?.claimSubType || "-"
           } to ${
             tlInbox?.claimSubTypeChange?.value || "-"
           }, and benefit type from ${data.benefitType || "-"} to ${
             benefitType || "-"
           }`;
+          data.tlInbox = { claimSubTypeChange: undefined };
 
-          await changeTasksAndDocs(
-            data?.caseId as string,
-            tlInbox?.claimSubTypeChange?.value
+          statusMessage = "Rejected successfully";
+        } else throw new Error(`Invalid status ${status}`);
+
+        const eventName =
+          status === "approved"
+            ? EventNames.CLAIM_SUB_TYPE_CHANGE_APPROVED
+            : EventNames.CLAIM_SUB_TYPE_CHANGE_REJECTED;
+
+        const invId = data?.claimInvestigators[0]?._id;
+
+        const inv: HydratedDocument<Investigator> | null =
+          await ClaimInvestigator.findById(invId);
+
+        if (!inv)
+          throw new Error(
+            `Failed to find any investigators with the id ${invId}`
           );
-        }
-        data.benefitType = benefitType;
-        data.claimSubType = tlInbox?.claimSubTypeChange?.value;
-        data.tlInbox = { claimSubTypeChange: undefined };
 
-        statusMessage = "Approved successfully";
-      } else if (status === "disapproved") {
-        // TL disapproved the change request and changes the claim subType himself
-        eventRemarks = `TL disapproved the change request from ${
-          data?.claimSubType || "-"
-        } to ${
-          tlInbox?.claimSubTypeChange?.value || "-"
-        }, and benefit type from ${data.benefitType || "-"} to ${
-          benefitType || "-"
-        }`;
-        data.tlInbox = { claimSubTypeChange: undefined };
+        await captureCaseEvent({
+          eventName,
+          intimationDate:
+            data?.intimationDate ||
+            dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
+          stage: data?.stage,
+          claimId: data?.claimId,
+          eventRemarks,
+          userName,
+        });
 
-        statusMessage = "Rejected successfully";
-      } else throw new Error(`Invalid status ${status}`);
+        const bodyText = `Dear ${
+          inv?.investigatorName
+        },\n\nYour request to change the claim sub-type of ${
+          data?.claimType === "PreAuth" ? "PreAuth ID" : "Claim ID"
+        } ${data?.claimId} is ${
+          status === "approved" ? "Approved" : "Rejected"
+        } by Team Lead ${tl?.name}.\n\n\nThanks & Regards`;
 
-      const eventName =
-        status === "approved"
-          ? EventNames.CLAIM_SUB_TYPE_CHANGE_APPROVED
-          : EventNames.CLAIM_SUB_TYPE_CHANGE_REJECTED;
+        await sendEmail({
+          from: FromEmails.DO_NOT_REPLY,
+          recipients: inv?.email,
+          subject: `Claim sub-type change request status update`,
+          bodyText,
+        });
 
-      const invId = data?.claimInvestigators[0]?._id;
-
-      const inv: HydratedDocument<Investigator> | null =
-        await ClaimInvestigator.findById(invId);
-
-      if (!inv)
-        throw new Error(
-          `Failed to find any investigators with the id ${invId}`
-        );
-
-      await captureCaseEvent({
-        eventName,
-        intimationDate:
-          data?.intimationDate ||
-          dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
-        stage: data?.stage,
-        claimId: data?.claimId,
-        eventRemarks,
-        userName,
-      });
-
-      const bodyText = `Dear ${
-        inv?.investigatorName
-      },\n\nYour request to change the claim sub-type of ${
-        data?.claimType === "PreAuth" ? "PreAuth ID" : "Claim ID"
-      } ${data?.claimId} is ${
-        status === "approved" ? "Approved" : "Rejected"
-      } by Team Lead ${tl?.name}.\n\n\nThanks & Regards`;
-
-      await sendEmail({
-        from: FromEmails.DO_NOT_REPLY,
-        recipients: inv?.email,
-        subject: `Claim sub-type change request status update`,
-        bodyText,
-      });
-
-      response = await data.save();
-    } else throw new Error(`Invalid value for action ${action}`);
+        response = await data.save();
+      } else throw new Error(`Invalid value for action ${action}`);
+    }
 
     return NextResponse.json(
       {
