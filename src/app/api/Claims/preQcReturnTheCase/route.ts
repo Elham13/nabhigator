@@ -210,6 +210,8 @@ router.post(async (req) => {
             caseStatus: "Rejected",
             rejectionReasons,
             assignedBy: user?._id,
+            allocationType: "Single",
+            preQcObservation: "-",
           },
         },
         { useFindAndModify: false }
@@ -217,6 +219,8 @@ router.post(async (req) => {
     } else {
       const newCase: HydratedDocument<CaseDetail> = await ClaimCase.create({
         caseStatus: "Rejected",
+        allocationType: "Single",
+        preQcObservation: "-",
         rejectionReasons,
         dashboardDataId,
         intimationDate: dashboardData?.intimationDate,
