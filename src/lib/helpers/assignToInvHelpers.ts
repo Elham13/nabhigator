@@ -27,6 +27,7 @@ export const sendCaseToAllocationBucket = async ({
   dayjs.extend(utc);
   dayjs.extend(timezone);
   try {
+    let newCase: HydratedDocument<CaseDetail> | null = null;
     if (dashboardData?.caseId) {
       await ClaimCase.findByIdAndUpdate(
         dashboardData?.caseId,
@@ -40,14 +41,14 @@ export const sendCaseToAllocationBucket = async ({
         { useFindAndModify: false }
       );
     } else {
-      const newCase: HydratedDocument<CaseDetail> = await ClaimCase.create({
+      newCase = await ClaimCase.create({
         ...body,
         documents: new Map(body?.documents || []),
         intimationDate: dashboardData?.intimationDate,
         assignedBy: user?._id,
         outSourcingDate: new Date(),
       });
-      dashboardData.caseId = newCase._id as string;
+      dashboardData.caseId = newCase?._id! as string;
     }
 
     dashboardData.stage = NumericStage.PENDING_FOR_ALLOCATION;
@@ -79,6 +80,7 @@ export const sendCaseToAllocationBucket = async ({
       userName: user?.name,
     });
 
+    if (newCase) await newCase.save();
     await dashboardData?.save();
 
     return { success: true, message: "Success" };
@@ -105,9 +107,13 @@ export const defineInvestigator = async (
     if (isManual) {
       if (!investigator?.length) {
         if (user?.activeRole !== Role.ALLOCATION) {
-          dashboardData.stage = NumericStage.PENDING_FOR_ALLOCATION;
-          dashboardData.dateOfFallingIntoAllocationBucket = new Date();
-          await dashboardData?.save();
+          const sendToRes = await sendCaseToAllocationBucket({
+            dashboardData,
+            user,
+            body,
+            eventRemarks:
+              "Case moved to allocation bucket because no matching investigator found to assign",
+          });
 
           payload.message = "Case moved to allocation bucket";
           payload.shouldSendRes = true;
