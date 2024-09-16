@@ -417,6 +417,7 @@ const DetailsAccordion = ({
     [
       NumericStage.PENDING_FOR_ALLOCATION,
       NumericStage.PENDING_FOR_RE_ALLOCATION,
+      NumericStage.INVESTIGATION_SKIPPED_AND_RE_ASSIGNING,
     ].includes(data?.stage) &&
     showElement.allocationAccept
       ? [

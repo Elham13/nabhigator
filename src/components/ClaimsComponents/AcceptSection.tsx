@@ -225,6 +225,9 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
         throw new Error("Triggers is required");
       }
 
+      if (!values?.preQcObservation)
+        throw new Error("Pre-Qc observation is required!");
+
       if (values?.allocationType === "Single" && selected.length > 1)
         throw new Error(
           "You have selected more than 1 investigators in Single allocation"
