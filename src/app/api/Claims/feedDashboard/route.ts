@@ -249,7 +249,7 @@ router.post(async (req) => {
     return NextResponse.json(
       {
         success: true,
-        message: "Success",
+        message: "Fetched",
         data: payload,
       },
       { status: 200 }
