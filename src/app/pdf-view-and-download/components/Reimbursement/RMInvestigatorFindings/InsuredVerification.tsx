@@ -528,7 +528,9 @@ const InsuredVerification = ({ values }: PropTypes) => {
       ? [
           {
             key: "Why Insured not visited?",
-            value: values?.reasonOfInsuredNotVisit || "-",
+            value: `${values?.reasonOfInsuredNotVisit?.value || ""} ${
+              values?.reasonOfInsuredNotVisit?.reason || ""
+            }`,
           },
         ]
       : insuredDetails),
