@@ -126,8 +126,8 @@ const AuthorizationLetter = ({ dashboardData }: PropTypes) => {
       />
       <Text style={[styles.textBold, { marginTop: 20 }]}>Gopal Dutt</Text>
       <Text style={[styles.textBold, { marginVertical: 20, fontSize: 16 }]}>
-        (Senior Vice President - Fraud & Risk Control Unit, Insttutonal Fraud
-        Risk Control Unit) Niva Bupa Health Insurance Co. Ltd.{" "}
+        (Senior Vice President - Fraud & Risk Control Unit) Niva Bupa Health
+        Insurance Co. Ltd.{" "}
       </Text>
       <Text style={[styles.textNormal, { fontStyle: "italic" }]}>
         (Formerly known as Max Bupa Health Insurance Co. Ltd.)
