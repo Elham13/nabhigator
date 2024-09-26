@@ -453,7 +453,7 @@ export const processGetDataFilters = async (obj: any) => {
     if (userRole === Role.CLUSTER_MANAGER)
       processedObj["clusterManager"] = new Types.ObjectId(user?._id);
 
-    if (leadView && leadView?.length > 0) {
+    if (leadView && leadView?.length > 0 && !processedObj["claimType"]) {
       processedObj["claimType"] = { $in: leadView };
     }
 
