@@ -14,7 +14,6 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import {
-  Box,
   Button,
   Flex,
   Modal,
@@ -39,9 +38,17 @@ const dependentOptionsMap = {
 
 interface PropTypes {
   dashboardData: IDashboardData | null;
+  isChangeTask?: boolean;
+  postQaComment?: string;
+  onSuccess?: () => void;
 }
 
-const SingleAllocationTasks = ({ dashboardData }: PropTypes) => {
+const SingleAllocationTasks = ({
+  dashboardData,
+  isChangeTask,
+  postQaComment,
+  onSuccess,
+}: PropTypes) => {
   const { values, setValues } = useTasks();
   const router = useRouter();
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
@@ -101,6 +108,7 @@ const SingleAllocationTasks = ({ dashboardData }: PropTypes) => {
   const sendRequest = async () => {
     try {
       setSubmitting(true);
+
       const tasksAndDocs = values?.tasksAndDocs?.map((el) => ({
         ...el,
         docs: el?.docs
@@ -117,12 +125,24 @@ const SingleAllocationTasks = ({ dashboardData }: PropTypes) => {
         user,
       };
 
-      const { data } = await axios.post<
-        SingleResponseType<AssignToInvestigatorRes>
-      >(EndPoints.ASSIGN_TO_INVESTIGATOR, payload);
-      toast.success(data.message);
-      setConfirm(false);
-      router.replace("/Claims/action-inbox");
+      if (isChangeTask) {
+        if (!dashboardData?.caseId) throw new Error("_id is missing");
+        if (!postQaComment) throw new Error("Please add your comment");
+        payload.postQaComment = postQaComment;
+        payload._id = dashboardData?.caseId as string;
+        const { data } = await axios.post<
+          SingleResponseType<AssignToInvestigatorRes>
+        >(EndPoints.CHANGE_TASK, payload);
+        toast.success(data?.message);
+        if (onSuccess) onSuccess();
+      } else {
+        const { data } = await axios.post<
+          SingleResponseType<AssignToInvestigatorRes>
+        >(EndPoints.ASSIGN_TO_INVESTIGATOR, payload);
+        toast.success(data?.message);
+        setConfirm(false);
+        router.replace("/Claims/action-inbox");
+      }
     } catch (error: any) {
       showError(error);
     } finally {

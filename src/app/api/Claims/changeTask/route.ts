@@ -26,7 +26,7 @@ const router = createEdgeRouter<NextRequest, {}>();
 router.post(async (req) => {
   const body = await req?.json();
 
-  const { _id, dashboardDataId, allocationType, investigators, user } = body;
+  const { _id, dashboardDataId, allocationType, user, tasksAndDocs } = body;
 
   try {
     if (!_id) throw new Error("_id is missing in body");
@@ -54,9 +54,11 @@ router.post(async (req) => {
       qaBy: user?.name,
     });
 
-    if (investigators?.length > 0) {
+    const invIds = tasksAndDocs?.map((el: any) => el?.investigator);
+
+    if (invIds?.length > 0) {
       if (allocationType === "Single") {
-        let invId = investigators[0];
+        let invId = invIds[0];
         const inv: HydratedDocument<Investigator> | null =
           await ClaimInvestigator.findById(invId);
 
@@ -71,23 +73,7 @@ router.post(async (req) => {
             name: inv?.investigatorName,
           },
         ];
-
-        dashboardData.actionsTaken = dashboardData?.actionsTaken
-          ? [
-              ...dashboardData?.actionsTaken,
-              {
-                actionName: EventNames.TASK_UPDATE_BY_QA,
-                userId: user?._id,
-              },
-            ]
-          : [
-              {
-                actionName: EventNames.TASK_UPDATE_BY_QA,
-                userId: user?._id,
-              },
-            ];
       } else if (allocationType === "Dual") {
-        let invIds = investigators?.slice(0, 2); // Getting first 2 ids
         let claimInvestigators: any[] = [];
 
         let counter = 0;
@@ -109,28 +95,9 @@ router.post(async (req) => {
         }
 
         dashboardData.claimInvestigators = claimInvestigators;
-        dashboardData.actionsTaken = dashboardData?.actionsTaken
-          ? [
-              ...dashboardData?.actionsTaken,
-              {
-                actionName: EventNames.TASK_UPDATE_BY_QA,
-                userId: user?._id,
-              },
-            ]
-          : [
-              {
-                actionName: EventNames.TASK_UPDATE_BY_QA,
-                userId: user?._id,
-              },
-            ];
       }
-      await dashboardData.save();
     }
-
-    const invIds =
-      allocationType === "Single"
-        ? investigators[0]
-        : investigators?.slice(0, 2);
+    await dashboardData.save();
 
     const data = await ClaimCase.findByIdAndUpdate(
       _id,

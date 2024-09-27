@@ -27,6 +27,7 @@ import {
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
 import { showError, uploadFile } from "@/lib/helpers";
+import TasksAndDocsProvider from "@/lib/providers/TasksAndDocsProvider";
 const ChangeTask = dynamic(
   () => import("@/components/ClaimsComponents/ChangeTask")
 );
@@ -165,18 +166,19 @@ const PostQaReworkContent = ({
           ))}
       </div>
       {showElement.changeTask ? (
-        <ChangeTask
-          id={data?._id as string}
-          dashboardData={data}
-          caseDetail={caseDetail}
-          postQaComment={values?.comment}
-          onSuccess={() =>
-            setShowElement((prev) => ({
-              ...prev,
-              changeTask: false,
-            }))
-          }
-        />
+        <TasksAndDocsProvider>
+          <ChangeTask
+            dashboardData={data}
+            caseDetail={caseDetail}
+            postQaComment={values?.comment}
+            onSuccess={() =>
+              setShowElement((prev) => ({
+                ...prev,
+                changeTask: false,
+              }))
+            }
+          />
+        </TasksAndDocsProvider>
       ) : (
         <Button mt={12} onClick={() => setModalVisible(true)}>
           Send back to investigator
