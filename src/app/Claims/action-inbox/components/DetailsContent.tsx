@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import { Box, Center, Loader } from "@mantine/core";
 import dayjs from "dayjs";
 import axios from "axios";
@@ -83,6 +83,7 @@ type PropTypes = {
 
 const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
+  const isFirstRender = useRef<boolean>(true);
 
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<IDashboardData | null>(null);
@@ -105,7 +106,7 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
   };
 
   useEffect(() => {
-    if (dashboardDataId) {
+    if (dashboardDataId && isFirstRender.current) {
       getData();
 
       const getCaseDetail = async () => {
@@ -122,9 +123,9 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
         }
       };
       getCaseDetail();
+      isFirstRender.current = false;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dashboardDataId]);
+  }, [dashboardDataId, isFirstRender.current]);
 
   const skipInvestigationRoleCheck = [
     Role.ADMIN,
@@ -167,7 +168,7 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
         </Center>
       ) : (
         <>
-          {data?._id ? <NotificationModal data={data} /> : null}
+          {data?._id ? <NotificationModal data={data} user={user} /> : null}
           {data?.claimType === "PreAuth" && (
             <CustomMarquee
               text={

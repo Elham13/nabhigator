@@ -179,6 +179,7 @@ const ChangeTask = ({
     if (caseDetail)
       setValues({
         _id: caseDetail?._id as string,
+        tasksAndDocs: caseDetail?.tasksAndDocs || [],
         allocationType: caseDetail?.allocationType,
         caseType: caseDetail?.caseType,
         caseTypeDependencies: caseDetail?.caseTypeDependencies,

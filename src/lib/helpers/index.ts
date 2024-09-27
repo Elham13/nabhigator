@@ -1,6 +1,7 @@
 import { toast } from "react-toastify";
 import {
   DocumentData,
+  ITasksAndDocuments,
   NumericStage,
   Task,
   TValueCode,
@@ -288,26 +289,42 @@ export const flattenObject = (
 
 interface IConfigureRMTasks {
   claimSubType?: string;
+  part?: "Insured" | "Hospital";
 }
 
 export const configureRMTasksAndDocuments = ({
   claimSubType,
+  part,
 }: IConfigureRMTasks) => {
   const newDocs = new Map<string, DocumentData[]>();
   const newTasks: Task[] = [];
 
   if (claimSubType === "In-patient Hospitalization") {
     for (const el of rmMainObjectOptionsMap) {
-      if (
-        [
-          "NPS Confirmation",
+      let tempTasks = [
+        "Insured Verification",
+        "NPS Confirmation",
+        "Vicinity Verification",
+        "Hospital Verification",
+        "Lab Part/Pathologist Verification",
+        "Chemist Verification",
+      ];
+
+      if (part === "Insured") {
+        tempTasks = [
           "Insured Verification",
+          "NPS Confirmation",
           "Vicinity Verification",
+        ];
+      } else if (part === "Hospital") {
+        tempTasks = [
           "Hospital Verification",
           "Lab Part/Pathologist Verification",
           "Chemist Verification",
-        ].includes(el?.name)
-      ) {
+        ];
+      }
+
+      if (tempTasks.includes(el?.name)) {
         const tempDocs = el?.options?.map((op) => ({
           name: op?.value,
           docUrl: [],
@@ -395,26 +412,57 @@ export const configureRMTasksAndDocuments = ({
     }
   }
 
-  for (const el of rmMainObjectOptionsMap) {
-    if (["Miscellaneous Verification"].includes(el?.name)) {
-      const tempDocs = el?.options
-        ?.filter((op) =>
-          [
-            "Miscellaneous Verification Documents",
-            "Customer Feedback Form",
-            "GPS Photo",
-            "Call Recording",
-            "AVR",
-          ].includes(op?.value)
-        )
-        ?.map((op) => ({
-          name: op?.value,
-          docUrl: [],
-          location: null,
-        }));
-      newTasks.push({ name: el?.name, completed: false, comment: "" });
-      newDocs.set(el?.name, tempDocs);
+  if (part !== "Insured") {
+    for (const el of rmMainObjectOptionsMap) {
+      if (["Miscellaneous Verification"].includes(el?.name)) {
+        const tempDocs = el?.options
+          ?.filter((op) =>
+            [
+              "Miscellaneous Verification Documents",
+              "Customer Feedback Form",
+              "GPS Photo",
+              "Call Recording",
+              "AVR",
+            ].includes(op?.value)
+          )
+          ?.map((op) => ({
+            name: op?.value,
+            docUrl: [],
+            location: null,
+          }));
+        newTasks.push({ name: el?.name, completed: false, comment: "" });
+        newDocs.set(el?.name, tempDocs);
+      }
     }
   }
   return { newDocs, newTasks };
+};
+
+interface IValidateTasksAndDocsArgs {
+  tasksAndDocs: ITasksAndDocuments[];
+  ind: 0 | 1;
+}
+
+export const validateTasksAndDocs = (args: IValidateTasksAndDocsArgs) => {
+  const { tasksAndDocs, ind } = args;
+
+  const partName = ind === 0 ? "Insured" : "Hospital";
+
+  if (tasksAndDocs[ind]?.tasks && tasksAndDocs[ind]?.tasks?.length > 0) {
+    for (const task of tasksAndDocs[ind]?.tasks) {
+      if (["NPS Confirmation"].includes(task?.name)) continue;
+      const documents = new Map(
+        tasksAndDocs[ind]?.docs
+          ? tasksAndDocs[ind]?.docs instanceof Map
+            ? tasksAndDocs[ind]?.docs
+            : Object.entries(tasksAndDocs[ind]?.docs)
+          : []
+      );
+      const doc = documents?.get(task?.name);
+      if (!doc || doc?.length < 1)
+        throw new Error(
+          `Select some documents for the task ${task?.name} in ${partName} Part`
+        );
+    }
+  } else throw new Error(`No tasks are selected in ${partName} Part`);
 };

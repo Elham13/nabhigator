@@ -779,6 +779,23 @@ export interface IInvestigationRejected {
   investigationRejectedReason: string;
 }
 
+export interface ITasksAndDocuments {
+  _id?: string;
+  tasks?: Task[];
+  docs?: DocumentMap | ResponseDoc | null;
+  investigator?: Investigator | string | null;
+  preAuthFindings?: RevisedInvestigationFindings | null;
+  preAuthFindingsPostQa?: RevisedInvestigationFindings | null;
+  rmFindings?: IRMFindings | null;
+  rmFindingsPostQA?: IRMFindings | null;
+  invReportReceivedDate?: Date | null;
+  outSourcingDate?: Date | null;
+  investigationRejected?: IInvestigationRejected;
+  investigatorComment?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 export interface CaseDetail {
   _id: string | ObjectId;
   caseType: string[];
@@ -789,6 +806,7 @@ export interface CaseDetail {
   allocationType: "Single" | "Dual";
   documents: DocumentMap | ResponseDoc | null;
   investigator: Investigator | string | null;
+  tasksAndDocs: ITasksAndDocuments[];
   dashboardDataId: string | ObjectId;
   intimationDate: Date | string;
   rejectionReasons: RejectionReason[];
@@ -1032,3 +1050,9 @@ export interface IMaximusResponseLog {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export type TGeoOption = {
+  city: string[];
+  state: string[];
+  pinCode: string[];
+};

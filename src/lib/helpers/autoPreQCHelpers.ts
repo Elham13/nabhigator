@@ -91,7 +91,6 @@ export const claimCasePayload = {
   insuredState: "",
   insuredPinCode: 0,
   allocatorComment: "",
-  isManual: false,
   user: {
     config: { leadView: [] },
     leave: { fromDate: null, toDate: null, status: "" },
@@ -358,8 +357,7 @@ export const findInvestigators = async (
 };
 
 export const updateInvestigators = async (
-  investigator: Investigator,
-  isManual?: boolean
+  investigator: Investigator
 ): Promise<IUpdateInvReturnType> => {
   const payload: IUpdateInvReturnType = {
     success: true,
@@ -376,73 +374,66 @@ export const updateInvestigators = async (
         `Failed to find an investigator with the id ${investigator?._id}`
       );
 
-    if (isManual) {
-      // Blindly increase daily and monthly assign
+    const monthlyLimitReached =
+      inv?.monthlyThreshold - inv?.monthlyAssigned <= 1;
+    const dailyLimitReached = inv?.dailyThreshold - inv?.dailyAssign <= 1;
+
+    if (monthlyLimitReached) {
+      if (inv?.updatedDate) {
+        const noOfMonthsSinceUpdated = dayjs()
+          .startOf("month")
+          .diff(dayjs(inv?.updatedDate).startOf("month"), "month");
+
+        if (noOfMonthsSinceUpdated > 0) {
+          // It is updated last month, therefore restart the monthly and daily assign
+          inv.dailyAssign = 1;
+          inv.monthlyAssigned = 1;
+          inv.updatedDate = new Date();
+          await inv.save();
+        } else {
+          // Means monthly assign limit reached for this month, don't let to assign, instead find another investigator
+          payload.recycle = true;
+          payload.excludedInv = inv?._id as unknown as ObjectId;
+          return payload;
+        }
+      } else {
+        // updatedDate is undefined, therefor we know it's the first time this investigator is getting assigned
+        inv.dailyAssign = 1;
+        inv.monthlyAssigned = 1;
+        inv.updatedDate = new Date();
+        await inv.save();
+      }
+    } else if (dailyLimitReached) {
+      if (inv?.updatedDate) {
+        const noOfDaysSinceUpdated = dayjs()
+          .startOf("day")
+          .diff(dayjs(inv?.updatedDate).startOf("day"), "day");
+        if (noOfDaysSinceUpdated > 0) {
+          // It is not updated today, therefor restart the daily assign and increase the monthly assign
+          inv.dailyAssign = 1;
+          inv.monthlyAssigned += 1;
+          inv.updatedDate = new Date();
+        } else {
+          // daily assign limit reached, don't let to assign, instead find another investigator
+          payload.recycle = true;
+          payload.excludedInv = inv?._id as unknown as ObjectId;
+          return payload;
+        }
+      } else {
+        // updatedDate is undefined/null, means it is the first time this investigator is getting assigned
+        inv.dailyAssign = 1;
+        inv.monthlyAssigned = 1;
+        inv.updatedDate = new Date();
+        await inv.save();
+      }
+    } else {
+      // Neither monthly nor daily assign limit is reached
       inv.dailyAssign += 1;
       inv.monthlyAssigned += 1;
       inv.updatedDate = new Date();
       await inv.save();
-    } else {
-      const monthlyLimitReached =
-        inv?.monthlyThreshold - inv?.monthlyAssigned <= 1;
-      const dailyLimitReached = inv?.dailyThreshold - inv?.dailyAssign <= 1;
-
-      if (monthlyLimitReached) {
-        if (inv?.updatedDate) {
-          const noOfMonthsSinceUpdated = dayjs()
-            .startOf("month")
-            .diff(dayjs(inv?.updatedDate).startOf("month"), "month");
-
-          if (noOfMonthsSinceUpdated > 0) {
-            // It is updated last month, therefore restart the monthly and daily assign
-            inv.dailyAssign = 1;
-            inv.monthlyAssigned = 1;
-            inv.updatedDate = new Date();
-            await inv.save();
-          } else {
-            // Means monthly assign limit reached for this month, don't let to assign, instead find another investigator
-            payload.recycle = true;
-            payload.excludedInv = inv?._id as unknown as ObjectId;
-            return payload;
-          }
-        } else {
-          // updatedDate is undefined, therefor we know it's the first time this investigator is getting assigned
-          inv.dailyAssign = 1;
-          inv.monthlyAssigned = 1;
-          inv.updatedDate = new Date();
-          await inv.save();
-        }
-      } else if (dailyLimitReached) {
-        if (inv?.updatedDate) {
-          const noOfDaysSinceUpdated = dayjs()
-            .startOf("day")
-            .diff(dayjs(inv?.updatedDate).startOf("day"), "day");
-          if (noOfDaysSinceUpdated > 0) {
-            // It is not updated today, therefor restart the daily assign and increase the monthly assign
-            inv.dailyAssign = 1;
-            inv.monthlyAssigned += 1;
-            inv.updatedDate = new Date();
-          } else {
-            // daily assign limit reached, don't let to assign, instead find another investigator
-            payload.recycle = true;
-            payload.excludedInv = inv?._id as unknown as ObjectId;
-            return payload;
-          }
-        } else {
-          // updatedDate is undefined/null, means it is the first time this investigator is getting assigned
-          inv.dailyAssign = 1;
-          inv.monthlyAssigned = 1;
-          inv.updatedDate = new Date();
-          await inv.save();
-        }
-      } else {
-        // Neither monthly nor daily assign limit is reached
-        inv.dailyAssign += 1;
-        inv.monthlyAssigned += 1;
-        inv.updatedDate = new Date();
-        await inv.save();
-      }
     }
+
     return payload;
   } catch (error: any) {
     return { ...payload, message: error?.message };

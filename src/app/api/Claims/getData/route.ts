@@ -117,7 +117,7 @@ router.post(async (req) => {
       });
     }
 
-    // console.log("pipeline: ", pipeline);
+    // console.log("pipeline: ", pipeline[0]["$match"]);
 
     let data = await DashboardData.aggregate(pipeline, { allowDiskUse: true });
     const count = await DashboardData.countDocuments(updatedFilter);

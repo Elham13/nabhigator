@@ -36,7 +36,9 @@ const router = createEdgeRouter<NextRequest, {}>();
 router.post(async (req) => {
   const body = await req?.json();
 
-  const { dashboardDataId, isManual, allocationType } = body;
+  const { dashboardDataId, allocationType } = body;
+
+  const isManual = body?.tasksAndDocs?.every((el: any) => !!el?.investigator);
 
   const user: IUser = body?.user;
   delete body.user;
@@ -53,7 +55,7 @@ router.post(async (req) => {
   }
 
   try {
-    if (!dashboardDataId) throw new Error("Dashboard Data ID is missing");
+    if (!dashboardDataId) throw new Error("dashboardDataId is missing");
 
     await connectDB(Databases.FNI);
 
@@ -61,14 +63,16 @@ router.post(async (req) => {
       await DashboardData.findById(dashboardDataId);
 
     if (!dashboardData)
-      throw new Error(`No record found with the id ${dashboardDataId}`);
+      throw new Error(
+        `No record found with the dashboardDataId ${dashboardDataId}`
+      );
 
     let investigators: Investigator[] = [];
+
     while (true) {
       const defineInvRes = await defineInvestigator({
         body,
         dashboardData,
-        isManual,
         user,
       });
 
@@ -84,7 +88,11 @@ router.post(async (req) => {
         );
       }
 
-      investigators = defineInvRes?.investigators;
+      investigators = !!defineInvRes?.investigators
+        ? Array.isArray(defineInvRes?.investigators)
+          ? defineInvRes?.investigators
+          : [defineInvRes?.investigators]
+        : [];
 
       const tempRes: IUpdateInvReturnType = {
         success: true,
@@ -95,7 +103,7 @@ router.post(async (req) => {
       // Update investigators daily and/or monthly assign
       for (let i = 0; i < investigators?.length; i++) {
         const inv = investigators[i];
-        const updateRes = await updateInvestigators(inv, isManual);
+        const updateRes = await updateInvestigators(inv);
         if (!updateRes?.success) throw new Error(updateRes?.message);
 
         if (updateRes?.recycle) {
@@ -124,20 +132,22 @@ router.post(async (req) => {
             });
           });
       }
-
       if (!tempRes.recycle) break;
     }
 
     const isReInvestigated = dashboardData?.claimInvestigators?.length > 0;
 
     let newCase: any = null;
+    const tasksAndDocs = body?.tasksAndDocs?.map((el: any) => ({
+      ...el,
+      docs: new Map(el?.docs || []),
+    }));
     if (dashboardData?.caseId) {
       await ClaimCase.findByIdAndUpdate(
         dashboardData?.caseId,
         {
           ...body,
-          documents: new Map(body?.documents || []),
-          investigator: investigators?.map((inv: Investigator) => inv?._id),
+          tasksAndDocs,
           intimationDate: dashboardData?.intimationDate,
           assignedBy: user?._id,
           outSourcingDate: new Date(),
@@ -147,8 +157,7 @@ router.post(async (req) => {
     } else {
       newCase = new ClaimCase({
         ...body,
-        documents: new Map(body?.documents || []),
-        investigator: investigators?.map((inv: Investigator) => inv?._id),
+        tasksAndDocs,
         intimationDate: dashboardData?.intimationDate,
         assignedBy: user?._id,
         outSourcingDate: new Date(),
@@ -175,28 +184,10 @@ router.post(async (req) => {
         _id: inv?._id,
         name: inv.investigatorName,
         assignedFor:
-          allocationType === "Dual" ? (ind === 0 ? "Hospital" : "Insured") : "",
+          allocationType === "Dual" ? (ind === 0 ? "Insured" : "Hospital") : "",
         assignedData: new Date(),
       })
     );
-    dashboardData.actionsTaken = dashboardData?.actionsTaken
-      ? [
-          ...dashboardData?.actionsTaken,
-          {
-            actionName: isManual
-              ? EventNames.MANUAL_ALLOCATION
-              : EventNames.AUTO_ALLOCATION,
-            userId: user?._id,
-          },
-        ]
-      : [
-          {
-            actionName: isManual
-              ? EventNames.MANUAL_ALLOCATION
-              : EventNames.AUTO_ALLOCATION,
-            userId: user?._id,
-          },
-        ];
 
     await captureCaseEvent({
       eventName: isManual
@@ -227,14 +218,14 @@ router.post(async (req) => {
       investigatorIds: investigators?.map((el: Investigator) => el?._id),
     });
 
-    const maximusRes = await tellMaximusCaseIsAssigned(
-      dashboardData?.toJSON(),
-      investigators[0],
-      body?.preQcObservation,
-      user?.email
-    );
+    // const maximusRes = await tellMaximusCaseIsAssigned(
+    //   dashboardData?.toJSON(),
+    //   investigators[0],
+    //   body?.preQcObservation,
+    //   user?.email
+    // );
 
-    if (!maximusRes?.success) throw new Error(maximusRes.message);
+    // if (!maximusRes?.success) throw new Error(maximusRes.message);
 
     responseObj.message = `Case assigned to ${
       allocationType === "Dual"

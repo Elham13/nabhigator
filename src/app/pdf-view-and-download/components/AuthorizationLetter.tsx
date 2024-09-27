@@ -120,8 +120,8 @@ const AuthorizationLetter = ({ dashboardData }: PropTypes) => {
       <PDFImage src="/images/signature.jpg" style={styles.signature} />
       <Text style={[styles.textBold, { marginTop: 20 }]}>Manish Baweja</Text>
       <Text style={[styles.textBold, { marginVertical: 20, fontSize: 16 }]}>
-        (Vice President - Fraud & Risk Control Unit, Insttutonal Fraud Risk
-        Control Unit) Niva Bupa Health Insurance Co. Ltd.{" "}
+        (Senior Vice President - Fraud & Risk Control Unit) Niva Bupa Health
+        Insurance Co. Ltd.{" "}
       </Text>
       <Text style={[styles.textNormal, { fontStyle: "italic" }]}>
         (Formerly known as Max Bupa Health Insurance Co. Ltd.)

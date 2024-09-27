@@ -4,7 +4,6 @@ import {
   CaseDetail,
   EventNames,
   NumericStage,
-  Role,
 } from "../utils/types/fniDataTypes";
 import { HydratedDocument, Types } from "mongoose";
 import dayjs from "dayjs";
@@ -28,12 +27,17 @@ export const sendCaseToAllocationBucket = async ({
   dayjs.extend(timezone);
   try {
     let newCase: HydratedDocument<CaseDetail> | null = null;
+    const tasksAndDocs = body?.tasksAndDocs?.map((el: any) => ({
+      ...el,
+      docs: new Map(el?.docs || []),
+    }));
+
     if (dashboardData?.caseId) {
       await ClaimCase.findByIdAndUpdate(
         dashboardData?.caseId,
         {
           ...body,
-          documents: new Map(body?.documents || []),
+          tasksAndDocs,
           intimationDate: dashboardData?.intimationDate,
           assignedBy: user?._id,
           outSourcingDate: new Date(),
@@ -43,7 +47,7 @@ export const sendCaseToAllocationBucket = async ({
     } else {
       newCase = await ClaimCase.create({
         ...body,
-        documents: new Map(body?.documents || []),
+        tasksAndDocs,
         intimationDate: dashboardData?.intimationDate,
         assignedBy: user?._id,
         outSourcingDate: new Date(),
@@ -92,80 +96,143 @@ export const sendCaseToAllocationBucket = async ({
 export const defineInvestigator = async (
   args: IDefineInvestigator
 ): Promise<IDefineInvestigatorReturnType> => {
-  const { isManual, body, user, dashboardData, excludedIds } = args;
-  const { investigator, allocationType } = body;
+  const { body, user, dashboardData, excludedIds } = args;
+  const { tasksAndDocs, allocationType } = body;
 
   const payload: IDefineInvestigatorReturnType = {
     success: true,
     shouldSendRes: false,
     message: "",
-    investigators: [],
+    investigators: null,
     excludedInvestigators: excludedIds,
   };
 
   try {
-    if (isManual) {
-      if (!investigator?.length) {
-        if (user?.activeRole !== Role.ALLOCATION) {
-          const sendToRes = await sendCaseToAllocationBucket({
-            dashboardData,
-            user,
-            body,
-            eventRemarks:
-              "Case moved to allocation bucket because no matching investigator found to assign",
-          });
-
-          payload.message = "Case moved to allocation bucket";
-          payload.shouldSendRes = true;
+    if (true) {
+      if (allocationType === "Single") {
+        if (!tasksAndDocs || tasksAndDocs?.length !== 1) {
+          payload.success = false;
+          payload.message =
+            "Something went wrong in Tasks and Documents selection";
           return payload;
         } else {
-          const response = await findInvestigators({
-            allocation: { allocationType },
-            dashboardData,
-          });
-          if (response?.success) {
-            payload.investigators = response.investigators;
-            return payload;
+          const { investigator } = tasksAndDocs[0];
+          if (!investigator) {
+            if (dashboardData.stage !== NumericStage.PENDING_FOR_ALLOCATION) {
+              const response = await findInvestigators({
+                allocation: { allocationType },
+                dashboardData,
+              });
+
+              if (response?.success) {
+                payload.investigators = response.investigators;
+                return payload;
+              }
+
+              const { success, message } = await sendCaseToAllocationBucket({
+                dashboardData,
+                user,
+                body,
+                eventRemarks: response?.message,
+              });
+
+              if (!success) {
+                payload.message = message;
+                payload.success = false;
+                return payload;
+              }
+
+              payload.message = `Case automatically moved to allocation bucket because ${response?.message}`;
+              payload.shouldSendRes = true;
+              return payload;
+            } else {
+              const response = await findInvestigators({
+                allocation: { allocationType },
+                dashboardData,
+              });
+              if (response?.success) {
+                payload.investigators = response.investigators[0];
+                return payload;
+              } else {
+                payload.message = response.message;
+                payload.success = false;
+                return payload;
+              }
+            }
           } else {
-            payload.message = response.message;
-            payload.success = false;
+            payload.investigators = await ClaimInvestigator.findById(
+              investigator
+            );
+            return payload;
+          }
+        }
+      } else if (allocationType === "Dual") {
+        if (!tasksAndDocs || tasksAndDocs?.length !== 2) {
+          payload.success = false;
+          payload.message =
+            "Something went wrong in Tasks and Documents selection of Dual allocation";
+          return payload;
+        } else {
+          if (tasksAndDocs?.some((el: any) => !el?.investigator)) {
+            if (dashboardData?.stage !== NumericStage.PENDING_FOR_ALLOCATION) {
+              const response = await findInvestigators({
+                allocation: { allocationType },
+                dashboardData,
+              });
+
+              if (response?.success || response?.investigators?.length === 2) {
+                payload.investigators = response.investigators;
+                return payload;
+              }
+
+              const { success, message } = await sendCaseToAllocationBucket({
+                dashboardData,
+                user,
+                body,
+                eventRemarks:
+                  "Case moved to allocation bucket because no matching investigator found to assign",
+              });
+
+              if (!success) {
+                payload.message = message;
+                payload.success = false;
+                return payload;
+              }
+
+              payload.message = "Case moved to allocation bucket";
+              payload.shouldSendRes = true;
+              return payload;
+            } else {
+              const response = await findInvestigators({
+                allocation: { allocationType },
+                dashboardData,
+              });
+              if (response?.success && response?.investigators?.length === 2) {
+                payload.investigators = response.investigators;
+                return payload;
+              } else {
+                payload.message = response.message;
+                payload.success = false;
+                return payload;
+              }
+            }
+          } else {
+            const invIds = tasksAndDocs?.map((el: any) => el?.investigator);
+            payload.investigators = await ClaimInvestigator.find({
+              _id: invIds?.map((id: string) => new Types.ObjectId(id)),
+            });
+            if (payload?.investigators?.length !== 2) {
+              payload.success = false;
+              payload.message = `Failed to find investigators with the ids ${invIds?.join(
+                ", "
+              )}`;
+            }
             return payload;
           }
         }
       } else {
-        payload.investigators = await ClaimInvestigator.find({
-          _id: {
-            $in: investigator?.map((id: string) => new Types.ObjectId(id)),
-          },
-        });
-        return payload;
-      }
-    } else {
-      // Auto assign
-      const response = await findInvestigators({
-        allocation: { allocationType },
-        dashboardData,
-      });
-      if (response?.success) {
-        payload.investigators = response.investigators;
-        return payload;
-      } else {
-        const sendToRes = await sendCaseToAllocationBucket({
-          dashboardData,
-          user,
-          body,
-          eventRemarks: response?.message,
-        });
-
-        if (!sendToRes?.success) {
-          payload.success = false;
-          payload.message = sendToRes?.message;
-          return payload;
-        }
-
-        payload.success = true;
-        payload.message = `Case automatically moved to allocation bucket because ${response?.message}`;
-        payload.shouldSendRes = true;
+        payload.success = false;
+        payload.message = "Wrong value for allocation type";
         return payload;
       }
     }
