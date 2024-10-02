@@ -289,7 +289,7 @@ export const flattenObject = (
 
 interface IConfigureRMTasks {
   claimSubType?: string;
-  part?: "Insured" | "Hospital";
+  part?: "Insured" | "Hospital" | "None";
 }
 
 export const configureRMTasksAndDocuments = ({
@@ -439,30 +439,33 @@ export const configureRMTasksAndDocuments = ({
 };
 
 interface IValidateTasksAndDocsArgs {
-  tasksAndDocs: ITasksAndDocuments[];
-  ind: 0 | 1;
+  tasksAndDocs: ITasksAndDocuments;
+  partName: "Insured" | "Hospital" | "None";
 }
 
 export const validateTasksAndDocs = (args: IValidateTasksAndDocsArgs) => {
-  const { tasksAndDocs, ind } = args;
+  const { tasksAndDocs, partName } = args;
 
-  const partName = ind === 0 ? "Insured" : "Hospital";
-
-  if (tasksAndDocs[ind]?.tasks && tasksAndDocs[ind]?.tasks?.length > 0) {
-    for (const task of tasksAndDocs[ind]?.tasks) {
+  if (tasksAndDocs?.tasks && tasksAndDocs?.tasks?.length > 0) {
+    for (const task of tasksAndDocs?.tasks) {
       if (["NPS Confirmation"].includes(task?.name)) continue;
       const documents = new Map(
-        tasksAndDocs[ind]?.docs
-          ? tasksAndDocs[ind]?.docs instanceof Map
-            ? tasksAndDocs[ind]?.docs
-            : Object.entries(tasksAndDocs[ind]?.docs)
+        tasksAndDocs?.docs
+          ? tasksAndDocs?.docs instanceof Map
+            ? tasksAndDocs?.docs
+            : Object.entries(tasksAndDocs?.docs)
           : []
       );
       const doc = documents?.get(task?.name);
       if (!doc || doc?.length < 1)
         throw new Error(
-          `Select some documents for the task ${task?.name} in ${partName} Part`
+          `Select some documents for the task ${task?.name} ${
+            partName !== "None" && `in ${partName} Part`
+          }`
         );
     }
-  } else throw new Error(`No tasks are selected in ${partName} Part`);
+  } else
+    throw new Error(
+      `No tasks are selected ${partName !== "None" && `in ${partName} Part`}`
+    );
 };

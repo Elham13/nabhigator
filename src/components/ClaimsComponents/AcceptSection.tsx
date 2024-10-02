@@ -37,36 +37,37 @@ type PropType = {
 };
 
 const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
-  const { values, setValues } = useTasks();
+  const { tasksState, dispatch } = useTasks();
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
 
   const setAllocationType = (val: string) => {
     const value = val as "Single" | "Dual";
+    let newState = { ...tasksState, allocationType: value };
     if (value === "Single") {
       const { insuredAddress, insuredCity, insuredPinCode, insuredState } =
-        values;
+        newState;
       if (insuredAddress || insuredCity || insuredPinCode || insuredState) {
-        setValues((prev) => ({
-          ...prev,
+        newState = {
+          ...newState,
           insuredAddress: "",
           insuredCity: "",
           insuredPinCode: 0,
           insuredState: "",
-        }));
+        };
       }
     }
-    setValues((prev) => ({
-      ...prev,
-      allocationType: value,
-    }));
+    dispatch({ type: "change_state", value: newState });
   };
 
   useEffect(() => {
-    setValues((prev) => ({
-      ...prev,
-      caseType: ["PED/NDC", "Genuineness"],
-      dashboardDataId: dashboardData?._id as string,
-    }));
+    dispatch({
+      type: "change_state",
+      value: {
+        ...tasksState,
+        caseType: ["PED/NDC", "Genuineness"],
+        dashboardDataId: dashboardData?._id as string,
+      },
+    });
   }, [dashboardData?._id]);
 
   useEffect(() => {
@@ -81,22 +82,27 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
       ].includes(user?.activeRole) &&
       caseDetail
     ) {
-      setValues({
-        tasksAndDocs: caseDetail?.tasksAndDocs || [],
-        allocationType: caseDetail?.allocationType,
-        caseType: caseDetail?.caseType,
-        caseTypeDependencies: caseDetail?.caseTypeDependencies,
-        caseStatus: caseDetail?.caseStatus,
-        dashboardDataId: caseDetail?.dashboardDataId,
-        documents: caseDetail?.documents,
-        investigator: caseDetail?.investigator,
-        preQcObservation: caseDetail?.preQcObservation,
-        tasksAssigned: caseDetail?.tasksAssigned,
-        insuredAddress: caseDetail?.insuredAddress,
-        insuredCity: caseDetail?.insuredCity,
-        insuredState: caseDetail?.insuredState,
-        insuredPinCode: caseDetail?.insuredPinCode,
-        allocatorComment: caseDetail?.allocatorComment,
+      dispatch({
+        type: "change_state",
+        value: {
+          singleTasksAndDocs: caseDetail?.singleTasksAndDocs,
+          insuredTasksAndDocs: caseDetail?.insuredTasksAndDocs,
+          hospitalTasksAndDocs: caseDetail?.hospitalTasksAndDocs,
+          allocationType: caseDetail?.allocationType,
+          caseType: caseDetail?.caseType,
+          caseTypeDependencies: caseDetail?.caseTypeDependencies,
+          caseStatus: caseDetail?.caseStatus,
+          dashboardDataId: caseDetail?.dashboardDataId,
+          documents: caseDetail?.documents,
+          investigator: caseDetail?.investigator,
+          preQcObservation: caseDetail?.preQcObservation,
+          tasksAssigned: caseDetail?.tasksAssigned,
+          insuredAddress: caseDetail?.insuredAddress,
+          insuredCity: caseDetail?.insuredCity,
+          insuredState: caseDetail?.insuredState,
+          insuredPinCode: caseDetail?.insuredPinCode,
+          allocatorComment: caseDetail?.allocatorComment,
+        },
       });
     }
   }, [user?.activeRole, caseDetail]);
@@ -112,7 +118,7 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
         name="favoriteFramework"
         withAsterisk
         mt={20}
-        value={values?.allocationType}
+        value={tasksState?.allocationType}
         onChange={setAllocationType}
       >
         <Group mt="xs">
@@ -133,9 +139,9 @@ const AcceptSection = ({ dashboardData, caseDetail, onClose }: PropType) => {
         </Group>
       </Radio.Group>
 
-      {values?.allocationType === "Single" ? (
+      {tasksState?.allocationType === "Single" ? (
         <SingleAllocationTasks dashboardData={dashboardData} />
-      ) : values?.allocationType === "Dual" ? (
+      ) : tasksState?.allocationType === "Dual" ? (
         <DualAllocationTasks dashboardData={dashboardData} />
       ) : null}
     </Box>

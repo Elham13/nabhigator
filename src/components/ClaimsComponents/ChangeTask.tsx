@@ -1,50 +1,9 @@
-import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Button,
-  Group,
-  MultiSelect,
-  NumberInput,
-  Paper,
-  Radio,
-  SimpleGrid,
-  TextInput,
-  Textarea,
-  Title,
-} from "@mantine/core";
-import { useLocalStorage } from "@mantine/hooks";
-import axios from "axios";
-import { toast } from "react-toastify";
-import InvestigatorsList from "./InvestigatorsList";
-import {
-  alcoholAddictionOptionsArray,
-  genuinenessOptionsArray,
-  mainDropdownOptions,
-  mainObjectOptionsMap,
-  mainPartOptions,
-  pedOptionsArray,
-} from "@/lib/utils/constants/options";
-import {
-  AcceptedValues,
-  AssignToInvestigatorRes,
-  CaseDetail,
-  DocumentMap,
-  IDashboardData,
-  SingleResponseType,
-} from "@/lib/utils/types/fniDataTypes";
-import { IUserFromSession } from "@/lib/utils/types/authTypes";
-import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
-import { showError } from "@/lib/helpers";
-import { changeTaskInitialValues } from "@/lib/utils/constants";
+import React, { useEffect } from "react";
+import { Group, Paper, Radio } from "@mantine/core";
+import { CaseDetail, IDashboardData } from "@/lib/utils/types/fniDataTypes";
 import SingleAllocationTasks from "./AcceptSection/SingleAllocationTasks";
 import DualAllocationTasks from "./AcceptSection/DualAllocationTasks";
 import { useTasks } from "@/lib/providers/TasksAndDocsProvider";
-
-const dependentOptionsMap = {
-  PED: pedOptionsArray,
-  Gen: genuinenessOptionsArray,
-  Alc: alcoholAddictionOptionsArray,
-};
 
 type PropType = {
   dashboardData: IDashboardData | null;
@@ -59,34 +18,39 @@ const ChangeTask = ({
   postQaComment,
   onSuccess,
 }: PropType) => {
-  const { values, setValues } = useTasks();
+  const { tasksState, dispatch } = useTasks();
 
   useEffect(() => {
-    setValues((prev) => ({
-      ...prev,
-      dashboardDataId: dashboardData?._id as string,
-    }));
+    dispatch({
+      type: "change_state",
+      value: { ...tasksState, dashboardDataId: dashboardData?._id as string },
+    });
   }, [dashboardData?._id]);
 
   useEffect(() => {
     if (caseDetail)
-      setValues({
-        _id: caseDetail?._id as string,
-        tasksAndDocs: caseDetail?.tasksAndDocs || [],
-        allocationType: caseDetail?.allocationType,
-        caseType: caseDetail?.caseType,
-        caseTypeDependencies: caseDetail?.caseTypeDependencies,
-        caseStatus: caseDetail?.caseStatus,
-        dashboardDataId: caseDetail?.dashboardDataId,
-        documents: caseDetail?.documents,
-        investigator: caseDetail?.investigator,
-        preQcObservation: caseDetail?.preQcObservation,
-        tasksAssigned: caseDetail?.tasksAssigned,
-        insuredAddress: caseDetail?.insuredAddress,
-        insuredCity: caseDetail?.insuredCity,
-        insuredState: caseDetail?.insuredState,
-        insuredPinCode: caseDetail?.insuredPinCode,
-        allocatorComment: caseDetail?.allocatorComment,
+      dispatch({
+        type: "change_state",
+        value: {
+          _id: caseDetail?._id as string,
+          singleTasksAndDocs: caseDetail?.singleTasksAndDocs,
+          insuredTasksAndDocs: caseDetail?.insuredTasksAndDocs,
+          hospitalTasksAndDocs: caseDetail?.hospitalTasksAndDocs,
+          allocationType: caseDetail?.allocationType,
+          caseType: caseDetail?.caseType,
+          caseTypeDependencies: caseDetail?.caseTypeDependencies,
+          caseStatus: caseDetail?.caseStatus,
+          dashboardDataId: caseDetail?.dashboardDataId,
+          documents: caseDetail?.documents,
+          investigator: caseDetail?.investigator,
+          preQcObservation: caseDetail?.preQcObservation,
+          tasksAssigned: caseDetail?.tasksAssigned,
+          insuredAddress: caseDetail?.insuredAddress,
+          insuredCity: caseDetail?.insuredCity,
+          insuredState: caseDetail?.insuredState,
+          insuredPinCode: caseDetail?.insuredPinCode,
+          allocatorComment: caseDetail?.allocatorComment,
+        },
       });
   }, [dashboardData?.caseId, caseDetail]);
 
@@ -96,7 +60,7 @@ const ChangeTask = ({
         name="favoriteFramework"
         withAsterisk
         mt={20}
-        value={values.allocationType}
+        value={tasksState.allocationType}
       >
         <Group mt="xs">
           <Radio value="Single" label="Single Allocation" disabled />
@@ -104,14 +68,14 @@ const ChangeTask = ({
         </Group>
       </Radio.Group>
 
-      {values?.allocationType === "Single" ? (
+      {tasksState?.allocationType === "Single" ? (
         <SingleAllocationTasks
           dashboardData={dashboardData}
           isChangeTask
           onSuccess={onSuccess}
           postQaComment={postQaComment}
         />
-      ) : values?.allocationType === "Dual" ? (
+      ) : tasksState?.allocationType === "Dual" ? (
         <DualAllocationTasks
           dashboardData={dashboardData}
           isChangeTask

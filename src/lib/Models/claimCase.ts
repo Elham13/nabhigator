@@ -192,10 +192,10 @@ const ClaimCaseSchema = new Schema<IClaimCase>(
       default: "Accepted",
     },
     // To be removed
-    tasksAssigned: {
-      type: [TasksSchema],
-      default: [],
-    },
+    // tasksAssigned: {
+    //   type: [TasksSchema],
+    //   default: [],
+    // },
     preQcObservation: {
       type: String,
       required: true,
@@ -206,29 +206,16 @@ const ClaimCaseSchema = new Schema<IClaimCase>(
       default: "Single",
     },
     // To be removed
-    documents: {
-      type: Map,
-      of: [
-        {
-          name: String,
-          docUrl: [String],
-          location: { latitude: Number, longitude: Number },
-        },
-      ],
-      default: {},
-    },
-    // To be removed
-    investigator: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "ClaimInvestigator",
-        default: null,
-      },
-    ],
-    tasksAndDocs: {
-      type: [TasksAndDocumentsSchema],
-      default: [],
-    },
+    // investigator: [
+    //   {
+    //     type: Schema.Types.ObjectId,
+    //     ref: "ClaimInvestigator",
+    //     default: null,
+    //   },
+    // ],
+    singleTasksAndDocs: { type: TasksAndDocumentsSchema, default: null },
+    insuredTasksAndDocs: { type: TasksAndDocumentsSchema, default: null },
+    hospitalTasksAndDocs: { type: TasksAndDocumentsSchema, default: null },
     dashboardDataId: {
       type: Schema.Types.ObjectId,
       ref: "DashboardData",
@@ -255,14 +242,14 @@ const ClaimCaseSchema = new Schema<IClaimCase>(
     },
     allocatorComment: { type: String },
     // To be removed
-    investigationRejected: {
-      remark: { type: String, default: "" },
-      insuredAddress: { type: String, default: "" },
-      insuredCity: { type: String, default: "" },
-      insuredState: { type: String, default: "" },
-      insuredMobileNumber: { type: String, default: "" },
-      investigationRejectedReason: { type: String, default: "" },
-    },
+    // investigationRejected: {
+    //   remark: { type: String, default: "" },
+    //   insuredAddress: { type: String, default: "" },
+    //   insuredCity: { type: String, default: "" },
+    //   insuredState: { type: String, default: "" },
+    //   insuredMobileNumber: { type: String, default: "" },
+    //   investigationRejectedReason: { type: String, default: "" },
+    // },
     postQaComment: { type: String },
     postQARecommendation: {
       summaryOfInvestigation: { type: String },
@@ -283,24 +270,24 @@ const ClaimCaseSchema = new Schema<IClaimCase>(
       documents: { type: [String], default: [] },
     },
     // To be removed
-    investigatorComment: { type: String, default: "" },
+    // investigatorComment: { type: String, default: "" },
     insuredAddress: { type: String },
     insuredCity: { type: String },
     insuredState: { type: String },
     insuredPinCode: { type: Number },
     // To be removed
-    investigationFindings: { type: InvestigationFindingSchema, default: null },
+    // investigationFindings: { type: InvestigationFindingSchema, default: null },
     // To be removed
-    postQaFindings: { type: InvestigationFindingSchema, default: null },
+    // postQaFindings: { type: InvestigationFindingSchema, default: null },
     // To be removed
-    rmFindings: { type: RMInvestigationFindingSchema, default: null },
+    // rmFindings: { type: RMInvestigationFindingSchema, default: null },
     // To be removed
-    rmFindingsPostQA: { type: RMInvestigationFindingSchema, default: null },
+    // rmFindingsPostQA: { type: RMInvestigationFindingSchema, default: null },
     // To be removed
-    invReportReceivedDate: { type: Date, default: null },
+    // invReportReceivedDate: { type: Date, default: null },
     reportSubmissionDateQa: { type: Date, default: null },
     // To be removed
-    outSourcingDate: { type: Date, default: null },
+    // outSourcingDate: { type: Date, default: null },
     postQaOverRulingReason: { type: String, default: "" },
     qaBy: { type: String, default: "" },
   },

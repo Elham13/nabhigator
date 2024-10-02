@@ -806,7 +806,9 @@ export interface CaseDetail {
   allocationType: "Single" | "Dual";
   documents: DocumentMap | ResponseDoc | null;
   investigator: Investigator | string | null;
-  tasksAndDocs: ITasksAndDocuments[];
+  singleTasksAndDocs: ITasksAndDocuments | null;
+  insuredTasksAndDocs: ITasksAndDocuments | null;
+  hospitalTasksAndDocs: ITasksAndDocuments | null;
   dashboardDataId: string | ObjectId;
   intimationDate: Date | string;
   rejectionReasons: RejectionReason[];

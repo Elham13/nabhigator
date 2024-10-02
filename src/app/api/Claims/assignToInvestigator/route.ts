@@ -107,6 +107,21 @@ router.post(async (req) => {
         if (!updateRes?.success) throw new Error(updateRes?.message);
 
         if (updateRes?.recycle) {
+          if (allocationType === "Single") {
+            if (body?.singleTasksAndDocs?.investigator)
+              throw new Error(
+                `The ${updateRes?.type} limit of the investigator (${updateRes?.invName}) is reached please select a different investigator.`
+              );
+          } else {
+            if (
+              body?.hospitalTasksAndDocs?.investigator &&
+              body?.insuredTasksAndDocs?.investigator
+            ) {
+              throw new Error(
+                `The ${updateRes?.type} limit of the investigator (${updateRes?.invName}) is reached please select a different investigator.`
+              );
+            }
+          }
           tempRes.recycle = true;
           investigators = [];
           break;
@@ -138,16 +153,23 @@ router.post(async (req) => {
     const isReInvestigated = dashboardData?.claimInvestigators?.length > 0;
 
     let newCase: any = null;
-    const tasksAndDocs = body?.tasksAndDocs?.map((el: any) => ({
-      ...el,
-      docs: new Map(el?.docs || []),
-    }));
+    if (allocationType === "Single") {
+      body.singleTasksAndDocs.docs = body?.singleTasksAndDocs?.docs
+        ? new Map(body?.singleTasksAndDocs?.docs)
+        : [];
+    } else {
+      body.insuredTasksAndDocs.docs = body?.insuredTasksAndDocs?.docs
+        ? new Map(body?.insuredTasksAndDocs?.docs)
+        : [];
+      body.hospitalTasksAndDocs.docs = body?.hospitalTasksAndDocs?.docs
+        ? new Map(body?.hospitalTasksAndDocs?.docs)
+        : [];
+    }
     if (dashboardData?.caseId) {
       await ClaimCase.findByIdAndUpdate(
         dashboardData?.caseId,
         {
           ...body,
-          tasksAndDocs,
           intimationDate: dashboardData?.intimationDate,
           assignedBy: user?._id,
           outSourcingDate: new Date(),
@@ -157,7 +179,6 @@ router.post(async (req) => {
     } else {
       newCase = new ClaimCase({
         ...body,
-        tasksAndDocs,
         intimationDate: dashboardData?.intimationDate,
         assignedBy: user?._id,
         outSourcingDate: new Date(),
@@ -237,7 +258,6 @@ router.post(async (req) => {
     responseObj.data = investigators;
     if (newCase !== null) await newCase.save();
     await dashboardData.save();
-
     return NextResponse.json(responseObj, { status: statusCode });
   } catch (error: any) {
     return NextResponse.json(

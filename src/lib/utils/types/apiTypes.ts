@@ -46,4 +46,6 @@ export interface IUpdateInvReturnType {
   message: string;
   recycle: boolean;
   excludedInv?: ObjectId;
+  invName?: string;
+  type?: "daily" | "monthly";
 }

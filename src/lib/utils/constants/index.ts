@@ -174,7 +174,9 @@ export const usersInitials: IUser = {
 };
 
 export const changeTaskInitialValues: AcceptedValues = {
-  tasksAndDocs: [],
+  singleTasksAndDocs: null,
+  insuredTasksAndDocs: null,
+  hospitalTasksAndDocs: null,
   allocationType: "Single",
   caseType: [],
   caseTypeDependencies: {

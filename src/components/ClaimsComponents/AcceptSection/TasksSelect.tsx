@@ -1,12 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AcceptedValues,
   DocumentData,
   DocumentMap,
   IDashboardData,
   NumericStage,
-  ResponseDoc,
-  Task,
 } from "@/lib/utils/types/fniDataTypes";
 import { MultiSelect, Title } from "@mantine/core";
 import {
@@ -19,6 +17,7 @@ import { configureRMTasksAndDocuments } from "@/lib/helpers";
 import { toast } from "react-toastify";
 import dynamic from "next/dynamic";
 import { Spin } from "antd";
+import { useTasks } from "@/lib/providers/TasksAndDocsProvider";
 
 const InvestigatorsList = dynamic(() => import("../InvestigatorsList"), {
   loading: () => <Spin />,
@@ -27,23 +26,43 @@ const InvestigatorsList = dynamic(() => import("../InvestigatorsList"), {
 
 interface PropTypes {
   title: string;
-  tasksAssigned: Task[];
-  documents: DocumentMap | ResponseDoc | null;
   dashboardData: IDashboardData | null;
-  onTasksChange: (tasks: Task[]) => void;
-  onDocsChange: (docs: Map<string, DocumentData[]>) => void;
-  getSelectedInvestigator: (id: string) => void;
+  part: "Insured" | "Hospital" | "None";
 }
 
-const TasksSelect = ({
-  title,
-  tasksAssigned,
-  documents,
-  dashboardData,
-  onTasksChange,
-  onDocsChange,
-  getSelectedInvestigator,
-}: PropTypes) => {
+const TasksSelect = ({ title, part, dashboardData }: PropTypes) => {
+  const { tasksState, dispatch } = useTasks();
+
+  const tasksAssigned = useMemo(() => {
+    return part === "Hospital"
+      ? tasksState?.hospitalTasksAndDocs?.tasks || []
+      : part === "Insured"
+      ? tasksState?.insuredTasksAndDocs?.tasks || []
+      : part === "None"
+      ? tasksState?.singleTasksAndDocs?.tasks || []
+      : [];
+  }, [
+    part,
+    tasksState?.hospitalTasksAndDocs?.tasks,
+    tasksState?.insuredTasksAndDocs?.tasks,
+    tasksState?.singleTasksAndDocs?.tasks,
+  ]);
+
+  const documents = useMemo(() => {
+    return part === "Hospital"
+      ? tasksState?.hospitalTasksAndDocs?.docs || {}
+      : part === "Insured"
+      ? tasksState?.insuredTasksAndDocs?.docs || {}
+      : part === "None"
+      ? tasksState?.singleTasksAndDocs?.docs
+      : [];
+  }, [
+    part,
+    tasksState?.hospitalTasksAndDocs?.docs,
+    tasksState?.insuredTasksAndDocs?.docs,
+    tasksState?.singleTasksAndDocs?.docs,
+  ]);
+
   const handleSelect = (
     name: keyof AcceptedValues,
     value: string | string[] | null
@@ -92,16 +111,30 @@ const TasksSelect = ({
         }
       }
 
-      onTasksChange([
-        ...value.map((el) => ({
-          name: el,
-          completed: false,
-          comment: "",
-        })),
-      ]);
+      const payload = {
+        tasks: [
+          ...value.map((el) => ({
+            name: el,
+            completed: false,
+            comment: "",
+          })),
+        ],
+        docs,
+      };
+      let key = "";
 
-      onDocsChange(docs);
-      return;
+      if (part === "Hospital") {
+        key = "hospitalTasksAndDocs";
+      } else if (part === "Insured") {
+        key = "insuredTasksAndDocs";
+      } else if (part === "None") {
+        key = "singleTasksAndDocs";
+      }
+      if (!!key)
+        dispatch({
+          type: "change_state",
+          value: { [key]: payload },
+        });
     }
   };
 
@@ -126,7 +159,37 @@ const TasksSelect = ({
       );
     }
 
-    onDocsChange(newDoc);
+    if (part === "Hospital") {
+      dispatch({
+        type: "change_state",
+        value: {
+          hospitalTasksAndDocs: {
+            ...tasksState?.hospitalTasksAndDocs,
+            docs: newDoc,
+          },
+        },
+      });
+    } else if (part === "Insured") {
+      dispatch({
+        type: "change_state",
+        value: {
+          insuredTasksAndDocs: {
+            ...tasksState?.insuredTasksAndDocs,
+            docs: newDoc,
+          },
+        },
+      });
+    } else if (part === "None") {
+      dispatch({
+        type: "change_state",
+        value: {
+          singleTasksAndDocs: {
+            ...tasksState?.singleTasksAndDocs,
+            docs: newDoc,
+          },
+        },
+      });
+    }
   };
 
   const getDocumentsSelectOptions = useCallback(
@@ -142,7 +205,37 @@ const TasksSelect = ({
 
   const handleInvSelect = (ids: string[]) => {
     if (ids?.length > 1) return toast.warn("Only one selection allowed!");
-    getSelectedInvestigator(ids[0]);
+    if (part === "Hospital") {
+      dispatch({
+        type: "change_state",
+        value: {
+          hospitalTasksAndDocs: {
+            ...tasksState?.hospitalTasksAndDocs,
+            investigator: ids[0],
+          },
+        },
+      });
+    } else if (part === "Insured") {
+      dispatch({
+        type: "change_state",
+        value: {
+          insuredTasksAndDocs: {
+            ...tasksState?.insuredTasksAndDocs,
+            investigator: ids[0],
+          },
+        },
+      });
+    } else if (part === "None") {
+      dispatch({
+        type: "change_state",
+        value: {
+          singleTasksAndDocs: {
+            ...tasksState?.singleTasksAndDocs,
+            investigator: ids[0],
+          },
+        },
+      });
+    }
   };
 
   useEffect(() => {
@@ -161,29 +254,92 @@ const TasksSelect = ({
 
         newDocs.set("Pre-Auth Investigation", preAuthDocs || []);
 
-        onTasksChange([
+        const tasks = [
           { name: "Pre-Auth Investigation", comment: "", completed: false },
-        ]);
-        onDocsChange(newDocs);
-      } else if (dashboardData?.claimType === "Reimbursement") {
-        const part = title?.includes("Insured")
-          ? "Insured"
-          : title?.includes("Hospital")
-          ? "Hospital"
-          : undefined;
+        ];
 
+        let payload = {};
+        if (part === "Hospital") {
+          payload = {
+            hospitalTasksAndDocs: {
+              ...tasksState?.hospitalTasksAndDocs,
+              tasks,
+              docs: newDocs,
+            },
+          };
+        } else if (part === "Insured") {
+          payload = {
+            insuredTasksAndDocs: {
+              ...tasksState?.insuredTasksAndDocs,
+              tasks,
+              docs: newDocs,
+            },
+          };
+        } else if (part === "None") {
+          payload = {
+            singleTasksAndDocs: {
+              ...tasksState?.singleTasksAndDocs,
+              tasks,
+              docs: newDocs,
+            },
+          };
+        }
+        dispatch({
+          type: "change_state",
+          value: payload,
+        });
+      } else if (dashboardData?.claimType === "Reimbursement") {
         const { newTasks, newDocs } = configureRMTasksAndDocuments({
           claimSubType: dashboardData?.claimSubType,
           part,
         });
+        console.count("running");
+        console.log("newTasks: ", newTasks);
+        console.log("newDocs: ", newDocs);
+        console.log("part: ", part);
 
-        onTasksChange(newTasks);
-        onDocsChange(newDocs);
+        let payload = {};
+        if (part === "Insured") {
+          const temp = tasksState?.insuredTasksAndDocs || {};
+          payload = {
+            insuredTasksAndDocs: {
+              ...temp,
+              tasks: newTasks,
+              docs: newDocs,
+            },
+          };
+        }
+        if (part === "Hospital") {
+          const temp = tasksState?.hospitalTasksAndDocs || {};
+          payload = {
+            hospitalTasksAndDocs: {
+              ...temp,
+              tasks: newTasks,
+              docs: newDocs,
+            },
+          };
+        } else if (part === "None") {
+          const temp = tasksState?.singleTasksAndDocs;
+          payload = {
+            singleTasksAndDocs: {
+              ...temp,
+              tasks: newTasks,
+              docs: newDocs,
+            },
+          };
+        }
+        dispatch({
+          type: "change_state",
+          value: payload,
+        });
       }
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dashboardData?.claimType, dashboardData?.claimSubType, title]);
+  }, [
+    dashboardData?.claimType,
+    dashboardData?.claimSubType,
+    part,
+    tasksState?.allocationType,
+  ]);
 
   return (
     <>
@@ -196,7 +352,6 @@ const TasksSelect = ({
       >
         {title}
       </Title>
-      {console.log({ tasksAssigned })}
       <MultiSelect
         label="Select task"
         placeholder="Select tasks for the main part"

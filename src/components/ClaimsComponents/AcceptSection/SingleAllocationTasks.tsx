@@ -49,7 +49,7 @@ const SingleAllocationTasks = ({
   postQaComment,
   onSuccess,
 }: PropTypes) => {
-  const { values, setValues } = useTasks();
+  const { tasksState, dispatch } = useTasks();
   const router = useRouter();
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
 
@@ -60,15 +60,15 @@ const SingleAllocationTasks = ({
     name: keyof AcceptedValues,
     value: string | string[] | null
   ) => {
-    setValues((prev) => ({ ...prev, [name]: value }));
+    dispatch({ type: "change_state", value: { [name]: value } });
   };
 
   const validateValues = () => {
     try {
-      if (values?.caseType && values?.caseType?.length > 0) {
+      if (tasksState?.caseType && tasksState?.caseType?.length > 0) {
         if (user?.config?.triggerSubType === "Mandatory") {
-          values?.caseType?.map((item) => {
-            const subTrigger = values?.caseTypeDependencies?.[item];
+          tasksState?.caseType?.map((item) => {
+            const subTrigger = tasksState?.caseTypeDependencies?.[item];
             if (!subTrigger || subTrigger?.length === 0)
               throw new Error(`Sub-Trigger ${item} is required`);
           });
@@ -77,18 +77,24 @@ const SingleAllocationTasks = ({
         throw new Error("Triggers is required");
       }
 
-      if (!values?.preQcObservation)
+      if (!tasksState?.preQcObservation)
         throw new Error("Pre-Qc observation is required!");
 
-      if (values?.tasksAndDocs?.length !== 1)
+      if (
+        !tasksState?.singleTasksAndDocs?.tasks ||
+        tasksState?.singleTasksAndDocs?.tasks?.length < 1
+      )
         throw new Error("Please select tasks and documents");
 
-      const inv = values?.tasksAndDocs[0]?.investigator;
+      const inv = !!tasksState?.singleTasksAndDocs?.investigator;
 
       if (dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION && !inv)
         throw new Error("Please select an investigator");
 
-      validateTasksAndDocs({ tasksAndDocs: values?.tasksAndDocs, ind: 0 });
+      validateTasksAndDocs({
+        tasksAndDocs: tasksState?.singleTasksAndDocs,
+        partName: "None",
+      });
 
       if (
         dashboardData?.stage !== NumericStage.PENDING_FOR_ALLOCATION &&
@@ -109,18 +115,21 @@ const SingleAllocationTasks = ({
     try {
       setSubmitting(true);
 
-      const tasksAndDocs = values?.tasksAndDocs?.map((el) => ({
-        ...el,
-        docs: el?.docs
-          ? el?.docs instanceof Map
-            ? Array.from(el?.docs?.entries())
-            : Array.from(new Map(Object.entries(el?.docs)).entries())
+      const docs = tasksState?.singleTasksAndDocs?.docs;
+      const singleTasksAndDocs = {
+        ...tasksState?.singleTasksAndDocs,
+        docs: docs
+          ? docs instanceof Map
+            ? Array.from(docs.entries())
+            : Array.from(new Map(Object.entries(docs))?.entries())
           : null,
-      }));
+      };
 
       const payload = {
-        ...values,
-        tasksAndDocs,
+        ...tasksState,
+        singleTasksAndDocs,
+        insuredTasksAndDocs: null,
+        hospitalTasksAndDocs: null,
         caseStatus: "Accepted",
         user,
       };
@@ -164,40 +173,28 @@ const SingleAllocationTasks = ({
     }
   };
 
-  const handleSetVal = (
-    name: "docs" | "tasks" | "investigator",
-    value: any
-  ) => {
-    const tasksAndDocs = values?.tasksAndDocs;
-    const temp = tasksAndDocs[0] || {};
-    temp[name] = value;
-    tasksAndDocs[0] = temp;
-
-    setValues((prev) => ({ ...prev, tasksAndDocs }));
-  };
-
   return (
     <form onSubmit={handleSubmit} className="mt-8">
       <SimpleGrid cols={{ sm: 1, md: 2 }}>
         <MultiSelect
           label="Triggers"
           placeholder="Select triggers"
-          value={values?.caseType || []}
+          value={tasksState?.caseType || []}
           onChange={(val) => handleSelect("caseType", val)}
           data={mainDropdownOptions}
           checkIconPosition="right"
           searchable
           hidePickedOptions
           clearable
-          required={values?.caseType?.length < 1}
+          required={tasksState?.caseType?.length < 1}
           withAsterisk
           disabled={
             dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
           }
         />
-        {values?.caseType?.length > 0 &&
+        {tasksState?.caseType?.length > 0 &&
           dashboardData?.claimType !== "PreAuth" &&
-          values?.caseType?.map((item, ind) => {
+          tasksState?.caseType?.map((item, ind) => {
             const options =
               dependentOptionsMap[
                 item?.slice(0, 3) as keyof typeof dependentOptionsMap
@@ -207,16 +204,18 @@ const SingleAllocationTasks = ({
                 key={ind}
                 label={item}
                 placeholder={`Select ${item}`}
-                value={values?.caseTypeDependencies?.[item] || []}
-                onChange={(val) =>
-                  setValues((prev) => ({
-                    ...prev,
-                    caseTypeDependencies: {
-                      ...prev.caseTypeDependencies,
-                      [item]: val,
+                value={tasksState?.caseTypeDependencies?.[item] || []}
+                onChange={(val) => {
+                  dispatch({
+                    type: "change_state",
+                    value: {
+                      caseTypeDependencies: {
+                        ...tasksState.caseTypeDependencies,
+                        [item]: val,
+                      },
                     },
-                  }))
-                }
+                  });
+                }}
                 data={options}
                 checkIconPosition="right"
                 searchable
@@ -234,36 +233,25 @@ const SingleAllocationTasks = ({
           label="Pre-QC Observation"
           description="Mention pre-qc observation based on information and documents due deligence"
           placeholder="Pre-QC Observation"
-          value={values?.preQcObservation || ""}
+          value={tasksState?.preQcObservation || ""}
           required
-          onChange={(e) =>
-            setValues((prev) => ({
-              ...prev,
-              preQcObservation: e?.currentTarget?.value || "",
-            }))
-          }
+          onChange={(e) => {
+            dispatch({
+              type: "change_state",
+              value: {
+                preQcObservation: e?.currentTarget?.value || "",
+              },
+            });
+          }}
           disabled={
             dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
           }
         />
-        {values?.caseType?.length > 0 && (
+        {tasksState?.caseType?.length > 0 && (
           <TasksSelect
             title="Task and Documents assignment"
             dashboardData={dashboardData}
-            documents={
-              !!values?.tasksAndDocs[0]?.docs
-                ? values?.tasksAndDocs[0]?.docs
-                : null
-            }
-            tasksAssigned={
-              !!values?.tasksAndDocs[0]?.tasks &&
-              values?.tasksAndDocs[0]?.tasks?.length > 0
-                ? values?.tasksAndDocs[0]?.tasks
-                : []
-            }
-            onDocsChange={(docs) => handleSetVal("docs", docs)}
-            onTasksChange={(tasks) => handleSetVal("tasks", tasks)}
-            getSelectedInvestigator={(id) => handleSetVal("investigator", id)}
+            part="None"
           />
         )}
         {dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION && (
@@ -271,14 +259,16 @@ const SingleAllocationTasks = ({
             className="col-span-1 md:col-span-2"
             label="Allocator's comment"
             placeholder="Enter your comment"
-            value={values?.allocatorComment || ""}
+            value={tasksState?.allocatorComment || ""}
             required
-            onChange={(e) =>
-              setValues((prev) => ({
-                ...prev,
-                allocatorComment: e?.currentTarget?.value || "",
-              }))
-            }
+            onChange={(e) => {
+              dispatch({
+                type: "change_state",
+                value: {
+                  allocatorComment: e?.currentTarget?.value || "",
+                },
+              });
+            }}
           />
         )}
         <Button loading={submitting} type="submit">

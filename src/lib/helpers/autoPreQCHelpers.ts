@@ -394,6 +394,8 @@ export const updateInvestigators = async (
           // Means monthly assign limit reached for this month, don't let to assign, instead find another investigator
           payload.recycle = true;
           payload.excludedInv = inv?._id as unknown as ObjectId;
+          payload.invName = inv?.investigatorName;
+          payload.type = "monthly";
           return payload;
         }
       } else {
@@ -417,6 +419,8 @@ export const updateInvestigators = async (
           // daily assign limit reached, don't let to assign, instead find another investigator
           payload.recycle = true;
           payload.excludedInv = inv?._id as unknown as ObjectId;
+          payload.invName = inv?.investigatorName;
+          payload.type = "daily";
           return payload;
         }
       } else {

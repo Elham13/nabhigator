@@ -64,7 +64,7 @@ const DualAllocationTasks = ({
   onSuccess,
 }: PropTypes) => {
   const router = useRouter();
-  const { values, setValues } = useTasks();
+  const { tasksState, dispatch } = useTasks();
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
 
   const [submitting, setSubmitting] = useState<boolean>(false);
@@ -81,22 +81,22 @@ const DualAllocationTasks = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.currentTarget;
-    setValues((prev) => ({ ...prev, [name]: value }));
+    dispatch({ type: "change_state", value: { ...tasksState, [name]: value } });
   };
 
   const handleSelect = (
     name: keyof AcceptedValues,
     value: string | string[] | null
   ) => {
-    setValues((prev) => ({ ...prev, [name]: value }));
+    dispatch({ type: "change_state", value: { ...tasksState, [name]: value } });
   };
 
   const validateValues = () => {
     try {
-      if (values?.caseType && values?.caseType?.length > 0) {
+      if (tasksState?.caseType && tasksState?.caseType?.length > 0) {
         if (user?.config?.triggerSubType === "Mandatory") {
-          values?.caseType?.map((item) => {
-            const subTrigger = values?.caseTypeDependencies?.[item];
+          tasksState?.caseType?.map((item) => {
+            const subTrigger = tasksState?.caseTypeDependencies?.[item];
             if (!subTrigger || subTrigger?.length === 0)
               throw new Error(`Sub-Trigger ${item} is required`);
           });
@@ -105,16 +105,22 @@ const DualAllocationTasks = ({
         throw new Error("Triggers is required");
       }
 
-      if (!values?.preQcObservation)
+      if (!tasksState?.preQcObservation)
         throw new Error("Pre-Qc observation is required!");
 
-      if (values?.tasksAndDocs?.length < 1)
+      if (
+        !tasksState?.insuredTasksAndDocs?.tasks ||
+        tasksState?.insuredTasksAndDocs?.tasks?.length < 1
+      )
         throw new Error("Please select Insured part tasks and documents");
 
-      if (values?.tasksAndDocs?.length < 2)
+      if (
+        !tasksState?.hospitalTasksAndDocs?.tasks ||
+        tasksState?.hospitalTasksAndDocs?.tasks?.length < 1
+      )
         throw new Error("Please select Hospital part tasks and documents");
 
-      const insuredInv = values?.tasksAndDocs[0]?.investigator;
+      const insuredInv = tasksState?.insuredTasksAndDocs?.investigator;
 
       if (
         dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION &&
@@ -122,7 +128,7 @@ const DualAllocationTasks = ({
       )
         throw new Error("Please select an investigator in Insured part");
 
-      const hospitalInv = values?.tasksAndDocs[1]?.investigator;
+      const hospitalInv = tasksState?.hospitalTasksAndDocs?.investigator;
 
       if (
         dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION &&
@@ -130,8 +136,14 @@ const DualAllocationTasks = ({
       )
         throw new Error("Please select an investigator in Hospital part");
 
-      validateTasksAndDocs({ tasksAndDocs: values?.tasksAndDocs, ind: 0 });
-      validateTasksAndDocs({ tasksAndDocs: values?.tasksAndDocs, ind: 1 });
+      validateTasksAndDocs({
+        tasksAndDocs: tasksState?.insuredTasksAndDocs,
+        partName: "Insured",
+      });
+      validateTasksAndDocs({
+        tasksAndDocs: tasksState?.hospitalTasksAndDocs,
+        partName: "Hospital",
+      });
 
       if (
         dashboardData?.stage !== NumericStage.PENDING_FOR_ALLOCATION &&
@@ -162,18 +174,32 @@ const DualAllocationTasks = ({
   const sendRequest = async () => {
     try {
       setSubmitting(true);
-      const tasksAndDocs = values?.tasksAndDocs?.map((el) => ({
-        ...el,
-        docs: el?.docs
-          ? el?.docs instanceof Map
-            ? Array.from(el?.docs?.entries())
-            : Array.from(new Map(Object.entries(el?.docs)).entries())
+
+      const insuredDocs = tasksState?.insuredTasksAndDocs?.docs;
+      const insuredTasksAndDocs = {
+        ...tasksState?.insuredTasksAndDocs,
+        docs: insuredDocs
+          ? insuredDocs instanceof Map
+            ? Array.from(insuredDocs.entries())
+            : Array.from(new Map(Object.entries(insuredDocs))?.entries())
           : null,
-      }));
+      };
+
+      const hospitalDocs = tasksState?.hospitalTasksAndDocs?.docs;
+      const hospitalTasksAndDocs = {
+        ...tasksState?.hospitalTasksAndDocs,
+        docs: hospitalDocs
+          ? hospitalDocs instanceof Map
+            ? Array.from(hospitalDocs.entries())
+            : Array.from(new Map(Object.entries(hospitalDocs))?.entries())
+          : null,
+      };
 
       const payload = {
-        ...values,
-        tasksAndDocs,
+        ...tasksState,
+        singleTasksAndDocs: null,
+        insuredTasksAndDocs,
+        hospitalTasksAndDocs,
         caseStatus: "Accepted",
         user,
       };
@@ -216,6 +242,21 @@ const DualAllocationTasks = ({
       }
     }
   };
+
+  useEffect(() => {
+    if (!!dashboardData?.insuredDetails) {
+      // Prefill insured address
+      dispatch({
+        type: "change_state",
+        value: {
+          ...tasksState,
+          insuredAddress: dashboardData?.insuredDetails?.address || "",
+          insuredCity: dashboardData?.insuredDetails?.city || "",
+          insuredState: dashboardData?.insuredDetails?.state || "",
+        },
+      });
+    }
+  }, [dashboardData?.insuredDetails]);
 
   useEffect(() => {
     const getCities = async () => {
@@ -273,28 +314,16 @@ const DualAllocationTasks = ({
     });
   }, [searchValues.state, dashboardData?.insuredDetails?.state]);
 
-  useEffect(() => {
-    if (!!dashboardData?.insuredDetails) {
-      // Prefill insured address
-      setValues((prev) => ({
-        ...prev,
-        insuredAddress: dashboardData?.insuredDetails?.address || "",
-        insuredCity: dashboardData?.insuredDetails?.city || "",
-        insuredState: dashboardData?.insuredDetails?.state || "",
-      }));
-    }
-  }, [dashboardData?.insuredDetails, setValues]);
-
   return (
     <form onSubmit={handleSubmit} className="mt-8">
       <SimpleGrid cols={{ sm: 1, md: 2 }}>
-        {values?.allocationType === "Dual" && (
+        {tasksState?.allocationType === "Dual" && (
           <>
             <TextInput
               label="Insured Address"
               placeholder="Insured Address"
               required
-              value={values?.insuredAddress}
+              value={tasksState?.insuredAddress || ""}
               name="insuredAddress"
               onChange={handleChange}
               disabled={
@@ -305,10 +334,13 @@ const DualAllocationTasks = ({
               label="Insured City"
               placeholder="Insured City"
               required
-              value={values?.insuredCity}
+              value={tasksState?.insuredCity || ""}
               name="insuredCity"
               onChange={(val) =>
-                setValues((prev) => ({ ...prev, insuredCity: val || "" }))
+                dispatch({
+                  type: "change_state",
+                  value: { ...tasksState, insuredCity: val || "" },
+                })
               }
               disabled={
                 dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
@@ -316,7 +348,7 @@ const DualAllocationTasks = ({
               data={geoOptions?.city}
               searchable
               clearable
-              searchValue={searchValues.city}
+              searchValue={searchValues.city || ""}
               onSearchChange={(val) =>
                 setSearchValues((prev) => ({ ...prev, city: val || "" }))
               }
@@ -325,10 +357,13 @@ const DualAllocationTasks = ({
               label="Insured State"
               placeholder="Insured State"
               required
-              value={values?.insuredState}
+              value={tasksState?.insuredState || ""}
               name="insuredState"
               onChange={(val) =>
-                setValues((prev) => ({ ...prev, insuredState: val || "" }))
+                dispatch({
+                  type: "change_state",
+                  value: { ...tasksState, insuredState: val || "" },
+                })
               }
               disabled={
                 dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
@@ -345,12 +380,15 @@ const DualAllocationTasks = ({
               label="Insured PinCode"
               placeholder="Insured PinCode"
               required
-              value={values?.insuredPinCode?.toString() || ""}
+              value={tasksState?.insuredPinCode?.toString() || ""}
               onChange={(val) =>
-                setValues((prev) => ({
-                  ...prev,
-                  insuredPinCode: val ? parseInt(val) : 0,
-                }))
+                dispatch({
+                  type: "change_state",
+                  value: {
+                    ...tasksState,
+                    insuredPinCode: val ? parseInt(val) : 0,
+                  },
+                })
               }
               disabled={
                 dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
@@ -368,22 +406,22 @@ const DualAllocationTasks = ({
         <MultiSelect
           label="Triggers"
           placeholder="Select triggers"
-          value={values?.caseType || []}
+          value={tasksState?.caseType || []}
           onChange={(val) => handleSelect("caseType", val)}
           data={mainDropdownOptions}
           checkIconPosition="right"
           searchable
           hidePickedOptions
           clearable
-          required={values?.caseType?.length < 1}
+          required={tasksState?.caseType?.length < 1}
           withAsterisk
           disabled={
             dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
           }
         />
-        {values?.caseType?.length > 0 &&
+        {tasksState?.caseType?.length > 0 &&
           dashboardData?.claimType !== "PreAuth" &&
-          values?.caseType?.map((item, ind) => {
+          tasksState?.caseType?.map((item, ind) => {
             const options =
               dependentOptionsMap[
                 item?.slice(0, 3) as keyof typeof dependentOptionsMap
@@ -393,16 +431,19 @@ const DualAllocationTasks = ({
                 key={ind}
                 label={item}
                 placeholder={`Select ${item}`}
-                value={values?.caseTypeDependencies?.[item] || []}
-                onChange={(val) =>
-                  setValues((prev) => ({
-                    ...prev,
-                    caseTypeDependencies: {
-                      ...prev.caseTypeDependencies,
-                      [item]: val,
+                value={tasksState?.caseTypeDependencies?.[item] || []}
+                onChange={(val) => {
+                  dispatch({
+                    type: "change_state",
+                    value: {
+                      ...tasksState,
+                      caseTypeDependencies: {
+                        ...tasksState.caseTypeDependencies,
+                        [item]: val,
+                      },
                     },
-                  }))
-                }
+                  });
+                }}
                 data={options}
                 checkIconPosition="right"
                 searchable
@@ -420,14 +461,17 @@ const DualAllocationTasks = ({
           label="Pre-QC Observation"
           description="Mention pre-qc observation based on information and documents due deligence"
           placeholder="Pre-QC Observation"
-          value={values?.preQcObservation || ""}
+          value={tasksState?.preQcObservation || ""}
           required
-          onChange={(e) =>
-            setValues((prev) => ({
-              ...prev,
-              preQcObservation: e?.currentTarget?.value || "",
-            }))
-          }
+          onChange={(e) => {
+            dispatch({
+              type: "change_state",
+              value: {
+                ...tasksState,
+                preQcObservation: e?.currentTarget?.value || "",
+              },
+            });
+          }}
           disabled={
             dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
           }
@@ -438,18 +482,21 @@ const DualAllocationTasks = ({
             className="col-span-1 md:col-span-2"
             label="Allocator's comment"
             placeholder="Enter your comment"
-            value={values?.allocatorComment || ""}
+            value={tasksState?.allocatorComment || ""}
             required
-            onChange={(e) =>
-              setValues((prev) => ({
-                ...prev,
-                allocatorComment: e?.currentTarget?.value || "",
-              }))
-            }
+            onChange={(e) => {
+              dispatch({
+                type: "change_state",
+                value: {
+                  ...tasksState,
+                  allocatorComment: e?.currentTarget?.value || "",
+                },
+              });
+            }}
           />
         )}
 
-        {values?.caseType?.length > 0 && (
+        {tasksState?.caseType?.length > 0 && (
           <DualTasksSelect dashboardData={dashboardData} />
         )}
 

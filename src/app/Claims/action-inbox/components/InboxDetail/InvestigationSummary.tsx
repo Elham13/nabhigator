@@ -11,6 +11,7 @@ import {
 import dayjs from "dayjs";
 import { CaseDetail, IDashboardData } from "@/lib/utils/types/fniDataTypes";
 import { convertToIndianFormat } from "@/lib/helpers";
+import TasksViewKeyValue from "./TasksViewKeyValue";
 
 interface InvestigationSummaryProps {
   dashboardData: IDashboardData | null;
@@ -459,14 +460,6 @@ export default function InvestigationSummary({
     },
   ];
 
-  const tasksAssigned = caseDetails?.tasksAssigned.map((item, index) => {
-    const flag = item.completed === true ? "completed" : "pending";
-    return {
-      label: `Task - ${index + 1}`,
-      value: `${item.name} (${flag})`,
-    };
-  });
-
   const documentsAssigned = getDocsArr(caseDetails?.documents);
 
   return (
@@ -499,14 +492,10 @@ export default function InvestigationSummary({
                   Tasks Assigned
                 </Title>
                 <Box>
-                  {tasksAssigned &&
-                    tasksAssigned.map(({ label, value }) => (
-                      <KeyValueContainer
-                        key={label}
-                        label={label}
-                        value={value}
-                      />
-                    ))}
+                  <TasksViewKeyValue
+                    allocationType={caseDetails?.allocationType}
+                    tasksAndDocs={caseDetails?.tasksAndDocs}
+                  />
                 </Box>
               </Box>
               <Box>
