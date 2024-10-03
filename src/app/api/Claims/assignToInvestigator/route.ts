@@ -38,7 +38,13 @@ router.post(async (req) => {
 
   const { dashboardDataId, allocationType } = body;
 
-  const isManual = body?.tasksAndDocs?.every((el: any) => !!el?.investigator);
+  const isManual =
+    allocationType === "Single"
+      ? !!body?.singleTasksAndDocs?.investigator
+      : allocationType === "Dual"
+      ? !!body?.insuredTasksAndDocs?.investigator &&
+        !!body?.hospitalTasksAndDocs?.investigator
+      : false;
 
   const user: IUser = body?.user;
   delete body.user;
@@ -107,20 +113,10 @@ router.post(async (req) => {
         if (!updateRes?.success) throw new Error(updateRes?.message);
 
         if (updateRes?.recycle) {
-          if (allocationType === "Single") {
-            if (body?.singleTasksAndDocs?.investigator)
-              throw new Error(
-                `The ${updateRes?.type} limit of the investigator (${updateRes?.invName}) is reached please select a different investigator.`
-              );
-          } else {
-            if (
-              body?.hospitalTasksAndDocs?.investigator &&
-              body?.insuredTasksAndDocs?.investigator
-            ) {
-              throw new Error(
-                `The ${updateRes?.type} limit of the investigator (${updateRes?.invName}) is reached please select a different investigator.`
-              );
-            }
+          if (isManual) {
+            throw new Error(
+              `The ${updateRes?.type} limit of the investigator (${updateRes?.invName}) is reached please select a different investigator.`
+            );
           }
           tempRes.recycle = true;
           investigators = [];

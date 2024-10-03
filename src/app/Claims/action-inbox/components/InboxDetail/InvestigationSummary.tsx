@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import {
   Accordion,
   Box,
@@ -492,10 +492,22 @@ export default function InvestigationSummary({
                   Tasks Assigned
                 </Title>
                 <Box>
-                  <TasksViewKeyValue
-                    allocationType={caseDetails?.allocationType}
-                    tasksAndDocs={caseDetails?.tasksAndDocs}
-                  />
+                  {caseDetails?.allocationType === "Single" ? (
+                    <TasksViewKeyValue
+                      tasksAndDocs={caseDetails?.singleTasksAndDocs}
+                    />
+                  ) : caseDetails?.allocationType === "Dual" ? (
+                    <Fragment>
+                      <TasksViewKeyValue
+                        tasksAndDocs={caseDetails?.insuredTasksAndDocs}
+                        part="Insured"
+                      />
+                      <TasksViewKeyValue
+                        tasksAndDocs={caseDetails?.hospitalTasksAndDocs}
+                        part="Hospital"
+                      />
+                    </Fragment>
+                  ) : null}
                 </Box>
               </Box>
               <Box>

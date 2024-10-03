@@ -9,14 +9,11 @@ import dayjs from "dayjs";
 import { HydratedDocument } from "mongoose";
 import {
   CaseDetail,
-  DocumentData,
   EventNames,
   IDashboardData,
   Investigator,
-  ITasksAndDocuments,
   IUser,
   NumericStage,
-  Task,
 } from "@/lib/utils/types/fniDataTypes";
 import DashboardData from "@/lib/Models/dashboardData";
 import { captureCaseEvent } from "../caseEvent/helpers";
@@ -24,7 +21,6 @@ import sendEmail from "@/lib/helpers/sendEmail";
 import User from "@/lib/Models/user";
 import ClaimInvestigator from "@/lib/Models/claimInvestigator";
 import ClaimCase from "@/lib/Models/claimCase";
-import { rmMainObjectOptionsMap } from "@/lib/utils/constants/options";
 import { configureRMTasksAndDocuments } from "@/lib/helpers";
 
 dayjs.extend(utc);
@@ -41,28 +37,32 @@ const changeTasksAndDocs = async (caseId: string | null, subType: string) => {
   if (!caseDetail)
     throw new Error(`Failed to find case details with the id ${caseId}`);
 
-  const tasksAndDocs: ITasksAndDocuments[] = caseDetail?.tasksAndDocs || [];
-
   if (caseDetail?.allocationType === "Single") {
     const { newTasks, newDocs } = configureRMTasksAndDocuments({
       claimSubType: subType,
     });
 
-    tasksAndDocs[0].tasks = newTasks;
-    tasksAndDocs[0].docs = newDocs;
-
-    caseDetail.tasksAndDocs = tasksAndDocs;
+    caseDetail.singleTasksAndDocs!.tasks = newTasks;
+    caseDetail.singleTasksAndDocs!.docs = newDocs;
 
     await caseDetail.save();
   } else if (caseDetail?.allocationType === "Dual") {
-    for (let i = 0; i < 2; i++) {
-      const { newTasks, newDocs } = configureRMTasksAndDocuments({
+    const { newTasks: insuredTasks, newDocs: insuredDocs } =
+      configureRMTasksAndDocuments({
         claimSubType: subType,
-        part: i === 0 ? "Insured" : "Hospital",
+        part: "Insured",
       });
-      tasksAndDocs[i].tasks = newTasks;
-      tasksAndDocs[i].docs = newDocs;
-    }
+    caseDetail.insuredTasksAndDocs!.tasks = insuredTasks;
+    caseDetail.insuredTasksAndDocs!.docs = insuredDocs;
+
+    const { newTasks: hospitalTasks, newDocs: hospitalDocs } =
+      configureRMTasksAndDocuments({
+        claimSubType: subType,
+        part: "Hospital",
+      });
+    caseDetail.hospitalTasksAndDocs!.tasks = hospitalTasks;
+    caseDetail.hospitalTasksAndDocs!.docs = hospitalDocs;
+
     await caseDetail.save();
   }
 };

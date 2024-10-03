@@ -36,25 +36,42 @@ router.post(async (req) => {
 
     if (!claimCase) throw new Error(`No Date found with the id ${id}`);
 
-    let tempFindings: IRMFindings = {};
-    let tempFindingsQa: IRMFindings = {};
+    let tempFindings: IRMFindings | null = null;
+    let tempFindingsQa: IRMFindings | null = null;
+    const allocationType = claimCase?.allocationType;
 
-    if (claimCase?.allocationType === "Dual" && !userId)
+    if (allocationType === "Dual" && !userId)
       throw new Error("userId is required");
 
-    const tasksAndDocsIndex =
-      claimCase?.allocationType === "Single"
-        ? 0
-        : claimCase?.tasksAndDocs?.findIndex(
-            (el) => el?.investigator?.toString() === userId
-          );
+    let part: "Insured" | "Hospital" | null = null;
 
-    if (tasksAndDocsIndex < 0)
-      throw new Error(`No tasks found with the userId ${userId}`);
+    if (allocationType === "Single") {
+      tempFindings = claimCase?.singleTasksAndDocs?.rmFindings || {};
+      tempFindingsQa = claimCase?.singleTasksAndDocs?.rmFindingsPostQA || {};
+    } else if (allocationType === "Dual") {
+      if (claimCase?.insuredTasksAndDocs?.investigator?.toString() === userId)
+        part = "Insured";
+      if (claimCase?.hospitalTasksAndDocs?.investigator?.toString() === userId)
+        part = "Hospital";
 
-    tempFindings = claimCase?.tasksAndDocs[tasksAndDocsIndex]?.rmFindings || {};
-    tempFindingsQa =
-      claimCase?.tasksAndDocs[tasksAndDocsIndex]?.rmFindingsPostQA || {};
+      tempFindings =
+        part === "Insured"
+          ? claimCase?.insuredTasksAndDocs?.rmFindings || {}
+          : part === "Hospital"
+          ? claimCase?.hospitalTasksAndDocs?.rmFindings || {}
+          : null;
+
+      tempFindingsQa =
+        part === "Insured"
+          ? claimCase?.insuredTasksAndDocs?.rmFindingsPostQA || {}
+          : part === "Hospital"
+          ? claimCase?.hospitalTasksAndDocs?.rmFindingsPostQA || {}
+          : null;
+    }
+
+    if (!tempFindings || !tempFindingsQa) {
+      throw new Error("No tasks found for this investigator");
+    }
 
     if (hasValue(payload?.key) && hasValue(payload?.value)) {
       const key = payload.key as keyof IRMFindings;
@@ -93,12 +110,28 @@ router.post(async (req) => {
         }
       }
       if (isQa) {
-        claimCase.tasksAndDocs[tasksAndDocsIndex].rmFindingsPostQA =
-          tempFindingsQa;
+        if (allocationType === "Single") {
+          claimCase.singleTasksAndDocs!.rmFindingsPostQA = tempFindingsQa;
+        } else {
+          if (part === "Insured")
+            claimCase.insuredTasksAndDocs!.rmFindingsPostQA = tempFindingsQa;
+          if (part === "Hospital")
+            claimCase.hospitalTasksAndDocs!.rmFindingsPostQA = tempFindingsQa;
+        }
       } else {
-        claimCase.tasksAndDocs[tasksAndDocsIndex].rmFindings = tempFindings;
-        claimCase.tasksAndDocs[tasksAndDocsIndex].rmFindingsPostQA =
-          tempFindingsQa;
+        if (allocationType === "Single") {
+          claimCase.singleTasksAndDocs!.rmFindingsPostQA = tempFindingsQa;
+          claimCase.singleTasksAndDocs!.rmFindings = tempFindings;
+        } else {
+          if (part === "Insured") {
+            claimCase.insuredTasksAndDocs!.rmFindingsPostQA = tempFindingsQa;
+            claimCase.insuredTasksAndDocs!.rmFindings = tempFindings;
+          }
+          if (part === "Hospital") {
+            claimCase.hospitalTasksAndDocs!.rmFindingsPostQA = tempFindingsQa;
+            claimCase.hospitalTasksAndDocs!.rmFindings = tempFindings;
+          }
+        }
 
         let tasksCompleted = false;
 
@@ -125,8 +158,17 @@ router.post(async (req) => {
           if (hasValue(obj)) tasksCompleted = true;
         }
 
-        let tasks: Task[] =
-          claimCase?.tasksAndDocs[tasksAndDocsIndex]?.tasks || [];
+        let tasks: Task[] = [];
+
+        if (allocationType === "Single") {
+          tasks = claimCase?.singleTasksAndDocs?.tasks || [];
+        } else if (allocationType === "Dual") {
+          if (part === "Insured") {
+            tasks = claimCase?.insuredTasksAndDocs?.tasks || [];
+          } else if (part === "Hospital") {
+            tasks = claimCase?.hospitalTasksAndDocs?.tasks || [];
+          }
+        }
 
         tasks = tasks?.map((el) =>
           el?.name === taskName && tasksCompleted
@@ -134,7 +176,15 @@ router.post(async (req) => {
             : el
         );
 
-        claimCase.tasksAndDocs[tasksAndDocsIndex].tasks = tasks;
+        if (allocationType === "Single") {
+          claimCase.singleTasksAndDocs!.tasks = tasks;
+        } else if (allocationType === "Dual") {
+          if (part === "Insured") {
+            claimCase.insuredTasksAndDocs!.tasks = tasks;
+          } else if (part === "Hospital") {
+            claimCase.hospitalTasksAndDocs!.tasks = tasks;
+          }
+        }
       }
 
       const data = await claimCase.save();
