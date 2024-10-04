@@ -21,7 +21,7 @@ const commonFormKeys = [
 ] as const;
 
 router.post(async (req) => {
-  const { id, name, payload, isQa, userId } = await req?.json();
+  const { id, name, payload, isQa, userId, isBulk } = await req?.json();
 
   try {
     if (!id) throw new Error("id is required");
@@ -100,7 +100,14 @@ router.post(async (req) => {
           ? tempFindingsQa[taskName] || {}
           : tempFindings[taskName] || {};
 
-        taskObj[key] = payload?.value;
+        if (isBulk) {
+          taskObj =
+            taskObj instanceof Document
+              ? { ...taskObj.toJSON(), ...payload?.value }
+              : { ...taskObj, ...payload?.value };
+        } else {
+          taskObj[key] = payload?.value;
+        }
 
         if (isQa) {
           tempFindingsQa[taskName] = taskObj;
