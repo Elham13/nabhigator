@@ -546,7 +546,7 @@ const OPDVerificationSchema = new Schema<IOPDVerificationPartSchema>(
 const AHCVerificationSchema = new Schema<IAHCVerificationPartSchema>(
   {
     labVerified: { type: String },
-    labs: { type: [LabSchema], default: null },
+    labs: { type: [LabSchema], default: [] },
     finalObservation: { type: String },
   },
   { timestamps: true }
