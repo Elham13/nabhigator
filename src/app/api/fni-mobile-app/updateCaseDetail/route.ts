@@ -1,7 +1,7 @@
 import ClaimCase from "@/lib/Models/claimCase";
 import connectDB from "@/lib/db/dbConnectWithMongoose";
 import { Databases } from "@/lib/utils/types/enums";
-import { CaseDetail, DocumentMap } from "@/lib/utils/types/fniDataTypes";
+import { CaseDetail } from "@/lib/utils/types/fniDataTypes";
 import { HydratedDocument } from "mongoose";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
@@ -15,14 +15,9 @@ router.post(async (req) => {
   const {
     id,
     taskId,
-    docName,
-    docId,
-    docUrl,
     action,
-    docIndex,
     comment,
     taskComment,
-    location,
     postQaDoc,
     postQaOverRulingReason,
   } = body;
@@ -56,46 +51,6 @@ router.post(async (req) => {
         task.comment = taskComment;
         updatedCase = await caseDetail.save();
         message = `Comment added to the task ${taskId}!`;
-      }
-    }
-
-    if (docId && docName) {
-      // if (!location) throw new Error("User location is required");
-
-      const documents = caseDetail?.documents as DocumentMap;
-      if (documents) {
-        const docs = documents?.get(docName);
-
-        if (!docs)
-          throw new Error(`No documents found with the docName ${docName}`);
-
-        const docArr = docs.find((el) => el?._id?.toString() === docId);
-        if (!docArr) throw new Error(`No document found with the id ${docId}`);
-
-        if (action === "Add") {
-          if (!docUrl) throw new Error(`Please provide the docUrl in the body`);
-          if (docArr?.docUrl?.length > 0) docArr.docUrl.push(docUrl);
-          else docArr.docUrl = [docUrl];
-          docArr.location = location;
-          updatedCase = await caseDetail.save();
-          message = "Document uploaded successfully";
-        } else if (action === "Remove") {
-          if (docIndex || docIndex === 0) {
-            if (docArr?.docUrl?.length > 1) {
-              docArr.docUrl = docArr?.docUrl?.filter(
-                (_, ind) => ind !== docIndex
-              );
-              updatedCase = await caseDetail.save();
-              message = "Document removed successfully";
-            } else {
-              docArr.docUrl = [];
-              docArr.location = null;
-              updatedCase = await caseDetail.save();
-              message = "Document removed successfully";
-            }
-          } else throw new Error("donIndex is required");
-        } else
-          throw new Error("The value of action must be either Add or Remove");
       }
     }
 
