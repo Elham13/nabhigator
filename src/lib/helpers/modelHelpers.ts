@@ -753,7 +753,7 @@ const DoctorSchema = new Schema<IDoctorSchema>(
   {
     name: { type: String },
     qualification: { type: String },
-    registrationNo: { type: String },
+    registrationNo: { type: { value: String, remark: String } },
   },
   { timestamps: true }
 );
