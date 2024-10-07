@@ -10,6 +10,7 @@ import {
   CaseDetail,
   EventNames,
   IDashboardData,
+  ITasksAndDocuments,
   IUser,
   IZoneStateMaster,
   NumericStage,
@@ -111,44 +112,88 @@ router.post(async (req) => {
         `No Claim Case found with the id ${dashboardData?.caseId}`
       );
 
-    dashboardData.dateOfFallingIntoPostQaBucket = new Date();
+    let findings: ITasksAndDocuments | null = null;
 
-    dashboardData.expedition =
-      dashboardData?.expedition && dashboardData?.expedition?.length > 0
-        ? dashboardData?.expedition?.map((el) => ({ ...el, noted: true }))
-        : dashboardData?.expedition;
+    if (caseDetail?.allocationType === "Single") {
+      dashboardData.claimInvestigators = dashboardData?.claimInvestigators?.map(
+        (inv) => ({ ...inv, investigationCompleted: true })
+      );
+      findings = caseDetail?.singleTasksAndDocs || null;
+    } else if (caseDetail?.allocationType === "Dual") {
+      if (!userId) throw new Error("userId is required");
+      dashboardData.claimInvestigators = dashboardData?.claimInvestigators?.map(
+        (inv) => {
+          if (inv?._id?.toString() === userId)
+            return { ...inv, investigationCompleted: true };
+          return inv;
+        }
+      );
 
-    caseDetail.invReportReceivedDate = new Date();
+      if (
+        caseDetail?.insuredTasksAndDocs?.investigator?.toString() === userId
+      ) {
+        findings = caseDetail?.insuredTasksAndDocs || null;
+      } else if (
+        caseDetail?.hospitalTasksAndDocs?.investigator?.toString() === userId
+      ) {
+        findings = caseDetail?.hospitalTasksAndDocs || null;
+      }
+    } else throw new Error("allocationType not found");
 
-    const users: IUser[] = await findPostQaUser({
-      claimType: dashboardData?.claimType,
-      providerState: dashboardData?.hospitalDetails?.providerState,
-    });
+    if (!findings) throw new Error("Failed to find the tasks and documents");
 
-    if (users && users?.length > 0) {
-      let isAssigned = false;
-      for (const obj of users) {
-        const user: HydratedDocument<IUser> | null = await User.findById(
-          obj?._id
-        );
+    const canClose = dashboardData?.claimInvestigators?.every(
+      (inv) => inv?.investigationCompleted
+    );
 
-        if (!user)
-          throw new Error(`Failed to find a user with the id ${obj?._id}`);
+    if (canClose) {
+      dashboardData.dateOfFallingIntoPostQaBucket = new Date();
 
-        const dailyThreshold = user?.config?.dailyThreshold || 0;
-        const dailyAssign = user?.config?.dailyAssign || 0;
-        const updatedAt = user?.config?.thresholdUpdatedAt || null;
+      dashboardData.expedition =
+        dashboardData?.expedition && dashboardData?.expedition?.length > 0
+          ? dashboardData?.expedition?.map((el) => ({ ...el, noted: true }))
+          : dashboardData?.expedition;
 
-        const dailyLimitReached = dailyThreshold - dailyAssign <= 1;
+      const users: IUser[] = await findPostQaUser({
+        claimType: dashboardData?.claimType,
+        providerState: dashboardData?.hospitalDetails?.providerState,
+      });
 
-        if (dailyLimitReached) {
-          if (updatedAt) {
-            const noOfDaysSinceUpdated = dayjs()
-              .startOf("day")
-              .diff(dayjs(updatedAt).startOf("day"), "day");
+      if (users && users?.length > 0) {
+        let isAssigned = false;
+        for (const obj of users) {
+          const user: HydratedDocument<IUser> | null = await User.findById(
+            obj?._id
+          );
 
-            if (noOfDaysSinceUpdated > 0) {
-              // It is not updated today, therefore reset the daily assign
+          if (!user)
+            throw new Error(`Failed to find a user with the id ${obj?._id}`);
+
+          const dailyThreshold = user?.config?.dailyThreshold || 0;
+          const dailyAssign = user?.config?.dailyAssign || 0;
+          const updatedAt = user?.config?.thresholdUpdatedAt || null;
+
+          const dailyLimitReached = dailyThreshold - dailyAssign <= 1;
+
+          if (dailyLimitReached) {
+            if (updatedAt) {
+              const noOfDaysSinceUpdated = dayjs()
+                .startOf("day")
+                .diff(dayjs(updatedAt).startOf("day"), "day");
+
+              if (noOfDaysSinceUpdated > 0) {
+                // It is not updated today, therefore reset the daily assign
+                user.config.dailyAssign = 1;
+                user.config.thresholdUpdatedAt = new Date();
+                dashboardData.postQa = user?._id;
+                eventRemarks =
+                  eventRemarks += `, and assigned to post qa ${user?.name}`;
+                await user.save();
+                isAssigned = true;
+                break;
+              }
+            } else {
+              // There is no updated date, so we know that it's the first time this user is getting assigned
               user.config.dailyAssign = 1;
               user.config.thresholdUpdatedAt = new Date();
               dashboardData.postQa = user?._id;
@@ -159,8 +204,10 @@ router.post(async (req) => {
               break;
             }
           } else {
-            // There is no updated date, so we know that it's the first time this user is getting assigned
-            user.config.dailyAssign = 1;
+            // Limit is not reached
+            user.config.dailyAssign = user?.config?.dailyAssign
+              ? user.config.dailyAssign + 1
+              : 1;
             user.config.thresholdUpdatedAt = new Date();
             dashboardData.postQa = user?._id;
             eventRemarks =
@@ -169,56 +216,48 @@ router.post(async (req) => {
             isAssigned = true;
             break;
           }
-        } else {
-          // Limit is not reached
-          user.config.dailyAssign = user?.config?.dailyAssign
-            ? user.config.dailyAssign + 1
-            : 1;
-          user.config.thresholdUpdatedAt = new Date();
-          dashboardData.postQa = user?._id;
+        }
+
+        if (!isAssigned) {
           eventRemarks =
-            eventRemarks += `, and assigned to post qa ${user?.name}`;
-          await user.save();
-          isAssigned = true;
-          break;
+            eventRemarks += `, and moved to Post QA Lead bucket because no Post Qa matched`;
         }
       }
 
-      if (!isAssigned) {
-        eventRemarks =
-          eventRemarks += `, and moved to Post QA Lead bucket because no Post Qa matched`;
-      }
+      dashboardData.stage = stage;
+
+      dayjs.extend(utc);
+      dayjs.extend(timezone);
+      await captureCaseEvent({
+        claimId: dashboardData?.claimId,
+        intimationDate:
+          dashboardData?.intimationDate ||
+          dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
+        eventName: EventNames.INVESTIGATION_REPORT_SUBMITTED,
+        stage: stage,
+        userId: userId as string,
+        eventRemarks,
+        userName,
+      });
+    } else {
+      dayjs.extend(utc);
+      dayjs.extend(timezone);
+      await captureCaseEvent({
+        claimId: dashboardData?.claimId,
+        intimationDate:
+          dashboardData?.intimationDate ||
+          dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
+        eventName: EventNames.INVESTIGATION_REPORT_SUBMITTED,
+        stage: dashboardData?.stage,
+        userId: userId as string,
+        eventRemarks: `Investigator ${
+          userName || "-"
+        } completed the case and submitted`,
+        userName,
+      });
     }
 
-    dashboardData.stage = stage;
-    dashboardData.actionsTaken = dashboardData?.actionsTaken
-      ? [
-          ...dashboardData?.actionsTaken,
-          {
-            actionName: eventRemarks,
-            userId,
-          },
-        ]
-      : [
-          {
-            actionName: eventRemarks,
-            userId,
-          },
-        ];
-
-    dayjs.extend(utc);
-    dayjs.extend(timezone);
-    await captureCaseEvent({
-      claimId: dashboardData?.claimId,
-      intimationDate:
-        dashboardData?.intimationDate ||
-        dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
-      eventName: EventNames.INVESTIGATION_REPORT_SUBMITTED,
-      stage: stage,
-      userId: userId as string,
-      eventRemarks,
-      userName,
-    });
+    findings.invReportReceivedDate = new Date();
 
     await caseDetail.save();
     const data = await dashboardData.save();

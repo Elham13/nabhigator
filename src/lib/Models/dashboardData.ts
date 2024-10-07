@@ -150,6 +150,7 @@ const InvestigatorSchema = new Schema({
     default: "",
   },
   assignedData: { type: Date, default: null },
+  investigationCompleted: { type: Boolean, default: false },
 });
 
 const HospitalDetailsSchema = new Schema({
@@ -314,7 +315,7 @@ const DashboardDataSchema = new Schema(
       type: String,
       default: "",
     },
-    rejectionReasons: { type: [RejectionReasonSchema], default: null },
+    rejectionReasons: { type: [RejectionReasonSchema], default: [] },
     cataractOrDayCareProcedure: {
       type: [{ Benefit_Type: String, Benefit_Head: String }],
       default: [],

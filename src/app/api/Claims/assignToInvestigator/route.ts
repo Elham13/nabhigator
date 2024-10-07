@@ -196,6 +196,8 @@ router.post(async (req) => {
         ? NumericStage.IN_FIELD_REWORK
         : NumericStage.IN_FIELD_FRESH;
     dashboardData.teamLead = dashboardData.teamLead || null;
+
+    // TODO: fix this
     dashboardData.claimInvestigators = investigators?.map(
       (inv: Investigator, ind: number) => ({
         _id: inv?._id,
