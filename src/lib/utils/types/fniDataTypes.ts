@@ -398,7 +398,7 @@ export type ClaimInvestigator = {
   name: string;
   assignedFor: string;
   assignedData: Date | null;
-  investigationCompleted: boolean;
+  investigationStatus: "Unassigned" | "Assigned" | "Accepted" | "Completed";
 };
 
 export interface IAutoPreQC {

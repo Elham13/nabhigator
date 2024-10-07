@@ -116,7 +116,7 @@ router.post(async (req) => {
 
     if (caseDetail?.allocationType === "Single") {
       dashboardData.claimInvestigators = dashboardData?.claimInvestigators?.map(
-        (inv) => ({ ...inv, investigationCompleted: true })
+        (inv) => ({ ...inv, investigationStatus: "Completed" })
       );
       findings = caseDetail?.singleTasksAndDocs || null;
     } else if (caseDetail?.allocationType === "Dual") {
@@ -124,7 +124,7 @@ router.post(async (req) => {
       dashboardData.claimInvestigators = dashboardData?.claimInvestigators?.map(
         (inv) => {
           if (inv?._id?.toString() === userId)
-            return { ...inv, investigationCompleted: true };
+            return { ...inv, investigationStatus: "Completed" };
           return inv;
         }
       );
@@ -143,7 +143,7 @@ router.post(async (req) => {
     if (!findings) throw new Error("Failed to find the tasks and documents");
 
     const canClose = dashboardData?.claimInvestigators?.every(
-      (inv) => inv?.investigationCompleted
+      (inv) => inv?.investigationStatus === "Completed"
     );
 
     if (canClose) {
