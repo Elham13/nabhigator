@@ -13,6 +13,7 @@ import {
   NumericStage,
   EventNames,
   Investigator,
+  ClaimInvestigator,
 } from "@/lib/utils/types/fniDataTypes";
 import { HydratedDocument } from "mongoose";
 import DashboardData from "@/lib/Models/dashboardData";
@@ -198,15 +199,54 @@ router.post(async (req) => {
     dashboardData.teamLead = dashboardData.teamLead || null;
 
     // TODO: fix this
-    dashboardData.claimInvestigators = investigators?.map(
-      (inv: Investigator, ind: number) => ({
-        _id: inv?._id,
-        name: inv.investigatorName,
-        assignedFor:
-          allocationType === "Dual" ? (ind === 0 ? "Insured" : "Hospital") : "",
-        assignedData: new Date(),
-      })
-    );
+    if (allocationType === "Single") {
+      dashboardData.claimInvestigators = investigators?.map(
+        (inv: Investigator, ind: number) => ({
+          _id: inv?._id,
+          name: inv.investigatorName,
+          assignedFor: "",
+          assignedData: new Date(),
+          investigationStatus: "Assigned",
+        })
+      );
+    } else if (allocationType === "Dual") {
+      const invs: ClaimInvestigator[] = [];
+
+      if (!!body?.insuredTasksAndDocs?.investigator) {
+        const inv = investigators?.find(
+          (inv: Investigator) =>
+            inv?._id?.toString() === body?.insuredTasksAndDocs?.investigator
+        );
+        if (inv) {
+          invs?.push({
+            _id: inv?._id,
+            name: inv?.investigatorName,
+            assignedFor: "Insured",
+            assignedData: new Date(),
+            investigationStatus: "Assigned",
+          });
+        }
+      }
+
+      if (!!body?.hospitalTasksAndDocs?.investigator) {
+        const inv = investigators?.find(
+          (inv: Investigator) =>
+            inv?._id?.toString() === body?.hospitalTasksAndDocs?.investigator
+        );
+
+        if (inv) {
+          invs?.push({
+            _id: inv?._id,
+            name: inv?.investigatorName,
+            assignedFor: "Hospital",
+            assignedData: new Date(),
+            investigationStatus: "Assigned",
+          });
+        }
+      }
+
+      dashboardData.claimInvestigators = invs;
+    }
 
     await captureCaseEvent({
       eventName: isManual
@@ -237,14 +277,14 @@ router.post(async (req) => {
       investigatorIds: investigators?.map((el: Investigator) => el?._id),
     });
 
-    // const maximusRes = await tellMaximusCaseIsAssigned(
-    //   dashboardData?.toJSON(),
-    //   investigators[0],
-    //   body?.preQcObservation,
-    //   user?.email
-    // );
+    const maximusRes = await tellMaximusCaseIsAssigned(
+      dashboardData?.toJSON(),
+      investigators[0],
+      body?.preQcObservation,
+      user?.email
+    );
 
-    // if (!maximusRes?.success) throw new Error(maximusRes.message);
+    if (!maximusRes?.success) throw new Error(maximusRes.message);
 
     responseObj.message = `Case assigned to ${
       allocationType === "Dual"
