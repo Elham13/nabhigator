@@ -15,7 +15,6 @@ export enum EndPoints {
   AUTO_PRE_QC = "/api/Claims/autoPreQC",
   CAPTURE_INVESTIGATION_FINDINGS = "/api/fni-mobile-app/captureInvestigationFindings",
   CAPTURE_RM_INVESTIGATION_FINDINGS = "/api/fni-mobile-app/captureRMInvestigationFindings",
-  CAPTURE_QA_FINDINGS = "/api/Claims/captureQAFindings",
   CASE_DETAIL = "/api/Claims/caseDetail",
   CASE_EVENT = "/api/Claims/caseEvent",
   CHANGE_TASK = "/api/Claims/changeTask",

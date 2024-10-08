@@ -1,90 +1,89 @@
 import React, { Dispatch, ReactNode, SetStateAction, Fragment } from "react";
-import { Spin } from "antd";
 import dynamic from "next/dynamic";
 const NPSConfirmation = dynamic(() => import("./NPSConfirmation"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const PrePostVerification = dynamic(() => import("./PrePostVerification"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const HospitalDailyCash = dynamic(() => import("./HospitalDailyCash"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const OPDVerification = dynamic(() => import("./OPDVerification"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const AHCVerification = dynamic(() => import("./AHCVerification"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const ClaimVerification = dynamic(() => import("./ClaimVerification"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const InsuredVerification = dynamic(() => import("./InsuredVerification"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const VicinityVerification = dynamic(() => import("./VicinityVerification"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const HospitalVerification = dynamic(() => import("./HospitalVerification"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const TreatingDoctorVerification = dynamic(
   () => import("./TreatingDoctorVerification"),
   {
     ssr: false,
-    loading: () => <Spin />,
+    loading: () => <Loading />,
   }
 );
 const FamilyOrReferringDoctorVerification = dynamic(
   () => import("./FamilyOrReferringDoctorVerification"),
   {
     ssr: false,
-    loading: () => <Spin />,
+    loading: () => <Loading />,
   }
 );
 const LabOrPathologistVerification = dynamic(
   () => import("./LabOrPathologistVerification"),
   {
     ssr: false,
-    loading: () => <Spin />,
+    loading: () => <Loading />,
   }
 );
 const ChemistVerification = dynamic(() => import("./ChemistVerification"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const EmployerVerification = dynamic(() => import("./EmployerVerification"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const RandomVicinityVerification = dynamic(
   () => import("./RandomVicinityVerification"),
   {
     ssr: false,
-    loading: () => <Spin />,
+    loading: () => <Loading />,
   }
 );
 const EmploymentAndEstablishmentVerification = dynamic(
   () => import("./EmploymentAndEstablishmentVerification"),
   {
     ssr: false,
-    loading: () => <Spin />,
+    loading: () => <Loading />,
   }
 );
 const MiscellaneousVerification = dynamic(
   () => import("./MiscellaneousVerification"),
   {
     ssr: false,
-    loading: () => <Spin />,
+    loading: () => <Loading />,
   }
 );
 import {
@@ -92,6 +91,7 @@ import {
   IDashboardData,
   Task as ITask,
 } from "@/lib/utils/types/fniDataTypes";
+import Loading from "@/components/Loading";
 
 type PropTypes = {
   task: ITask;

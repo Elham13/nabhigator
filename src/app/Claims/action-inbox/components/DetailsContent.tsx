@@ -18,49 +18,49 @@ import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
 import { getStageLabel, showError } from "@/lib/helpers";
 import CustomMarquee from "@/components/CustomMarquee";
-import { Spin } from "antd";
+import Loading from "@/components/Loading";
 
 const PreQcFooter = dynamic(() => import("./InboxDetail/PreQcFooter"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const PostQAFooter = dynamic(() => import("./InboxDetail/PostQAFooter"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const AllocationFooter = dynamic(
   () => import("./InboxDetail/AllocationFooter"),
   {
     ssr: false,
-    loading: () => <Spin />,
+    loading: () => <Loading />,
   }
 );
 const SkipInvestigation = dynamic(
   () => import("./InboxDetail/SkipInvestigation"),
   {
     ssr: false,
-    loading: () => <Spin />,
+    loading: () => <Loading />,
   }
 );
 const Expedite = dynamic(() => import("./InboxDetail/Expedite"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const NotificationModal = dynamic(() => import("./NotificationModal"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const DetailsAccordion = dynamic(() => import("./DetailsAccordion"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const PostQaLeadFooter = dynamic(() => import("./PostQaLeadFooter"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const FrozenRibbon = dynamic(() => import("./InboxDetail/FrozenRibbon"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 
 const showElementInitials: IShowElement = {

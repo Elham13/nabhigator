@@ -8,6 +8,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { HydratedDocument } from "mongoose";
 import {
+  ClaimInvestigator as IClaimInvestigator,
   EventNames,
   IDashboardData,
   Investigator,
@@ -66,16 +67,21 @@ router.post(async (req) => {
       if (!inv)
         throw new Error(`Failed to find investigator with the id ${invId}`);
 
-      dashboardData.claimInvestigators = [
-        {
-          _id: inv?._id,
-          assignedData: new Date(),
-          assignedFor: "",
-          name: inv?.investigatorName,
-        },
-      ];
+      dashboardData.claimInvestigators = dashboardData.claimInvestigators?.map(
+        (i) => {
+          if (i?._id?.toString() === inv?._id)
+            return {
+              ...i,
+              _id: inv?._id,
+              assignedData: new Date(),
+              assignedFor: "",
+              name: inv?.investigatorName,
+            };
+          else return i;
+        }
+      );
     } else if (allocationType === "Dual") {
-      let claimInvestigators: any[] = [];
+      let claimInvestigators: IClaimInvestigator[] = [];
 
       if (body?.insuredTasksAndDocs?.investigator)
         invIds?.push(body?.insuredTasksAndDocs?.investigator);
@@ -97,6 +103,7 @@ router.post(async (req) => {
           assignedData: new Date(),
           assignedFor: counter === 0 ? "Insured" : "Hospital",
           name: inv?.investigatorName,
+          investigationStatus: "Assigned",
         });
 
         counter += 1;

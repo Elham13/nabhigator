@@ -479,7 +479,7 @@ const InvestigationFindingsContent = ({ findings }: PropTypes) => {
             </GridCol>
           )}
 
-          {findings?.patientHabit?.length > 0
+          {!!findings?.patientHabit && findings?.patientHabit?.length > 0
             ? findings?.patientHabit?.map((el, ind) => (
                 <GridCol span={{ sm: 12, md: 6 }} my={12} key={ind}>
                   <Title order={6} c="orange" my={4}>
@@ -502,7 +502,7 @@ const InvestigationFindingsContent = ({ findings }: PropTypes) => {
               ))
             : null}
 
-          {findings?.ailment?.length > 0
+          {!!findings?.ailment && findings?.ailment?.length > 0
             ? findings?.ailment?.map((el, ind) => (
                 <GridCol span={{ sm: 12, md: 6 }} my={12} key={ind}>
                   <Title order={6} c="orange" my={4}>
