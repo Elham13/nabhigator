@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import { RevisedInvestigationFindings } from "@/lib/utils/types/fniDataTypes";
 
 type PropTypes = {
-  findings?: RevisedInvestigationFindings;
+  findings?: RevisedInvestigationFindings | null;
 };
 
 const InvestigationFindingsContent = ({ findings }: PropTypes) => {

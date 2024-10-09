@@ -63,79 +63,74 @@ const TasksSelect = ({ title, part, dashboardData }: PropTypes) => {
     tasksState?.singleTasksAndDocs?.docs,
   ]);
 
-  const handleSelect = (
-    name: keyof AcceptedValues,
-    value: string | string[] | null
-  ) => {
-    if (name === "tasksAssigned" && Array.isArray(value)) {
-      let docs = new Map(
-        documents && Object.keys(documents)?.length > 0
-          ? (documents as DocumentMap)
-          : []
-      );
+  const handleSelect = (value: string[]) => {
+    let docs = new Map(
+      documents && Object.keys(documents)?.length > 0
+        ? (documents as DocumentMap)
+        : []
+    );
 
-      if (docs && docs?.size > 0) {
-        if (docs?.size < value?.length) {
-          const lastEl = value[value?.length - 1];
-          const tempOptions = mainObjectOptionsMap.find(
-            (el) => el.name === lastEl
-          )?.options;
-          const options = tempOptions?.map((el) => ({
-            name: el.value,
-            docUrl: [],
-            location: null,
-          }));
-          docs?.set(lastEl, options || []);
-        } else {
-          for (let [key, val] of documents as DocumentMap) {
-            if (!value?.includes(key)) docs?.delete(key);
-          }
-        }
-      } else {
-        const firstEl = value?.[0];
+    if (docs && docs?.size > 0) {
+      if (docs?.size < value?.length) {
+        const lastEl = value[value?.length - 1];
         const tempOptions = mainObjectOptionsMap.find(
-          (el) => el.name === firstEl
+          (el) => el.name === lastEl
         )?.options;
-        const options =
-          tempOptions?.map((el) => ({
-            name: el.value,
-            docUrl: [],
-            location: null,
-          })) || [];
-        if (docs === null) {
-          const map = new Map();
-          map.set(firstEl, options);
-          docs = map;
-        } else {
-          docs?.set(firstEl, options || []);
+        const options = tempOptions?.map((el) => ({
+          name: el.value,
+          docUrl: [],
+          location: null,
+        }));
+        docs?.set(lastEl, options || []);
+      } else {
+        for (let [key, val] of documents as DocumentMap) {
+          if (!value?.includes(key)) docs?.delete(key);
         }
       }
-
-      const payload = {
-        tasks: [
-          ...value.map((el) => ({
-            name: el,
-            completed: false,
-            comment: "",
-          })),
-        ],
-        docs,
-      };
-      let key = "";
-
-      if (part === "Hospital") {
-        key = "hospitalTasksAndDocs";
-      } else if (part === "Insured") {
-        key = "insuredTasksAndDocs";
-      } else if (part === "None") {
-        key = "singleTasksAndDocs";
+    } else {
+      const firstEl = value?.[0];
+      const tempOptions = mainObjectOptionsMap.find(
+        (el) => el.name === firstEl
+      )?.options;
+      const options =
+        tempOptions?.map((el) => ({
+          name: el.value,
+          docUrl: [],
+          location: null,
+        })) || [];
+      if (docs === null) {
+        const map = new Map();
+        map.set(firstEl, options);
+        docs = map;
+      } else {
+        docs?.set(firstEl, options || []);
       }
-      if (!!key)
-        dispatch({
-          type: "change_state",
-          value: { [key]: payload },
-        });
     }
+
+    const payload = {
+      tasks: [
+        ...value.map((el) => ({
+          name: el,
+          completed: false,
+          comment: "",
+        })),
+      ],
+      docs,
+    };
+    let key = "";
+
+    if (part === "Hospital") {
+      key = "hospitalTasksAndDocs";
+    } else if (part === "Insured") {
+      key = "insuredTasksAndDocs";
+    } else if (part === "None") {
+      key = "singleTasksAndDocs";
+    }
+    if (!!key)
+      dispatch({
+        type: "change_state",
+        value: { [key]: payload },
+      });
   };
 
   const handleSelectDocument = (docName: string, val: string[]) => {
@@ -293,10 +288,6 @@ const TasksSelect = ({ title, part, dashboardData }: PropTypes) => {
           claimSubType: dashboardData?.claimSubType,
           part,
         });
-        console.count("running");
-        console.log("newTasks: ", newTasks);
-        console.log("newDocs: ", newDocs);
-        console.log("part: ", part);
 
         let payload = {};
         if (part === "Insured") {
@@ -358,7 +349,7 @@ const TasksSelect = ({ title, part, dashboardData }: PropTypes) => {
         value={
           tasksAssigned?.length > 0 ? tasksAssigned?.map((t) => t.name) : []
         }
-        onChange={(val) => handleSelect("tasksAssigned", val)}
+        onChange={(val) => handleSelect(val)}
         data={
           dashboardData?.claimType === "PreAuth"
             ? mainPartOptions

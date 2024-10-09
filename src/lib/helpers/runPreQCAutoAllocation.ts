@@ -104,6 +104,7 @@ export const runPreQCAutoAllocation = async (
             ? "Hospital"
             : "Insured"
           : "",
+      investigationStatus: "Assigned",
     }));
 
     await captureCaseEvent({

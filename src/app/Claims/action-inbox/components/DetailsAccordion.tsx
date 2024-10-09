@@ -113,7 +113,7 @@ const TasksAndDocsButtons = dynamic(
   }
 );
 const CompleteDocuments = dynamic(
-  () => import("./InboxDetail/CompleteDocuments"),
+  () => import("./InboxDetail/RMContent/CompleteDocuments"),
   {
     ssr: false,
     loading: () => <Loading />,
@@ -218,11 +218,11 @@ const DetailsAccordion = ({
                 </Box>
                 {data?.claimType === "PreAuth" ? (
                   <InvestigationFindingsContent
-                    findings={caseDetail?.investigationFindings}
+                    findings={caseDetail?.singleTasksAndDocs?.preAuthFindings}
                   />
                 ) : (
                   <RMInvestigationFindingsContent
-                    findings={caseDetail?.rmFindingsPostQA}
+                    findings={caseDetail?.singleTasksAndDocs?.rmFindings}
                   />
                 )}
               </Box>
@@ -234,13 +234,16 @@ const DetailsAccordion = ({
               value === "Investigation Recommendation" &&
               (data?.claimType === "PreAuth" ? (
                 <InvestigationRecommendationContent
-                  findings={caseDetail?.investigationFindings}
+                  findings={caseDetail?.singleTasksAndDocs?.preAuthFindings}
                 />
               ) : (
                 <RMInvestigationRecommendationContent
-                  recommendation={caseDetail?.rmFindingsPostQA?.recommendation}
+                  recommendation={
+                    caseDetail?.singleTasksAndDocs?.rmFindings?.recommendation
+                  }
                   otherRecommendation={
-                    caseDetail?.rmFindingsPostQA?.otherRecommendation
+                    caseDetail?.singleTasksAndDocs?.rmFindings
+                      ?.otherRecommendation
                   }
                 />
               )),
@@ -362,6 +365,7 @@ const DetailsAccordion = ({
                     caseDetail={caseDetail}
                     claimId={data?.claimId}
                     setCaseDetail={setCaseDetail}
+                    claimType={data?.claimType}
                     onClose={() =>
                       setShowElement((prev) => ({
                         ...prev,
@@ -406,10 +410,12 @@ const DetailsAccordion = ({
             value: "Allocation Feed",
             content: value === "Allocation Feed" && (
               <Fragment>
-                {caseDetail?.investigationRejected
+                {caseDetail?.singleTasksAndDocs?.investigationRejected
                   ?.investigationRejectedReason && (
                   <InvestigationRejectionDetails
-                    rejectionInfo={caseDetail?.investigationRejected || null}
+                    rejectionInfo={
+                      caseDetail?.singleTasksAndDocs?.investigationRejected
+                    }
                   />
                 )}
                 <Allocation

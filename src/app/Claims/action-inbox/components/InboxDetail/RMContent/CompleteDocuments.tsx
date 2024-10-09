@@ -9,7 +9,7 @@ import {
   Title,
 } from "@mantine/core";
 import { IoMdClose } from "react-icons/io";
-import UploadDoc from "./UploadDoc";
+import UploadDoc from "../UploadDoc";
 import axios from "axios";
 import { BiLink } from "react-icons/bi";
 import { HiLocationMarker } from "react-icons/hi";
@@ -28,11 +28,13 @@ type PropTypes = {
   onClose: () => void;
   setCaseDetail: React.Dispatch<React.SetStateAction<CaseDetail | null>>;
   claimId?: number;
+  claimType?: "PreAuth" | "Reimbursement";
 };
 
 const CompleteDocuments = ({
   caseDetail,
   claimId,
+  claimType,
   onClose,
   setCaseDetail,
 }: PropTypes) => {
@@ -109,6 +111,15 @@ const CompleteDocuments = ({
     getCurrentPosition();
   }, []);
 
+  let docs = {};
+
+  if (caseDetail?.allocationType === "Single") {
+    docs = caseDetail?.singleTasksAndDocs?.docs || {};
+  } else if (caseDetail?.allocationType === "Dual") {
+    // TODO: Handle for dual
+    docs = caseDetail?.insuredTasksAndDocs?.docs || {};
+  }
+
   return (
     <Box mt={16}>
       <Divider />
@@ -120,11 +131,11 @@ const CompleteDocuments = ({
       </ActionIcon>
 
       <Box mt={60}>
-        {caseDetail?.documents && Object.keys(caseDetail.documents)?.length > 0
-          ? Object.keys(caseDetail?.documents)?.map((docKey, ind) => {
-              const docArr: DocumentData[] = caseDetail?.documents
+        {docs && Object.keys(docs)?.length > 0
+          ? Object.keys(docs)?.map((docKey, ind) => {
+              const docArr: DocumentData[] = docs
                 ? // @ts-ignore
-                  caseDetail?.documents[docKey]
+                  docs[docKey]
                 : [];
 
               return (

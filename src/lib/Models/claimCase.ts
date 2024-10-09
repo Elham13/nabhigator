@@ -180,7 +180,7 @@ const TasksAndDocumentsSchema = new Schema<ITasksAndDocumentsSchema>(
   { timestamps: true }
 );
 
-const ClaimCaseSchema = new Schema<IClaimCase>(
+const ClaimCaseSchema = new Schema<any>(
   {
     caseType: {
       type: [String],

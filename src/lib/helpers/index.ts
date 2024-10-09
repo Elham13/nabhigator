@@ -1,8 +1,10 @@
 import { toast } from "react-toastify";
 import {
+  CaseDetail,
   DocumentData,
   ITasksAndDocuments,
   NumericStage,
+  RevisedInvestigationFindings,
   Task,
   TValueCode,
 } from "../utils/types/fniDataTypes";
@@ -21,6 +23,7 @@ import {
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import AWS from "aws-sdk";
+import { IRMFindings } from "../utils/types/rmDataTypes";
 
 export const showError = (error: any) => {
   const message = error.response ? error.response.data.message : error.message;
@@ -468,4 +471,60 @@ export const validateTasksAndDocs = (args: IValidateTasksAndDocsArgs) => {
     throw new Error(
       `No tasks are selected ${partName !== "None" && `in ${partName} Part`}`
     );
+};
+
+type IFindFindingsArgs = {
+  claimType?: "PreAuth" | "Reimbursement";
+  claimCase: CaseDetail | null;
+};
+
+export const getTasksAndDocs = ({
+  claimType,
+  claimCase,
+}: IFindFindingsArgs) => {
+  interface IResult {
+    tasksAndDocs: ITasksAndDocuments | null;
+    rmFindings: IRMFindings | null;
+    rmFindingsQA: IRMFindings | null;
+    preAuthFindings: RevisedInvestigationFindings | null;
+    preAuthFindingsQA: RevisedInvestigationFindings | null;
+  }
+
+  const result: IResult = {
+    tasksAndDocs: null,
+    rmFindings: null,
+    rmFindingsQA: null,
+    preAuthFindings: null,
+    preAuthFindingsQA: null,
+  };
+
+  if (claimType === "PreAuth") {
+    if (claimCase?.allocationType === "Single") {
+      result.tasksAndDocs = claimCase?.singleTasksAndDocs;
+      result.preAuthFindings =
+        claimCase?.singleTasksAndDocs?.preAuthFindings || null;
+      result.preAuthFindingsQA =
+        claimCase?.singleTasksAndDocs?.preAuthFindingsPostQa || null;
+    } else if (claimCase?.allocationType === "Dual") {
+      result.tasksAndDocs = claimCase?.insuredTasksAndDocs;
+      result.preAuthFindings =
+        claimCase?.insuredTasksAndDocs?.preAuthFindings || null;
+      result.preAuthFindingsQA =
+        claimCase?.insuredTasksAndDocs?.preAuthFindingsPostQa || null;
+    }
+  } else if (claimType === "Reimbursement") {
+    if (claimCase?.allocationType === "Single") {
+      result.tasksAndDocs = claimCase?.singleTasksAndDocs;
+      result.rmFindings = claimCase?.singleTasksAndDocs?.rmFindings || null;
+      result.rmFindingsQA =
+        claimCase?.singleTasksAndDocs?.rmFindingsPostQA || null;
+    } else if (claimCase?.allocationType === "Dual") {
+      result.tasksAndDocs = claimCase?.insuredTasksAndDocs;
+      result.rmFindings = claimCase?.insuredTasksAndDocs?.rmFindings || null;
+      result.rmFindingsQA =
+        claimCase?.insuredTasksAndDocs?.rmFindingsPostQA || null;
+    }
+  }
+
+  return result;
 };

@@ -5,7 +5,7 @@ import { BiLink } from "react-icons/bi";
 import { RevisedInvestigationFindings } from "@/lib/utils/types/fniDataTypes";
 
 type PropTypes = {
-  findings?: RevisedInvestigationFindings;
+  findings?: RevisedInvestigationFindings | null;
 };
 
 const InvestigationRecommendationContent = ({ findings }: PropTypes) => {
@@ -28,6 +28,7 @@ const InvestigationRecommendationContent = ({ findings }: PropTypes) => {
           <KeyValueContainer
             label="FRCU Ground of Repudiation"
             value={
+              !!findings?.frcuGroundOfRepudiation &&
               findings?.frcuGroundOfRepudiation?.length > 0
                 ? findings?.frcuGroundOfRepudiation
                     ?.map((el) => el?.value)
@@ -57,7 +58,7 @@ const InvestigationRecommendationContent = ({ findings }: PropTypes) => {
             />
           )}
 
-          {findings?.evidenceDocs?.length > 0 ? (
+          {!!findings?.evidenceDocs && findings?.evidenceDocs?.length > 0 ? (
             <Box mt={16}>
               <Title order={6} c="orange" my={4}>
                 Evidences Uploaded
@@ -80,7 +81,8 @@ const InvestigationRecommendationContent = ({ findings }: PropTypes) => {
             </Box>
           ) : null}
 
-          {findings?.otherRecommendation?.length > 0 ? (
+          {!!findings?.otherRecommendation &&
+          findings?.otherRecommendation?.length > 0 ? (
             <Box mt={20}>
               <Title order={6} c="orange" my={4}>
                 Other Recommendations

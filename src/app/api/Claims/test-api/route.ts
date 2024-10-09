@@ -39,7 +39,7 @@ router.post(async (req) => {
   try {
     await connectDB(Databases.FNI);
 
-    const allCases: CaseDetail[] = await ClaimCase.find({});
+    const allCases: any = await ClaimCase.find({});
 
     const updatedIds = [];
 
@@ -48,10 +48,8 @@ router.post(async (req) => {
 
       if (obj?.allocationType === "Single") {
         const investigator =
-          // @ts-expect-error
           !!obj?.investigator && obj?.investigator?.length > 0
-            ? // @ts-expect-error
-              obj?.investigator[0]
+            ? obj?.investigator[0]
             : null;
 
         obj.singleTasksAndDocs = {
@@ -69,10 +67,8 @@ router.post(async (req) => {
         };
       } else if (obj?.allocationType === "Dual") {
         let investigator =
-          // @ts-expect-error
           !!obj?.investigator && obj?.investigator?.length > 0
-            ? // @ts-expect-error
-              obj?.investigator[0]
+            ? obj?.investigator[0]
             : null;
         obj.insuredTasksAndDocs = {
           tasks: obj?.tasksAssigned,
@@ -89,10 +85,8 @@ router.post(async (req) => {
         };
 
         investigator =
-          // @ts-expect-error
           !!obj?.investigator && obj?.investigator?.length > 1
-            ? // @ts-expect-error
-              obj?.investigator[1]
+            ? obj?.investigator[1]
             : null;
         obj.hospitalTasksAndDocs = {
           tasks: obj?.tasksAssigned,
@@ -108,7 +102,6 @@ router.post(async (req) => {
           rmFindingsPostQA: obj?.rmFindingsPostQA,
         };
       }
-      // @ts-expect-error
       await obj.save();
       updatedIds.push(obj?._id);
     }

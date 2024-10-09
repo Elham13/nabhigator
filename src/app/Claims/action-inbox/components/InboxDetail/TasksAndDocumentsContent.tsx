@@ -24,8 +24,10 @@ const TasksAndDocumentsContent = ({ caseDetail, dashboardData }: PropTypes) => {
       </Box>
     );
 
-  const { tasksAssigned: tasks } = caseDetail;
-  const documents = caseDetail?.documents as ResponseDoc;
+  // TODO: Handle this for dual
+  const documents =
+    (caseDetail?.singleTasksAndDocs?.docs as ResponseDoc) || null;
+  const tasks = caseDetail?.singleTasksAndDocs?.tasks || [];
 
   return (
     <Box>

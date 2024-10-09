@@ -802,6 +802,35 @@ export interface CaseDetail {
   caseType: string[];
   caseTypeDependencies: { [key: string]: string[] | undefined };
   caseStatus: "Accepted" | "Rejected" | "Investigation Rejected";
+  preQcObservation: string;
+  allocationType: "Single" | "Dual";
+  singleTasksAndDocs: ITasksAndDocuments | null;
+  insuredTasksAndDocs: ITasksAndDocuments | null;
+  hospitalTasksAndDocs: ITasksAndDocuments | null;
+  dashboardDataId: string | ObjectId;
+  intimationDate: Date | string;
+  rejectionReasons: RejectionReason[];
+  assignedBy: string | IUser[] | ObjectId;
+  updatedBy: string | IUser[] | ObjectId;
+  insuredAddress: string;
+  insuredCity: string;
+  insuredState: string;
+  insuredPinCode?: number;
+  allocatorComment?: string;
+  postQaComment?: string;
+  postQARecommendation?: RevisedQaApproveFormValues;
+  reportSubmissionDateQa: Date | null;
+  postQaOverRulingReason?: string;
+  qaBy?: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+interface OldCaseDetail {
+  _id: string | ObjectId;
+  caseType: string[];
+  caseTypeDependencies: { [key: string]: string[] | undefined };
+  caseStatus: "Accepted" | "Rejected" | "Investigation Rejected";
   tasksAssigned: Task[];
   preQcObservation: string;
   allocationType: "Single" | "Dual";

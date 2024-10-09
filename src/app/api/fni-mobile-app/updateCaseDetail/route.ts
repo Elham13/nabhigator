@@ -36,29 +36,29 @@ router.post(async (req) => {
     let message: string = "No transaction happened!";
 
     if (taskId) {
-      const task = caseDetail?.tasksAssigned?.find(
-        (el: any) => el?._id?.toString() === taskId
-      );
-
-      if (!task) throw new Error(`No Task found with the id ${taskId}`);
-
-      if (action === "ToggleTask") {
-        if (task.completed) task.comment = "";
-        task.completed = !task?.completed;
-        updatedCase = await caseDetail.save();
-        message = "Task toggled!";
-      } else if (action === "AddTaskComment") {
-        task.comment = taskComment;
-        updatedCase = await caseDetail.save();
-        message = `Comment added to the task ${taskId}!`;
-      }
+      // TODO: Handle this
+      // const task = caseDetail?.tasksAssigned?.find(
+      //   (el: any) => el?._id?.toString() === taskId
+      // );
+      // if (!task) throw new Error(`No Task found with the id ${taskId}`);
+      // if (action === "ToggleTask") {
+      //   if (task.completed) task.comment = "";
+      //   task.completed = !task?.completed;
+      //   updatedCase = await caseDetail.save();
+      //   message = "Task toggled!";
+      // } else if (action === "AddTaskComment") {
+      //   task.comment = taskComment;
+      //   updatedCase = await caseDetail.save();
+      //   message = `Comment added to the task ${taskId}!`;
+      // }
     }
 
     if (action === "AddComment") {
-      if (!comment) throw new Error("Comment is missing!");
-      caseDetail.investigatorComment = comment;
-      updatedCase = await caseDetail.save();
-      message = "Comment added successfully!";
+      // TODO: Handle This
+      // if (!comment) throw new Error("Comment is missing!");
+      // caseDetail.investigatorComment = comment;
+      // updatedCase = await caseDetail.save();
+      // message = "Comment added successfully!";
     }
 
     if (action === "AddPostQADocument") {
@@ -74,10 +74,11 @@ router.post(async (req) => {
     }
 
     if (action === "AddInvestigationFindings") {
-      const tempObj = { ...body, createdAt: new Date() };
-      caseDetail.investigationFindings = tempObj;
-      updatedCase = await caseDetail.save();
-      message = "Investigation findings captured successfully";
+      // TODO: Handle This
+      // const tempObj = { ...body, createdAt: new Date() };
+      // caseDetail.investigationFindings = tempObj;
+      // updatedCase = await caseDetail.save();
+      // message = "Investigation findings captured successfully";
     }
 
     if (action === "AddOverRulingReason") {
