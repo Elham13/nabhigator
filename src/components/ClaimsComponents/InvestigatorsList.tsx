@@ -1,13 +1,6 @@
 "use client";
 
-import React, {
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Box,
   Button,
@@ -85,7 +78,6 @@ const InvestigatorsList = ({
   onSelection,
   singleSelect,
 }: PropTypes) => {
-  const isFirstRender = useRef<boolean>(true);
   const router = useRouter();
   const [data, setData] = useState<Investigator[]>([]);
   const [loading, setLoading] = useState<boolean>(false);

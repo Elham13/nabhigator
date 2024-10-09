@@ -113,16 +113,17 @@ router.post(async (req) => {
         const updateRes = await updateInvestigators(inv);
         if (!updateRes?.success) throw new Error(updateRes?.message);
 
-        if (updateRes?.recycle) {
-          if (isManual) {
-            throw new Error(
-              `The ${updateRes?.type} limit of the investigator (${updateRes?.invName}) is reached please select a different investigator.`
-            );
-          }
-          tempRes.recycle = true;
-          investigators = [];
-          break;
-        }
+        // TODO: Fix this
+        // if (updateRes?.recycle) {
+        //   if (isManual) {
+        //     throw new Error(
+        //       `The ${updateRes?.type} limit of the investigator (${updateRes?.invName}) is reached please select a different investigator.`
+        //     );
+        //   }
+        //   tempRes.recycle = true;
+        //   investigators = [];
+        //   break;
+        // }
 
         inv?.email?.length > 0 &&
           inv?.email?.map(async (mail: string) => {
@@ -198,7 +199,6 @@ router.post(async (req) => {
         : NumericStage.IN_FIELD_FRESH;
     dashboardData.teamLead = dashboardData.teamLead || null;
 
-    // TODO: fix this
     if (allocationType === "Single") {
       dashboardData.claimInvestigators = investigators?.map(
         (inv: Investigator, ind: number) => ({
