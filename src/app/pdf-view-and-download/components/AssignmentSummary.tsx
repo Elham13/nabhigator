@@ -6,7 +6,7 @@ import SingleLine from "./SingleLine";
 import SectionHeading from "./SectionHeading";
 import TwoSectionView from "./TwoSectionView";
 import ThreeSectionView from "./ThreeSectionView";
-import { convertToIndianFormat } from "@/lib/helpers";
+import { convertToIndianFormat, getTasksAndDocs } from "@/lib/helpers";
 import FraudIndicatorTable from "./FraudIndicatorTable";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import { CaseDetail, IDashboardData } from "@/lib/utils/types/fniDataTypes";
@@ -82,15 +82,18 @@ const extractAcceptedTriageSummary = (
   return acceptedEntries;
 };
 
-const extractTasksAndDocuments = (caseData: CaseDetail | null) => {
-  if (!caseData || !caseData?.documents) return [];
+const extractTasksAndDocuments = (
+  caseData: CaseDetail | null,
+  claimType?: "PreAuth" | "Reimbursement"
+) => {
+  const { tasksAndDocs } = getTasksAndDocs({ claimType, claimCase: caseData });
 
   // Extract tasksAssigned into a comma-separated string
-  const tasks = caseData?.tasksAssigned?.map((task) => task.name).join(", ");
+  const tasks = tasksAndDocs?.tasks?.map((task) => task.name).join(", ");
 
   // Extract documents for 'Insured Part' into a comma-separated string
-  const documents = caseData?.documents
-    ? Object?.keys(caseData?.documents)
+  const documents = !!tasksAndDocs?.docs
+    ? Object?.keys(tasksAndDocs?.docs)
         ?.map((k) => {
           // @ts-ignore
           return caseData?.documents?.[k]
@@ -129,7 +132,7 @@ const AssignmentSummary = ({
 }: PropTypes) => {
   const acceptedTriageDetails = extractAcceptedTriageSummary(data, caseData);
 
-  const tasksAndDocuments = extractTasksAndDocuments(caseData);
+  const tasksAndDocuments = extractTasksAndDocuments(caseData, data?.claimType);
 
   return (
     <View>

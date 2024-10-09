@@ -6,6 +6,7 @@ import SingleLine from "../SingleLine";
 import { StyleSheet, Text } from "@react-pdf/renderer";
 import dayjs from "dayjs";
 import { CaseDetail, IDashboardData } from "@/lib/utils/types/fniDataTypes";
+import { getTasksAndDocs } from "@/lib/helpers";
 
 const styles = StyleSheet.create({ txt: { fontSize: 20 } });
 
@@ -15,66 +16,74 @@ type PropTypes = {
 };
 
 const InvestigatorFindings = ({ caseData, dashboardData }: PropTypes) => {
-  const findings = caseData?.investigationFindings;
+  const { preAuthFindings, tasksAndDocs } = getTasksAndDocs({
+    claimType: dashboardData?.claimType,
+    claimCase: caseData,
+  });
   const preAuthInvestigationSummary = [
     {
       key: "Date of Visit to Insured",
-      value: findings?.dateOfVisitToInsured
-        ? dayjs(findings?.dateOfVisitToInsured).format("DD-MMM-YYYY")
+      value: preAuthFindings?.dateOfVisitToInsured
+        ? dayjs(preAuthFindings?.dateOfVisitToInsured).format("DD-MMM-YYYY")
         : "-",
     },
     {
       key: "Time of Visit to Insured",
-      value: findings?.timeOfVisitToInsured
-        ? dayjs(findings?.timeOfVisitToInsured).format("hh:mm:ss a")
+      value: preAuthFindings?.timeOfVisitToInsured
+        ? dayjs(preAuthFindings?.timeOfVisitToInsured).format("hh:mm:ss a")
         : "-",
     },
     {
       key: "Date of Visit to Hospital",
-      value: findings?.dateOfVisitToHospital
-        ? dayjs(findings?.dateOfVisitToHospital).format("DD-MMM-YYYY")
+      value: preAuthFindings?.dateOfVisitToHospital
+        ? dayjs(preAuthFindings?.dateOfVisitToHospital).format("DD-MMM-YYYY")
         : "-",
     },
     {
       key: "Time of Visit to Hospital",
-      value: findings?.timeOfVisitToHospital
-        ? dayjs(findings?.timeOfVisitToHospital).format("hh:mm:ss a")
+      value: preAuthFindings?.timeOfVisitToHospital
+        ? dayjs(preAuthFindings?.timeOfVisitToHospital).format("hh:mm:ss a")
         : "-",
     },
     {
       key: "Hospitalization Status",
-      value: findings?.hospitalizationStatus?.value,
+      value: preAuthFindings?.hospitalizationStatus?.value,
     },
   ];
 
   const hospitalizationDetails = [
-    ...(findings?.hospitalizationStatus?.value === "Differed Admission"
+    ...(preAuthFindings?.hospitalizationStatus?.value === "Differed Admission"
       ? [
           {
             key: "Differed Admission",
-            value: findings?.hospitalizationStatus?.differedAdmission || "-",
+            value:
+              preAuthFindings?.hospitalizationStatus?.differedAdmission || "-",
           },
         ]
       : []),
-    ...(findings?.hospitalizationStatus?.value === "Cancelled Admission"
+    ...(preAuthFindings?.hospitalizationStatus?.value === "Cancelled Admission"
       ? [
           {
             key: "Cancelled Admission",
-            value: findings?.hospitalizationStatus?.differedAdmission || "-",
+            value:
+              preAuthFindings?.hospitalizationStatus?.differedAdmission || "-",
           },
         ]
       : []),
-    ...(findings?.hospitalizationStatus?.cancelledAdmission === "Other"
+    ...(preAuthFindings?.hospitalizationStatus?.cancelledAdmission === "Other"
       ? [
           {
             key: "Specify Other for cancelled admission",
             value:
-              findings?.hospitalizationStatus?.cancelledAdmissionOther || "-",
+              preAuthFindings?.hospitalizationStatus?.cancelledAdmissionOther ||
+              "-",
           },
         ]
       : []),
-    ...(findings?.hospitalizationStatus?.value &&
-    ["Admitted", "Discharged"].includes(findings?.hospitalizationStatus?.value)
+    ...(preAuthFindings?.hospitalizationStatus?.value &&
+    ["Admitted", "Discharged"].includes(
+      preAuthFindings?.hospitalizationStatus?.value
+    )
       ? [
           {
             key: "System Date of Admission",
@@ -86,79 +95,87 @@ const InvestigatorFindings = ({ caseData, dashboardData }: PropTypes) => {
           },
           {
             key: "Date of Admission",
-            value: findings?.hospitalizationDetails?.dateOfAdmission
-              ? dayjs(findings?.hospitalizationDetails?.dateOfAdmission).format(
-                  "DD-MMM-YYYY"
-                )
+            value: preAuthFindings?.hospitalizationDetails?.dateOfAdmission
+              ? dayjs(
+                  preAuthFindings?.hospitalizationDetails?.dateOfAdmission
+                ).format("DD-MMM-YYYY")
               : "-",
           },
           {
             key: "Time of Admission",
-            value: findings?.hospitalizationDetails?.timeOfAdmission
-              ? dayjs(findings?.hospitalizationDetails?.timeOfAdmission).format(
-                  "hh:mm:ss a"
-                )
+            value: preAuthFindings?.hospitalizationDetails?.timeOfAdmission
+              ? dayjs(
+                  preAuthFindings?.hospitalizationDetails?.timeOfAdmission
+                ).format("hh:mm:ss a")
               : "-",
           },
           {
             key: "Date of Discharge",
-            value: findings?.hospitalizationDetails?.dateOfDischarge
-              ? dayjs(findings?.hospitalizationDetails?.dateOfDischarge).format(
-                  "DD-MMM-YYYY"
-                )
+            value: preAuthFindings?.hospitalizationDetails?.dateOfDischarge
+              ? dayjs(
+                  preAuthFindings?.hospitalizationDetails?.dateOfDischarge
+                ).format("DD-MMM-YYYY")
               : "-",
           },
           {
             key: "Time of Discharge",
-            value: findings?.hospitalizationDetails?.timeOfDischarge
-              ? dayjs(findings?.hospitalizationDetails?.timeOfDischarge).format(
-                  "hh:mm:ss a"
-                )
+            value: preAuthFindings?.hospitalizationDetails?.timeOfDischarge
+              ? dayjs(
+                  preAuthFindings?.hospitalizationDetails?.timeOfDischarge
+                ).format("hh:mm:ss a")
               : "-",
           },
         ]
       : []),
-    ...(findings?.hospitalizationStatus?.value &&
+    ...(preAuthFindings?.hospitalizationStatus?.value &&
     ["Planned Admission", "Differed Admission"].includes(
-      findings?.hospitalizationStatus?.value
+      preAuthFindings?.hospitalizationStatus?.value
     )
       ? [
           {
             key: "Tentative Date of Admission",
-            value: findings?.hospitalizationDetails?.tentativeDateOfAdmission
+            value: preAuthFindings?.hospitalizationDetails
+              ?.tentativeDateOfAdmission
               ? dayjs(
-                  findings?.hospitalizationDetails?.tentativeDateOfAdmission
+                  preAuthFindings?.hospitalizationDetails
+                    ?.tentativeDateOfAdmission
                 ).format("DD-MMM-YYYY")
               : "-",
           },
           {
             key: "Tentative Date of Discharge",
-            value: findings?.hospitalizationDetails?.tentativeDateOfDischarge
+            value: preAuthFindings?.hospitalizationDetails
+              ?.tentativeDateOfDischarge
               ? dayjs(
-                  findings?.hospitalizationDetails?.tentativeDateOfAdmission
+                  preAuthFindings?.hospitalizationDetails
+                    ?.tentativeDateOfAdmission
                 ).format("DD-MMM-YYYY")
               : "-",
           },
         ]
       : []),
-    ...(findings?.hospitalizationStatus?.value &&
+    ...(preAuthFindings?.hospitalizationStatus?.value &&
     ["Cancelled Admission", "Roaming around in/out Hospital"].includes(
-      findings?.hospitalizationStatus?.value
+      preAuthFindings?.hospitalizationStatus?.value
     )
       ? [
           {
             key: "Proposed Date of Admission",
-            value: findings?.hospitalizationDetails?.proposedDateOfAdmission
+            value: preAuthFindings?.hospitalizationDetails
+              ?.proposedDateOfAdmission
               ? dayjs(
-                  findings?.hospitalizationDetails?.proposedDateOfAdmission
+                  preAuthFindings?.hospitalizationDetails
+                    ?.proposedDateOfAdmission
                 ).format("DD-MMM-YYYY")
               : "-",
           },
           {
             key: "Proposed Date of Discharge",
-            value: findings?.hospitalizationDetails?.proposedDateOfDischarge
+            value: preAuthFindings?.hospitalizationDetails
+              ?.proposedDateOfDischarge
               ? dayjs(
-                  findings?.hospitalizationDetails?.proposedDateOfDischarge
+                  preAuthFindings?.hospitalizationDetails
+                    ?.proposedDateOfDischarge
                 ).format("DD-MMM-YYYY")
               : "-",
           },
@@ -169,189 +186,197 @@ const InvestigatorFindings = ({ caseData, dashboardData }: PropTypes) => {
   const patientDetails = [
     {
       key: "Patient Name",
-      value: findings?.patientDetails?.patientName || "-",
+      value: preAuthFindings?.patientDetails?.patientName || "-",
     },
     {
       key: "Patient Age",
-      value: findings?.patientDetails?.patientAge || "-",
+      value: preAuthFindings?.patientDetails?.patientAge || "-",
     },
     {
       key: "Patient Gender",
-      value: findings?.patientDetails?.patientGender || "-",
+      value: preAuthFindings?.patientDetails?.patientGender || "-",
     },
     {
       key: "Revised Patient Name",
-      value: findings?.patientDetails?.revisedPatientName || "-",
+      value: preAuthFindings?.patientDetails?.revisedPatientName || "-",
     },
     {
       key: "Revised Patient Age",
-      value: findings?.patientDetails?.revisedPatientAge || "-",
+      value: preAuthFindings?.patientDetails?.revisedPatientAge || "-",
     },
     {
       key: "Revised Patient Gender",
-      value: findings?.patientDetails?.revisedPatientGender || "-",
+      value: preAuthFindings?.patientDetails?.revisedPatientGender || "-",
     },
     {
       key: "Attendant Available",
-      value: findings?.attendantDetails?.status || "-",
+      value: preAuthFindings?.attendantDetails?.status || "-",
     },
-    ...(findings?.attendantDetails?.status === "Available"
+    ...(preAuthFindings?.attendantDetails?.status === "Available"
       ? [
           {
             key: "Attendant Name",
-            value: findings?.attendantDetails?.name,
+            value: preAuthFindings?.attendantDetails?.name,
           },
           {
             key: "Attendant Gender",
-            value: findings?.attendantDetails?.gender,
+            value: preAuthFindings?.attendantDetails?.gender,
           },
           {
             key: "Relationship",
-            value: findings?.attendantDetails?.relationship,
+            value: preAuthFindings?.attendantDetails?.relationship,
           },
           {
             key: "Attendant Mobile No.",
-            value: findings?.attendantDetails?.mobileNo,
+            value: preAuthFindings?.attendantDetails?.mobileNo,
           },
         ]
       : []),
     {
       key: "Occupation of Insured",
-      value: findings?.occupationOfInsured || "-",
+      value: preAuthFindings?.occupationOfInsured || "-",
     },
     {
       key: "Work Place Details",
-      value: findings?.workPlaceDetails || "-",
+      value: preAuthFindings?.workPlaceDetails || "-",
     },
     {
       key: "Any Other Policy with NBHI",
-      value: findings?.anyOtherPolicyWithNBHI || "-",
+      value: preAuthFindings?.anyOtherPolicyWithNBHI || "-",
     },
-    ...(findings?.anyOtherPolicyWithNBHI === "Yes"
+    ...(preAuthFindings?.anyOtherPolicyWithNBHI === "Yes"
       ? [
           {
             key: "Other Policy Number with NBHI",
-            value: findings?.otherPolicyNoWithNBHI || "-",
+            value: preAuthFindings?.otherPolicyNoWithNBHI || "-",
           },
         ]
       : []),
     {
       key: "Any Previous Claim with NBHI",
-      value: findings?.anyPreviousClaimWithNBHI || "-",
+      value: preAuthFindings?.anyPreviousClaimWithNBHI || "-",
     },
     {
       key: "Any Insurance Policy Other Than NBHI",
-      value: findings?.insurancePolicyOtherThanNBHI?.hasPolicy || "-",
+      value: preAuthFindings?.insurancePolicyOtherThanNBHI?.hasPolicy || "-",
     },
-    ...(findings?.insurancePolicyOtherThanNBHI?.hasPolicy === "Yes"
+    ...(preAuthFindings?.insurancePolicyOtherThanNBHI?.hasPolicy === "Yes"
       ? [
           {
             key: "Name of insurance company",
             value:
-              findings?.insurancePolicyOtherThanNBHI?.nameOfInsuranceCompany ||
-              "-",
+              preAuthFindings?.insurancePolicyOtherThanNBHI
+                ?.nameOfInsuranceCompany || "-",
           },
           {
             key: "Policy Number",
-            value: findings?.insurancePolicyOtherThanNBHI?.policyNumber || "-",
+            value:
+              preAuthFindings?.insurancePolicyOtherThanNBHI?.policyNumber ||
+              "-",
           },
         ]
       : []),
     {
       key: "Class of Accommodation",
-      value: findings?.classOfAccommodation?.status || "-",
+      value: preAuthFindings?.classOfAccommodation?.status || "-",
     },
-    ...(findings?.classOfAccommodation?.status === "Other"
+    ...(preAuthFindings?.classOfAccommodation?.status === "Other"
       ? [
           {
             key: "Remarks for other class of accommodation",
-            value: findings?.classOfAccommodation?.remark || "-",
+            value: preAuthFindings?.classOfAccommodation?.remark || "-",
           },
         ]
       : []),
     {
       key: "Any Change in Class of Accommodation",
-      value: findings?.changeInClassOfAccommodation?.status || "-",
+      value: preAuthFindings?.changeInClassOfAccommodation?.status || "-",
     },
-    ...(findings?.changeInClassOfAccommodation?.status &&
-    ["Yes", "NA"].includes(findings?.changeInClassOfAccommodation?.status)
+    ...(preAuthFindings?.changeInClassOfAccommodation?.status &&
+    ["Yes", "NA"].includes(
+      preAuthFindings?.changeInClassOfAccommodation?.status
+    )
       ? [
           {
             key: "Remarks for change in class of accommodation",
-            value: findings?.changeInClassOfAccommodation?.remark || "-",
+            value: preAuthFindings?.changeInClassOfAccommodation?.remark || "-",
           },
         ]
       : []),
     {
       key: "Patient on Active Line of Treatment",
-      value: findings?.patientOnActiveLineOfTreatment?.status || "-",
+      value: preAuthFindings?.patientOnActiveLineOfTreatment?.status || "-",
     },
-    ...(findings?.patientOnActiveLineOfTreatment?.status &&
-    ["No", "NA"].includes(findings?.patientOnActiveLineOfTreatment?.status)
+    ...(preAuthFindings?.patientOnActiveLineOfTreatment?.status &&
+    ["No", "NA"].includes(
+      preAuthFindings?.patientOnActiveLineOfTreatment?.status
+    )
       ? [
           {
             key: "Remarks for patient on active line of treatment",
-            value: findings?.patientOnActiveLineOfTreatment?.remark || "-",
+            value:
+              preAuthFindings?.patientOnActiveLineOfTreatment?.remark || "-",
           },
         ]
       : []),
     {
       key: "Mismatch in Diagnosis",
-      value: findings?.mismatchInDiagnosis?.status || "-",
+      value: preAuthFindings?.mismatchInDiagnosis?.status || "-",
     },
-    ...(findings?.mismatchInDiagnosis?.status &&
-    ["Yes", "NA"].includes(findings?.mismatchInDiagnosis?.status)
+    ...(preAuthFindings?.mismatchInDiagnosis?.status &&
+    ["Yes", "NA"].includes(preAuthFindings?.mismatchInDiagnosis?.status)
       ? [
           {
             key: "Remarks for mismatch in symptoms",
-            value: findings?.mismatchInDiagnosis?.remark || "-",
+            value: preAuthFindings?.mismatchInDiagnosis?.remark || "-",
           },
         ]
       : []),
     {
       key: "Discrepancies Observed",
-      value: findings?.discrepancies?.status || "-",
+      value: preAuthFindings?.discrepancies?.status || "-",
     },
-    ...(findings?.discrepancies &&
-    ["Yes", "NA"].includes(findings?.discrepancies?.status)
+    ...(preAuthFindings?.discrepancies &&
+    !!preAuthFindings?.discrepancies?.status &&
+    ["Yes", "NA"].includes(preAuthFindings?.discrepancies?.status)
       ? [
           {
             key: "Remarks for Discrepancies",
-            value: findings?.discrepancies?.remark || "-",
+            value: preAuthFindings?.discrepancies?.remark || "-",
           },
         ]
       : []),
     {
       key: "PED/Non-disclosures",
-      value: findings?.pedOrNoneDisclosure || "-",
+      value: preAuthFindings?.pedOrNoneDisclosure || "-",
     },
     {
       key: "Insured/Attendant Cooperation",
-      value: findings?.insuredOrAttendantCooperation || "-",
+      value: preAuthFindings?.insuredOrAttendantCooperation || "-",
     },
-    ...(findings?.insuredOrAttendantCooperation === "No"
+    ...(preAuthFindings?.insuredOrAttendantCooperation === "No"
       ? [
           {
             key: "Reason of insured/attendant not cooperating",
-            value: findings?.reasonForInsuredNotCooperation || "-",
+            value: preAuthFindings?.reasonForInsuredNotCooperation || "-",
           },
         ]
       : []),
     {
       key: "Provider Insured/Attendent-cooperation",
-      value: findings?.providerCooperation || "-",
+      value: preAuthFindings?.providerCooperation || "-",
     },
-    ...(findings?.providerCooperation === "No"
+    ...(preAuthFindings?.providerCooperation === "No"
       ? [
           {
             key: "Reason of provider not cooperating",
-            value: findings?.reasonForProviderNotCooperation || "-",
+            value: preAuthFindings?.reasonForProviderNotCooperation || "-",
           },
         ]
       : []),
   ];
 
-  const mappedAilmentData = findings?.ailment.map((element) => {
+  const mappedAilmentData = preAuthFindings?.ailment?.map((element) => {
     return {
       Ailment: element.ailment,
       Diagnosis: element.diagnosis,
@@ -365,7 +390,7 @@ const InvestigatorFindings = ({ caseData, dashboardData }: PropTypes) => {
     data: mappedAilmentData,
   };
 
-  const mappedHabitTable = findings?.patientHabit.map((element) => {
+  const mappedHabitTable = preAuthFindings?.patientHabit?.map((element) => {
     return {
       Habit: element.habit,
       Frequency: element.frequency,
@@ -382,31 +407,33 @@ const InvestigatorFindings = ({ caseData, dashboardData }: PropTypes) => {
   const investigationDetailsData = [
     {
       key: "Recommendation from Investigator",
-      value: findings?.recommendation?.value || "-",
+      value: preAuthFindings?.recommendation?.value || "-",
     },
     {
       key: "Ground of Repudiation from Investigator",
       value:
-        findings?.frcuGroundOfRepudiation?.map((el) => el.value)?.join(", ") ||
-        "-",
+        preAuthFindings?.frcuGroundOfRepudiation
+          ?.map((el) => el.value)
+          ?.join(", ") || "-",
     },
     {
       key: "Flag For",
       value:
-        findings?.otherRecommendation?.map((el) => el?.value)?.join(", ") ||
-        "-",
+        preAuthFindings?.otherRecommendation
+          ?.map((el) => el?.value)
+          ?.join(", ") || "-",
     },
     {
       key: "Flag Category",
       value:
-        findings?.otherRecommendation
+        preAuthFindings?.otherRecommendation
           ?.map((el) => el?.detail?.map((e) => e.value)?.join(", "))
           ?.join(", ") || "-",
     },
     {
       key: "Flag Category Remark",
       value:
-        findings?.otherRecommendation
+        preAuthFindings?.otherRecommendation
           ?.map((el) => el?.detail?.map((e) => e.remark)?.join(", "))
           ?.join(", ") || "-",
     },
@@ -421,7 +448,7 @@ const InvestigatorFindings = ({ caseData, dashboardData }: PropTypes) => {
     },
     {
       key: "Date of report submission",
-      value: dayjs(caseData?.invReportReceivedDate).format(
+      value: dayjs(tasksAndDocs?.invReportReceivedDate).format(
         "DD-MMM-YYYY hh:mm:ss a"
       ),
     },
@@ -456,7 +483,7 @@ const InvestigatorFindings = ({ caseData, dashboardData }: PropTypes) => {
       <SectionHeading>Habit Details</SectionHeading>
       <TableView tableData={habitTableData} />
       <SingleLine>Investigation Summary</SingleLine>
-      <Text style={styles.txt}>{findings?.investigationSummary}</Text>
+      <Text style={styles.txt}>{preAuthFindings?.investigationSummary}</Text>
       <TwoSectionView
         data={investigationDetailsData}
         topic="Investigation Details"

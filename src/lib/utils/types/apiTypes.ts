@@ -2,7 +2,6 @@ import { HydratedDocument, ObjectId } from "mongoose";
 import { IDashboardData, IUser, Investigator } from "./fniDataTypes";
 
 export interface IDefineInvestigator {
-  isManual: boolean;
   body: any;
   user: IUser;
   dashboardData: HydratedDocument<IDashboardData>;
@@ -13,7 +12,7 @@ export interface IDefineInvestigatorReturnType {
   success: boolean;
   shouldSendRes: boolean;
   message: string;
-  investigators: Investigator[];
+  investigators: Investigator | Investigator[] | null;
   excludedInvestigators?: ObjectId[];
 }
 
@@ -47,4 +46,6 @@ export interface IUpdateInvReturnType {
   message: string;
   recycle: boolean;
   excludedInv?: ObjectId;
+  invName?: string;
+  type?: "daily" | "monthly";
 }

@@ -18,12 +18,14 @@ import RandomVicinityVerification from "./RandomVicinityVerification";
 import TreatingDoctorVerification from "./TreatingDoctorVerification";
 import VicinityVerification from "./VicinityVerification";
 import CommonTasks from "./CommonTasks";
+import { getTasksAndDocs } from "@/lib/helpers";
 
 type PropTypes = {
   caseData: CaseDetail | null;
+  claimType?: "PreAuth" | "Reimbursement";
 };
-const RMInvestigatorFindings = ({ caseData }: PropTypes) => {
-  const rmFindings = caseData?.rmFindings;
+const RMInvestigatorFindings = ({ caseData, claimType }: PropTypes) => {
+  const { rmFindings } = getTasksAndDocs({ claimType, claimCase: caseData });
 
   return (
     <div>

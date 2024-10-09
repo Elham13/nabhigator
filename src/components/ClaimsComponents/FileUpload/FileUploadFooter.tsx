@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { DeleteOutlined, EyeOutlined, LinkOutlined } from "@ant-design/icons";
-import { Modal, Popconfirm } from "antd";
 import Image from "next/image";
 import axios from "axios";
 import { documentName, isImageUrl, showError } from "@/lib/helpers";
 import { SingleResponseType } from "@/lib/utils/types/fniDataTypes";
 import { EndPoints } from "@/lib/utils/types/enums";
+import { IoEyeOutline, IoLinkOutline } from "react-icons/io5";
+import PopConfirm from "@/components/PopConfirm";
+import { MdOutlineDelete } from "react-icons/md";
+import { Modal } from "@mantine/core";
 
 type PropTypes = {
   url: string;
@@ -36,7 +38,7 @@ const FileUploadFooter = ({ url, onDelete }: PropTypes) => {
   return (
     <div className="flex items-center justify-between text-xs text-slate-300 group px-2 py-1 rounded hover:bg-slate-200">
       <p className="flex items-center gap-2">
-        <LinkOutlined />
+        <IoLinkOutline />
         {docName}
       </p>
       <div className="flex items-center gap-x-4">
@@ -50,24 +52,20 @@ const FileUploadFooter = ({ url, onDelete }: PropTypes) => {
             }
           }}
         >
-          <EyeOutlined />
+          <IoEyeOutline />
         </button>
-        <Popconfirm
+        <PopConfirm
           title="Confirm Delete"
           description="Are you sure you want to delete this file?"
           onConfirm={onDelete}
-          onCancel={() => {}}
-          okText="Yes"
-          cancelText="No"
-          okButtonProps={{ style: { backgroundColor: "green" } }}
         >
           <button className="p-0 text-red-600 text-xl">
-            <DeleteOutlined />
+            <MdOutlineDelete />
           </button>
-        </Popconfirm>
+        </PopConfirm>
       </div>
       {visible ? (
-        <Modal open={visible} onCancel={() => setVisible(false)} footer={null}>
+        <Modal opened={visible} onClose={() => setVisible(false)}>
           <p>{docName}</p>
           <div className="mt-4">
             {isImageUrl(url) ? (

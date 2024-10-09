@@ -1,11 +1,11 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { IShowElement } from "@/lib/utils/types/fniDataTypes";
 import { Box, Button } from "@mantine/core";
-import { Spin } from "antd";
 import dynamic from "next/dynamic";
+import Loading from "@/components/Loading";
 const PostQaList = dynamic(() => import("./PostQaList"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 
 type PropTypes = {

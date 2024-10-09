@@ -546,7 +546,7 @@ const OPDVerificationSchema = new Schema<IOPDVerificationPartSchema>(
 const AHCVerificationSchema = new Schema<IAHCVerificationPartSchema>(
   {
     labVerified: { type: String },
-    labs: { type: [LabSchema], default: null },
+    labs: { type: [LabSchema], default: [] },
     finalObservation: { type: String },
   },
   { timestamps: true }
@@ -753,7 +753,7 @@ const DoctorSchema = new Schema<IDoctorSchema>(
   {
     name: { type: String },
     qualification: { type: String },
-    registrationNo: { type: String },
+    registrationNo: { type: { value: String, remark: String } },
   },
   { timestamps: true }
 );
@@ -902,6 +902,7 @@ const MiscellaneousVerificationSchema =
 const RecommendationSchema = new Schema<IRecommendationSchema>(
   {
     value: { type: String },
+    code: { type: String },
     hasEvidence: { type: String },
     evidences: { type: [String], default: [] },
     reasonOfEvidenceNotAvailable: { type: String },

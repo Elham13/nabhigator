@@ -8,6 +8,7 @@ import dayjs from "dayjs";
 import DashboardData from "@/lib/Models/dashboardData";
 import { HydratedDocument } from "mongoose";
 import {
+  CaseDetail,
   EventNames,
   IDashboardData,
   IUser,
@@ -32,635 +33,94 @@ import UnwantedFNIData from "@/lib/Models/uwantedFNIData";
 
 const router = createEdgeRouter<NextRequest, {}>();
 
-const addHospitalDetailsToDashboardData = async () => {
-  try {
-    const hospitals = [
-      {
-        providerNo: "20348 ",
-        providerName: "YASHODA SUPER SPECIALITY HOSPITAL, Ranga Reddy",
-        providerType: "Not Found!",
-        providerAddress: "Rajbhavan Road, Somajiguda Ranga Reddy Dist.  ",
-        providerState: "Telangana",
-        providerCity: "HYDERABAD",
-        pinCode: "500082",
-      },
-      {
-        providerNo: "20007 ",
-        providerName: "Max Hospital.",
-        providerType: "Not Found!",
-        providerAddress: "W-3, Sector -1, Vaishali   ",
-        providerState: "Uttar Pradesh",
-        providerCity: "GHAZIABAD",
-        pinCode: "201001",
-      },
-      {
-        providerNo: "20007 ",
-        providerName: "Max Hospital.",
-        providerType: "Not Found!",
-        providerAddress: "W-3, Sector -1, Vaishali   ",
-        providerState: "Uttar Pradesh",
-        providerCity: "GHAZIABAD",
-        pinCode: "201001",
-      },
-      {
-        providerNo: "20004 ",
-        providerName: "CENTRE FOR SIGHT, SAFDARJUNG ENCLAVE",
-        providerType: "Not Found!",
-        providerAddress: "B 5/24, SAFDARJUNG ENCLAVE   ",
-        providerState: "Delhi",
-        providerCity: "SOUTH WEST DELHI",
-        pinCode: "110029",
-      },
-      {
-        providerNo: "20115 ",
-        providerName: "Max Super Specialty- Patparganj",
-        providerType: "Not Found!",
-        providerAddress:
-          "108 A  Sanchar Apartments  Indraprastha Extension Extn  Patparganj   ",
-        providerState: "Delhi",
-        providerCity: "EAST DELHI",
-        pinCode: "110092",
-      },
-      {
-        providerNo: "20003 ",
-        providerName: "CENTRE FOR SIGHT, PREET VIHAR",
-        providerType: "Not Found!",
-        providerAddress: "F-19 MAIN VIKAS MARG PREET VIHAR   ",
-        providerState: "Delhi",
-        providerCity: "EAST DELHI",
-        pinCode: "110092",
-      },
-      {
-        providerNo: "20003 ",
-        providerName: "CENTRE FOR SIGHT, PREET VIHAR",
-        providerType: "Not Found!",
-        providerAddress: "F-19 MAIN VIKAS MARG PREET VIHAR   ",
-        providerState: "Delhi",
-        providerCity: "EAST DELHI",
-        pinCode: "110092",
-      },
-      {
-        providerNo: "20743 ",
-        providerName: "Sai Krishna Hi-Tech Hospital and Research Centre",
-        providerType: "Not Found!",
-        providerAddress: "Radhan Pur Road, Swaminarayan Circle   ",
-        providerState: "Gujarat",
-        providerCity: "MAHESANA",
-        pinCode: "384002",
-      },
-      {
-        providerNo: "20235 ",
-        providerName: "Fortis Hospital, Noida",
-        providerType: "Not Found!",
-        providerAddress: "B-22, Sector-62   ",
-        providerState: "Uttar Pradesh",
-        providerCity: "GAUTAM BUDDHA NAGAR",
-        pinCode: "201301",
-      },
-      {
-        providerNo: "20115 ",
-        providerName: "Max Super Specialty- Patparganj",
-        providerType: "Not Found!",
-        providerAddress:
-          "108 A  Sanchar Apartments  Indraprastha Extension Extn  Patparganj   ",
-        providerState: "Delhi",
-        providerCity: "EAST DELHI",
-        pinCode: "110092",
-      },
-      {
-        providerNo: "20003 ",
-        providerName: "CENTRE FOR SIGHT, PREET VIHAR",
-        providerType: "Not Found!",
-        providerAddress: "F-19 MAIN VIKAS MARG PREET VIHAR   ",
-        providerState: "Delhi",
-        providerCity: "EAST DELHI",
-        pinCode: "110092",
-      },
-      {
-        providerNo: "20119 ",
-        providerName: "MAX HOSPITAL  GURGAON",
-        providerType: "Not Found!",
-        providerAddress: "Block - B  Sushant Lok  Phase I  Gurgaon   ",
-        providerState: "Haryana",
-        providerCity: "GURGAON",
-        pinCode: "122001",
-      },
-      {
-        providerNo: "20003 ",
-        providerName: "CENTRE FOR SIGHT, PREET VIHAR",
-        providerType: "Not Found!",
-        providerAddress: "F-19 MAIN VIKAS MARG PREET VIHAR   ",
-        providerState: "Delhi",
-        providerCity: "EAST DELHI",
-        pinCode: "110092",
-      },
-      {
-        providerNo: "20115 ",
-        providerName: "Max Super Specialty- Patparganj",
-        providerType: "Not Found!",
-        providerAddress:
-          "108 A  Sanchar Apartments  Indraprastha Extension Extn  Patparganj   ",
-        providerState: "Delhi",
-        providerCity: "EAST DELHI",
-        pinCode: "110092",
-      },
-      {
-        providerNo: "20003 ",
-        providerName: "CENTRE FOR SIGHT, PREET VIHAR",
-        providerType: "Not Found!",
-        providerAddress: "F-19 MAIN VIKAS MARG PREET VIHAR   ",
-        providerState: "Delhi",
-        providerCity: "EAST DELHI",
-        pinCode: "110092",
-      },
-      {
-        providerNo: "20003 ",
-        providerName: "CENTRE FOR SIGHT, PREET VIHAR",
-        providerType: "Not Found!",
-        providerAddress: "F-19 MAIN VIKAS MARG PREET VIHAR   ",
-        providerState: "Delhi",
-        providerCity: "EAST DELHI",
-        pinCode: "110092",
-      },
-      {
-        providerNo: "20003 ",
-        providerName: "CENTRE FOR SIGHT, PREET VIHAR",
-        providerType: "Not Found!",
-        providerAddress: "F-19 MAIN VIKAS MARG PREET VIHAR   ",
-        providerState: "Delhi",
-        providerCity: "EAST DELHI",
-        pinCode: "110092",
-      },
-      {
-        providerNo: "20115 ",
-        providerName: "Max Super Specialty- Patparganj",
-        providerType: "Not Found!",
-        providerAddress:
-          "108 A  Sanchar Apartments  Indraprastha Extension Extn  Patparganj   ",
-        providerState: "Delhi",
-        providerCity: "EAST DELHI",
-        pinCode: "110092",
-      },
-    ];
-
-    let ind = 0;
-
-    const data = await DashboardData.find({}).lean();
-    for (let doc of data) {
-      await DashboardData.findByIdAndUpdate(doc._id, {
-        $set: {
-          hospitalDetails: hospitals[ind],
-        },
-      });
-      ind += 1;
-    }
-    return data;
-  } catch (error: any) {
-    throw new Error(error);
-  }
-};
-
-const createClaimCase = async () => {
-  const data: any = await ClaimCase.find({}).lean();
-
-  for (let doc of data) {
-    await ClaimCase.findByIdAndUpdate(doc?._id, {
-      $set: { reInvestigationDocuments: doc?.documents },
-    });
-  }
-
-  return data;
-};
-
-const cloneDashboardData = async () => {
-  const data: HydratedDocument<IDashboardData> | null =
-    await DashboardData.findOne({
-      claimId: 48458,
-    }).lean();
-
-  if (data) {
-    return await DashboardData.create({
-      ...data,
-      claimId: data?.claimId + 1,
-      _id: undefined,
-      createdAt: undefined,
-      updatedAt: undefined,
-    });
-  }
-};
-
-const updateInvestigators = async () => {
-  // TODO: Run this also in production
-  try {
-    const investigators: any = await ClaimInvestigator.find({}).lean();
-
-    for (let el of investigators) {
-      // await ClaimInvestigator.findByIdAndUpdate(el?._id, {
-      //   $set: {
-      //     dailyThreshold: el?.dailyThreshold ? parseInt(el?.dailyThreshold) : 0,
-      //     monthlyThreshold: el?.monthlyThreshold
-      //       ? parseInt(el?.monthlyThreshold)
-      //       : 0,
-      //     dailyAssign: el?.dailyAssign ? parseInt(el?.dailyAssign) : 0,
-      //     monthlyAssigned: el?.monthlyAssigned
-      //       ? parseInt(el?.monthlyAssigned)
-      //       : 0,
-      //     hitRate: el?.hitRate ? parseInt(el?.hitRate) : 0,
-      //     TAT: el?.TAT ? parseInt(el?.TAT) : 0,
-      //     performance: el?.performance ? parseInt(el?.performance) : 0,
-      //     activeFrom: null,
-      //   },
-      // });
-      await ClaimInvestigator.findByIdAndUpdate(el?._id, {
-        $set: {
-          email: el?.email ? [el?.email] : [],
-        },
-      });
-    }
-
-    // const investigators: any = await ClaimInvestigator.find({
-    //   assignmentPreferred: "Cashless",
-    // }).lean();
-
-    // for (let el of investigators) {
-    //   let preference = el?.assignmentPreferred;
-    //   preference = preference?.map((item) =>
-    //     item === "Cashless" ? "PreAuth" : item
-    //   );
-    //   await ClaimInvestigator.findByIdAndUpdate(el?._id, {
-    //     assignmentPreferred: preference,
-    //   });
-    // }
-
-    // for (let el of investigators) {
-    //   const pinCodeData = {
-    //     name: el?.pincodeData?.name || el?.investigatorName,
-    //     pinCodes: el?.pincodes?.pincodes || [],
-    //   };
-    //   const pinCodes = el?.pincodes || [];
-    //   const cityData = {
-    //     name: el?.cityData?.name || el?.investigatorName,
-    //     cities: el?.cityData?.pincodes || [],
-    //   };
-    //   const cities = el?.cities || [];
-    //   const stateData = {
-    //     name: el?.stateData?.name || el?.investigatorName,
-    //     states: el?.stateData?.pincodes || [],
-    //   };
-    //   const states = el?.states || [];
-    //   const providerData = {
-    //     name: el?.providerData?.name || el?.investigatorName,
-    //     providers: el?.providerData?.pincodes || [],
-    //   };
-    //   const providers = el?.provider || [];
-
-    //   await ClaimInvestigator.findByIdAndUpdate(el?._id, {
-    //     $set: {
-    //       pinCodeData,
-    //       pinCodes,
-    //       cityData,
-    //       cities,
-    //       stateData,
-    //       states,
-    //       providerData,
-    //       providers,
-    //     },
-    //     $unset: {
-    //       "Unnamed: 9": 1,
-    //       "Unnamed: 10": 1,
-    //       pincodeData: 1,
-    //       pincodes: 1,
-    //       provider: 1,
-    //     },
-    //   });
-    // }
-    return {};
-  } catch (error: any) {
-    throw new Error(error);
-  }
-};
-
-const convertDocUrlToArray = async () => {
-  const caseDetails = await ClaimCase.find({}).lean();
-
-  for (let cCase of caseDetails) {
-    let documents = cCase?.documents;
-
-    for (const key in documents) {
-      if (Object.hasOwnProperty.call(documents, key)) {
-        const arr = documents[key];
-
-        documents[key] = arr.map((obj: any) => {
-          obj.docUrl = obj.docUrl
-            ? typeof obj?.docUrl === "string"
-              ? [obj.docUrl]
-              : obj?.docUrl
-            : [];
-          return obj;
-        });
-      }
-    }
-
-    await ClaimCase.findByIdAndUpdate(cCase?._id, {
-      $set: { documents: documents },
-    });
-  }
-};
-
-const addPostQaName = async () => {
-  const dashboardData = await DashboardData.find({}).lean();
-
-  for (let data of dashboardData) {
-    const claimCase = await ClaimCase.findOne({ dashboardDataId: data?._id });
-    if (claimCase && claimCase.qaBy) {
-      const qa = await User.findOne({ name: claimCase.qaBy, status: "Active" });
-      if (qa) {
-        await DashboardData.findByIdAndUpdate(data?._id, {
-          $set: { postQa: qa?._id },
-        });
-      }
-    }
-  }
-};
-
-const updateDashboardData = async () => {
-  // TODO: Run this function on prod deployment
-  const dashboardData = await DashboardData.find({}).lean();
-
-  for (const data of dashboardData) {
-    await DashboardData.findByIdAndUpdate(data?._id, {
-      $set: {
-        // dateOfOS: data?.dateOfOS || null,
-        // dateOfClosure: data?.dateOfClosure || null,
-        intimationDate: !!data?.intimationDate
-          ? dayjs(data?.intimationDate)
-              .tz("Asia/Kolkata")
-              .format("DD-MMM-YYYY hh:mm:ss A")
-          : dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
-      },
-    });
-  }
-};
-
-const updateStage = async () => {
-  // TODO: Run this function on prod deployment
-  const dashboardData = await DashboardData.find({}).lean();
-
-  enum OldStage {
-    PENDING_FOR_PRE_QC = 1,
-    PENDING_FOR_ALLOCATION = 3,
-    IN_FIELD_FRESH = 4,
-    POST_QC = 5,
-    IN_FIELD_REINVESTIGATION = 7,
-    CLOSED = 12,
-    REJECTED = 13,
-    INVESTIGATION_ACCEPTED = 14,
-    INVESTIGATION_SKIPPED = 15,
-    IN_FIELD_REWORK = 16,
-  }
-
-  const getUpdatedStage = (stage: OldStage) => {
-    switch (stage) {
-      case OldStage.PENDING_FOR_PRE_QC:
-        return NumericStage.PENDING_FOR_PRE_QC;
-      case OldStage.PENDING_FOR_ALLOCATION:
-        return NumericStage.PENDING_FOR_ALLOCATION;
-      case OldStage.IN_FIELD_FRESH:
-        return NumericStage.IN_FIELD_FRESH;
-      case OldStage.POST_QC:
-        return NumericStage.POST_QC;
-      case OldStage.IN_FIELD_REWORK:
-        return NumericStage.IN_FIELD_REWORK;
-      case OldStage.IN_FIELD_REINVESTIGATION:
-        return NumericStage.IN_FIELD_REINVESTIGATION;
-      case OldStage.CLOSED:
-        return NumericStage.CLOSED;
-      case OldStage.REJECTED:
-        return NumericStage.REJECTED;
-      case OldStage.INVESTIGATION_ACCEPTED:
-        return NumericStage.INVESTIGATION_ACCEPTED;
-      case OldStage.IN_FIELD_REWORK:
-        return NumericStage.IN_FIELD_REWORK;
-      case OldStage.INVESTIGATION_SKIPPED:
-        return NumericStage.INVESTIGATION_SKIPPED_AND_COMPLETING;
-    }
-  };
-
-  for (const data of dashboardData) {
-    await DashboardData.findByIdAndUpdate(data?._id, {
-      $set: {
-        stage: getUpdatedStage(data?.stage),
-      },
-    });
-  }
-};
-
-const gettingGeographies = async () => {
-  const pinCodes = await NewPinCodeMaster.aggregate([
-    {
-      $lookup: {
-        from: "zonestatemasters",
-        localField: "STATE_CODE",
-        foreignField: "State_code",
-        as: "state",
-      },
-    },
-    {
-      $lookup: {
-        from: "newcitymasters",
-        localField: "CITY_CODE",
-        foreignField: "City_code",
-        as: "city",
-      },
-    },
-    {
-      $limit: 10,
-    },
-  ]);
-
-  const districts = await NewStateDistrictMaster.aggregate([
-    {
-      $lookup: {
-        from: "zonestatemasters",
-        localField: "State_code",
-        foreignField: "State_code",
-        as: "state",
-      },
-    },
-    {
-      $limit: 10,
-    },
-  ]);
-
-  const states = await ZoneStateMaster.aggregate([
-    {
-      $lookup: {
-        from: "zonemasters",
-        localField: "zoneId",
-        foreignField: "zoneId",
-        as: "zone",
-      },
-    },
-    {
-      $unwind: { path: "$zone", preserveNullAndEmptyArrays: true },
-    },
-  ]);
-
-  const zones = await ZoneMaster.find({});
-};
-
-const addTLAndClusterManager = async () => {
-  // TODO: Run this function on prod deployment
-  const data: IDashboardData[] = await DashboardData.find({}).lean();
-  const teamLeads: IUser[] = await User.find({
-    role: Role.TL,
-    status: "Active",
-  }).lean();
-
-  const clusterManagers: IUser[] = await User.find({
-    role: Role.CLUSTER_MANAGER,
-    status: "Active",
-  }).lean();
-  const zonalStates: IZoneStateMaster[] = await ZoneStateMaster.find({}).lean();
-
-  for (const el of data) {
-    if (!el?.teamLead || !el?.clusterManager) {
-      const foundTL = teamLeads?.find((tl) => {
-        if (!tl?.state || tl?.state?.includes("All") || tl?.state?.length < 1) {
-          if (tl?.zone?.length < 1) return false;
-          let returnType = false;
-          for (const tlz of tl?.zone) {
-            const found = zonalStates?.find(
-              (state) =>
-                state?.Zone === tlz &&
-                state?.State === el?.hospitalDetails?.providerState
-            );
-            if (found) returnType = true;
-          }
-          return returnType;
-        } else return tl?.state?.includes(el?.hospitalDetails?.providerState);
-      });
-
-      const foundCM = clusterManagers?.find((cm) => {
-        if (!cm?.state || cm?.state?.includes("All") || cm?.state?.length < 1) {
-          if (cm?.zone?.length < 1) return false;
-          let returnType = false;
-          for (const cmz of cm?.zone) {
-            const found = zonalStates?.find(
-              (state) =>
-                state?.Zone === cmz &&
-                state?.State === el?.hospitalDetails?.providerState
-            );
-            if (found) returnType = true;
-          }
-          return returnType;
-        } else return cm?.state?.includes(el?.hospitalDetails?.providerState);
-      });
-
-      await DashboardData.findByIdAndUpdate(el?._id, {
-        $set: {
-          teamLead: foundTL ? foundTL?._id : el?.teamLead,
-          clusterManager: foundCM ? foundCM?._id : el?.clusterManager,
-        },
-      });
-    }
-  }
-};
-
-const addDateOfFallingIntoAllocationBucket = async () => {
-  const data: IDashboardData[] = await DashboardData.find({}).lean();
-
-  for (const el of data) {
-    const event = await CaseEvent.findOne({
-      claimId: el?.claimId,
-      eventName: {
-        $in: [
-          EventNames.INVESTIGATION_REJECTED,
-          EventNames.INVESTIGATION_SKIPPED_AND_RE_ASSIGNING,
-          EventNames.MOVE_TO_ALLOCATION_BUCKET,
-        ],
-      },
-    });
-
-    if (event) {
-      await DashboardData.findByIdAndUpdate(el?._id, {
-        $set: { dateOfFallingIntoAllocationBucket: event?.createdAt },
-      });
-    }
-  }
-};
-
-const addUnwantedFNIData = async () => {
-  const { baseUrl, authPayload, apiId } = buildMaximusUrl();
-  const headers = {
-    "x-apigw-api-id": apiId,
-  };
-
-  const { data: token } = await axios.post(
-    `${baseUrl}auth/getauthtoken`,
-    authPayload,
-    {
-      headers,
-    }
-  );
-
-  const getFniDataUrl = `${baseUrl}claim/getfnidata`;
-  const payload = {
-    ClaimType: "FnI",
-    SourceSystem: "M",
-  };
-  const getFniDataHeaders = {
-    headers: { ...headers, Authorization: `Bearer ${token?.Token}` },
-  };
-
-  const { data } = await axios.post<IGetFNIData>(
-    getFniDataUrl,
-    payload,
-    getFniDataHeaders
-  );
-
-  const claimsData =
-    data?.ClaimsData && data?.ClaimsData?.length > 0 ? data?.ClaimsData : [];
-
-  await UnwantedFNIData.insertMany(claimsData);
-};
-
-const changePostQaValues = async () => {
-  const users: IUser[] = await User.find({ role: "Post QA" }).lean();
-
-  for (const user of users) {
-    await User.findByIdAndUpdate(user?._id, {
-      $set: {
-        "config.reportReceivedTime.from": user?.config?.reportReceivedTime?.from
-          ? new Date(user?.config?.reportReceivedTime?.from)
-          : dayjs().startOf("day").toDate(),
-        "config.reportReceivedTime.to": user?.config?.reportReceivedTime?.to
-          ? new Date(user?.config?.reportReceivedTime?.to)
-          : dayjs().endOf("day").toDate(),
-        "config.thresholdUpdatedAt": new Date(),
-        "config.dailyThreshold": user?.config?.dailyThreshold || 30,
-        "config.dailyAssign": user?.config?.dailyAssign || 0,
-        "config.leadView":
-          user?.config?.leadView && user?.config?.leadView?.length > 0
-            ? user?.config?.leadView
-            : ["PreAuth"],
-      },
-    });
-  }
-};
-
 router.post(async (req) => {
   const body = await req?.json();
 
   try {
     await connectDB(Databases.FNI);
-    changePostQaValues();
+
+    const allCases: any = await ClaimCase.find({});
+
+    const updatedIds = [];
+
+    for (let obj of allCases) {
+      obj.preQcObservation = obj?.preQcObservation || "Testing";
+
+      if (obj?.allocationType === "Single") {
+        const investigator =
+          !!obj?.investigator && obj?.investigator?.length > 0
+            ? obj?.investigator[0]
+            : null;
+
+        obj.singleTasksAndDocs = {
+          tasks: obj?.tasksAssigned,
+          docs: obj?.documents,
+          investigationRejected: obj?.investigationRejected,
+          investigator,
+          investigatorComment: obj?.investigatorComment,
+          outSourcingDate: obj?.outSourcingDate,
+          invReportReceivedDate: obj?.invReportReceivedDate,
+          preAuthFindings: obj?.investigationFindings,
+          preAuthFindingsPostQa: obj?.postQaFindings,
+          rmFindings: obj?.rmFindings,
+          rmFindingsPostQA: obj?.rmFindingsPostQA,
+        };
+        obj.dashboardDataId =
+          obj?.dashboardDataId || "662f2b9907ea5125d65d1815";
+      } else if (obj?.allocationType === "Dual") {
+        let investigator =
+          !!obj?.investigator && obj?.investigator?.length > 0
+            ? obj?.investigator[0]
+            : null;
+        obj.insuredTasksAndDocs = {
+          tasks: obj?.tasksAssigned,
+          docs: obj?.documents,
+          investigationRejected: obj?.investigationRejected,
+          investigator,
+          investigatorComment: obj?.investigatorComment,
+          outSourcingDate: obj?.outSourcingDate,
+          invReportReceivedDate: obj?.invReportReceivedDate,
+          preAuthFindings: obj?.investigationFindings,
+          preAuthFindingsPostQa: obj?.postQaFindings,
+          rmFindings: obj?.rmFindings,
+          rmFindingsPostQA: obj?.rmFindingsPostQA,
+        };
+        obj.dashboardDataId =
+          obj?.dashboardDataId || "662f2b9907ea5125d65d1815";
+
+        investigator =
+          !!obj?.investigator && obj?.investigator?.length > 1
+            ? obj?.investigator[1]
+            : null;
+        obj.hospitalTasksAndDocs = {
+          tasks: obj?.tasksAssigned,
+          docs: obj?.documents,
+          investigationRejected: obj?.investigationRejected,
+          investigator,
+          investigatorComment: obj?.investigatorComment,
+          outSourcingDate: obj?.outSourcingDate,
+          invReportReceivedDate: obj?.invReportReceivedDate,
+          preAuthFindings: obj?.investigationFindings,
+          preAuthFindingsPostQa: obj?.postQaFindings,
+          rmFindings: obj?.rmFindings,
+          rmFindingsPostQA: obj?.rmFindingsPostQA,
+          dashboardDataId: obj?.dashboardDataId || "662f2b9907ea5125d65d1815",
+        };
+        obj.dashboardDataId =
+          obj?.dashboardDataId || "662f2b9907ea5125d65d1815";
+      }
+      await obj.save();
+      updatedIds.push(obj?._id);
+    }
 
     return NextResponse.json(
       {
         success: true,
         message: "Success",
-        data: null,
+        data: {
+          updatedIds,
+          count: updatedIds?.length,
+        },
       },
       { status: 200 }
     );

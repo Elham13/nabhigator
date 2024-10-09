@@ -349,6 +349,7 @@ export interface IEstablishmentVerification {
 export interface IRecommendation {
   _id?: string;
   value: string;
+  code: string;
   hasEvidence?: string;
   evidences?: string[];
   reasonOfEvidenceNotAvailable?: string;

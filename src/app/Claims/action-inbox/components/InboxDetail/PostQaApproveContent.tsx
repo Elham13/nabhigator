@@ -50,16 +50,45 @@ const PostQaApproveContent = ({
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
   const [overRulingReason, setOverRulingReason] = useState<string>("");
 
-  const recommendation =
-    data?.claimType === "PreAuth"
-      ? `${caseDetail?.investigationFindings?.recommendation?.value}${
-          caseDetail?.investigationFindings?.recommendation?.code
-            ? `_${caseDetail?.investigationFindings?.recommendation?.code}`
-            : ""
-        }`
-      : data?.claimType === "Reimbursement"
-      ? caseDetail?.rmFindings?.recommendation?.value || ""
-      : "";
+  const getRecommendation = () => {
+    let value = "";
+    let code = "";
+    if (data?.claimType === "PreAuth") {
+      if (caseDetail?.allocationType === "Single") {
+        value =
+          caseDetail?.singleTasksAndDocs?.preAuthFindings?.recommendation
+            ?.value || "";
+        code =
+          caseDetail?.singleTasksAndDocs?.preAuthFindings?.recommendation
+            ?.code || "";
+      } else if (caseDetail?.allocationType === "Dual") {
+        // TODO: Handle for dual
+        value =
+          caseDetail?.insuredTasksAndDocs?.preAuthFindings?.recommendation
+            ?.value || "";
+        code =
+          caseDetail?.insuredTasksAndDocs?.preAuthFindings?.recommendation
+            ?.code || "";
+      }
+    } else if (data?.claimType === "Reimbursement") {
+      if (caseDetail?.allocationType === "Single") {
+        value =
+          caseDetail?.singleTasksAndDocs?.rmFindings?.recommendation?.value ||
+          "";
+      } else if (caseDetail?.allocationType === "Dual") {
+        // TODO: Handle for dual
+        value =
+          caseDetail?.insuredTasksAndDocs?.rmFindings?.recommendation?.value ||
+          "";
+      }
+    }
+
+    if (value && !code) return value;
+    if (!!value && !!code) return `${value}_${code}`;
+    return "";
+  };
+
+  const recommendation = getRecommendation();
 
   const saveOverRuling = async () => {
     try {
@@ -245,31 +274,44 @@ const PostQaApproveContent = ({
   };
 
   useEffect(() => {
+    let summary = "";
     if (data?.claimType === "PreAuth") {
-      if (caseDetail?.investigationFindings?.investigationSummary) {
-        setApprovedValues((prev) => ({
-          ...prev,
-          summaryOfInvestigation:
-            caseDetail?.investigationFindings?.investigationSummary || "",
-          frcuRecommendationOnClaims: recommendation || "-",
-        }));
+      if (
+        caseDetail?.allocationType === "Single" &&
+        !!caseDetail?.singleTasksAndDocs?.preAuthFindings?.investigationSummary
+      ) {
+        summary =
+          caseDetail?.singleTasksAndDocs?.preAuthFindings?.investigationSummary;
+      } else if (
+        caseDetail?.allocationType === "Single" &&
+        !!caseDetail?.insuredTasksAndDocs?.preAuthFindings?.investigationSummary
+      ) {
+        summary =
+          caseDetail?.insuredTasksAndDocs?.preAuthFindings
+            ?.investigationSummary;
       }
     } else if (data?.claimType === "Reimbursement") {
-      if (caseDetail?.rmFindings?.investigationSummary) {
-        setApprovedValues((prev) => ({
-          ...prev,
-          summaryOfInvestigation:
-            caseDetail?.rmFindings?.investigationSummary || "",
-          frcuRecommendationOnClaims: recommendation || "-",
-        }));
+      if (
+        caseDetail?.allocationType === "Single" &&
+        !!caseDetail?.singleTasksAndDocs?.rmFindings?.investigationSummary
+      ) {
+        summary =
+          caseDetail?.singleTasksAndDocs?.rmFindings?.investigationSummary;
+      } else if (
+        caseDetail?.allocationType === "Single" &&
+        !!caseDetail?.insuredTasksAndDocs?.rmFindings?.investigationSummary
+      ) {
+        summary =
+          caseDetail?.insuredTasksAndDocs?.rmFindings?.investigationSummary;
       }
     }
-  }, [
-    caseDetail?.investigationFindings?.investigationSummary,
-    caseDetail?.rmFindings?.investigationSummary,
-    data?.claimType,
-    recommendation,
-  ]);
+
+    setApprovedValues((prev) => ({
+      ...prev,
+      summaryOfInvestigation: summary || "",
+      frcuRecommendationOnClaims: recommendation || "-",
+    }));
+  }, [caseDetail, data?.claimType, recommendation]);
 
   return (
     <Box className="mt-4">

@@ -1,11 +1,13 @@
 import React, { useState, ChangeEvent } from "react";
-import { UploadOutlined } from "@ant-design/icons";
-import { Divider, Progress } from "antd";
 import { toast } from "react-toastify";
 import { S3 } from "aws-sdk";
 import FileUploadFooter from "./FileUploadFooter";
 import dayjs from "dayjs";
 import { DocumentData } from "@/lib/utils/types/fniDataTypes";
+import { S3Client } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
+import { Divider, Progress } from "@mantine/core";
+import { VscCloudUpload } from "react-icons/vsc";
 
 type PropType = {
   doc: DocumentData | Omit<DocumentData, "location">;
@@ -78,14 +80,12 @@ const FileUpload = ({ doc, docName, disabled, claimId, getUrl }: PropType) => {
     <div className="mb-4">
       <div className="flex items-center gap-2">
         <div
-          className={`text-xs cursor-pointer flex items-center gap-2 border border-opacity-30 w-fit rounded py-2 px-4 relative ${
-            disabled && "bg-slate-600 opacity-50"
-          }`}
+          className={`text-xs cursor-pointer flex items-center gap-2 border border-opacity-30 w-fit rounded py-2 px-4 relative`}
         >
-          <UploadOutlined />
+          <VscCloudUpload />
           <span>Upload {doc.name}</span>
           <input
-            type={disabled ? "submit" : "file"}
+            type="file"
             className="absolute inset-0 cursor-pointer opacity-0 disabled:bg-slate-300"
             onChange={uploadFile}
           />
@@ -108,7 +108,7 @@ const FileUpload = ({ doc, docName, disabled, claimId, getUrl }: PropType) => {
           ))
         )
       ) : null}
-      {progress > 0 ? <Progress percent={progress} /> : null}
+      {progress > 0 ? <Progress value={progress} striped animated /> : null}
       <Divider />
     </div>
   );

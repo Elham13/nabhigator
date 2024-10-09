@@ -2,10 +2,10 @@ import React from "react";
 import { Title } from "@mantine/core";
 import PageWrapper from "@/components/ClaimsComponents/PageWrapper";
 import dynamic from "next/dynamic";
-import { Spin } from "antd";
+import Loading from "@/components/Loading";
 const DetailsContent = dynamic(() => import("../components/DetailsContent"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 
 type PropTypes = {

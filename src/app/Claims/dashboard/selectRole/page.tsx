@@ -71,7 +71,7 @@ const SelectRole = () => {
   }, [user, apiUser]);
 
   return (
-    <Paper h="100%">
+    <Paper h="100vh">
       <Head>
         <title>Claim Dashboard</title>
         <meta

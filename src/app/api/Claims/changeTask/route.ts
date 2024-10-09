@@ -8,6 +8,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { HydratedDocument } from "mongoose";
 import {
+  ClaimInvestigator as IClaimInvestigator,
   EventNames,
   IDashboardData,
   Investigator,
@@ -26,7 +27,7 @@ const router = createEdgeRouter<NextRequest, {}>();
 router.post(async (req) => {
   const body = await req?.json();
 
-  const { _id, dashboardDataId, allocationType, investigators, user } = body;
+  const { _id, dashboardDataId, allocationType, user } = body;
 
   try {
     if (!_id) throw new Error("_id is missing in body");
@@ -54,88 +55,68 @@ router.post(async (req) => {
       qaBy: user?.name,
     });
 
-    if (investigators?.length > 0) {
-      if (allocationType === "Single") {
-        let invId = investigators[0];
+    const invIds: string[] = [];
+
+    if (allocationType === "Single") {
+      let invId = body?.singleTasksAndDocs?.investigator;
+      if (!invId) throw new Error("Investigator is required");
+      invIds.push(invId);
+      const inv: HydratedDocument<Investigator> | null =
+        await ClaimInvestigator.findById(invId);
+
+      if (!inv)
+        throw new Error(`Failed to find investigator with the id ${invId}`);
+
+      dashboardData.claimInvestigators = dashboardData.claimInvestigators?.map(
+        (i) => {
+          if (i?._id?.toString() === inv?._id)
+            return {
+              ...i,
+              _id: inv?._id,
+              assignedData: new Date(),
+              assignedFor: "",
+              name: inv?.investigatorName,
+            };
+          else return i;
+        }
+      );
+    } else if (allocationType === "Dual") {
+      let claimInvestigators: IClaimInvestigator[] = [];
+
+      if (body?.insuredTasksAndDocs?.investigator)
+        invIds?.push(body?.insuredTasksAndDocs?.investigator);
+      if (body?.hospitalTasksAndDocs?.investigator)
+        invIds?.push(body?.hospitalTasksAndDocs?.investigator);
+
+      if (invIds?.length < 2) throw new Error("2 investigator are required");
+
+      let counter = 0;
+      for (let id of invIds) {
         const inv: HydratedDocument<Investigator> | null =
-          await ClaimInvestigator.findById(invId);
+          await ClaimInvestigator.findById(id);
 
         if (!inv)
-          throw new Error(`Failed to find investigator with the id ${invId}`);
+          throw new Error(`Failed to find investigator with the id ${id}`);
 
-        dashboardData.claimInvestigators = [
-          {
-            _id: inv?._id,
-            assignedData: new Date(),
-            assignedFor: "",
-            name: inv?.investigatorName,
-          },
-        ];
+        claimInvestigators?.push({
+          _id: inv?._id,
+          assignedData: new Date(),
+          assignedFor: counter === 0 ? "Insured" : "Hospital",
+          name: inv?.investigatorName,
+          investigationStatus: "Assigned",
+        });
 
-        dashboardData.actionsTaken = dashboardData?.actionsTaken
-          ? [
-              ...dashboardData?.actionsTaken,
-              {
-                actionName: EventNames.TASK_UPDATE_BY_QA,
-                userId: user?._id,
-              },
-            ]
-          : [
-              {
-                actionName: EventNames.TASK_UPDATE_BY_QA,
-                userId: user?._id,
-              },
-            ];
-      } else if (allocationType === "Dual") {
-        let invIds = investigators?.slice(0, 2); // Getting first 2 ids
-        let claimInvestigators: any[] = [];
-
-        let counter = 0;
-        for (let id of invIds) {
-          const inv: HydratedDocument<Investigator> | null =
-            await ClaimInvestigator.findById(id);
-
-          if (!inv)
-            throw new Error(`Failed to find investigator with the id ${id}`);
-
-          claimInvestigators?.push({
-            _id: inv?._id,
-            assignedData: new Date(),
-            assignedFor: counter === 0 ? "Insured" : "Hospital",
-            name: inv?.investigatorName,
-          });
-
-          counter += 1;
-        }
-
-        dashboardData.claimInvestigators = claimInvestigators;
-        dashboardData.actionsTaken = dashboardData?.actionsTaken
-          ? [
-              ...dashboardData?.actionsTaken,
-              {
-                actionName: EventNames.TASK_UPDATE_BY_QA,
-                userId: user?._id,
-              },
-            ]
-          : [
-              {
-                actionName: EventNames.TASK_UPDATE_BY_QA,
-                userId: user?._id,
-              },
-            ];
+        counter += 1;
       }
-      await dashboardData.save();
-    }
 
-    const invIds =
-      allocationType === "Single"
-        ? investigators[0]
-        : investigators?.slice(0, 2);
+      dashboardData.claimInvestigators = claimInvestigators;
+    }
+    await dashboardData.save();
 
     const data = await ClaimCase.findByIdAndUpdate(
       _id,
       {
-        $set: { ...body, investigator: invIds },
+        $set: { ...body },
       },
       { useFindAndModify: false }
     );

@@ -1859,7 +1859,7 @@ export const rejectionReasonsOptions = [
   },
 ];
 
-export const groundOfRepudiationOptions: DefaultOptionType[] = [
+export const groundOfRepudiationOptions = [
   { value: "PED/NDC", label: "PED/NDC" },
   {
     value: "OPD-IPD Conversion/Hospitalization fro evaluation",

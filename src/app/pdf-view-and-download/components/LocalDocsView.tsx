@@ -2,13 +2,20 @@ import React, { Fragment } from "react";
 import { Button, Menu } from "@mantine/core";
 import { MdDoNotDisturbAlt } from "react-icons/md";
 import { CaseDetail, DocumentData } from "@/lib/utils/types/fniDataTypes";
+import { getTasksAndDocs } from "@/lib/helpers";
 
 type PropTypes = {
   caseData: CaseDetail | null;
+  claimType?: "PreAuth" | "Reimbursement";
 };
 
-const LocalDocsView = ({ caseData }: PropTypes) => {
-  const docs: Record<string, DocumentData[]> = caseData?.documents as any;
+const LocalDocsView = ({ caseData, claimType }: PropTypes) => {
+  const { tasksAndDocs, preAuthFindings } = getTasksAndDocs({
+    claimType,
+    claimCase: caseData,
+  });
+
+  const docs: Record<string, DocumentData[]> = tasksAndDocs?.docs as any;
 
   return (
     <Menu shadow="md" width={200}>
@@ -73,9 +80,10 @@ const LocalDocsView = ({ caseData }: PropTypes) => {
         )}
         <Menu.Divider />
         <Menu.Label>Evidences</Menu.Label>
-        {caseData?.investigationFindings?.evidenceDocs &&
-        caseData?.investigationFindings?.evidenceDocs?.length > 0 ? (
-          caseData?.investigationFindings?.evidenceDocs?.map((el, ind) => (
+        {/* TODO: Handle for RM */}
+        {preAuthFindings?.evidenceDocs &&
+        preAuthFindings?.evidenceDocs?.length > 0 ? (
+          preAuthFindings?.evidenceDocs?.map((el, ind) => (
             <Menu.Item
               key={ind}
               onClick={() => {
