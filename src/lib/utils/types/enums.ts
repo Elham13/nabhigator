@@ -11,6 +11,7 @@ export enum StorageKeys {
 }
 
 export enum EndPoints {
+  FEED_DOCS = "/api/Claims/feedDocs",
   ASSIGN_TO_INVESTIGATOR = "/api/Claims/assignToInvestigator",
   AUTO_PRE_QC = "/api/Claims/autoPreQC",
   CAPTURE_INVESTIGATION_FINDINGS = "/api/fni-mobile-app/captureInvestigationFindings",

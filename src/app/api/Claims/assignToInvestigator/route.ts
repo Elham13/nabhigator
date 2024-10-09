@@ -145,8 +145,8 @@ router.post(async (req) => {
             });
           });
       }
-      break;
       // if (!tempRes.recycle) break;
+      break;
     }
 
     const isReInvestigated = dashboardData?.claimInvestigators?.length > 0;
