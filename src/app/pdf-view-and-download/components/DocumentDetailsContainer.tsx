@@ -69,7 +69,10 @@ const DocumentDetailsContainer = ({
           Click to download
         </PDFDownloadLink>
         {docType === "final-investigation-report" && (
-          <LocalDocsView caseData={caseData} />
+          <LocalDocsView
+            caseData={caseData}
+            claimType={dashboardData?.claimType}
+          />
         )}
       </Box>
       <PDFViewer showToolbar={false} style={{ width: "80vw", height: "100vh" }}>

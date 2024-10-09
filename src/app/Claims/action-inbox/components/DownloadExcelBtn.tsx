@@ -82,14 +82,15 @@ const DownloadExcelBtn = ({ filters, sort, searchTerm, origin }: PropTypes) => {
         dateOfOS: el.dateOfOS
           ? dayjs(el.dateOfOS).format("DD-MMM-YYYY hh:mm:ss a")
           : "-",
-        invReportReceivedDate:
-          el.caseId &&
-          typeof el?.caseId === "object" &&
-          el.caseId.invReportReceivedDate
-            ? dayjs(el.caseId.invReportReceivedDate).format(
-                "DD-MMM-YYYY hh:mm:ss a"
-              )
-            : "-",
+        // TODO: Handle This
+        // invReportReceivedDate:
+        //   el.caseId &&
+        //   typeof el?.caseId === "object" &&
+        //   el.caseId.invReportReceivedDate
+        //     ? dayjs(el.caseId.invReportReceivedDate).format(
+        //         "DD-MMM-YYYY hh:mm:ss a"
+        //       )
+        //     : "-",
         dateOfClosure: el.dateOfClosure
           ? dayjs(el.dateOfClosure).format("DD-MMM-YYYY hh:mm:ss a")
           : "-",
@@ -109,12 +110,13 @@ const DownloadExcelBtn = ({ filters, sort, searchTerm, origin }: PropTypes) => {
             ? el?.caseId?.postQARecommendation?.frcuRecommendationOnClaims
                 ?.value
             : "-",
-        investigatorRecommendation:
-          el?.caseId &&
-          typeof el?.caseId === "object" &&
-          !!el?.caseId?.investigationFindings?.recommendation?.value
-            ? el?.caseId?.investigationFindings?.recommendation?.value
-            : "-",
+        // TODO: Handle This
+        // investigatorRecommendation:
+        //   el?.caseId &&
+        //   typeof el?.caseId === "object" &&
+        //   !!el?.caseId?.investigationFindings?.recommendation?.value
+        //     ? el?.caseId?.investigationFindings?.recommendation?.value
+        //     : "-",
         clusterManager:
           el?.clusterManager && typeof el?.clusterManager !== "string"
             ? el?.clusterManager?.name

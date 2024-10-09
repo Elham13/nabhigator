@@ -6,9 +6,10 @@ import {
   CaseDetail,
   IDashboardData,
   IInvestigationFindings,
+  RevisedInvestigationFindings,
   Task,
 } from "@/lib/utils/types/fniDataTypes";
-import { HydratedDocument, Types } from "mongoose";
+import { Document, HydratedDocument, Types } from "mongoose";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
@@ -80,7 +81,7 @@ const initialValues: IInvestigationFindings = {
 };
 
 router.post(async (req) => {
-  const { id, key, value, isPostQa } = await req?.json();
+  const { id, key, value, isPostQa, userId } = await req?.json();
 
   try {
     if (!id) throw new Error("id is required");
@@ -94,68 +95,127 @@ router.post(async (req) => {
 
     if (!caseDetail) throw new Error(`No data found with the id ${id}`);
 
+    let tempFindings: RevisedInvestigationFindings | null = null;
+    let tempFindingsQa: RevisedInvestigationFindings | null = null;
+    const allocationType = caseDetail?.allocationType;
+
+    if (allocationType === "Dual" && !userId)
+      throw new Error("userId is required");
+
+    let part: "Insured" | "Hospital" | null = null;
+
+    if (allocationType === "Single") {
+      tempFindings = caseDetail?.singleTasksAndDocs?.preAuthFindings || {};
+      tempFindingsQa =
+        caseDetail?.singleTasksAndDocs?.preAuthFindingsPostQa || {};
+    } else if (allocationType === "Dual") {
+      if (caseDetail?.insuredTasksAndDocs?.investigator?.toString() === userId)
+        part = "Insured";
+      if (caseDetail?.hospitalTasksAndDocs?.investigator?.toString() === userId)
+        part = "Hospital";
+
+      tempFindings =
+        part === "Insured"
+          ? caseDetail?.insuredTasksAndDocs?.preAuthFindings || {}
+          : part === "Hospital"
+          ? caseDetail?.hospitalTasksAndDocs?.preAuthFindings || {}
+          : null;
+
+      tempFindingsQa =
+        part === "Insured"
+          ? caseDetail?.insuredTasksAndDocs?.preAuthFindingsPostQa || {}
+          : part === "Hospital"
+          ? caseDetail?.hospitalTasksAndDocs?.preAuthFindingsPostQa || {}
+          : null;
+    }
+
+    if (!tempFindings || !tempFindingsQa) {
+      throw new Error("No tasks found for this investigator");
+    }
+
     if (key && value) {
+      const tempKey = key as keyof RevisedInvestigationFindings;
+
       if (isPostQa) {
-        // @ts-expect-error
-        caseDetail.postQaFindings = { [key]: value };
+        tempFindingsQa[tempKey] = value;
+      } else {
+        tempFindings[tempKey] = value;
+        tempFindingsQa[tempKey] = value;
+      }
 
-        if (caseDetail?.postQaFindings) {
-          const caseData = caseDetail?.toJSON();
-          const findings = caseData?.postQaFindings;
-
-          let completed: boolean = true;
-          if (findings && Object.keys(findings)?.length > 0) {
-            for (let key of Object.keys(initialValues)) {
-              // @ts-expect-error
-              if (!findings[key]) {
-                completed = false;
-                break;
-              }
-            }
-          }
-
-          if (completed) {
-            let tasks: Task[] = caseDetail?.tasksAssigned || [];
-            tasks = tasks?.map((el) => ({ ...el, completed: true }));
-            caseDetail.tasksAssigned = tasks;
-          }
+      if (isPostQa) {
+        if (allocationType === "Single") {
+          caseDetail.singleTasksAndDocs!.preAuthFindingsPostQa = tempFindingsQa;
+        } else {
+          if (part === "Insured")
+            caseDetail.insuredTasksAndDocs!.preAuthFindingsPostQa =
+              tempFindingsQa;
+          if (part === "Hospital")
+            caseDetail.hospitalTasksAndDocs!.preAuthFindingsPostQa =
+              tempFindingsQa;
         }
       } else {
-        if (caseDetail.investigationFindings) {
-          // @ts-expect-error
-          caseDetail.investigationFindings[key] = value;
-          // @ts-expect-error
-          caseDetail.postQaFindings[key] = value;
+        if (allocationType === "Single") {
+          caseDetail.singleTasksAndDocs!.preAuthFindingsPostQa = tempFindingsQa;
+          caseDetail.singleTasksAndDocs!.preAuthFindings = tempFindings;
         } else {
-          // @ts-expect-error
-          caseDetail.investigationFindings = { [key]: value };
-          // @ts-expect-error
-          caseDetail.postQaFindings = { [key]: value };
+          if (part === "Insured") {
+            caseDetail.insuredTasksAndDocs!.preAuthFindingsPostQa =
+              tempFindingsQa;
+            caseDetail.insuredTasksAndDocs!.preAuthFindings = tempFindings;
+          }
+          if (part === "Hospital") {
+            caseDetail.hospitalTasksAndDocs!.preAuthFindingsPostQa =
+              tempFindingsQa;
+            caseDetail.hospitalTasksAndDocs!.preAuthFindings = tempFindings;
+          }
         }
 
-        if (caseDetail?.investigationFindings) {
-          const caseData = caseDetail?.toJSON();
-          const findings = caseData?.investigationFindings;
+        let completed: boolean = true;
 
-          let completed: boolean = true;
-          if (findings && Object.keys(findings)?.length > 0) {
-            for (let key of Object.keys(initialValues)) {
-              // @ts-expect-error
-              if (!findings[key]) {
-                completed = false;
-                break;
-              }
+        const tfs =
+          tempFindings instanceof Document
+            ? tempFindings.toJSON()
+            : tempFindings;
+
+        if (tfs && Object.keys(tfs)?.length > 0) {
+          for (let tfsKey of Object.keys(initialValues)) {
+            if (!tfs[tfsKey as keyof RevisedInvestigationFindings]) {
+              completed = false;
+              break;
+            }
+          }
+        } else {
+          completed = false;
+        }
+
+        if (completed) {
+          let tasks: Task[] = [];
+
+          if (allocationType === "Single") {
+            tasks = caseDetail?.singleTasksAndDocs?.tasks || [];
+          } else if (allocationType === "Dual") {
+            if (part === "Insured") {
+              tasks = caseDetail?.insuredTasksAndDocs?.tasks || [];
+            } else if (part === "Hospital") {
+              tasks = caseDetail?.hospitalTasksAndDocs?.tasks || [];
             }
           }
 
-          if (completed) {
-            let tasks: Task[] = caseDetail?.tasksAssigned || [];
-            tasks = tasks?.map((el) => ({ ...el, completed: true }));
-            caseDetail.tasksAssigned = tasks;
+          tasks = tasks?.map((el) => ({ ...el, completed: true }));
+
+          if (allocationType === "Single") {
+            caseDetail.singleTasksAndDocs!.tasks = tasks;
+          } else if (allocationType === "Dual") {
+            if (part === "Insured") {
+              caseDetail.insuredTasksAndDocs!.tasks = tasks;
+            } else if (part === "Hospital") {
+              caseDetail.hospitalTasksAndDocs!.tasks = tasks;
+            }
           }
         }
 
-        if (key === "recommendation" && !!value?.value) {
+        if (tempKey === "recommendation" && !!value?.value) {
           const dashboardData: HydratedDocument<IDashboardData> | null =
             await DashboardData.findOne({
               caseId: new Types.ObjectId(id),
@@ -170,6 +230,7 @@ router.post(async (req) => {
           await dashboardData.save();
         }
       }
+
       data = await caseDetail.save();
       message = `Value of ${key} added to db as ${value}`;
     }

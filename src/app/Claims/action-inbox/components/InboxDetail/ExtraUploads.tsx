@@ -11,7 +11,8 @@ interface IProps {
 const ExtraUploads = ({ caseDetail, dashboardData }: IProps) => {
   let renderJSX: ReactNode[] = [];
   if (dashboardData?.claimType === "PreAuth") {
-    const findings = caseDetail?.investigationFindings;
+    // TODO: Handle this for Dual
+    const findings = caseDetail?.singleTasksAndDocs?.preAuthFindings;
 
     if (
       findings?.recommendation?.value === "Repudiation" &&
@@ -48,7 +49,8 @@ const ExtraUploads = ({ caseDetail, dashboardData }: IProps) => {
   }
 
   if (dashboardData?.claimType === "Reimbursement") {
-    const rmFindings = caseDetail?.rmFindings;
+    // TODO: Handle for dual
+    const rmFindings = caseDetail?.singleTasksAndDocs?.rmFindings;
     const insuredVerification = rmFindings?.["Insured Verification"];
     const insuredNotVisitProof =
       insuredVerification?.reasonOfInsuredNotVisit?.proof;

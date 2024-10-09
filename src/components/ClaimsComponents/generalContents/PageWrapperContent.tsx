@@ -127,39 +127,41 @@ const PageWrapperContent = ({ title, showBackBtn, children }: PropTypes) => {
         </AppShell.Navbar>
 
         <AppShell.Main>
-          <Modal
-            opened={infoOpen}
-            onClose={() => {}}
-            title="Details Updated"
-            closeButtonProps={{ display: "none" }}
-          >
-            <Modal.Body>
-              <Text size="xs">
-                The following details about you are updated by the Admin
-              </Text>
-              <ul className="mt-4">
-                {!!user?.updates?.details
-                  ? Object.keys(user?.updates?.details)?.map((elKey, ind) => {
-                      const elem = user?.updates?.details[elKey];
-                      return (
-                        <li key={ind}>
-                          {camelCaseToProperCase(elKey)} to{" "}
-                          <span className="bg-red-200">{elem}</span>
-                        </li>
-                      );
-                    })
-                  : null}
-              </ul>
-              <Button
-                className="mt-8"
-                onClick={handleAcknowledge}
-                loading={loading}
-              >
-                Acknowledged
-              </Button>
-            </Modal.Body>
-          </Modal>
-          <Paper w="100%" p={20}>
+          {infoOpen && (
+            <Modal
+              opened={infoOpen}
+              onClose={() => {}}
+              title="Details Updated"
+              closeButtonProps={{ display: "none" }}
+            >
+              <Modal.Body>
+                <Text size="xs">
+                  The following details about you are updated by the Admin
+                </Text>
+                <ul className="mt-4">
+                  {!!user?.updates?.details
+                    ? Object.keys(user?.updates?.details)?.map((elKey, ind) => {
+                        const elem = user?.updates?.details[elKey];
+                        return (
+                          <li key={ind}>
+                            {camelCaseToProperCase(elKey)} to{" "}
+                            <span className="bg-red-200">{elem}</span>
+                          </li>
+                        );
+                      })
+                    : null}
+                </ul>
+                <Button
+                  className="mt-8"
+                  onClick={handleAcknowledge}
+                  loading={loading}
+                >
+                  Acknowledged
+                </Button>
+              </Modal.Body>
+            </Modal>
+          )}
+          <Paper w="100%" style={{ minHeight: "calc(100vh - 100px)" }} p={20}>
             <div className="flex items-center gap-x-2">
               {showBackBtn ? (
                 <UnstyledButton onClick={() => router.back()}>

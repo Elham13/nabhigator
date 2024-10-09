@@ -101,17 +101,19 @@ const InboxHeader = ({
   return (
     <Box className="flex justify-between items-center mb-2 gap-2 flex-wrap md:flex-nowrap">
       <Flex gap={2} align="center">
-        <FilterModal
-          {...{
-            filters,
-            origin,
-            handleClose,
-            handleFilter,
-            open: opened,
-            setFilters,
-            showClearBtn,
-          }}
-        />
+        {opened && (
+          <FilterModal
+            {...{
+              filters,
+              origin,
+              handleClose,
+              handleFilter,
+              open: opened,
+              setFilters,
+              showClearBtn,
+            }}
+          />
+        )}
         <NumberInput
           radius="lg"
           leftSection={<BiSearch />}

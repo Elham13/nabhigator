@@ -47,7 +47,7 @@ router.get(async (req) => {
         },
       ];
       data = await ClaimCase.aggregate(pipeline);
-      if (data?.length > 0) data = data[0];
+      if (data && data?.length > 0) data = data[0];
       else data = null;
       count = await ClaimCase.countDocuments({
         dashboardDataId,

@@ -150,6 +150,11 @@ const InvestigatorSchema = new Schema({
     default: "",
   },
   assignedData: { type: Date, default: null },
+  investigationStatus: {
+    type: String,
+    enum: ["Unassigned", "Assigned", "Accepted", "Completed"],
+    default: "Unassigned",
+  },
 });
 
 const HospitalDetailsSchema = new Schema({

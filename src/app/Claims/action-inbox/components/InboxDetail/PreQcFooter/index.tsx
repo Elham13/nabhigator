@@ -8,6 +8,7 @@ import {
   IDashboardData,
   IShowElement,
 } from "@/lib/utils/types/fniDataTypes";
+import TasksAndDocsProvider from "@/lib/providers/TasksAndDocsProvider";
 
 const AcceptSection = dynamic(
   () => import("@/components/ClaimsComponents/AcceptSection")
@@ -37,14 +38,16 @@ const PreQcFooter = ({
   };
 
   return showElement?.preQCAccept ? (
-    <AcceptSection
-      {...{
-        dashboardData: data,
-        caseDetail,
-        onClose: () =>
-          setShowElement((prev) => ({ ...prev, preQCAccept: false })),
-      }}
-    />
+    <TasksAndDocsProvider>
+      <AcceptSection
+        {...{
+          dashboardData: data,
+          caseDetail,
+          onClose: () =>
+            setShowElement((prev) => ({ ...prev, preQCAccept: false })),
+        }}
+      />
+    </TasksAndDocsProvider>
   ) : showElement?.preQCReject ? (
     <RejectedSection
       id={data?._id as string}

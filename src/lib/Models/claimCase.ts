@@ -1,11 +1,15 @@
 import { RMInvestigationFindingSchema } from "../helpers/modelHelpers";
 import { ObjectId } from "mongoose";
 import { Document, Schema, model, models } from "mongoose";
-import { CaseDetail } from "../utils/types/fniDataTypes";
+import { CaseDetail, ITasksAndDocuments } from "../utils/types/fniDataTypes";
 
 export interface IClaimCase extends Omit<CaseDetail, "_id">, Document {
   _id: ObjectId;
 }
+
+interface ITasksAndDocumentsSchema
+  extends Omit<ITasksAndDocuments, "_id">,
+    Document {}
 
 const TasksSchema = new Schema({
   name: { type: String },
@@ -127,31 +131,22 @@ const InvestigationFindingSchema = new Schema({
   createdAt: { type: Date, default: new Date() },
 });
 
-const ClaimCaseSchema = new Schema<IClaimCase>(
+const InvestigationRejectSchema = new Schema(
   {
-    caseType: {
-      type: [String],
-    },
-    caseTypeDependencies: { type: Map, of: [String] },
-    caseStatus: {
-      type: String,
-      enum: ["Accepted", "Rejected", "Investigation Rejected"],
-      default: "Accepted",
-    },
-    tasksAssigned: {
-      type: [TasksSchema],
-      required: true,
-    },
-    preQcObservation: {
-      type: String,
-      required: true,
-    },
-    allocationType: {
-      type: String,
-      enum: ["Single", "Dual"],
-      required: true,
-    },
-    documents: {
+    remark: { type: String, default: "" },
+    insuredAddress: { type: String, default: "" },
+    insuredCity: { type: String, default: "" },
+    insuredState: { type: String, default: "" },
+    insuredMobileNumber: { type: String, default: "" },
+    investigationRejectedReason: { type: String, default: "" },
+  },
+  { timestamps: true }
+);
+
+const TasksAndDocumentsSchema = new Schema<ITasksAndDocumentsSchema>(
+  {
+    tasks: { type: [TasksSchema], required: true },
+    docs: {
       type: Map,
       of: [
         {
@@ -162,6 +157,55 @@ const ClaimCaseSchema = new Schema<IClaimCase>(
       ],
       default: {},
     },
+    investigator: {
+      type: Schema.Types.ObjectId,
+      ref: "ClaimInvestigator",
+      default: null,
+    },
+    preAuthFindings: {
+      type: InvestigationFindingSchema,
+      default: null,
+    },
+    preAuthFindingsPostQa: {
+      type: InvestigationFindingSchema,
+      default: null,
+    },
+    rmFindings: { type: RMInvestigationFindingSchema, default: null },
+    rmFindingsPostQA: { type: RMInvestigationFindingSchema, default: null },
+    invReportReceivedDate: { type: Date, default: null },
+    outSourcingDate: { type: Date, default: null },
+    investigationRejected: { type: InvestigationRejectSchema, default: null },
+    investigatorComment: { type: String },
+  },
+  { timestamps: true }
+);
+
+const ClaimCaseSchema = new Schema<any>(
+  {
+    caseType: {
+      type: [String],
+    },
+    caseTypeDependencies: { type: Map, of: [String] },
+    caseStatus: {
+      type: String,
+      enum: ["Accepted", "Rejected", "Investigation Rejected"],
+      default: "Accepted",
+    },
+    // To be removed
+    tasksAssigned: {
+      type: [TasksSchema],
+      default: [],
+    },
+    preQcObservation: {
+      type: String,
+      required: true,
+    },
+    allocationType: {
+      type: String,
+      enum: ["Single", "Dual"],
+      default: "Single",
+    },
+    // To be removed
     investigator: [
       {
         type: Schema.Types.ObjectId,
@@ -169,6 +213,9 @@ const ClaimCaseSchema = new Schema<IClaimCase>(
         default: null,
       },
     ],
+    singleTasksAndDocs: { type: TasksAndDocumentsSchema, default: null },
+    insuredTasksAndDocs: { type: TasksAndDocumentsSchema, default: null },
+    hospitalTasksAndDocs: { type: TasksAndDocumentsSchema, default: null },
     dashboardDataId: {
       type: Schema.Types.ObjectId,
       ref: "DashboardData",
@@ -194,6 +241,7 @@ const ClaimCaseSchema = new Schema<IClaimCase>(
       default: null,
     },
     allocatorComment: { type: String },
+    // To be removed
     investigationRejected: {
       remark: { type: String, default: "" },
       insuredAddress: { type: String, default: "" },
@@ -221,17 +269,24 @@ const ClaimCaseSchema = new Schema<IClaimCase>(
       regulatoryReportingRecommendation: { type: String },
       documents: { type: [String], default: [] },
     },
+    // To be removed
     investigatorComment: { type: String, default: "" },
     insuredAddress: { type: String },
     insuredCity: { type: String },
     insuredState: { type: String },
     insuredPinCode: { type: Number },
-    investigationFindings: InvestigationFindingSchema,
-    postQaFindings: InvestigationFindingSchema,
+    // To be removed
+    investigationFindings: { type: InvestigationFindingSchema, default: null },
+    // To be removed
+    postQaFindings: { type: InvestigationFindingSchema, default: null },
+    // To be removed
     rmFindings: { type: RMInvestigationFindingSchema, default: null },
+    // To be removed
     rmFindingsPostQA: { type: RMInvestigationFindingSchema, default: null },
+    // To be removed
     invReportReceivedDate: { type: Date, default: null },
     reportSubmissionDateQa: { type: Date, default: null },
+    // To be removed
     outSourcingDate: { type: Date, default: null },
     postQaOverRulingReason: { type: String, default: "" },
     qaBy: { type: String, default: "" },

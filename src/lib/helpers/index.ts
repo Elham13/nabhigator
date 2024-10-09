@@ -1,7 +1,10 @@
 import { toast } from "react-toastify";
 import {
+  CaseDetail,
   DocumentData,
+  ITasksAndDocuments,
   NumericStage,
+  RevisedInvestigationFindings,
   Task,
   TValueCode,
 } from "../utils/types/fniDataTypes";
@@ -20,6 +23,7 @@ import {
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import AWS from "aws-sdk";
+import { IRMFindings } from "../utils/types/rmDataTypes";
 
 export const showError = (error: any) => {
   const message = error.response ? error.response.data.message : error.message;
@@ -288,26 +292,42 @@ export const flattenObject = (
 
 interface IConfigureRMTasks {
   claimSubType?: string;
+  part?: "Insured" | "Hospital" | "None";
 }
 
 export const configureRMTasksAndDocuments = ({
   claimSubType,
+  part,
 }: IConfigureRMTasks) => {
   const newDocs = new Map<string, DocumentData[]>();
   const newTasks: Task[] = [];
 
   if (claimSubType === "In-patient Hospitalization") {
     for (const el of rmMainObjectOptionsMap) {
-      if (
-        [
-          "NPS Confirmation",
+      let tempTasks = [
+        "Insured Verification",
+        "NPS Confirmation",
+        "Vicinity Verification",
+        "Hospital Verification",
+        "Lab Part/Pathologist Verification",
+        "Chemist Verification",
+      ];
+
+      if (part === "Insured") {
+        tempTasks = [
           "Insured Verification",
+          "NPS Confirmation",
           "Vicinity Verification",
+        ];
+      } else if (part === "Hospital") {
+        tempTasks = [
           "Hospital Verification",
           "Lab Part/Pathologist Verification",
           "Chemist Verification",
-        ].includes(el?.name)
-      ) {
+        ];
+      }
+
+      if (tempTasks.includes(el?.name)) {
         const tempDocs = el?.options?.map((op) => ({
           name: op?.value,
           docUrl: [],
@@ -395,26 +415,134 @@ export const configureRMTasksAndDocuments = ({
     }
   }
 
-  for (const el of rmMainObjectOptionsMap) {
-    if (["Miscellaneous Verification"].includes(el?.name)) {
-      const tempDocs = el?.options
-        ?.filter((op) =>
-          [
-            "Miscellaneous Verification Documents",
-            "Customer Feedback Form",
-            "GPS Photo",
-            "Call Recording",
-            "AVR",
-          ].includes(op?.value)
-        )
-        ?.map((op) => ({
-          name: op?.value,
-          docUrl: [],
-          location: null,
-        }));
-      newTasks.push({ name: el?.name, completed: false, comment: "" });
-      newDocs.set(el?.name, tempDocs);
+  if (part !== "Insured") {
+    for (const el of rmMainObjectOptionsMap) {
+      if (["Miscellaneous Verification"].includes(el?.name)) {
+        const tempDocs = el?.options
+          ?.filter((op) =>
+            [
+              "Miscellaneous Verification Documents",
+              "Customer Feedback Form",
+              "GPS Photo",
+              "Call Recording",
+              "AVR",
+            ].includes(op?.value)
+          )
+          ?.map((op) => ({
+            name: op?.value,
+            docUrl: [],
+            location: null,
+          }));
+        newTasks.push({ name: el?.name, completed: false, comment: "" });
+        newDocs.set(el?.name, tempDocs);
+      }
     }
   }
   return { newDocs, newTasks };
+};
+
+interface IValidateTasksAndDocsArgs {
+  tasksAndDocs: ITasksAndDocuments;
+  partName: "Insured" | "Hospital" | "None";
+}
+
+export const validateTasksAndDocs = (args: IValidateTasksAndDocsArgs) => {
+  const { tasksAndDocs, partName } = args;
+
+  if (tasksAndDocs?.tasks && tasksAndDocs?.tasks?.length > 0) {
+    for (const task of tasksAndDocs?.tasks) {
+      if (["NPS Confirmation"].includes(task?.name)) continue;
+      const documents = new Map(
+        tasksAndDocs?.docs
+          ? tasksAndDocs?.docs instanceof Map
+            ? tasksAndDocs?.docs
+            : Object.entries(tasksAndDocs?.docs)
+          : []
+      );
+      const doc = documents?.get(task?.name);
+      if (!doc || doc?.length < 1)
+        throw new Error(
+          `Select some documents for the task ${task?.name} ${
+            partName !== "None" && `in ${partName} Part`
+          }`
+        );
+    }
+  } else
+    throw new Error(
+      `No tasks are selected ${partName !== "None" && `in ${partName} Part`}`
+    );
+};
+
+type IFindFindingsArgs = {
+  claimType?: "PreAuth" | "Reimbursement";
+  claimCase: CaseDetail | null;
+};
+
+export const getTasksAndDocs = ({
+  claimType,
+  claimCase,
+}: IFindFindingsArgs) => {
+  interface IResult {
+    tasksAndDocs: ITasksAndDocuments | null;
+    tasksAndDocsHospital: ITasksAndDocuments | null;
+    rmFindings: IRMFindings | null;
+    rmFindingsHospital: IRMFindings | null;
+    rmFindingsQA: IRMFindings | null;
+    rmFindingsQAHospital: IRMFindings | null;
+    preAuthFindings: RevisedInvestigationFindings | null;
+    preAuthFindingsHospital: RevisedInvestigationFindings | null;
+    preAuthFindingsQA: RevisedInvestigationFindings | null;
+    preAuthFindingsQAHospital: RevisedInvestigationFindings | null;
+  }
+
+  const result: IResult = {
+    tasksAndDocs: null,
+    tasksAndDocsHospital: null,
+    rmFindings: null,
+    rmFindingsHospital: null,
+    rmFindingsQA: null,
+    rmFindingsQAHospital: null,
+    preAuthFindings: null,
+    preAuthFindingsHospital: null,
+    preAuthFindingsQA: null,
+    preAuthFindingsQAHospital: null,
+  };
+
+  const isSingleAllocation = claimCase?.allocationType === "Single";
+  const isDualAllocation = claimCase?.allocationType === "Dual";
+
+  if (claimType === "PreAuth" || claimType === "Reimbursement") {
+    const tasksAndDocs = isSingleAllocation
+      ? claimCase?.singleTasksAndDocs
+      : isDualAllocation
+      ? claimCase?.insuredTasksAndDocs
+      : null;
+
+    result.tasksAndDocs = tasksAndDocs;
+    if (isDualAllocation) {
+      result.tasksAndDocsHospital = claimCase?.hospitalTasksAndDocs;
+    }
+
+    if (claimType === "PreAuth") {
+      result.preAuthFindings = tasksAndDocs?.preAuthFindings || null;
+      result.preAuthFindingsHospital = isSingleAllocation
+        ? tasksAndDocs?.preAuthFindings || null
+        : result.tasksAndDocsHospital?.preAuthFindings || null;
+      result.preAuthFindingsQA = tasksAndDocs?.preAuthFindingsPostQa || null;
+      result.preAuthFindingsQAHospital = isSingleAllocation
+        ? tasksAndDocs?.preAuthFindingsPostQa || null
+        : result.tasksAndDocsHospital?.preAuthFindingsPostQa || null;
+    } else if (claimType === "Reimbursement") {
+      result.rmFindings = tasksAndDocs?.rmFindings || null;
+      result.rmFindingsHospital = isSingleAllocation
+        ? tasksAndDocs?.rmFindings || null
+        : result.tasksAndDocsHospital?.rmFindings || null;
+      result.rmFindingsQA = tasksAndDocs?.rmFindingsPostQA || null;
+      result.rmFindingsQAHospital = isSingleAllocation
+        ? tasksAndDocs?.rmFindingsPostQA || null
+        : result.tasksAndDocsHospital?.rmFindingsPostQA || null;
+    }
+  }
+
+  return result;
 };

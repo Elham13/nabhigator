@@ -2,21 +2,26 @@ import ClaimCase from "@/lib/Models/claimCase";
 import DashboardData from "@/lib/Models/dashboardData";
 import connectDB from "@/lib/db/dbConnectWithMongoose";
 import { Databases } from "@/lib/utils/types/enums";
-import {
-  CaseDetail,
-  IDashboardData,
-  Task,
-} from "@/lib/utils/types/fniDataTypes";
+import { CaseDetail, Task } from "@/lib/utils/types/fniDataTypes";
 import { IRMFindings } from "@/lib/utils/types/rmDataTypes";
 import { HydratedDocument, Types } from "mongoose";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
+import { hasValue } from "./helpers";
+import { Document } from "mongoose";
 
 const router = createEdgeRouter<NextRequest, {}>();
 
+const commonFormKeys = [
+  "investigationSummary",
+  "discrepanciesOrIrregularitiesObserved",
+  "recommendation",
+  "otherRecommendation",
+] as const;
+
 router.post(async (req) => {
-  const { id, name, payload, isQa } = await req?.json();
+  const { id, name, payload, isQa, userId, isBulk } = await req?.json();
 
   try {
     if (!id) throw new Error("id is required");
@@ -31,77 +36,180 @@ router.post(async (req) => {
 
     if (!claimCase) throw new Error(`No Date found with the id ${id}`);
 
-    const tempFindings: IRMFindings = claimCase?.rmFindings || {};
-    const tempFindingsQa: IRMFindings = claimCase?.rmFindingsPostQA || {};
+    let tempFindings: IRMFindings | null = null;
+    let tempFindingsQa: IRMFindings | null = null;
+    const allocationType = claimCase?.allocationType;
 
-    if (taskName === "TheCommonForm") {
-      const discObserved = payload?.discrepanciesOrIrregularitiesObserved || "";
-      const invSummary = payload?.investigationSummary || "";
+    if (allocationType === "Dual" && !userId)
+      throw new Error("userId is required");
 
-      if (isQa) {
-        tempFindingsQa.discrepanciesOrIrregularitiesObserved = discObserved;
-        tempFindingsQa.investigationSummary = invSummary;
-        tempFindingsQa.recommendation = payload?.recommendation || null;
-        tempFindingsQa.otherRecommendation =
-          payload?.otherRecommendation || null;
-      } else {
-        tempFindings.discrepanciesOrIrregularitiesObserved = discObserved;
-        tempFindingsQa.discrepanciesOrIrregularitiesObserved = discObserved;
-        tempFindings.investigationSummary = invSummary;
-        tempFindingsQa.investigationSummary = invSummary;
-        tempFindings.recommendation = payload?.recommendation || null;
-        tempFindingsQa.recommendation = payload?.recommendation || null;
-        tempFindings.otherRecommendation = payload?.otherRecommendation || null;
-        tempFindingsQa.otherRecommendation =
-          payload?.otherRecommendation || null;
+    let part: "Insured" | "Hospital" | null = null;
 
-        if (tempFindings?.recommendation?.value) {
-          const dashboardData: HydratedDocument<IDashboardData> | null =
-            await DashboardData.findOne({
-              caseId: new Types.ObjectId(id),
-            });
+    if (allocationType === "Single") {
+      tempFindings = claimCase?.singleTasksAndDocs?.rmFindings || {};
+      tempFindingsQa = claimCase?.singleTasksAndDocs?.rmFindingsPostQA || {};
+    } else if (allocationType === "Dual") {
+      if (claimCase?.insuredTasksAndDocs?.investigator?.toString() === userId)
+        part = "Insured";
+      if (claimCase?.hospitalTasksAndDocs?.investigator?.toString() === userId)
+        part = "Hospital";
 
-          if (!dashboardData)
+      tempFindings =
+        part === "Insured"
+          ? claimCase?.insuredTasksAndDocs?.rmFindings || {}
+          : part === "Hospital"
+          ? claimCase?.hospitalTasksAndDocs?.rmFindings || {}
+          : null;
+
+      tempFindingsQa =
+        part === "Insured"
+          ? claimCase?.insuredTasksAndDocs?.rmFindingsPostQA || {}
+          : part === "Hospital"
+          ? claimCase?.hospitalTasksAndDocs?.rmFindingsPostQA || {}
+          : null;
+    }
+
+    if (!tempFindings || !tempFindingsQa) {
+      throw new Error("No tasks found for this investigator");
+    }
+
+    if (hasValue(payload?.key) && hasValue(payload?.value)) {
+      const key = payload.key as keyof IRMFindings;
+
+      if (taskName === "TheCommonForm") {
+        const findings = isQa ? tempFindingsQa : tempFindings;
+
+        findings[key] = payload.value;
+
+        if (!isQa && key === "recommendation" && !!payload?.value) {
+          const dashboardData = await DashboardData.findOne({
+            caseId: new Types.ObjectId(id),
+          });
+
+          if (!dashboardData) {
             throw new Error(
               `Failed to find dashboardData with the caseId ${id}`
             );
+          }
 
-          dashboardData.investigatorRecommendation =
-            tempFindings?.recommendation?.value;
+          dashboardData.investigatorRecommendation = payload?.value?.value;
           await dashboardData.save();
         }
-      }
-    } else {
-      if (isQa) {
-        tempFindingsQa[taskName] = payload;
       } else {
-        tempFindings[taskName] = payload;
-        tempFindingsQa[taskName] = payload;
+        let taskObj: any = isQa
+          ? tempFindingsQa[taskName] || {}
+          : tempFindings[taskName] || {};
+
+        if (isBulk) {
+          taskObj =
+            taskObj instanceof Document
+              ? { ...taskObj.toJSON(), ...payload?.value }
+              : { ...taskObj, ...payload?.value };
+        } else {
+          taskObj[key] = payload?.value;
+        }
+
+        if (isQa) {
+          tempFindingsQa[taskName] = taskObj;
+        } else {
+          tempFindings[taskName] = taskObj;
+          tempFindingsQa[taskName] = taskObj;
+        }
       }
-    }
+      if (isQa) {
+        if (allocationType === "Single") {
+          claimCase.singleTasksAndDocs!.rmFindingsPostQA = tempFindingsQa;
+        } else {
+          if (part === "Insured")
+            claimCase.insuredTasksAndDocs!.rmFindingsPostQA = tempFindingsQa;
+          if (part === "Hospital")
+            claimCase.hospitalTasksAndDocs!.rmFindingsPostQA = tempFindingsQa;
+        }
+      } else {
+        if (allocationType === "Single") {
+          claimCase.singleTasksAndDocs!.rmFindingsPostQA = tempFindingsQa;
+          claimCase.singleTasksAndDocs!.rmFindings = tempFindings;
+        } else {
+          if (part === "Insured") {
+            claimCase.insuredTasksAndDocs!.rmFindingsPostQA = tempFindingsQa;
+            claimCase.insuredTasksAndDocs!.rmFindings = tempFindings;
+          }
+          if (part === "Hospital") {
+            claimCase.hospitalTasksAndDocs!.rmFindingsPostQA = tempFindingsQa;
+            claimCase.hospitalTasksAndDocs!.rmFindings = tempFindings;
+          }
+        }
 
-    if (isQa) {
-      claimCase.rmFindingsPostQA = tempFindingsQa;
-    } else {
-      claimCase.rmFindings = tempFindings;
-      claimCase.rmFindingsPostQA = tempFindingsQa;
+        let tasksCompleted = false;
 
-      let tasks: Task[] = claimCase?.tasksAssigned || [];
+        if (taskName === "TheCommonForm") {
+          let tempCompleted = true;
+          for (let key of commonFormKeys) {
+            const tfs =
+              tempFindings instanceof Document
+                ? tempFindings?.toJSON()
+                : tempFindings;
+            const value = tfs[key];
+            if (!hasValue(value)) {
+              tempCompleted = false;
+              break;
+            }
+          }
+          tasksCompleted = tempCompleted;
+        } else {
+          const tfs =
+            tempFindings instanceof Document
+              ? tempFindings.toJSON()
+              : tempFindings;
+          const obj = tfs[taskName];
+          if (hasValue(obj)) tasksCompleted = true;
+        }
 
-      tasks = tasks?.map((el) =>
-        el?.name === taskName ? { ...el, completed: true } : el
+        let tasks: Task[] = [];
+
+        if (allocationType === "Single") {
+          tasks = claimCase?.singleTasksAndDocs?.tasks || [];
+        } else if (allocationType === "Dual") {
+          if (part === "Insured") {
+            tasks = claimCase?.insuredTasksAndDocs?.tasks || [];
+          } else if (part === "Hospital") {
+            tasks = claimCase?.hospitalTasksAndDocs?.tasks || [];
+          }
+        }
+
+        tasks = tasks?.map((el) =>
+          el?.name === taskName && tasksCompleted
+            ? { ...el, completed: true }
+            : el
+        );
+
+        if (allocationType === "Single") {
+          claimCase.singleTasksAndDocs!.tasks = tasks;
+        } else if (allocationType === "Dual") {
+          if (part === "Insured") {
+            claimCase.insuredTasksAndDocs!.tasks = tasks;
+          } else if (part === "Hospital") {
+            claimCase.hospitalTasksAndDocs!.tasks = tasks;
+          }
+        }
+      }
+
+      const data = await claimCase.save();
+
+      return NextResponse.json(
+        {
+          success: true,
+          message: "Values saved successfully",
+          data,
+        },
+        { status: 200 }
       );
-
-      claimCase.tasksAssigned = tasks;
     }
-
-    const data = await claimCase.save();
-
     return NextResponse.json(
       {
         success: true,
-        message: "Values saved successfully",
-        data,
+        message: "Nothing changed",
+        data: null,
       },
       { status: 200 }
     );

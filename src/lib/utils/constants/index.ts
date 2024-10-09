@@ -174,6 +174,9 @@ export const usersInitials: IUser = {
 };
 
 export const changeTaskInitialValues: AcceptedValues = {
+  singleTasksAndDocs: null,
+  insuredTasksAndDocs: null,
+  hospitalTasksAndDocs: null,
   allocationType: "Single",
   caseType: [],
   caseTypeDependencies: {
@@ -183,10 +186,7 @@ export const changeTaskInitialValues: AcceptedValues = {
   },
   caseStatus: "Accepted",
   dashboardDataId: "",
-  documents: null,
-  investigator: "",
   preQcObservation: "",
-  tasksAssigned: [],
   insuredAddress: "",
   insuredCity: "",
   insuredState: "",

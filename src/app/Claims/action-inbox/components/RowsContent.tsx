@@ -5,13 +5,18 @@ import LockView from "./InboxDetail/LockView";
 import TableCell from "./TableCell";
 import { useLocalStorage } from "@mantine/hooks";
 import ClaimIdCell from "./ClaimIdCell";
-import { IDashboardData, Role } from "@/lib/utils/types/fniDataTypes";
+import {
+  CaseDetail,
+  IDashboardData,
+  Role,
+} from "@/lib/utils/types/fniDataTypes";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { StorageKeys } from "@/lib/utils/types/enums";
 import {
   convertToIndianFormat,
   getStageLabel,
   getStatusColor,
+  getTasksAndDocs,
 } from "@/lib/helpers";
 
 type PropTypes = {
@@ -23,6 +28,34 @@ type PropTypes = {
 
 const RowsContent = ({ data, loading, fetchData, handleView }: PropTypes) => {
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
+
+  const getCaseValues = (
+    claimType: "PreAuth" | "Reimbursement",
+    claimCase: CaseDetail
+  ) => {
+    let invReportReceivedDate = "-";
+    let recommendation = "-";
+    const { tasksAndDocs, preAuthFindings, rmFindings } = getTasksAndDocs({
+      claimType,
+      claimCase,
+    });
+
+    if (tasksAndDocs?.invReportReceivedDate)
+      invReportReceivedDate = dayjs(tasksAndDocs?.invReportReceivedDate).format(
+        "DD-MMM-YYYY"
+      );
+
+    if (claimType === "PreAuth" && preAuthFindings?.recommendation?.value) {
+      recommendation = preAuthFindings?.recommendation?.value;
+    } else if (
+      claimType === "Reimbursement" &&
+      rmFindings?.recommendation?.value
+    ) {
+      recommendation = rmFindings?.recommendation?.value;
+    }
+
+    return { invReportReceivedDate, recommendation };
+  };
 
   return (
     <>
@@ -142,11 +175,7 @@ const RowsContent = ({ data, loading, fetchData, handleView }: PropTypes) => {
               value={
                 el?.caseId &&
                 typeof el?.caseId === "object" &&
-                el?.caseId?.invReportReceivedDate
-                  ? dayjs(el?.caseId?.invReportReceivedDate).format(
-                      "DD-MMM-YYYY"
-                    )
-                  : "-"
+                getCaseValues(el?.claimType, el?.caseId)?.invReportReceivedDate
               }
             />
             <TableCell
@@ -204,9 +233,7 @@ const RowsContent = ({ data, loading, fetchData, handleView }: PropTypes) => {
               value={
                 el?.caseId &&
                 typeof el?.caseId === "object" &&
-                !!el?.caseId?.investigationFindings?.recommendation?.value
-                  ? el?.caseId?.investigationFindings?.recommendation?.value
-                  : "-"
+                getCaseValues(el?.claimType, el?.caseId)?.recommendation
               }
             />
             <TableCell

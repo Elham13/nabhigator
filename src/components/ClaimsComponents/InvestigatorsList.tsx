@@ -1,6 +1,13 @@
 "use client";
 
-import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Box,
   Button,
@@ -34,6 +41,7 @@ import {
 import { EndPoints } from "@/lib/utils/types/enums";
 import { showError } from "@/lib/helpers";
 import { investigatorsTableHead } from "@/lib/utils/constants/tableHeadings";
+import { toast } from "react-toastify";
 
 interface Filters {
   userStatus?: string;
@@ -67,6 +75,7 @@ const assignmentPreferredOptions = [
 type PropTypes = {
   initialFilters?: "inbox";
   onSelection?: (ids: string[]) => void;
+  singleSelect?: boolean;
   destination: "inbox" | "assignment";
 };
 
@@ -74,7 +83,9 @@ const InvestigatorsList = ({
   initialFilters,
   destination,
   onSelection,
+  singleSelect,
 }: PropTypes) => {
+  const isFirstRender = useRef<boolean>(true);
   const router = useRouter();
   const [data, setData] = useState<Investigator[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -162,7 +173,11 @@ const InvestigatorsList = ({
   const handleSelect = (id: string) => {
     if (selected.includes(id))
       setSelected((prev) => prev.filter((elem) => elem !== id));
-    else setSelected((prev) => [...prev, id]);
+    else {
+      if (singleSelect && selected?.length > 0)
+        return toast.warn("Only one investigator is allowed");
+      setSelected((prev) => [...prev, id]);
+    }
   };
 
   const rows = useMemo(() => {
@@ -221,7 +236,10 @@ const InvestigatorsList = ({
   }, [data, selected]);
 
   useEffect(() => {
-    fetchData();
+    if (isFirstRender.current) {
+      fetchData();
+      isFirstRender.current = false;
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pagination.page, debouncedSearch, sort, initialFilters]);
 

@@ -9,13 +9,11 @@ import dayjs from "dayjs";
 import { HydratedDocument } from "mongoose";
 import {
   CaseDetail,
-  DocumentData,
   EventNames,
   IDashboardData,
   Investigator,
   IUser,
   NumericStage,
-  Task,
 } from "@/lib/utils/types/fniDataTypes";
 import DashboardData from "@/lib/Models/dashboardData";
 import { captureCaseEvent } from "../caseEvent/helpers";
@@ -23,7 +21,7 @@ import sendEmail from "@/lib/helpers/sendEmail";
 import User from "@/lib/Models/user";
 import ClaimInvestigator from "@/lib/Models/claimInvestigator";
 import ClaimCase from "@/lib/Models/claimCase";
-import { rmMainObjectOptionsMap } from "@/lib/utils/constants/options";
+import { configureRMTasksAndDocuments } from "@/lib/helpers";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -39,114 +37,34 @@ const changeTasksAndDocs = async (caseId: string | null, subType: string) => {
   if (!caseDetail)
     throw new Error(`Failed to find case details with the id ${caseId}`);
 
-  const newDocs = new Map<string, DocumentData[]>();
-  const newTasks: Task[] = [];
-  if (subType === "In-patient Hospitalization") {
-    for (const el of rmMainObjectOptionsMap) {
-      if (
-        [
-          "NPS Confirmation",
-          "Insured Verification",
-          "Vicinity Verification",
-          "Hospital Verification",
-          "Lab Part/Pathologist Verification",
-          "Chemist Verification",
-        ].includes(el?.name)
-      ) {
-        const tempDocs = el?.options?.map((op) => ({
-          name: op?.value,
-          docUrl: [],
-          location: null,
-        }));
-        newTasks?.push({
-          name: el?.name,
-          completed: false,
-          comment: "",
-        });
-        newDocs?.set(el?.name, tempDocs);
-      }
-    }
-  } else if (subType === "Pre-Post") {
-    const tempOption = rmMainObjectOptionsMap?.find(
-      (op) => op?.name === "Pre-Post Verification"
-    );
-    if (tempOption) {
-      newTasks?.push({
-        name: tempOption?.name,
-        completed: false,
-        comment: "",
-      });
-      newDocs.set(
-        tempOption?.name,
-        tempOption?.options?.map((op) => ({
-          name: op?.value,
-          docUrl: [],
-          location: null,
-        }))
-      );
-    }
-  } else if (subType === "Hospital Daily Cash") {
-    const tempOption = rmMainObjectOptionsMap?.find(
-      (op) => op?.name === "Hospital Daily Cash Part"
-    );
-    if (tempOption) {
-      newTasks?.push({
-        name: tempOption?.name,
-        completed: false,
-        comment: "",
-      });
-      newDocs.set(
-        tempOption?.name,
-        tempOption?.options?.map((op) => ({
-          name: op?.value,
-          docUrl: [],
-          location: null,
-        }))
-      );
-    }
-  } else if (subType === "OPD") {
-    const tempOption = rmMainObjectOptionsMap?.find(
-      (op) => op?.name === "OPD Verification Part"
-    );
-    if (tempOption) {
-      newTasks?.push({
-        name: tempOption?.name,
-        completed: false,
-        comment: "",
-      });
-      newDocs.set(
-        tempOption?.name,
-        tempOption?.options?.map((op) => ({
-          name: op?.value,
-          docUrl: [],
-          location: null,
-        }))
-      );
-    }
-  } else if (subType === "AHC") {
-    const tempOption = rmMainObjectOptionsMap?.find(
-      (op) => op?.name === "AHC Verification Part"
-    );
-    if (tempOption) {
-      newTasks?.push({
-        name: tempOption?.name,
-        completed: false,
-        comment: "",
-      });
-      newDocs.set(
-        tempOption?.name,
-        tempOption?.options?.map((op) => ({
-          name: op?.value,
-          docUrl: [],
-          location: null,
-        }))
-      );
-    }
-  }
+  if (caseDetail?.allocationType === "Single") {
+    const { newTasks, newDocs } = configureRMTasksAndDocuments({
+      claimSubType: subType,
+    });
 
-  caseDetail.tasksAssigned = newTasks;
-  caseDetail.documents = newDocs;
-  await caseDetail.save();
+    caseDetail.singleTasksAndDocs!.tasks = newTasks;
+    caseDetail.singleTasksAndDocs!.docs = newDocs;
+
+    await caseDetail.save();
+  } else if (caseDetail?.allocationType === "Dual") {
+    const { newTasks: insuredTasks, newDocs: insuredDocs } =
+      configureRMTasksAndDocuments({
+        claimSubType: subType,
+        part: "Insured",
+      });
+    caseDetail.insuredTasksAndDocs!.tasks = insuredTasks;
+    caseDetail.insuredTasksAndDocs!.docs = insuredDocs;
+
+    const { newTasks: hospitalTasks, newDocs: hospitalDocs } =
+      configureRMTasksAndDocuments({
+        claimSubType: subType,
+        part: "Hospital",
+      });
+    caseDetail.hospitalTasksAndDocs!.tasks = hospitalTasks;
+    caseDetail.hospitalTasksAndDocs!.docs = hospitalDocs;
+
+    await caseDetail.save();
+  }
 };
 
 router.post(async (req) => {

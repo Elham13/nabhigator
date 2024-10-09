@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import { Box, Center, Loader } from "@mantine/core";
 import dayjs from "dayjs";
 import axios from "axios";
@@ -18,49 +18,49 @@ import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
 import { getStageLabel, showError } from "@/lib/helpers";
 import CustomMarquee from "@/components/CustomMarquee";
-import { Spin } from "antd";
+import Loading from "@/components/Loading";
 
 const PreQcFooter = dynamic(() => import("./InboxDetail/PreQcFooter"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const PostQAFooter = dynamic(() => import("./InboxDetail/PostQAFooter"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const AllocationFooter = dynamic(
   () => import("./InboxDetail/AllocationFooter"),
   {
     ssr: false,
-    loading: () => <Spin />,
+    loading: () => <Loading />,
   }
 );
 const SkipInvestigation = dynamic(
   () => import("./InboxDetail/SkipInvestigation"),
   {
     ssr: false,
-    loading: () => <Spin />,
+    loading: () => <Loading />,
   }
 );
 const Expedite = dynamic(() => import("./InboxDetail/Expedite"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const NotificationModal = dynamic(() => import("./NotificationModal"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const DetailsAccordion = dynamic(() => import("./DetailsAccordion"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const PostQaLeadFooter = dynamic(() => import("./PostQaLeadFooter"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 const FrozenRibbon = dynamic(() => import("./InboxDetail/FrozenRibbon"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 
 const showElementInitials: IShowElement = {
@@ -83,6 +83,7 @@ type PropTypes = {
 
 const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
+  const isFirstRender = useRef<boolean>(true);
 
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<IDashboardData | null>(null);
@@ -105,7 +106,7 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
   };
 
   useEffect(() => {
-    if (dashboardDataId) {
+    if (dashboardDataId && isFirstRender.current) {
       getData();
 
       const getCaseDetail = async () => {
@@ -122,9 +123,9 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
         }
       };
       getCaseDetail();
+      isFirstRender.current = false;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dashboardDataId]);
+  }, [dashboardDataId, isFirstRender.current]);
 
   const skipInvestigationRoleCheck = [
     Role.ADMIN,
@@ -167,7 +168,7 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
         </Center>
       ) : (
         <>
-          {data?._id ? <NotificationModal data={data} /> : null}
+          {data?._id ? <NotificationModal data={data} user={user} /> : null}
           {data?.claimType === "PreAuth" && (
             <CustomMarquee
               text={

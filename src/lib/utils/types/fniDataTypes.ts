@@ -398,6 +398,7 @@ export type ClaimInvestigator = {
   name: string;
   assignedFor: string;
   assignedData: Date | null;
+  investigationStatus: "Unassigned" | "Assigned" | "Accepted" | "Completed";
 };
 
 export interface IAutoPreQC {
@@ -675,87 +676,87 @@ export type DocumentMap = Map<string, DocumentData[]>;
 export type ResponseDoc = Record<string, DocumentData[]>;
 
 export interface IInvestigationFindings {
-  dateOfVisitToInsured: Dayjs | null;
+  dateOfVisitToInsured?: Dayjs | null;
   timeOfVisitToInsured?: Dayjs;
-  dateOfVisitToHospital: Dayjs | null;
+  dateOfVisitToHospital?: Dayjs | null;
   timeOfVisitToHospital?: Dayjs;
-  hospitalizationStatus: {
-    value: string;
+  hospitalizationStatus?: {
+    value?: string;
     differedAdmission?: string;
     cancelledAdmission?: string;
     cancelledAdmissionOther?: string;
   };
-  hospitalizationDetails: {
-    dateOfAdmission: Dayjs | null;
-    timeOfAdmission: Dayjs | null;
-    dateOfDischarge: Dayjs | null;
-    timeOfDischarge: Dayjs | null;
-    tentativeDateOfAdmission: Dayjs | null;
-    tentativeDateOfDischarge: Dayjs | null;
-    proposedDateOfAdmission: Dayjs | null;
-    proposedDateOfDischarge: Dayjs | null;
+  hospitalizationDetails?: {
+    dateOfAdmission?: Dayjs | null;
+    timeOfAdmission?: Dayjs | null;
+    dateOfDischarge?: Dayjs | null;
+    timeOfDischarge?: Dayjs | null;
+    tentativeDateOfAdmission?: Dayjs | null;
+    tentativeDateOfDischarge?: Dayjs | null;
+    proposedDateOfAdmission?: Dayjs | null;
+    proposedDateOfDischarge?: Dayjs | null;
   };
-  patientDetails: {
-    patientName: string;
-    patientAge: number;
-    patientGender: TGender;
+  patientDetails?: {
+    patientName?: string;
+    patientAge?: number;
+    patientGender?: TGender;
     revisedPatientName?: string;
     revisedPatientAge?: number;
     revisedPatientGender?: TGender;
   };
-  attendantDetails: {
-    status: "Available" | "Not Available" | "NA";
+  attendantDetails?: {
+    status?: "Available" | "Not Available" | "NA";
     name?: string;
     gender?: TGender;
     relationship?: string;
     mobileNo?: string;
   };
-  occupationOfInsured: string;
-  workPlaceDetails: string;
-  anyOtherPolicyWithNBHI: string;
+  occupationOfInsured?: string;
+  workPlaceDetails?: string;
+  anyOtherPolicyWithNBHI?: string;
   otherPolicyNoWithNBHI?: string;
   policyNumber?: string;
-  anyPreviousClaimWithNBHI: TYesNo;
-  insurancePolicyOtherThanNBHI: {
-    hasPolicy: TYesNo;
+  anyPreviousClaimWithNBHI?: TYesNo;
+  insurancePolicyOtherThanNBHI?: {
+    hasPolicy?: TYesNo;
     nameOfInsuranceCompany?: string;
     policyNumber?: string;
   };
-  classOfAccommodation: {
-    status: string;
+  classOfAccommodation?: {
+    status?: string;
     remark?: string;
   };
-  changeInClassOfAccommodation: {
-    status: string;
+  changeInClassOfAccommodation?: {
+    status?: string;
     remark?: string;
   };
-  patientOnActiveLineOfTreatment: {
-    status: string;
+  patientOnActiveLineOfTreatment?: {
+    status?: string;
     remark?: string;
   };
-  mismatchInDiagnosis: {
-    status: string;
+  mismatchInDiagnosis?: {
+    status?: string;
     remark?: string;
   };
-  discrepancies: {
-    status: string;
+  discrepancies?: {
+    status?: string;
     remark?: string;
   };
-  patientHabit: TPatientHabit[];
-  pedOrNoneDisclosure: TYesNoNa;
-  ailment: TAilment[];
-  insuredOrAttendantCooperation: TYesNo;
+  patientHabit?: TPatientHabit[];
+  pedOrNoneDisclosure?: TYesNoNa;
+  ailment?: TAilment[];
+  insuredOrAttendantCooperation?: TYesNo;
   reasonForInsuredNotCooperation?: string;
-  providerCooperation: TYesNo;
+  providerCooperation?: TYesNo;
   reasonForProviderNotCooperation?: string;
-  investigationSummary: string;
-  recommendation: string;
+  investigationSummary?: string;
+  recommendation?: string;
   inconclusiveRemark?: string;
-  frcuGroundOfRepudiation: string[];
-  evidenceDocs: string[];
+  frcuGroundOfRepudiation?: string[];
+  evidenceDocs?: string[];
   groundOfRepudiationNonCooperationOf?: "Insured" | "Hospital" | "Both";
   nonCooperationDetails?: string;
-  otherRecommendation: IOtherRecommendation[];
+  otherRecommendation?: IOtherRecommendation[];
   evidenceOfRepudiation?: string;
   repudiationReason?: string;
   createdAt?: Date | string;
@@ -766,8 +767,8 @@ export interface RevisedInvestigationFindings
     IInvestigationFindings,
     "frcuGroundOfRepudiation" | "recommendation"
   > {
-  frcuGroundOfRepudiation: TValueCode[];
-  recommendation: TValueCode;
+  frcuGroundOfRepudiation?: TValueCode[];
+  recommendation?: TValueCode;
 }
 
 export interface IInvestigationRejected {
@@ -779,7 +780,53 @@ export interface IInvestigationRejected {
   investigationRejectedReason: string;
 }
 
+export interface ITasksAndDocuments {
+  _id?: string;
+  tasks?: Task[];
+  docs?: DocumentMap | ResponseDoc | null;
+  investigator?: Investigator | string | null;
+  preAuthFindings?: RevisedInvestigationFindings | null;
+  preAuthFindingsPostQa?: RevisedInvestigationFindings | null;
+  rmFindings?: IRMFindings | null;
+  rmFindingsPostQA?: IRMFindings | null;
+  invReportReceivedDate?: Date | null;
+  outSourcingDate?: Date | null;
+  investigationRejected?: IInvestigationRejected;
+  investigatorComment?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 export interface CaseDetail {
+  _id: string | ObjectId;
+  caseType: string[];
+  caseTypeDependencies: { [key: string]: string[] | undefined };
+  caseStatus: "Accepted" | "Rejected" | "Investigation Rejected";
+  preQcObservation: string;
+  allocationType: "Single" | "Dual";
+  singleTasksAndDocs: ITasksAndDocuments | null;
+  insuredTasksAndDocs: ITasksAndDocuments | null;
+  hospitalTasksAndDocs: ITasksAndDocuments | null;
+  dashboardDataId: string | ObjectId;
+  intimationDate: Date | string;
+  rejectionReasons: RejectionReason[];
+  assignedBy: string | IUser[] | ObjectId;
+  updatedBy: string | IUser[] | ObjectId;
+  insuredAddress: string;
+  insuredCity: string;
+  insuredState: string;
+  insuredPinCode?: number;
+  allocatorComment?: string;
+  postQaComment?: string;
+  postQARecommendation?: RevisedQaApproveFormValues;
+  reportSubmissionDateQa: Date | null;
+  postQaOverRulingReason?: string;
+  qaBy?: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+}
+
+interface OldCaseDetail {
   _id: string | ObjectId;
   caseType: string[];
   caseTypeDependencies: { [key: string]: string[] | undefined };
@@ -789,6 +836,9 @@ export interface CaseDetail {
   allocationType: "Single" | "Dual";
   documents: DocumentMap | ResponseDoc | null;
   investigator: Investigator | string | null;
+  singleTasksAndDocs: ITasksAndDocuments | null;
+  insuredTasksAndDocs: ITasksAndDocuments | null;
+  hospitalTasksAndDocs: ITasksAndDocuments | null;
   dashboardDataId: string | ObjectId;
   intimationDate: Date | string;
   rejectionReasons: RejectionReason[];
@@ -1032,3 +1082,9 @@ export interface IMaximusResponseLog {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export type TGeoOption = {
+  city: string[];
+  state: string[];
+  pinCode: string[];
+};

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useLocalStorage } from "@mantine/hooks";
 import axios from "axios";
 import {
   IDashboardData,
@@ -8,16 +7,16 @@ import {
   UserExpedition,
 } from "@/lib/utils/types/fniDataTypes";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
-import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
+import { EndPoints } from "@/lib/utils/types/enums";
 import { showError } from "@/lib/helpers";
 import CustomMarquee from "@/components/CustomMarquee";
 
 type PropTypes = {
   data: IDashboardData;
+  user: IUserFromSession;
 };
 
-const NotificationModal = ({ data }: PropTypes) => {
-  const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
+const NotificationModal = ({ data, user }: PropTypes) => {
   const [expedition, setExpedition] = useState<UserExpedition | null>(null);
 
   useEffect(() => {

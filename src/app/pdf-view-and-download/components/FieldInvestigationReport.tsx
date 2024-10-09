@@ -32,7 +32,10 @@ const FieldInvestigationReport = ({
           dashboardData={dashboardData}
         />
       ) : dashboardData?.claimType === "Reimbursement" ? (
-        <RMInvestigatorFindings caseData={caseData} />
+        <RMInvestigatorFindings
+          caseData={caseData}
+          claimType={dashboardData?.claimType}
+        />
       ) : null}
     </View>
   );

@@ -6,16 +6,17 @@ import {
   IOtherRecommendation,
   IRecommendation,
 } from "@/lib/utils/types/rmDataTypes";
+import { CaseDetail } from "@/lib/utils/types/fniDataTypes";
+import { getTasksAndDocs } from "@/lib/helpers";
+import { AccordionItem, CustomAccordion } from "@/components/CustomAccordion";
 
-type PropTypes = {
-  recommendation?: IRecommendation;
-  otherRecommendation?: IOtherRecommendation[];
-};
-
-const RMInvestigationRecommendationContent = ({
+const Recommendation = ({
   recommendation,
   otherRecommendation,
-}: PropTypes) => {
+}: {
+  recommendation?: IRecommendation;
+  otherRecommendation?: IOtherRecommendation[];
+}) => {
   return (
     <Box>
       {recommendation || otherRecommendation ? (
@@ -118,6 +119,45 @@ const RMInvestigationRecommendationContent = ({
         </Text>
       )}
     </Box>
+  );
+};
+
+type PropTypes = {
+  claimType?: "PreAuth" | "Reimbursement";
+  caseData: CaseDetail | null;
+};
+
+const RMInvestigationRecommendationContent = ({
+  claimType,
+  caseData,
+}: PropTypes) => {
+  const { rmFindings, rmFindingsHospital } = getTasksAndDocs({
+    claimType,
+    claimCase: caseData,
+  });
+
+  return caseData?.allocationType === "Single" ? (
+    <Recommendation
+      recommendation={rmFindings?.recommendation}
+      otherRecommendation={rmFindings?.otherRecommendation}
+    />
+  ) : (
+    <>
+      <CustomAccordion>
+        <AccordionItem title="Insured Part">
+          <Recommendation
+            recommendation={rmFindings?.recommendation}
+            otherRecommendation={rmFindings?.otherRecommendation}
+          />
+        </AccordionItem>
+        <AccordionItem title="Hospital Part">
+          <Recommendation
+            recommendation={rmFindingsHospital?.recommendation}
+            otherRecommendation={rmFindingsHospital?.otherRecommendation}
+          />
+        </AccordionItem>
+      </CustomAccordion>
+    </>
   );
 };
 

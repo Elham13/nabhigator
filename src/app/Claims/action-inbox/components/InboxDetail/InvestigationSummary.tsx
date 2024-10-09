@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import {
   Accordion,
   Box,
@@ -10,7 +10,8 @@ import {
 } from "@mantine/core";
 import dayjs from "dayjs";
 import { CaseDetail, IDashboardData } from "@/lib/utils/types/fniDataTypes";
-import { convertToIndianFormat } from "@/lib/helpers";
+import { convertToIndianFormat, getTasksAndDocs } from "@/lib/helpers";
+import TasksViewKeyValue from "./TasksViewKeyValue";
 
 interface InvestigationSummaryProps {
   dashboardData: IDashboardData | null;
@@ -157,203 +158,171 @@ export default function InvestigationSummary({
     },
   ];
 
+  const { preAuthFindings } = getTasksAndDocs({
+    claimType: dashboardData?.claimType,
+    claimCase: caseDetails,
+  });
+
   const investigationDataArray = [
     {
       key: "Date of Visit To Insured",
-      value: caseDetails?.investigationFindings?.dateOfVisitToInsured || "-",
+      value: preAuthFindings?.dateOfVisitToInsured || "-",
     },
     {
       key: "Time of Visit To Insured",
-      value: caseDetails?.investigationFindings?.timeOfVisitToInsured || "-",
+      value: preAuthFindings?.timeOfVisitToInsured || "-",
     },
     {
       key: "Date of Visit To Hospital",
-      value: caseDetails?.investigationFindings?.dateOfVisitToHospital || "-",
+      value: preAuthFindings?.dateOfVisitToHospital || "-",
     },
     {
       key: "Time of Visit To Hospital",
-      value: caseDetails?.investigationFindings?.timeOfVisitToHospital || "-",
+      value: preAuthFindings?.timeOfVisitToHospital || "-",
     },
     {
       key: "Hospitalization Status",
-      value:
-        caseDetails?.investigationFindings?.hospitalizationStatus?.value || "-",
+      value: preAuthFindings?.hospitalizationStatus?.value || "-",
     },
     {
       key: "Differed Admission",
-      value:
-        caseDetails?.investigationFindings?.hospitalizationStatus
-          ?.differedAdmission || "-",
+      value: preAuthFindings?.hospitalizationStatus?.differedAdmission || "-",
     },
     {
       key: "Cancelled Admission Reason",
-      value:
-        caseDetails?.investigationFindings?.hospitalizationStatus
-          ?.cancelledAdmission || "-",
+      value: preAuthFindings?.hospitalizationStatus?.cancelledAdmission || "-",
     },
     {
       key: "Date of Admission",
-      value:
-        caseDetails?.investigationFindings?.hospitalizationDetails
-          ?.dateOfAdmission || "-",
+      value: preAuthFindings?.hospitalizationDetails?.dateOfAdmission || "-",
     },
     {
       key: "Time of Admission",
-      value:
-        caseDetails?.investigationFindings?.hospitalizationDetails
-          ?.timeOfAdmission || "-",
+      value: preAuthFindings?.hospitalizationDetails?.timeOfAdmission || "-",
     },
     {
       key: "Date of Discharge",
-      value:
-        caseDetails?.investigationFindings?.hospitalizationDetails
-          ?.dateOfDischarge || "-",
+      value: preAuthFindings?.hospitalizationDetails?.dateOfDischarge || "-",
     },
     {
       key: "Time of Discharge",
-      value:
-        caseDetails?.investigationFindings?.hospitalizationDetails
-          ?.timeOfDischarge || "-",
+      value: preAuthFindings?.hospitalizationDetails?.timeOfDischarge || "-",
     },
     {
       key: "Tentative Date of Admission",
       value:
-        caseDetails?.investigationFindings?.hospitalizationDetails
-          ?.tentativeDateOfAdmission || "-",
+        preAuthFindings?.hospitalizationDetails?.tentativeDateOfAdmission ||
+        "-",
     },
     {
       key: "Tentative Date of Discharge",
       value:
-        caseDetails?.investigationFindings?.hospitalizationDetails
-          ?.tentativeDateOfDischarge || "-",
+        preAuthFindings?.hospitalizationDetails?.tentativeDateOfDischarge ||
+        "-",
     },
     {
       key: "Proposed Date of Admission",
       value:
-        caseDetails?.investigationFindings?.hospitalizationDetails
-          ?.proposedDateOfAdmission || "-",
+        preAuthFindings?.hospitalizationDetails?.proposedDateOfAdmission || "-",
     },
     {
       key: "Proposed Date of Discharge",
       value:
-        caseDetails?.investigationFindings?.hospitalizationDetails
-          ?.proposedDateOfDischarge || "-",
+        preAuthFindings?.hospitalizationDetails?.proposedDateOfDischarge || "-",
     },
     {
       key: "Patient Name",
-      value:
-        caseDetails?.investigationFindings?.patientDetails?.patientName || "-",
+      value: preAuthFindings?.patientDetails?.patientName || "-",
     },
     {
       key: "Patient Age",
-      value:
-        caseDetails?.investigationFindings?.patientDetails?.patientAge?.toString() ||
-        "-",
+      value: preAuthFindings?.patientDetails?.patientAge?.toString() || "-",
     },
     {
       key: "Patient Gender",
-      value:
-        caseDetails?.investigationFindings?.patientDetails?.patientGender ||
-        "-",
+      value: preAuthFindings?.patientDetails?.patientGender || "-",
     },
     {
       key: "Revised Patient Name",
-      value:
-        caseDetails?.investigationFindings?.patientDetails
-          ?.revisedPatientName || "-",
+      value: preAuthFindings?.patientDetails?.revisedPatientName || "-",
     },
     {
       key: "Revised Patient Age",
       value:
-        caseDetails?.investigationFindings?.patientDetails?.revisedPatientAge?.toString() ||
-        "-",
+        preAuthFindings?.patientDetails?.revisedPatientAge?.toString() || "-",
     },
     {
       key: "Revised Patient Gender",
-      value:
-        caseDetails?.investigationFindings?.patientDetails
-          ?.revisedPatientGender || "-",
+      value: preAuthFindings?.patientDetails?.revisedPatientGender || "-",
     },
     {
       key: "Attendant Status",
-      value:
-        caseDetails?.investigationFindings?.attendantDetails?.status || "-",
+      value: preAuthFindings?.attendantDetails?.status || "-",
     },
     {
       key: "Attendant Name",
-      value: caseDetails?.investigationFindings?.attendantDetails?.name || "-",
+      value: preAuthFindings?.attendantDetails?.name || "-",
     },
     {
       key: "Occupation of Insured",
-      value: caseDetails?.investigationFindings?.occupationOfInsured || "-",
+      value: preAuthFindings?.occupationOfInsured || "-",
     },
     {
       key: "Workplace Details",
-      value: caseDetails?.investigationFindings?.workPlaceDetails || "-",
+      value: preAuthFindings?.workPlaceDetails || "-",
     },
     {
       key: "Any Other Policy with NBHI",
-      value: caseDetails?.investigationFindings?.anyOtherPolicyWithNBHI || "-",
+      value: preAuthFindings?.anyOtherPolicyWithNBHI || "-",
     },
-    ...(caseDetails?.investigationFindings?.anyOtherPolicyWithNBHI === "Yes"
+    ...(preAuthFindings?.anyOtherPolicyWithNBHI === "Yes"
       ? [
           {
             key: "Other Policy Number with NBHI",
-            value:
-              caseDetails?.investigationFindings?.otherPolicyNoWithNBHI || "-",
+            value: preAuthFindings?.otherPolicyNoWithNBHI || "-",
           },
         ]
       : []),
     {
       key: "Any Previous Claim with NBHI",
-      value:
-        caseDetails?.investigationFindings?.anyPreviousClaimWithNBHI || "-",
+      value: preAuthFindings?.anyPreviousClaimWithNBHI || "-",
     },
     {
       key: "Insurance Policy Other Than NBHI",
-      value:
-        caseDetails?.investigationFindings?.insurancePolicyOtherThanNBHI
-          ?.hasPolicy || "-",
+      value: preAuthFindings?.insurancePolicyOtherThanNBHI?.hasPolicy || "-",
     },
     {
       key: "Class of Accommodation",
-      value:
-        caseDetails?.investigationFindings?.classOfAccommodation?.status || "-",
+      value: preAuthFindings?.classOfAccommodation?.status || "-",
     },
     {
       key: "Change in Class of Accommodation",
-      value:
-        caseDetails?.investigationFindings?.changeInClassOfAccommodation
-          ?.status || "-",
+      value: preAuthFindings?.changeInClassOfAccommodation?.status || "-",
     },
     {
       key: "Patient on Active Line of Treatment",
-      value:
-        caseDetails?.investigationFindings?.patientOnActiveLineOfTreatment
-          ?.status || "-",
+      value: preAuthFindings?.patientOnActiveLineOfTreatment?.status || "-",
     },
     {
       key: "Mismatch in Diagnosis",
-      value:
-        caseDetails?.investigationFindings?.mismatchInDiagnosis?.status || "-",
+      value: preAuthFindings?.mismatchInDiagnosis?.status || "-",
     },
     {
       key: "Mismatch in Diagnosis Remark",
-      value:
-        caseDetails?.investigationFindings?.mismatchInDiagnosis?.remark || "-",
+      value: preAuthFindings?.mismatchInDiagnosis?.remark || "-",
     },
     {
       key: "Discrepancies",
-      value: caseDetails?.investigationFindings?.discrepancies?.status || "-",
+      value: preAuthFindings?.discrepancies?.status || "-",
     },
     {
       key: "Discrepancies Remark",
-      value: caseDetails?.investigationFindings?.discrepancies?.remark || "-",
+      value: preAuthFindings?.discrepancies?.remark || "-",
     },
     {
       key: "Patient Habits",
       value:
-        caseDetails?.investigationFindings?.patientHabit
+        preAuthFindings?.patientHabit
           ?.map(
             (habit) =>
               `${habit.habit}: ${habit.frequency}, ${habit.quantity}, ${habit.duration}`
@@ -362,12 +331,12 @@ export default function InvestigationSummary({
     },
     {
       key: "PED or None Disclosure",
-      value: caseDetails?.investigationFindings?.pedOrNoneDisclosure || "-",
+      value: preAuthFindings?.pedOrNoneDisclosure || "-",
     },
     {
       key: "Ailment",
       value:
-        caseDetails?.investigationFindings?.ailment
+        preAuthFindings?.ailment
           ?.map(
             (ailment) =>
               `${ailment.ailment}: ${ailment.diagnosis}, ${ailment.duration}, Medication: ${ailment.onMedication}`
@@ -376,33 +345,31 @@ export default function InvestigationSummary({
     },
     {
       key: "Insured or Attendant Cooperation",
-      value:
-        caseDetails?.investigationFindings?.insuredOrAttendantCooperation ||
-        "-",
+      value: preAuthFindings?.insuredOrAttendantCooperation || "-",
     },
     {
       key: "Provider Cooperation",
-      value: caseDetails?.investigationFindings?.providerCooperation || "-",
+      value: preAuthFindings?.providerCooperation || "-",
     },
     {
       key: "Investigation Summary",
-      value: caseDetails?.investigationFindings?.investigationSummary || "-",
+      value: preAuthFindings?.investigationSummary || "-",
     },
     {
       key: "Recommendation",
-      value: caseDetails?.investigationFindings?.recommendation?.value || "-",
+      value: preAuthFindings?.recommendation?.value || "-",
     },
     {
       key: "FRCU Ground of Repudiation",
       value:
-        caseDetails?.investigationFindings?.frcuGroundOfRepudiation
+        preAuthFindings?.frcuGroundOfRepudiation
           ?.map((el) => el?.value)
           ?.join(", ") || "-",
     },
     {
       key: "Other Recommendations",
       value:
-        caseDetails?.investigationFindings?.otherRecommendation
+        preAuthFindings?.otherRecommendation
           ?.map(
             (recommendation) =>
               `${recommendation.value}: ${recommendation.detail
@@ -459,15 +426,9 @@ export default function InvestigationSummary({
     },
   ];
 
-  const tasksAssigned = caseDetails?.tasksAssigned.map((item, index) => {
-    const flag = item.completed === true ? "completed" : "pending";
-    return {
-      label: `Task - ${index + 1}`,
-      value: `${item.name} (${flag})`,
-    };
-  });
-
-  const documentsAssigned = getDocsArr(caseDetails?.documents);
+  const documentsAssigned = getDocsArr(
+    caseDetails?.singleTasksAndDocs?.preAuthFindings
+  );
 
   return (
     <Stack>
@@ -499,14 +460,22 @@ export default function InvestigationSummary({
                   Tasks Assigned
                 </Title>
                 <Box>
-                  {tasksAssigned &&
-                    tasksAssigned.map(({ label, value }) => (
-                      <KeyValueContainer
-                        key={label}
-                        label={label}
-                        value={value}
+                  {caseDetails?.allocationType === "Single" ? (
+                    <TasksViewKeyValue
+                      tasksAndDocs={caseDetails?.singleTasksAndDocs}
+                    />
+                  ) : caseDetails?.allocationType === "Dual" ? (
+                    <Fragment>
+                      <TasksViewKeyValue
+                        tasksAndDocs={caseDetails?.insuredTasksAndDocs}
+                        part="Insured"
                       />
-                    ))}
+                      <TasksViewKeyValue
+                        tasksAndDocs={caseDetails?.hospitalTasksAndDocs}
+                        part="Hospital"
+                      />
+                    </Fragment>
+                  ) : null}
                 </Box>
               </Box>
               <Box>
@@ -536,10 +505,7 @@ export default function InvestigationSummary({
                 <Box>
                   <KeyValueContainer
                     label="recommendation"
-                    value={
-                      caseDetails?.investigationFindings?.recommendation
-                        ?.value || "-"
-                    }
+                    value={preAuthFindings?.recommendation?.value || "-"}
                   />
                 </Box>
               </Box>
