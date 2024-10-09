@@ -191,11 +191,6 @@ const ClaimCaseSchema = new Schema<any>(
       enum: ["Accepted", "Rejected", "Investigation Rejected"],
       default: "Accepted",
     },
-    // To be removed
-    tasksAssigned: {
-      type: [TasksSchema],
-      default: [],
-    },
     preQcObservation: {
       type: String,
       required: true,
@@ -205,14 +200,6 @@ const ClaimCaseSchema = new Schema<any>(
       enum: ["Single", "Dual"],
       default: "Single",
     },
-    // To be removed
-    investigator: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "ClaimInvestigator",
-        default: null,
-      },
-    ],
     singleTasksAndDocs: { type: TasksAndDocumentsSchema, default: null },
     insuredTasksAndDocs: { type: TasksAndDocumentsSchema, default: null },
     hospitalTasksAndDocs: { type: TasksAndDocumentsSchema, default: null },
@@ -241,15 +228,6 @@ const ClaimCaseSchema = new Schema<any>(
       default: null,
     },
     allocatorComment: { type: String },
-    // To be removed
-    investigationRejected: {
-      remark: { type: String, default: "" },
-      insuredAddress: { type: String, default: "" },
-      insuredCity: { type: String, default: "" },
-      insuredState: { type: String, default: "" },
-      insuredMobileNumber: { type: String, default: "" },
-      investigationRejectedReason: { type: String, default: "" },
-    },
     postQaComment: { type: String },
     postQARecommendation: {
       summaryOfInvestigation: { type: String },
@@ -269,25 +247,11 @@ const ClaimCaseSchema = new Schema<any>(
       regulatoryReportingRecommendation: { type: String },
       documents: { type: [String], default: [] },
     },
-    // To be removed
-    investigatorComment: { type: String, default: "" },
     insuredAddress: { type: String },
     insuredCity: { type: String },
     insuredState: { type: String },
     insuredPinCode: { type: Number },
-    // To be removed
-    investigationFindings: { type: InvestigationFindingSchema, default: null },
-    // To be removed
-    postQaFindings: { type: InvestigationFindingSchema, default: null },
-    // To be removed
-    rmFindings: { type: RMInvestigationFindingSchema, default: null },
-    // To be removed
-    rmFindingsPostQA: { type: RMInvestigationFindingSchema, default: null },
-    // To be removed
-    invReportReceivedDate: { type: Date, default: null },
     reportSubmissionDateQa: { type: Date, default: null },
-    // To be removed
-    outSourcingDate: { type: Date, default: null },
     postQaOverRulingReason: { type: String, default: "" },
     qaBy: { type: String, default: "" },
   },

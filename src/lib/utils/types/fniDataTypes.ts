@@ -826,46 +826,6 @@ export interface CaseDetail {
   updatedAt: Date | string;
 }
 
-interface OldCaseDetail {
-  _id: string | ObjectId;
-  caseType: string[];
-  caseTypeDependencies: { [key: string]: string[] | undefined };
-  caseStatus: "Accepted" | "Rejected" | "Investigation Rejected";
-  tasksAssigned: Task[];
-  preQcObservation: string;
-  allocationType: "Single" | "Dual";
-  documents: DocumentMap | ResponseDoc | null;
-  investigator: Investigator | string | null;
-  singleTasksAndDocs: ITasksAndDocuments | null;
-  insuredTasksAndDocs: ITasksAndDocuments | null;
-  hospitalTasksAndDocs: ITasksAndDocuments | null;
-  dashboardDataId: string | ObjectId;
-  intimationDate: Date | string;
-  rejectionReasons: RejectionReason[];
-  assignedBy: string | IUser[] | ObjectId;
-  updatedBy: string | IUser[] | ObjectId;
-  investigatorComment: string;
-  insuredAddress: string;
-  insuredCity: string;
-  insuredState: string;
-  insuredPinCode?: number;
-  allocatorComment?: string;
-  postQaComment?: string;
-  postQARecommendation?: RevisedQaApproveFormValues;
-  investigationFindings?: RevisedInvestigationFindings;
-  postQaFindings?: RevisedInvestigationFindings;
-  rmFindings?: IRMFindings | null;
-  rmFindingsPostQA?: IRMFindings | null;
-  invReportReceivedDate: Date | null;
-  reportSubmissionDateQa: Date | null;
-  investigationRejected?: IInvestigationRejected;
-  outSourcingDate: Date | null;
-  postQaOverRulingReason?: string;
-  qaBy?: string;
-  createdAt: Date | string;
-  updatedAt: Date | string;
-}
-
 export interface Triage {
   variable: string;
   logic: string;
