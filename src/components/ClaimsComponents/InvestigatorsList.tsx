@@ -236,11 +236,7 @@ const InvestigatorsList = ({
   }, [data, selected]);
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      fetchData();
-      isFirstRender.current = false;
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchData();
   }, [pagination.page, debouncedSearch, sort, initialFilters]);
 
   useEffect(() => {
