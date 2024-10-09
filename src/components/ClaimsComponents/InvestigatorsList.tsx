@@ -229,7 +229,6 @@ const InvestigatorsList = ({
 
   useEffect(() => {
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pagination.page, debouncedSearch, sort, initialFilters]);
 
   useEffect(() => {
