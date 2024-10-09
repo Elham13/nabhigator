@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const router = createEdgeRouter<NextRequest, {}>();
 
+// TODO: Remove the antd
 router.get(async (req) => {
   try {
     return NextResponse.json(
@@ -11,7 +12,7 @@ router.get(async (req) => {
         success: true,
         message: "Version Update",
         env: process.env.NEXT_PUBLIC_CONFIG,
-        version: 0.041,
+        version: 0.042,
       },
       { status: 200 }
     );
