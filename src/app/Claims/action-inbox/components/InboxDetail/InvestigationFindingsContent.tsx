@@ -2,13 +2,18 @@ import React from "react";
 import { Grid, GridCol, Text, Title } from "@mantine/core";
 import KeyValueContainer from "./KeyValueContainer";
 import dayjs from "dayjs";
-import { RevisedInvestigationFindings } from "@/lib/utils/types/fniDataTypes";
+import {
+  CaseDetail,
+  RevisedInvestigationFindings,
+} from "@/lib/utils/types/fniDataTypes";
+import { getTasksAndDocs } from "@/lib/helpers";
+import { AccordionItem, CustomAccordion } from "@/components/CustomAccordion";
 
-type PropTypes = {
-  findings?: RevisedInvestigationFindings | null;
-};
-
-const InvestigationFindingsContent = ({ findings }: PropTypes) => {
+const Findings = ({
+  findings,
+}: {
+  findings: RevisedInvestigationFindings | null;
+}) => {
   return (
     <Grid>
       {findings ? (
@@ -481,47 +486,71 @@ const InvestigationFindingsContent = ({ findings }: PropTypes) => {
 
           {!!findings?.patientHabit && findings?.patientHabit?.length > 0
             ? findings?.patientHabit?.map((el, ind) => (
-                <GridCol span={{ sm: 12, md: 6 }} my={12} key={ind}>
-                  <Title order={6} c="orange" my={4}>
-                    Habit {ind + 1}
-                  </Title>
-                  <KeyValueContainer label="Habit" value={el?.habit} />
-                  <KeyValueContainer
-                    label={`Duration of ${el?.habit}`}
-                    value={el?.duration}
-                  />
-                  <KeyValueContainer
-                    label={`Frequency of ${el?.habit}`}
-                    value={el?.frequency}
-                  />
-                  <KeyValueContainer
-                    label={`Quantity of ${el?.habit}`}
-                    value={el?.quantity}
-                  />
-                </GridCol>
+                <Grid.Col span={12} my={12} key={ind}>
+                  <Grid>
+                    <Grid.Col span={12}>
+                      <Title order={6} c="orange" my={4}>
+                        Habit {ind + 1}
+                      </Title>
+                    </Grid.Col>
+                    <Grid.Col span={{ base: 12, md: 6 }}>
+                      <KeyValueContainer label="Habit" value={el?.habit} />
+                    </Grid.Col>
+                    <Grid.Col span={{ base: 12, md: 6 }}>
+                      <KeyValueContainer
+                        label={`Duration of ${el?.habit}`}
+                        value={el?.duration}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={{ base: 12, md: 6 }}>
+                      <KeyValueContainer
+                        label={`Frequency of ${el?.habit}`}
+                        value={el?.frequency}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={{ base: 12, md: 6 }}>
+                      <KeyValueContainer
+                        label={`Quantity of ${el?.habit}`}
+                        value={el?.quantity}
+                      />
+                    </Grid.Col>
+                  </Grid>
+                </Grid.Col>
               ))
             : null}
 
           {!!findings?.ailment && findings?.ailment?.length > 0
             ? findings?.ailment?.map((el, ind) => (
-                <GridCol span={{ sm: 12, md: 6 }} my={12} key={ind}>
-                  <Title order={6} c="orange" my={4}>
-                    Ailment {ind + 1}
-                  </Title>
-                  <KeyValueContainer label="Ailment" value={el?.ailment} />
-                  <KeyValueContainer
-                    label={`Duration of ${el?.ailment}`}
-                    value={el?.duration}
-                  />
-                  <KeyValueContainer
-                    label={`Diagnosis of ${el?.ailment}`}
-                    value={el?.diagnosis}
-                  />
-                  <KeyValueContainer
-                    label={`On medication of ${el?.ailment}`}
-                    value={el?.onMedication}
-                  />
-                </GridCol>
+                <Grid.Col span={12} my={12} key={ind}>
+                  <Grid>
+                    <Grid.Col span={12}>
+                      <Title order={6} c="orange" my={4}>
+                        Ailment {ind + 1}
+                      </Title>
+                    </Grid.Col>
+                    <Grid.Col span={{ base: 12, md: 6 }}>
+                      <KeyValueContainer label="Ailment" value={el?.ailment} />
+                    </Grid.Col>
+                    <Grid.Col span={{ base: 12, md: 6 }}>
+                      <KeyValueContainer
+                        label={`Duration of ${el?.ailment}`}
+                        value={el?.duration}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={{ base: 12, md: 6 }}>
+                      <KeyValueContainer
+                        label={`Diagnosis of ${el?.ailment}`}
+                        value={el?.diagnosis}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={{ base: 12, md: 6 }}>
+                      <KeyValueContainer
+                        label={`On medication of ${el?.ailment}`}
+                        value={el?.onMedication}
+                      />
+                    </Grid.Col>
+                  </Grid>
+                </Grid.Col>
               ))
             : null}
         </>
@@ -533,6 +562,33 @@ const InvestigationFindingsContent = ({ findings }: PropTypes) => {
         </GridCol>
       )}
     </Grid>
+  );
+};
+
+type PropTypes = {
+  claimType?: "PreAuth" | "Reimbursement";
+  caseData: CaseDetail | null;
+};
+
+const InvestigationFindingsContent = ({ claimType, caseData }: PropTypes) => {
+  const { preAuthFindings, preAuthFindingsHospital } = getTasksAndDocs({
+    claimType,
+    claimCase: caseData,
+  });
+
+  return caseData?.allocationType === "Single" ? (
+    <Findings findings={preAuthFindings} />
+  ) : (
+    <>
+      <CustomAccordion>
+        <AccordionItem title="Insured Part">
+          <Findings findings={preAuthFindings} />
+        </AccordionItem>
+        <AccordionItem title="Hospital Part">
+          <Findings findings={preAuthFindingsHospital} />
+        </AccordionItem>
+      </CustomAccordion>
+    </>
   );
 };
 

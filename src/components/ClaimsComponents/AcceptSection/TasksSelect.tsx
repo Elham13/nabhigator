@@ -16,11 +16,11 @@ import {
 import { configureRMTasksAndDocuments } from "@/lib/helpers";
 import { toast } from "react-toastify";
 import dynamic from "next/dynamic";
-import { Spin } from "antd";
 import { useTasks } from "@/lib/providers/TasksAndDocsProvider";
+import Loading from "@/components/Loading";
 
 const InvestigatorsList = dynamic(() => import("../InvestigatorsList"), {
-  loading: () => <Spin />,
+  loading: () => <Loading />,
   ssr: false,
 });
 

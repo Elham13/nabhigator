@@ -902,6 +902,7 @@ const MiscellaneousVerificationSchema =
 const RecommendationSchema = new Schema<IRecommendationSchema>(
   {
     value: { type: String },
+    code: { type: String },
     hasEvidence: { type: String },
     evidences: { type: [String], default: [] },
     reasonOfEvidenceNotAvailable: { type: String },

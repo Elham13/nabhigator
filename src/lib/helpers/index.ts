@@ -484,45 +484,63 @@ export const getTasksAndDocs = ({
 }: IFindFindingsArgs) => {
   interface IResult {
     tasksAndDocs: ITasksAndDocuments | null;
+    tasksAndDocsHospital: ITasksAndDocuments | null;
     rmFindings: IRMFindings | null;
+    rmFindingsHospital: IRMFindings | null;
     rmFindingsQA: IRMFindings | null;
+    rmFindingsQAHospital: IRMFindings | null;
     preAuthFindings: RevisedInvestigationFindings | null;
+    preAuthFindingsHospital: RevisedInvestigationFindings | null;
     preAuthFindingsQA: RevisedInvestigationFindings | null;
+    preAuthFindingsQAHospital: RevisedInvestigationFindings | null;
   }
 
   const result: IResult = {
     tasksAndDocs: null,
+    tasksAndDocsHospital: null,
     rmFindings: null,
+    rmFindingsHospital: null,
     rmFindingsQA: null,
+    rmFindingsQAHospital: null,
     preAuthFindings: null,
+    preAuthFindingsHospital: null,
     preAuthFindingsQA: null,
+    preAuthFindingsQAHospital: null,
   };
 
-  if (claimType === "PreAuth") {
-    if (claimCase?.allocationType === "Single") {
-      result.tasksAndDocs = claimCase?.singleTasksAndDocs;
-      result.preAuthFindings =
-        claimCase?.singleTasksAndDocs?.preAuthFindings || null;
-      result.preAuthFindingsQA =
-        claimCase?.singleTasksAndDocs?.preAuthFindingsPostQa || null;
-    } else if (claimCase?.allocationType === "Dual") {
-      result.tasksAndDocs = claimCase?.insuredTasksAndDocs;
-      result.preAuthFindings =
-        claimCase?.insuredTasksAndDocs?.preAuthFindings || null;
-      result.preAuthFindingsQA =
-        claimCase?.insuredTasksAndDocs?.preAuthFindingsPostQa || null;
+  const isSingleAllocation = claimCase?.allocationType === "Single";
+  const isDualAllocation = claimCase?.allocationType === "Dual";
+
+  if (claimType === "PreAuth" || claimType === "Reimbursement") {
+    const tasksAndDocs = isSingleAllocation
+      ? claimCase?.singleTasksAndDocs
+      : isDualAllocation
+      ? claimCase?.insuredTasksAndDocs
+      : null;
+
+    result.tasksAndDocs = tasksAndDocs;
+    if (isDualAllocation) {
+      result.tasksAndDocsHospital = claimCase?.hospitalTasksAndDocs;
     }
-  } else if (claimType === "Reimbursement") {
-    if (claimCase?.allocationType === "Single") {
-      result.tasksAndDocs = claimCase?.singleTasksAndDocs;
-      result.rmFindings = claimCase?.singleTasksAndDocs?.rmFindings || null;
-      result.rmFindingsQA =
-        claimCase?.singleTasksAndDocs?.rmFindingsPostQA || null;
-    } else if (claimCase?.allocationType === "Dual") {
-      result.tasksAndDocs = claimCase?.insuredTasksAndDocs;
-      result.rmFindings = claimCase?.insuredTasksAndDocs?.rmFindings || null;
-      result.rmFindingsQA =
-        claimCase?.insuredTasksAndDocs?.rmFindingsPostQA || null;
+
+    if (claimType === "PreAuth") {
+      result.preAuthFindings = tasksAndDocs?.preAuthFindings || null;
+      result.preAuthFindingsHospital = isSingleAllocation
+        ? tasksAndDocs?.preAuthFindings || null
+        : result.tasksAndDocsHospital?.preAuthFindings || null;
+      result.preAuthFindingsQA = tasksAndDocs?.preAuthFindingsPostQa || null;
+      result.preAuthFindingsQAHospital = isSingleAllocation
+        ? tasksAndDocs?.preAuthFindingsPostQa || null
+        : result.tasksAndDocsHospital?.preAuthFindingsPostQa || null;
+    } else if (claimType === "Reimbursement") {
+      result.rmFindings = tasksAndDocs?.rmFindings || null;
+      result.rmFindingsHospital = isSingleAllocation
+        ? tasksAndDocs?.rmFindings || null
+        : result.tasksAndDocsHospital?.rmFindings || null;
+      result.rmFindingsQA = tasksAndDocs?.rmFindingsPostQA || null;
+      result.rmFindingsQAHospital = isSingleAllocation
+        ? tasksAndDocs?.rmFindingsPostQA || null
+        : result.tasksAndDocsHospital?.rmFindingsPostQA || null;
     }
   }
 

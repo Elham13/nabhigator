@@ -15,10 +15,10 @@ import {
 } from "@/lib/utils/types/fniDataTypes";
 import { showError } from "@/lib/helpers";
 import PageWrapper from "@/components/ClaimsComponents/PageWrapper";
-import { Spin } from "antd";
+import Loading from "@/components/Loading";
 const LeaveDetail = dynamic(() => import("./components/LeaveDetail"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 
 const MangeUser = () => {

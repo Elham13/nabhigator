@@ -218,11 +218,13 @@ const DetailsAccordion = ({
                 </Box>
                 {data?.claimType === "PreAuth" ? (
                   <InvestigationFindingsContent
-                    findings={caseDetail?.singleTasksAndDocs?.preAuthFindings}
+                    claimType={data?.claimType}
+                    caseData={caseDetail}
                   />
                 ) : (
                   <RMInvestigationFindingsContent
-                    findings={caseDetail?.singleTasksAndDocs?.rmFindings}
+                    claimType={data?.claimType}
+                    caseData={caseDetail}
                   />
                 )}
               </Box>
@@ -234,17 +236,13 @@ const DetailsAccordion = ({
               value === "Investigation Recommendation" &&
               (data?.claimType === "PreAuth" ? (
                 <InvestigationRecommendationContent
-                  findings={caseDetail?.singleTasksAndDocs?.preAuthFindings}
+                  claimType={data?.claimType}
+                  caseData={caseDetail}
                 />
               ) : (
                 <RMInvestigationRecommendationContent
-                  recommendation={
-                    caseDetail?.singleTasksAndDocs?.rmFindings?.recommendation
-                  }
-                  otherRecommendation={
-                    caseDetail?.singleTasksAndDocs?.rmFindings
-                      ?.otherRecommendation
-                  }
+                  claimType={data?.claimType}
+                  caseData={caseDetail}
                 />
               )),
           },

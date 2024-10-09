@@ -2,13 +2,18 @@ import React from "react";
 import { ActionIcon, Box, Divider, Text, Title } from "@mantine/core";
 import KeyValueContainer from "./KeyValueContainer";
 import { BiLink } from "react-icons/bi";
-import { RevisedInvestigationFindings } from "@/lib/utils/types/fniDataTypes";
+import {
+  CaseDetail,
+  RevisedInvestigationFindings,
+} from "@/lib/utils/types/fniDataTypes";
+import { getTasksAndDocs } from "@/lib/helpers";
+import { AccordionItem, CustomAccordion } from "@/components/CustomAccordion";
 
-type PropTypes = {
-  findings?: RevisedInvestigationFindings | null;
-};
-
-const InvestigationRecommendationContent = ({ findings }: PropTypes) => {
+const Recommendations = ({
+  findings,
+}: {
+  findings: RevisedInvestigationFindings | null;
+}) => {
   return (
     <Box>
       {findings ? (
@@ -113,6 +118,36 @@ const InvestigationRecommendationContent = ({ findings }: PropTypes) => {
         </Text>
       )}
     </Box>
+  );
+};
+
+type PropTypes = {
+  claimType?: "PreAuth" | "Reimbursement";
+  caseData: CaseDetail | null;
+};
+
+const InvestigationRecommendationContent = ({
+  claimType,
+  caseData,
+}: PropTypes) => {
+  const { preAuthFindings, preAuthFindingsHospital } = getTasksAndDocs({
+    claimType,
+    claimCase: caseData,
+  });
+
+  return caseData?.allocationType === "Single" ? (
+    <Recommendations findings={preAuthFindings} />
+  ) : (
+    <>
+      <CustomAccordion>
+        <AccordionItem title="Insured Part">
+          <Recommendations findings={preAuthFindings} />
+        </AccordionItem>
+        <AccordionItem title="Hospital Part">
+          <Recommendations findings={preAuthFindingsHospital} />
+        </AccordionItem>
+      </CustomAccordion>
+    </>
   );
 };
 

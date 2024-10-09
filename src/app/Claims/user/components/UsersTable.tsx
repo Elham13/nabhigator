@@ -25,10 +25,10 @@ import CommonTableHead from "@/components/ClaimsComponents/commonTable/CommonTab
 import { usersTableHeaders } from "@/lib/utils/constants/tableHeadings";
 import CommonTablePlaceholder from "@/components/ClaimsComponents/commonTable/CommonTablePlaceholder";
 import dynamic from "next/dynamic";
-import { Spin } from "antd";
+import Loading from "@/components/Loading";
 const UploadModal = dynamic(() => import("./UploadModal"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 
 const tableHeadings = [

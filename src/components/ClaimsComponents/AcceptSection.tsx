@@ -10,23 +10,23 @@ import {
 } from "@/lib/utils/types/fniDataTypes";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { StorageKeys } from "@/lib/utils/types/enums";
-import { Spin } from "antd";
 
 import dynamic from "next/dynamic";
 import { useTasks } from "@/lib/providers/TasksAndDocsProvider";
+import Loading from "../Loading";
 
 const SingleAllocationTasks = dynamic(
   () => import("./AcceptSection/SingleAllocationTasks"),
   {
     ssr: false,
-    loading: () => <Spin />,
+    loading: () => <Loading />,
   }
 );
 const DualAllocationTasks = dynamic(
   () => import("./AcceptSection//DualAllocationTasks"),
   {
     ssr: false,
-    loading: () => <Spin />,
+    loading: () => <Loading />,
   }
 );
 

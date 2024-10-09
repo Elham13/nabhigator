@@ -25,12 +25,12 @@ import { numberToOrdinal, showError } from "@/lib/helpers";
 import PageWrapper from "@/components/ClaimsComponents/PageWrapper";
 import LoaderPlaceholder from "@/components/ClaimsComponents/LoaderPlaceholder";
 import dynamic from "next/dynamic";
-import { Spin } from "antd";
 import { useDebouncedValue } from "@mantine/hooks";
 import { claimSubTypeOptions } from "@/lib/utils/constants/options";
+import Loading from "@/components/Loading";
 const FeedingLogTable = dynamic(() => import("./components/FeedingLogTable"), {
   ssr: false,
-  loading: () => <Spin />,
+  loading: () => <Loading />,
 });
 
 const formDataInitials = {

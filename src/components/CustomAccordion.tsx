@@ -1,3 +1,4 @@
+import { Box } from "@mantine/core";
 import { useState, ReactNode } from "react";
 import { IoChevronDown } from "react-icons/io5";
 
@@ -14,10 +15,10 @@ const AccordionItem: React.FC<AccordionItemProps> = ({ title, children }) => {
   };
 
   return (
-    <div className="border-b">
-      <div
+    <Box className="border-b dark:border-slate-700">
+      <Box
         onClick={toggleAccordion}
-        className="flex justify-between items-center py-2 px-4 cursor-pointer bg-slate-50 hover:bg-slate-200"
+        className="flex justify-between items-center py-2 px-4 cursor-pointer bg-slate-50 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-950"
       >
         <span className="text-sm">{title}</span>
         <span>
@@ -25,9 +26,11 @@ const AccordionItem: React.FC<AccordionItemProps> = ({ title, children }) => {
             className={`transition-all ${isOpen ? "rotate-180" : "rotate-0"}`}
           />
         </span>
-      </div>
-      {isOpen && <div className="p-4 bg-gray-50">{children}</div>}
-    </div>
+      </Box>
+      {isOpen && (
+        <div className="p-4 bg-gray-50 dark:bg-slate-800">{children}</div>
+      )}
+    </Box>
   );
 };
 
@@ -36,7 +39,7 @@ interface AccordionProps {
 }
 
 const CustomAccordion: React.FC<AccordionProps> = ({ children }) => {
-  return <div className="shadow-md rounded-md">{children}</div>;
+  return <Box className="shadow-md rounded-md">{children}</Box>;
 };
 
 export { CustomAccordion, AccordionItem };

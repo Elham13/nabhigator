@@ -19,12 +19,11 @@ import RandomVicinityTasks from "./RMContent/RandomVicinityTasks";
 import KeyValueContainer from "./KeyValueContainer";
 import { BiLink } from "react-icons/bi";
 import { IRMFindings } from "@/lib/utils/types/rmDataTypes";
+import { CaseDetail } from "@/lib/utils/types/fniDataTypes";
+import { getTasksAndDocs } from "@/lib/helpers";
+import { AccordionItem, CustomAccordion } from "@/components/CustomAccordion";
 
-type PropTypes = {
-  findings?: IRMFindings | null;
-};
-
-const RMInvestigationFindingsContent = ({ findings }: PropTypes) => {
+const Findings = ({ findings }: { findings: IRMFindings | null }) => {
   return (
     <Box>
       {findings ? (
@@ -236,6 +235,32 @@ const RMInvestigationFindingsContent = ({ findings }: PropTypes) => {
         </Text>
       )}
     </Box>
+  );
+};
+
+type PropTypes = {
+  claimType?: "PreAuth" | "Reimbursement";
+  caseData: CaseDetail | null;
+};
+
+const RMInvestigationFindingsContent = ({ claimType, caseData }: PropTypes) => {
+  const { rmFindings, rmFindingsHospital } = getTasksAndDocs({
+    claimType,
+    claimCase: caseData,
+  });
+  return caseData?.allocationType === "Single" ? (
+    <Findings findings={rmFindings} />
+  ) : (
+    <>
+      <CustomAccordion>
+        <AccordionItem title="Insured Part">
+          <Findings findings={rmFindings} />
+        </AccordionItem>
+        <AccordionItem title="Hospital Part">
+          <Findings findings={rmFindingsHospital} />
+        </AccordionItem>
+      </CustomAccordion>
+    </>
   );
 };
 
