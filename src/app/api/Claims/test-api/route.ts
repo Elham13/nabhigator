@@ -65,6 +65,8 @@ router.post(async (req) => {
           rmFindings: obj?.rmFindings,
           rmFindingsPostQA: obj?.rmFindingsPostQA,
         };
+        obj.dashboardDataId =
+          obj?.dashboardDataId || "662f2b9907ea5125d65d1815";
       } else if (obj?.allocationType === "Dual") {
         let investigator =
           !!obj?.investigator && obj?.investigator?.length > 0
@@ -83,6 +85,8 @@ router.post(async (req) => {
           rmFindings: obj?.rmFindings,
           rmFindingsPostQA: obj?.rmFindingsPostQA,
         };
+        obj.dashboardDataId =
+          obj?.dashboardDataId || "662f2b9907ea5125d65d1815";
 
         investigator =
           !!obj?.investigator && obj?.investigator?.length > 1
@@ -100,7 +104,10 @@ router.post(async (req) => {
           preAuthFindingsPostQa: obj?.postQaFindings,
           rmFindings: obj?.rmFindings,
           rmFindingsPostQA: obj?.rmFindingsPostQA,
+          dashboardDataId: obj?.dashboardDataId || "662f2b9907ea5125d65d1815",
         };
+        obj.dashboardDataId =
+          obj?.dashboardDataId || "662f2b9907ea5125d65d1815";
       }
       await obj.save();
       updatedIds.push(obj?._id);
