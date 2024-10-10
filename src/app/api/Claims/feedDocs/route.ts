@@ -1,6 +1,5 @@
 import connectDB from "@/lib/db/dbConnectWithMongoose";
 import ClaimCase from "@/lib/Models/claimCase";
-import DashboardData from "@/lib/Models/dashboardData";
 import { Databases } from "@/lib/utils/types/enums";
 import { CaseDetail } from "@/lib/utils/types/fniDataTypes";
 import { HydratedDocument } from "mongoose";
@@ -13,7 +12,7 @@ const router = createEdgeRouter<NextRequest, {}>();
 router.post(async (req) => {
   const body = await req?.json();
 
-  const { id, docs, action, pagination } = body;
+  const { payload, action, pagination } = body;
   try {
     await connectDB(Databases.FNI);
 
@@ -35,20 +34,27 @@ router.post(async (req) => {
       data = claimCase;
       message = "Fetched";
     } else {
-      if (!id) throw new Error("id is required");
-      if (!docs) throw new Error("docs is required");
+      if (!payload) throw new Error("payload is required");
 
-      const claimCase: HydratedDocument<CaseDetail> | null =
-        await ClaimCase.findById(id);
+      if (payload?.length > 0) {
+        for (const obj of payload) {
+          if (!obj?.id) throw new Error("id is required");
 
-      if (!claimCase) throw new Error(`No Claim Case found with the id ${id}`);
+          const claimCase: HydratedDocument<CaseDetail> | null =
+            await ClaimCase.findById(obj?.id);
 
-      if (claimCase?.allocationType === "Single") {
-        claimCase.singleTasksAndDocs!.docs! = new Map(docs);
-      } else {
+          if (!claimCase)
+            throw new Error(`No Claim Case found with the id ${obj?.id}`);
+
+          if (claimCase?.allocationType === "Single") {
+            claimCase.singleTasksAndDocs!.docs! = new Map(obj?.doc);
+          } else {
+          }
+
+          await claimCase.save();
+        }
       }
 
-      data = await claimCase.save();
       message = "Updated";
     }
 

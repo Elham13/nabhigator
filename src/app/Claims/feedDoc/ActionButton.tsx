@@ -6,27 +6,27 @@ import axios from "axios";
 import { EndPoints } from "@/lib/utils/types/enums";
 
 const ActionButton = ({
-  id,
   onDone,
   docs,
 }: {
-  id: string;
   onDone: () => void;
-  docs: any;
+  docs: { id: string; doc: any }[];
 }) => {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      if (!id) throw new Error("id is required");
-      const { data } = await axios.post(EndPoints.FEED_DOCS, {
-        id,
-        docs: !!docs
-          ? docs instanceof Map
-            ? Array.from(docs.entries())
-            : Array.from(new Map(Object.entries(docs))?.entries())
+      const payload = docs?.map((el) => ({
+        ...el,
+        doc: !!el?.doc
+          ? el?.doc instanceof Map
+            ? Array.from(el?.doc.entries())
+            : Array.from(new Map(Object.entries(el?.doc))?.entries())
           : null,
+      }));
+      const { data } = await axios.post(EndPoints.FEED_DOCS, {
+        payload,
       });
       toast.success(data?.message);
       onDone();
