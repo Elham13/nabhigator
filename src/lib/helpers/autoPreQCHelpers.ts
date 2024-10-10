@@ -63,29 +63,29 @@ export const claimCasePayload = {
   caseTypeDependencies: {},
   caseStatus: "Accepted",
   dashboardDataId: "ID_TO_REPLACE",
-  documents: {
-    "Pre-Auth Investigation": [
-      {
-        name: "Insured/Attendant Part Documents",
-        docUrl: [],
-        location: null,
-      },
-      {
-        name: "Hospital Part Documents",
-        docUrl: [],
-        location: null,
-      },
-      {
-        name: "GPS Location",
-        docUrl: [],
-        location: null,
-      },
-    ],
-  },
   preQcObservation: "This is system pre qc",
-  tasksAssigned: [
-    { name: "Pre-Auth Investigation", completed: false, comment: "" },
-  ],
+  singleTasksAndDocs: {
+    docs: {
+      "Pre-Auth Investigation": [
+        {
+          name: "Insured/Attendant Part Documents",
+          docUrl: [],
+          location: null,
+        },
+        {
+          name: "Hospital Part Documents",
+          docUrl: [],
+          location: null,
+        },
+        {
+          name: "GPS Location",
+          docUrl: [],
+          location: null,
+        },
+      ],
+    },
+    tasks: [{ name: "Pre-Auth Investigation", completed: false, comment: "" }],
+  },
   insuredAddress: "",
   insuredCity: "",
   insuredState: "",
