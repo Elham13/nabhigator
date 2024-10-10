@@ -13,50 +13,51 @@ const router = createEdgeRouter<NextRequest, {}>();
 router.post(async (req) => {
   const body = await req?.json();
 
-  const { claimId, docs, caseId } = body;
+  const { id, docs, action, pagination } = body;
   try {
-    if (!claimId && !caseId) throw new Error("claimId or caseId is required");
-    if (!docs) throw new Error("docs is required");
-
     await connectDB(Databases.FNI);
 
-    let id: any = null;
+    let data: any = null;
+    let message = "";
+    let count: number = 0;
 
-    if (!!caseId) {
-      id = caseId;
+    if (action === "getData") {
+      const claimCase = await ClaimCase.find({
+        "singleTasksAndDocs.docs": { $eq: {} },
+        caseStatus: { $ne: "Rejected" },
+      })
+        .skip((pagination?.page - 1) * pagination?.limit)
+        .limit(pagination?.limit || 10);
+      count = await ClaimCase.countDocuments({
+        "singleTasksAndDocs.docs": { $eq: {} },
+        caseStatus: { $ne: "Rejected" },
+      });
+      data = claimCase;
+      message = "Fetched";
     } else {
-      const dashboardData = await DashboardData.findOne({ claimId });
+      if (!id) throw new Error("id is required");
+      if (!docs) throw new Error("docs is required");
 
-      if (!dashboardData)
-        throw new Error(`No Dashboard Data found with the id ${claimId}`);
+      const claimCase: HydratedDocument<CaseDetail> | null =
+        await ClaimCase.findById(id);
 
-      if (!dashboardData?.caseId)
-        throw new Error(`No Claim Case found for this data`);
+      if (!claimCase) throw new Error(`No Claim Case found with the id ${id}`);
 
-      id = dashboardData?.caseId;
+      if (claimCase?.allocationType === "Single") {
+        claimCase.singleTasksAndDocs!.docs! = new Map(docs);
+      } else {
+      }
+
+      data = await claimCase.save();
+      message = "Updated";
     }
-
-    if (!id) throw new Error(`id not found`);
-
-    const claimCase: HydratedDocument<CaseDetail> | null =
-      await ClaimCase.findById(id);
-
-    if (!claimCase) throw new Error(`No Claim Case found with the id ${id}`);
-
-    if (claimCase?.allocationType === "Single") {
-      claimCase.singleTasksAndDocs!.docs! = new Map(
-        Object.entries(JSON.parse(docs))
-      ) as any;
-    } else {
-    }
-
-    const data = await claimCase.save();
 
     return NextResponse.json(
       {
         success: true,
-        message: "Updated",
+        message,
         data,
+        count,
       },
       { status: 200 }
     );
