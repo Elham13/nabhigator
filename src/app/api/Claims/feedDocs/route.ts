@@ -13,28 +13,35 @@ const router = createEdgeRouter<NextRequest, {}>();
 router.post(async (req) => {
   const body = await req?.json();
 
-  const { claimId, docs } = body;
+  const { claimId, docs, caseId } = body;
   try {
-    if (!claimId) throw new Error("claimId is required");
+    if (!claimId && !caseId) throw new Error("claimId or caseId is required");
     if (!docs) throw new Error("docs is required");
 
     await connectDB(Databases.FNI);
 
-    const dashboardData = await DashboardData.findOne({ claimId });
+    let id: any = null;
 
-    if (!dashboardData)
-      throw new Error(`No Dashboard Data found with the id ${claimId}`);
+    if (!!caseId) {
+      id = caseId;
+    } else {
+      const dashboardData = await DashboardData.findOne({ claimId });
 
-    if (!dashboardData?.caseId)
-      throw new Error(`No Claim Case found for this data`);
+      if (!dashboardData)
+        throw new Error(`No Dashboard Data found with the id ${claimId}`);
+
+      if (!dashboardData?.caseId)
+        throw new Error(`No Claim Case found for this data`);
+
+      id = dashboardData?.caseId;
+    }
+
+    if (!id) throw new Error(`id not found`);
 
     const claimCase: HydratedDocument<CaseDetail> | null =
-      await ClaimCase.findById(dashboardData?.caseId);
+      await ClaimCase.findById(id);
 
-    if (!claimCase)
-      throw new Error(
-        `No Claim Case found with the id ${dashboardData?.caseId}`
-      );
+    if (!claimCase) throw new Error(`No Claim Case found with the id ${id}`);
 
     if (claimCase?.allocationType === "Single") {
       claimCase.singleTasksAndDocs!.docs! = new Map(
