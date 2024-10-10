@@ -43,9 +43,9 @@ export const runPreQCAutoAllocation = async (
         claimSubType: data?.claimSubType,
       });
 
-      claimCasePayload.tasksAssigned = newTasks;
+      claimCasePayload.singleTasksAndDocs.tasks = newTasks;
       // @ts-ignore
-      claimCasePayload.documents = newDocs;
+      claimCasePayload.singleTasksAndDocs.docs = newDocs;
       claimCasePayload.caseType = ["PED/NDC", "Genuineness"];
     }
 
