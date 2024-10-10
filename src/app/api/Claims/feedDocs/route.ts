@@ -2,11 +2,7 @@ import connectDB from "@/lib/db/dbConnectWithMongoose";
 import ClaimCase from "@/lib/Models/claimCase";
 import DashboardData from "@/lib/Models/dashboardData";
 import { Databases } from "@/lib/utils/types/enums";
-import {
-  CaseDetail,
-  IDashboardData,
-  NumericStage,
-} from "@/lib/utils/types/fniDataTypes";
+import { CaseDetail } from "@/lib/utils/types/fniDataTypes";
 import { HydratedDocument } from "mongoose";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
