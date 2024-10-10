@@ -5,7 +5,6 @@ import { Databases } from "@/lib/utils/types/enums";
 import {
   CaseDetail,
   IDashboardData,
-  IInvestigationFindings,
   RevisedInvestigationFindings,
   Task,
 } from "@/lib/utils/types/fniDataTypes";
