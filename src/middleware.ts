@@ -10,8 +10,6 @@ router.use(async (request, event, next) => {
   const publicRoutes = [
     "/Claims/action-inbox/documents",
     "/api/Claims/feedDashboard",
-    "/api/Claims/feedDocs",
-    "/Claims/feedDocs",
     "/api/Claims/deployVerify",
     "/api/Claims/test-api",
   ];
