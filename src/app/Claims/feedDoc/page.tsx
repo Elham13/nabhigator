@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { showError } from "@/lib/helpers";
-import { Box, Flex, Pagination, Table, Title } from "@mantine/core";
+import { Box, Flex, Pagination, Table, Text, Title } from "@mantine/core";
 import axios from "axios";
 import { EndPoints } from "@/lib/utils/types/enums";
 import { CaseDetail, ResponseType } from "@/lib/utils/types/fniDataTypes";
@@ -12,7 +12,7 @@ import ActionButton from "./ActionButton";
 const FeedDoc = () => {
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
-    limit: 5,
+    limit: 50,
     page: 1,
     count: 0,
   });
@@ -48,7 +48,6 @@ const FeedDoc = () => {
             <Table.Tr>
               <Table.Th>Id</Table.Th>
               <Table.Th>Docs</Table.Th>
-              <Table.Th>Action</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -61,14 +60,6 @@ const FeedDoc = () => {
                   <Table.Td>
                     {JSON.stringify(el?.singleTasksAndDocs?.docs)}
                   </Table.Td>
-                  <Table.Td>
-                    <ActionButton
-                      id={el?._id as string}
-                      onDone={getData}
-                      // @ts-expect-error
-                      docs={el?.documents}
-                    />
-                  </Table.Td>
                 </Table.Tr>
               ))
             ) : (
@@ -77,6 +68,20 @@ const FeedDoc = () => {
           </Table.Tbody>
         </Table>
       </Table.ScrollContainer>
+
+      {claimCases?.length > 0 && (
+        <Flex gap={10} mb={20}>
+          <Text>Update {claimCases?.length} Records</Text>
+          <ActionButton
+            onDone={getData}
+            docs={claimCases?.map((el) => ({
+              id: el?._id as string,
+              // @ts-expect-error
+              doc: el?.documents,
+            }))}
+          />
+        </Flex>
+      )}
       <Flex gap={10}>
         <Title order={4}>Total: {pagination?.count}</Title>
         <Pagination
