@@ -7,6 +7,7 @@ import {
 } from "@/lib/utils/types/fniDataTypes";
 import AcceptSection from "@/components/ClaimsComponents/AcceptSection";
 import RejectedSection from "@/components/ClaimsComponents/RejectedSection";
+import TasksAndDocsProvider from "@/lib/providers/TasksAndDocsProvider";
 
 type PropTypes = {
   caseState: CaseState;
@@ -45,7 +46,9 @@ const Allocation = ({
       </Flex>
 
       {caseState === CaseState.ACCEPTED ? (
-        <AcceptSection {...{ dashboardData, caseDetail, onClose }} />
+        <TasksAndDocsProvider>
+          <AcceptSection {...{ dashboardData, caseDetail, onClose }} />
+        </TasksAndDocsProvider>
       ) : (
         <RejectedSection
           id={dashboardData?._id as string}
