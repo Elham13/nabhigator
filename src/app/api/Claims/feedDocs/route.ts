@@ -48,9 +48,9 @@ router.post(async (req) => {
     if (!claimCase) throw new Error(`No Claim Case found with the id ${id}`);
 
     if (claimCase?.allocationType === "Single") {
-      claimCase.singleTasksAndDocs!.docs! = new Map(
-        Object.entries(JSON.parse(docs))
-      ) as any;
+      claimCase.singleTasksAndDocs!.docs! = !!caseId
+        ? new Map(docs)
+        : (new Map(Object.entries(JSON.parse(docs))) as any);
     } else {
     }
 
