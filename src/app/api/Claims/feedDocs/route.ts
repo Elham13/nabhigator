@@ -2,7 +2,11 @@ import connectDB from "@/lib/db/dbConnectWithMongoose";
 import ClaimCase from "@/lib/Models/claimCase";
 import DashboardData from "@/lib/Models/dashboardData";
 import { Databases } from "@/lib/utils/types/enums";
-import { CaseDetail } from "@/lib/utils/types/fniDataTypes";
+import {
+  CaseDetail,
+  IDashboardData,
+  NumericStage,
+} from "@/lib/utils/types/fniDataTypes";
 import { HydratedDocument } from "mongoose";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
@@ -15,10 +19,10 @@ router.post(async (req) => {
 
   const { claimId, docs, caseId } = body;
   try {
+    await connectDB(Databases.FNI);
+
     if (!claimId && !caseId) throw new Error("claimId or caseId is required");
     if (!docs) throw new Error("docs is required");
-
-    await connectDB(Databases.FNI);
 
     let id: any = null;
 
@@ -50,13 +54,13 @@ router.post(async (req) => {
     } else {
     }
 
-    const data = await claimCase.save();
+    await claimCase.save();
 
     return NextResponse.json(
       {
         success: true,
         message: "Updated",
-        data,
+        data: null,
       },
       { status: 200 }
     );

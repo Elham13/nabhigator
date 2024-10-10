@@ -31,7 +31,7 @@ const FeedDoc = () => {
       const { data } = await axios.post(EndPoints.DASHBOARD_DATA, {
         filterApplied: false,
         pagination: {
-          limit: 10000,
+          limit: 500,
           page: 1,
           count: 0,
         },
@@ -91,8 +91,8 @@ const FeedDoc = () => {
           ?.filter(
             (el: any) =>
               !!el?.caseId?.documents &&
-              (!el?.singleTasksAndDocs?.docs ||
-                !Object.keys(el?.singleTasksAndDocs?.docs)?.length)
+              (!el?.caseId?.singleTasksAndDocs?.docs ||
+                !Object.keys(el?.caseId?.singleTasksAndDocs?.docs)?.length)
           )
           ?.map((el: any) => ({
             id: el?.caseId?._id,
@@ -107,10 +107,13 @@ const FeedDoc = () => {
       const result = con(data);
 
       for (const obj of result) {
-        await handleSubmit({ caseId: obj?.id, docs: obj?.documents });
+        await handleSubmit({
+          caseId: obj?.id,
+          docs: JSON.stringify(obj?.documents),
+        });
       }
 
-      toast.success(`${result?.length} Records updated`);
+      toast.success(data?.message);
     } catch (error: any) {
       showError(error);
     } finally {
