@@ -109,7 +109,7 @@ const FeedDoc = () => {
           }));
       };
 
-      const result = con(data);
+      const result = con(data?.data);
 
       for (const obj of result) {
         await handleSubmit({
