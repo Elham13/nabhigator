@@ -6,6 +6,7 @@ import { Box, Button, Textarea, TextInput } from "@mantine/core";
 import axios from "axios";
 import { EndPoints } from "@/lib/utils/types/enums";
 import { toast } from "react-toastify";
+import { NumericStage } from "@/lib/utils/types/fniDataTypes";
 
 const FeedDoc = () => {
   const [values, setValues] = useState({ claimId: "", docs: "" });
@@ -83,17 +84,21 @@ const FeedDoc = () => {
             _id: "6707564a8b9057991831a535",
           },
         },
+        stage: NumericStage.INVESTIGATION_ACCEPTED,
         origin: "Inbox",
       });
 
       const con = (data: any) => {
         return data
-          ?.filter(
-            (el: any) =>
-              !!el?.caseId?.documents &&
-              (!el?.caseId?.singleTasksAndDocs?.docs ||
-                !Object.keys(el?.caseId?.singleTasksAndDocs?.docs)?.length)
-          )
+          ?.filter((el: any) => {
+            const docs = el?.caseId?.singleTasksAndDocs?.docs;
+            const docLength =
+              docs instanceof Map ? docs?.size : Object.keys(docs)?.length;
+
+            if (!!el?.caseId?.documents && (!docs || docLength === 0))
+              return true;
+            return false;
+          })
           ?.map((el: any) => ({
             id: el?.caseId?._id,
             singleTasksAndDocs: el?.caseId?.singleTasksAndDocs,
@@ -109,7 +114,11 @@ const FeedDoc = () => {
       for (const obj of result) {
         await handleSubmit({
           caseId: obj?.id,
-          docs: JSON.stringify(obj?.documents),
+          docs: JSON.stringify(
+            obj?.documents instanceof Map
+              ? Array.from(obj?.documents.entries())
+              : Array.from(new Map(Object.entries(obj?.documents))?.entries())
+          ),
         });
       }
 
