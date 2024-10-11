@@ -7,25 +7,18 @@ import { StorageKeys } from "@/lib/utils/types/enums";
 type PropTypes = {
   columnName: string;
   value?: string | number | ReactNode;
-  loading: boolean;
   className?: BoxProps["className"];
   style?: BoxProps["style"];
 };
 
-const TableCell = ({
-  columnName,
-  value,
-  loading,
-  className,
-  style,
-}: PropTypes) => {
+const TableCell = ({ columnName, value, className, style }: PropTypes) => {
   const [cols] = useLocalStorage<IVisibleColumn[]>({
     key: StorageKeys.VISIBLE_COLUMNS,
   });
 
   return !!cols && cols?.find((c) => c.value === columnName)?.visible ? (
     <Table.Td className={`${className} whitespace-nowrap`} style={style}>
-      <Skeleton visible={loading}>{value ?? "-"}</Skeleton>
+      {value ?? "-"}
     </Table.Td>
   ) : null;
 };

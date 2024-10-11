@@ -122,7 +122,7 @@ router.post(async (req) => {
     let data = await DashboardData.aggregate(pipeline, { allowDiskUse: true });
     const count = await DashboardData.countDocuments(updatedFilter);
 
-    data = await addColorCodes(data, userRole);
+    // data = await addColorCodes(data, userRole);
     data = await addEncryptedClaimId(data);
 
     return NextResponse.json(

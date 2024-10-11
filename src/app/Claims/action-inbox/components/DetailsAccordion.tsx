@@ -195,6 +195,7 @@ const DetailsAccordion = ({
             content: value === "Tasks and Documents Assigned" && (
               <TasksAndDocumentsContent
                 caseDetail={caseDetail}
+                setCaseDetail={setCaseDetail}
                 dashboardData={data}
               />
             ),
