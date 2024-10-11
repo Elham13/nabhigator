@@ -79,6 +79,8 @@ const TasksSelect = ({ title, part, dashboardData }: PropTypes) => {
         const options = tempOptions?.map((el) => ({
           name: el.value,
           docUrl: [],
+          hiddenDocUrls: [],
+          replacedDocUrls: [],
           location: null,
         }));
         docs?.set(lastEl, options || []);
@@ -96,6 +98,8 @@ const TasksSelect = ({ title, part, dashboardData }: PropTypes) => {
         tempOptions?.map((el) => ({
           name: el.value,
           docUrl: [],
+          hiddenDocUrls: [],
+          replacedDocUrls: [],
           location: null,
         })) || [];
       if (docs === null) {
@@ -144,13 +148,25 @@ const TasksSelect = ({ title, part, dashboardData }: PropTypes) => {
     if (newDoc) {
       newDoc.set(
         docName,
-        val.map((v) => ({ name: v, docUrl: [], location: null }))
+        val.map((v) => ({
+          name: v,
+          docUrl: [],
+          hiddenDocUrls: [],
+          replacedDocUrls: [],
+          location: null,
+        }))
       );
     } else {
       newDoc = new Map();
       newDoc.set(
         docName,
-        val.map((v) => ({ name: v, docUrl: [], location: null }))
+        val.map((v) => ({
+          name: v,
+          docUrl: [],
+          hiddenDocUrls: [],
+          replacedDocUrls: [],
+          location: null,
+        }))
       );
     }
 
@@ -244,6 +260,8 @@ const TasksSelect = ({ title, part, dashboardData }: PropTypes) => {
           ?.map((el) => ({
             name: el?.value,
             docUrl: [],
+            hiddenDocUrls: [],
+            replacedDocUrls: [],
             location: null,
           }));
 

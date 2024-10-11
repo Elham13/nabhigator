@@ -3,6 +3,7 @@ import { Button, Menu } from "@mantine/core";
 import { MdDoNotDisturbAlt } from "react-icons/md";
 import { CaseDetail, DocumentData } from "@/lib/utils/types/fniDataTypes";
 import { getTasksAndDocs } from "@/lib/helpers";
+import { BiHide } from "react-icons/bi";
 
 type PropTypes = {
   caseData: CaseDetail | null;
@@ -32,21 +33,28 @@ const LocalDocsView = ({ caseData, claimType }: PropTypes) => {
                 <Menu.Label>Documents of {docKey}</Menu.Label>
                 {doc?.length > 0 ? (
                   doc.map((el) =>
-                    el?.docUrl?.map((d, i) => (
-                      <Menu.Item
-                        key={i}
-                        disabled={!d}
-                        color={d ? "green" : "gray"}
-                        onClick={() => {
-                          window.open(
-                            `/Claims/action-inbox/documents?url=${d}&name=${el.name}`,
-                            "_blank"
-                          );
-                        }}
-                      >
-                        {el?.name} {i + 1}
-                      </Menu.Item>
-                    ))
+                    el?.docUrl?.map((d, i) => {
+                      const isHidden =
+                        el?.replacedDocUrls?.includes(d) ||
+                        el?.hiddenDocUrls?.includes(d);
+
+                      if (isHidden) return <BiHide key={i} />;
+                      return (
+                        <Menu.Item
+                          key={i}
+                          disabled={!d}
+                          color={d ? "green" : "gray"}
+                          onClick={() => {
+                            window.open(
+                              `/Claims/action-inbox/documents?url=${d}&name=${el.name}`,
+                              "_blank"
+                            );
+                          }}
+                        >
+                          {el?.name} {i + 1}
+                        </Menu.Item>
+                      );
+                    })
                   )
                 ) : (
                   <Menu.Item color="red" rightSection={<MdDoNotDisturbAlt />}>

@@ -331,6 +331,8 @@ export const configureRMTasksAndDocuments = ({
         const tempDocs = el?.options?.map((op) => ({
           name: op?.value,
           docUrl: [],
+          hiddenDocUrls: [],
+          replacedDocUrls: [],
           location: null,
         }));
         newTasks?.push({ name: el?.name, completed: false, comment: "" });
@@ -352,6 +354,8 @@ export const configureRMTasksAndDocuments = ({
         tempOption?.options?.map((op) => ({
           name: op?.value,
           docUrl: [],
+          hiddenDocUrls: [],
+          replacedDocUrls: [],
           location: null,
         }))
       );
@@ -371,6 +375,8 @@ export const configureRMTasksAndDocuments = ({
         tempOption?.options?.map((op) => ({
           name: op?.value,
           docUrl: [],
+          hiddenDocUrls: [],
+          replacedDocUrls: [],
           location: null,
         }))
       );
@@ -390,6 +396,8 @@ export const configureRMTasksAndDocuments = ({
         tempOption?.options?.map((op) => ({
           name: op?.value,
           docUrl: [],
+          hiddenDocUrls: [],
+          replacedDocUrls: [],
           location: null,
         }))
       );
@@ -409,6 +417,8 @@ export const configureRMTasksAndDocuments = ({
         tempOption?.options?.map((op) => ({
           name: op?.value,
           docUrl: [],
+          hiddenDocUrls: [],
+          replacedDocUrls: [],
           location: null,
         }))
       );
@@ -431,6 +441,8 @@ export const configureRMTasksAndDocuments = ({
           ?.map((op) => ({
             name: op?.value,
             docUrl: [],
+            hiddenDocUrls: [],
+            replacedDocUrls: [],
             location: null,
           }));
         newTasks.push({ name: el?.name, completed: false, comment: "" });

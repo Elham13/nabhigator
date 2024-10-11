@@ -11,7 +11,7 @@ import {
 import { IoMdClose } from "react-icons/io";
 import UploadDoc from "../UploadDoc";
 import axios from "axios";
-import { BiLink } from "react-icons/bi";
+import { BiHide, BiLink } from "react-icons/bi";
 import { HiLocationMarker } from "react-icons/hi";
 import { MdOutlineDeleteSweep } from "react-icons/md";
 import {
@@ -146,50 +146,58 @@ const CompleteDocuments = ({
                   {docArr?.length > 0
                     ? docArr?.map((el, index) =>
                         el?.docUrl && el?.docUrl?.length > 0 ? (
-                          el?.docUrl?.map((url, ind) => (
-                            <Flex
-                              key={ind}
-                              gap={4}
-                              align="center"
-                              justify="space-between"
-                              className="hover:bg-slate-100"
-                            >
-                              <ActionIcon
-                                variant="light"
-                                loading={loading}
-                                onClick={() => handleOpenDoc(url, el?.name)}
+                          el?.docUrl?.map((url, ind) => {
+                            const isHidden =
+                              el?.replacedDocUrls?.includes(url) ||
+                              el?.hiddenDocUrls?.includes(url);
+
+                            if (isHidden) return <BiHide key={index} />;
+
+                            return (
+                              <Flex
+                                key={ind}
+                                gap={4}
+                                align="center"
+                                justify="space-between"
+                                className="hover:bg-slate-100"
                               >
-                                <BiLink />
-                              </ActionIcon>
-                              <ActionIcon
-                                variant="light"
-                                onClick={() => {
-                                  window.open(
-                                    `https://www.google.com/maps?q=${el?.location?.latitude},${el?.location?.longitude}`,
-                                    "_blank"
-                                  );
-                                }}
-                              >
-                                <HiLocationMarker />
-                              </ActionIcon>
-                              <Text>{el?.name}</Text>
-                              <ActionIcon
-                                variant="light"
-                                color="red"
-                                onClick={() =>
-                                  handleChange(
-                                    el?._id || "",
-                                    docKey,
-                                    "",
-                                    "Remove",
-                                    ind
-                                  )
-                                }
-                              >
-                                <MdOutlineDeleteSweep />
-                              </ActionIcon>
-                            </Flex>
-                          ))
+                                <ActionIcon
+                                  variant="light"
+                                  loading={loading}
+                                  onClick={() => handleOpenDoc(url, el?.name)}
+                                >
+                                  <BiLink />
+                                </ActionIcon>
+                                <ActionIcon
+                                  variant="light"
+                                  onClick={() => {
+                                    window.open(
+                                      `https://www.google.com/maps?q=${el?.location?.latitude},${el?.location?.longitude}`,
+                                      "_blank"
+                                    );
+                                  }}
+                                >
+                                  <HiLocationMarker />
+                                </ActionIcon>
+                                <Text>{el?.name}</Text>
+                                <ActionIcon
+                                  variant="light"
+                                  color="red"
+                                  onClick={() =>
+                                    handleChange(
+                                      el?._id || "",
+                                      docKey,
+                                      "",
+                                      "Remove",
+                                      ind
+                                    )
+                                  }
+                                >
+                                  <MdOutlineDeleteSweep />
+                                </ActionIcon>
+                              </Flex>
+                            );
+                          })
                         ) : (
                           <UploadDoc
                             key={index}
