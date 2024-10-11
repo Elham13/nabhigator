@@ -473,7 +473,7 @@ export const tellMaximusCaseIsAssigned = async (
         CLAIM_NO: dData?.claimId?.toString(),
         CLAIM_TYPE: dData?.claimType === "PreAuth" ? "P" : "R",
         POLICY_NUMBER: "",
-        SourceSystem: "M",
+        SourceSystem: dData?.sourceSystem,
       },
       Case_Assignment: {
         CASE_ASSIGNMENT_FLAG: "1",
