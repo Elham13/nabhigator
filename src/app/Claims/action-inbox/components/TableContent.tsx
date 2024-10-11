@@ -60,10 +60,11 @@ const TableContent = ({
         />
 
         <Table.Tbody>
-          {data?.length > 0 ? (
+          {loading ? (
+            <CommonTablePlaceholder type="loader" colSpan={headers?.length} />
+          ) : data?.length > 0 ? (
             <RowsContent
               data={data}
-              loading={loading}
               fetchData={fetchData}
               handleView={handleView}
             />
