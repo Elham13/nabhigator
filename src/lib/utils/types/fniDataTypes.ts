@@ -465,6 +465,9 @@ export enum EventNames {
   CLAIM_SUB_TYPE_CHANGE_APPROVED = "Claim Sub-Type changed approved by TL",
   CLAIM_SUB_TYPE_CHANGE_REJECTED = "Claim Sub-Type changed rejected by TL",
   CLAIM_SUB_TYPE_CHANGE = "Claim Sub-Type changed",
+  DOCUMENT_DELETED = "Document Deleted",
+  DOCUMENT_RESTORED = "Document Restored",
+  DOCUMENT_REPLACED = "Document Replaced",
 }
 
 export interface INewCityMaster {
@@ -668,6 +671,8 @@ export interface DocumentData {
   _id?: string;
   name: string;
   docUrl: string[];
+  hiddenDocUrls: string[];
+  replacedDocUrls: string[];
   location: IDocLocation | null;
 }
 

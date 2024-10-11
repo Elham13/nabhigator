@@ -152,6 +152,8 @@ const TasksAndDocumentsSchema = new Schema<ITasksAndDocumentsSchema>(
         {
           name: String,
           docUrl: [String],
+          hiddenDocUrls: [String],
+          replacedDocUrls: [String],
           location: { latitude: Number, longitude: Number },
         },
       ],

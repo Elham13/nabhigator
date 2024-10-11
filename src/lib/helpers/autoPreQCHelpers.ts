@@ -68,16 +68,22 @@ export const claimCasePayload = {
       {
         name: "Insured/Attendant Part Documents",
         docUrl: [],
+        hiddenDocUrls: [],
+        replacedDocUrls: [],
         location: null,
       },
       {
         name: "Hospital Part Documents",
         docUrl: [],
+        hiddenDocUrls: [],
+        replacedDocUrls: [],
         location: null,
       },
       {
         name: "GPS Location",
         docUrl: [],
+        hiddenDocUrls: [],
+        replacedDocUrls: [],
         location: null,
       },
     ],
