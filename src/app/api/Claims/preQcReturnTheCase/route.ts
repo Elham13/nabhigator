@@ -88,7 +88,7 @@ router.post(async (req) => {
         CLAIM_NO: dashboardData?.claimId?.toString(),
         CLAIM_TYPE: dashboardData?.claimType === "PreAuth" ? "P" : "R",
         POLICY_NUMBER: dashboardData?.contractDetails?.policyNo,
-        SourceSystem: "M",
+        SourceSystem: dashboardData?.sourceSystem,
       },
       Case_Assignment: {
         CASE_ASSIGNMENT_FLAG: "1",
