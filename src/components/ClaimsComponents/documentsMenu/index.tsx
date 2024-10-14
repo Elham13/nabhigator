@@ -55,6 +55,10 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
   }
 
   console.log("link: ", link);
+  console.log("dashboardData?.claimId: ", dashboardData?.claimId);
+  console.log("process.env.NEXT_PUBLIC_KEY: ", process.env.NEXT_PUBLIC_KEY);
+  console.log("process.env.NEXT_PUBLIC_IV: ", process.env.NEXT_PUBLIC_IV);
+  console.log("process.env.NEXT_PUBLIC_SALT: ", process.env.NEXT_PUBLIC_SALT);
 
   return (
     <>
