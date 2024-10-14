@@ -21,6 +21,7 @@ type PropTypes = {
 const DocumentsMenu = ({ dashboardData }: PropTypes) => {
   const [open, setOpen] = useState<boolean>(false);
   const [docs, setDocs] = useState<IGetDocumentDetailsDoc[]>([]);
+  const [encryptedClaimId, setEncryptedClaimId] = useState<string>("");
 
   const getWDMSDocs = async (type: "claim" | "policy") => {
     try {
@@ -40,10 +41,8 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
     }
   };
 
-  let encryptedClaimId: string = "";
-
-  getEncryptClaimId(dashboardData?.claimId).then(
-    (str) => (encryptedClaimId = str)
+  getEncryptClaimId(dashboardData?.claimId).then((str) =>
+    setEncryptedClaimId(str)
   );
 
   let link = `/pdf-view-and-download?claimId=${encryptedClaimId}`;
@@ -53,8 +52,6 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
   } else {
     link = `https://appform.nivabupa.com${link}`;
   }
-
-  console.log("link: ", link);
 
   return (
     <>
