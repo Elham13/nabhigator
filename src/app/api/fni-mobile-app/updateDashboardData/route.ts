@@ -130,7 +130,9 @@ router.post(async (req) => {
             ? "https://www.nivabupa.com/"
             : "https://appform.nivabupa.com/";
 
-        const encryptedClaimId = getEncryptClaimId(dashboardData?.claimId);
+        const encryptedClaimId = await getEncryptClaimId(
+          dashboardData?.claimId
+        );
 
         const emailContent = `<div><p style="font-weight:700">Dear Team,</p><p><span style="font-weight:700">Pre-Auth ID ${dashboardData?.claimId} </span>is closed from FRCU by ${userName}</p><p><span style="font-weight:700">FRCU recommendation: </span>${postQARecommendation?.frcuRecommendationOnClaims?.value}</p><p>Kindly refer to FRCU Final Investigation Report and documents collected, <a href="${webUrl}/pdf-view-and-download?claimId=${encryptedClaimId}&docType=final-investigation-report&invType=${inv?.Type}">here.</a></p><p>The FRCU recommendation and summary can be referred in Maximus/Phoenix. The URL to access the Final Report and documents are available there as well.</p><p>Regards,</p><p>FRCU</p></div>`;
 
