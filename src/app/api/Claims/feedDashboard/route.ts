@@ -212,19 +212,24 @@ router.post(async (req) => {
                   }
                 }
               } else {
-                if (foundDashboardData?.stage === NumericStage.REJECTED) {
-                  foundDashboardData.stage =
-                    NumericStage.IN_FIELD_REINVESTIGATION;
-                  foundDashboardData.dateOfFallingIntoReInvestigation =
-                    new Date();
-                  await foundDashboardData.save();
-                } else {
-                  skipped += 1;
-                  skippedReasons?.push(
-                    `${apiType}: Case already exist for claimId: ${obj?.claimType}_${obj?.claimId}`
-                  );
-                  skippedClaimIds?.push(obj?.claimId);
-                }
+                // if (foundDashboardData?.stage === NumericStage.REJECTED) {
+                //   foundDashboardData.stage =
+                //     NumericStage.IN_FIELD_REINVESTIGATION;
+                //   foundDashboardData.dateOfFallingIntoReInvestigation =
+                //     new Date();
+                //   await foundDashboardData.save();
+                // } else {
+                //   skipped += 1;
+                //   skippedReasons?.push(
+                //     `${apiType}: Case already exist for claimId: ${obj?.claimType}_${obj?.claimId}`
+                //   );
+                //   skippedClaimIds?.push(obj?.claimId);
+                // }
+                skipped += 1;
+                skippedReasons?.push(
+                  `${apiType}: Case already exist for claimId: ${obj?.claimType}_${obj?.claimId}`
+                );
+                skippedClaimIds?.push(obj?.claimId);
               }
             }
           }
