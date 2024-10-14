@@ -46,9 +46,6 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
     (str) => (encryptedClaimId = str)
   );
 
-  if (!encryptedClaimId)
-    throw new Error("Failed to generate encrypted claimId");
-
   let link = `/pdf-view-and-download?claimId=${encryptedClaimId}`;
 
   if (process.env.NEXT_PUBLIC_CONFIG === "PROD") {
@@ -56,6 +53,8 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
   } else {
     link = `https://appform.nivabupa.com${link}`;
   }
+
+  console.log("link: ", link);
 
   return (
     <>
