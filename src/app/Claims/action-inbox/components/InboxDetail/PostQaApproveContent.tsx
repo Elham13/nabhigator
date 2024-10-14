@@ -16,7 +16,11 @@ import {
 } from "@/lib/utils/types/fniDataTypes";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
-import { getFinalOutcomeCode, showError } from "@/lib/helpers";
+import {
+  getEncryptClaimId,
+  getFinalOutcomeCode,
+  showError,
+} from "@/lib/helpers";
 
 type PropTypes = {
   caseDetail: CaseDetail | null;
@@ -169,7 +173,9 @@ const PostQaApproveContent = ({
     };
 
     try {
-      let reportLink = `/pdf-view-and-download?claimId=${data?.encryptedClaimId}&docType=final-investigation-report`;
+      let reportLink = `/pdf-view-and-download?claimId=${getEncryptClaimId(
+        data?.claimId
+      )}&docType=final-investigation-report`;
 
       const recommendation = {
         text: `${approvedValues?.summaryOfInvestigation}. This case is investigated at Nabhigator, Please refer the report link: `,

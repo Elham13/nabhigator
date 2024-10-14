@@ -39,88 +39,78 @@ router.post(async (req) => {
   try {
     await connectDB(Databases.FNI);
 
-    const allCases: any = await ClaimCase.find({});
+    // const allCases: any = await ClaimCase.find({});
 
-    const updatedIds = [];
+    // const updatedIds = [];
 
-    for (let obj of allCases) {
-      obj.preQcObservation = obj?.preQcObservation || "Testing";
+    // for (let obj of allCases) {
+    //   obj.preQcObservation = obj?.preQcObservation || "Testing";
 
-      if (obj?.allocationType === "Single") {
-        const investigator =
-          !!obj?.investigator && obj?.investigator?.length > 0
-            ? obj?.investigator[0]
-            : null;
+    //   if (obj?.allocationType === "Single") {
+    //     const investigator =
+    //       !!obj?.investigator && obj?.investigator?.length > 0
+    //         ? obj?.investigator[0]
+    //         : null;
 
-        obj.singleTasksAndDocs = {
-          tasks: obj?.tasksAssigned,
-          docs: obj?.documents,
-          investigationRejected: obj?.investigationRejected,
-          investigator,
-          investigatorComment: obj?.investigatorComment,
-          outSourcingDate: obj?.outSourcingDate,
-          invReportReceivedDate: obj?.invReportReceivedDate,
-          preAuthFindings: obj?.investigationFindings,
-          preAuthFindingsPostQa: obj?.postQaFindings,
-          rmFindings: obj?.rmFindings,
-          rmFindingsPostQA: obj?.rmFindingsPostQA,
-        };
-        obj.dashboardDataId =
-          obj?.dashboardDataId || "662f2b9907ea5125d65d1815";
-      } else if (obj?.allocationType === "Dual") {
-        let investigator =
-          !!obj?.investigator && obj?.investigator?.length > 0
-            ? obj?.investigator[0]
-            : null;
-        obj.insuredTasksAndDocs = {
-          tasks: obj?.tasksAssigned,
-          docs: obj?.documents,
-          investigationRejected: obj?.investigationRejected,
-          investigator,
-          investigatorComment: obj?.investigatorComment,
-          outSourcingDate: obj?.outSourcingDate,
-          invReportReceivedDate: obj?.invReportReceivedDate,
-          preAuthFindings: obj?.investigationFindings,
-          preAuthFindingsPostQa: obj?.postQaFindings,
-          rmFindings: obj?.rmFindings,
-          rmFindingsPostQA: obj?.rmFindingsPostQA,
-        };
-        obj.dashboardDataId =
-          obj?.dashboardDataId || "662f2b9907ea5125d65d1815";
+    //     obj.singleTasksAndDocs = {
+    //       tasks: obj?.tasksAssigned,
+    //       docs: obj?.documents,
+    //       investigationRejected: obj?.investigationRejected,
+    //       investigator,
+    //       investigatorComment: obj?.investigatorComment,
+    //       outSourcingDate: obj?.outSourcingDate,
+    //       invReportReceivedDate: obj?.invReportReceivedDate,
+    //       preAuthFindings: obj?.investigationFindings,
+    //       preAuthFindingsPostQa: obj?.postQaFindings,
+    //       rmFindings: obj?.rmFindings,
+    //       rmFindingsPostQA: obj?.rmFindingsPostQA,
+    //     };
+    //   } else if (obj?.allocationType === "Dual") {
+    //     let investigator =
+    //       !!obj?.investigator && obj?.investigator?.length > 0
+    //         ? obj?.investigator[0]
+    //         : null;
+    //     obj.insuredTasksAndDocs = {
+    //       tasks: obj?.tasksAssigned,
+    //       docs: obj?.documents,
+    //       investigationRejected: obj?.investigationRejected,
+    //       investigator,
+    //       investigatorComment: obj?.investigatorComment,
+    //       outSourcingDate: obj?.outSourcingDate,
+    //       invReportReceivedDate: obj?.invReportReceivedDate,
+    //       preAuthFindings: obj?.investigationFindings,
+    //       preAuthFindingsPostQa: obj?.postQaFindings,
+    //       rmFindings: obj?.rmFindings,
+    //       rmFindingsPostQA: obj?.rmFindingsPostQA,
+    //     };
 
-        investigator =
-          !!obj?.investigator && obj?.investigator?.length > 1
-            ? obj?.investigator[1]
-            : null;
-        obj.hospitalTasksAndDocs = {
-          tasks: obj?.tasksAssigned,
-          docs: obj?.documents,
-          investigationRejected: obj?.investigationRejected,
-          investigator,
-          investigatorComment: obj?.investigatorComment,
-          outSourcingDate: obj?.outSourcingDate,
-          invReportReceivedDate: obj?.invReportReceivedDate,
-          preAuthFindings: obj?.investigationFindings,
-          preAuthFindingsPostQa: obj?.postQaFindings,
-          rmFindings: obj?.rmFindings,
-          rmFindingsPostQA: obj?.rmFindingsPostQA,
-          dashboardDataId: obj?.dashboardDataId || "662f2b9907ea5125d65d1815",
-        };
-        obj.dashboardDataId =
-          obj?.dashboardDataId || "662f2b9907ea5125d65d1815";
-      }
-      await obj.save();
-      updatedIds.push(obj?._id);
-    }
+    //     investigator =
+    //       !!obj?.investigator && obj?.investigator?.length > 1
+    //         ? obj?.investigator[1]
+    //         : null;
+    //     obj.hospitalTasksAndDocs = {
+    //       tasks: obj?.tasksAssigned,
+    //       docs: obj?.documents,
+    //       investigationRejected: obj?.investigationRejected,
+    //       investigator,
+    //       investigatorComment: obj?.investigatorComment,
+    //       outSourcingDate: obj?.outSourcingDate,
+    //       invReportReceivedDate: obj?.invReportReceivedDate,
+    //       preAuthFindings: obj?.investigationFindings,
+    //       preAuthFindingsPostQa: obj?.postQaFindings,
+    //       rmFindings: obj?.rmFindings,
+    //       rmFindingsPostQA: obj?.rmFindingsPostQA,
+    //     };
+    //   }
+    //   await obj.save();
+    //   updatedIds.push(obj?._id);
+    // }
 
     return NextResponse.json(
       {
         success: true,
         message: "Success",
-        data: {
-          updatedIds,
-          count: updatedIds?.length,
-        },
+        data: null,
       },
       { status: 200 }
     );

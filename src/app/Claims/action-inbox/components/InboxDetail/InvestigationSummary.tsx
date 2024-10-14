@@ -10,7 +10,11 @@ import {
 } from "@mantine/core";
 import dayjs from "dayjs";
 import { CaseDetail, IDashboardData } from "@/lib/utils/types/fniDataTypes";
-import { convertToIndianFormat, getTasksAndDocs } from "@/lib/helpers";
+import {
+  convertToIndianFormat,
+  getEncryptClaimId,
+  getTasksAndDocs,
+} from "@/lib/helpers";
 import TasksViewKeyValue from "./TasksViewKeyValue";
 
 interface InvestigationSummaryProps {
@@ -570,7 +574,9 @@ export default function InvestigationSummary({
       <Button
         onClick={() => {
           window.open(
-            `/pdf-view-and-download?claimId=${dashboardData?.encryptedClaimId}&docType=investigation`
+            `/pdf-view-and-download?claimId=${getEncryptClaimId(
+              dashboardData?.claimId
+            )}&docType=investigation`
           );
         }}
       >
