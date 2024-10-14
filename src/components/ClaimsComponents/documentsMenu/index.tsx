@@ -40,6 +40,12 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
     }
   };
 
+  let encryptedClaimId: string = "";
+
+  getEncryptClaimId(dashboardData?.claimId).then(
+    (str) => (encryptedClaimId = str)
+  );
+
   return (
     <>
       <DocumentsTable
@@ -59,9 +65,7 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
               color="blue"
               onClick={() => {
                 window.open(
-                  `/pdf-view-and-download?claimId=${getEncryptClaimId(
-                    dashboardData?.claimId
-                  )}&docType=assignment`,
+                  `/pdf-view-and-download?claimId=${encryptedClaimId}&docType=assignment`,
                   "_blank"
                 );
               }}
@@ -78,9 +82,7 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
                   color="cyan"
                   onClick={() => {
                     window.open(
-                      `/pdf-view-and-download?claimId=${getEncryptClaimId(
-                        dashboardData?.claimId
-                      )}&docType=investigation`,
+                      `/pdf-view-and-download?claimId=${encryptedClaimId}&docType=investigation`,
                       "_blank"
                     );
                   }}
@@ -94,9 +96,7 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
                   color="grape"
                   onClick={() => {
                     window.open(
-                      `/pdf-view-and-download?claimId=${getEncryptClaimId(
-                        dashboardData?.claimId
-                      )}&docType=final-investigation-report`,
+                      `/pdf-view-and-download?claimId=${encryptedClaimId}&docType=final-investigation-report`,
                       "_blank"
                     );
                   }}

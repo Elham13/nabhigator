@@ -172,10 +172,10 @@ const PostQaApproveContent = ({
       ),
     };
 
+    const encryptedClaimId = await getEncryptClaimId(data?.claimId);
+
     try {
-      let reportLink = `/pdf-view-and-download?claimId=${getEncryptClaimId(
-        data?.claimId
-      )}&docType=final-investigation-report`;
+      let reportLink = `/pdf-view-and-download?claimId=${encryptedClaimId}&docType=final-investigation-report`;
 
       const recommendation = {
         text: `${approvedValues?.summaryOfInvestigation}. This case is investigated at Nabhigator, Please refer the report link: `,
