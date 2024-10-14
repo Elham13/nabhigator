@@ -21,6 +21,7 @@ type PropTypes = {
 const DocumentsMenu = ({ dashboardData }: PropTypes) => {
   const [open, setOpen] = useState<boolean>(false);
   const [docs, setDocs] = useState<IGetDocumentDetailsDoc[]>([]);
+  const [encryptedClaimId, setEncryptedClaimId] = useState<string>("");
 
   const getWDMSDocs = async (type: "claim" | "policy") => {
     try {
@@ -40,10 +41,8 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
     }
   };
 
-  let encryptedClaimId: string = "";
-
-  getEncryptClaimId(dashboardData?.claimId).then(
-    (str) => (encryptedClaimId = str)
+  getEncryptClaimId(dashboardData?.claimId).then((str) =>
+    setEncryptedClaimId(str)
   );
 
   let link = `/pdf-view-and-download?claimId=${encryptedClaimId}`;
@@ -53,12 +52,6 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
   } else {
     link = `https://appform.nivabupa.com${link}`;
   }
-
-  console.log("link: ", link);
-  console.log("dashboardData?.claimId: ", dashboardData?.claimId);
-  console.log("process.env.NEXT_PUBLIC_KEY: ", process.env.NEXT_PUBLIC_KEY);
-  console.log("process.env.NEXT_PUBLIC_IV: ", process.env.NEXT_PUBLIC_IV);
-  console.log("process.env.NEXT_PUBLIC_SALT: ", process.env.NEXT_PUBLIC_SALT);
 
   return (
     <>
