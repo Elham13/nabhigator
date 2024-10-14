@@ -562,11 +562,15 @@ export const getTasksAndDocs = ({
 };
 
 const hexToBytes = (hex?: string) => {
+  console.log("index.js hex: ", hex);
+
   if (!hex) return;
   const bytes = new Uint8Array(hex.length / 2);
   for (let i = 0; i < hex.length; i += 2) {
     bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
   }
+  console.log("index.js bytes: ", bytes);
+
   return bytes;
 };
 
@@ -619,6 +623,9 @@ export const encryptPlainText = async (plaintext: string): Promise<string> => {
   const strDecKey = hexToBytes(fixedKey);
   const strFixedIV = hexToBytes(fixedIV);
 
+  console.log("index.js strDecKey: ", strDecKey);
+  console.log("index.js strFixedIV: ", strFixedIV);
+
   if (!strDecKey || !strFixedIV) return "";
   const algorithm = { name: "AES-CBC", iv: strFixedIV };
   const cryptoKey = await crypto.subtle.importKey(
@@ -637,6 +644,7 @@ export const encryptPlainText = async (plaintext: string): Promise<string> => {
   );
 
   let encrypted = Buffer.from(encryptedArrayBuffer).toString("hex");
+  console.log("index.js encrypted: ", encrypted);
   return encrypted;
 };
 
@@ -644,5 +652,6 @@ export const getEncryptClaimId = async (claimId?: number) => {
   if (!claimId) return "";
   const encryptedClaimId = await encryptPlainText(claimId?.toString());
 
+  console.log("index.js encryptedClaimId: ", encryptedClaimId);
   return encryptedClaimId;
 };
