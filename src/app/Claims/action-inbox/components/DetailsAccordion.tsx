@@ -171,6 +171,10 @@ const DetailsAccordion = ({
   const [caseState, setCaseState] = useState<CaseState>(CaseState.ACCEPTED);
   const [value, setValue] = useState<string | null>(null);
 
+  let encryptedClaimId: string = "";
+
+  getEncryptClaimId(data?.claimId).then((str) => (encryptedClaimId = str));
+
   const accordionItems = [
     ...(data?.claimType === "PreAuth"
       ? [
@@ -210,9 +214,7 @@ const DetailsAccordion = ({
                     variant="outline"
                     onClick={() => {
                       window.open(
-                        `/pdf-view-and-download?claimId=${getEncryptClaimId(
-                          data?.claimId
-                        )}&docType=investigation`,
+                        `/pdf-view-and-download?claimId=${encryptedClaimId}&docType=investigation`,
                         "_blank"
                       );
                     }}

@@ -434,6 +434,12 @@ export default function InvestigationSummary({
     caseDetails?.singleTasksAndDocs?.preAuthFindings
   );
 
+  let encryptedClaimId: string = "";
+
+  getEncryptClaimId(dashboardData?.claimId).then(
+    (str) => (encryptedClaimId = str)
+  );
+
   return (
     <Stack>
       <Accordion>
@@ -574,9 +580,7 @@ export default function InvestigationSummary({
       <Button
         onClick={() => {
           window.open(
-            `/pdf-view-and-download?claimId=${getEncryptClaimId(
-              dashboardData?.claimId
-            )}&docType=investigation`
+            `/pdf-view-and-download?claimId=${encryptedClaimId}&docType=investigation`
           );
         }}
       >
