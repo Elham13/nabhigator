@@ -26,7 +26,12 @@ const FinalInvestigationReport = ({
   docType,
   invType,
 }: PropTypes) => {
-  const { preAuthFindingsQA, rmFindingsQA } = getTasksAndDocs({
+  const {
+    preAuthFindingsQA,
+    rmFindingsQA,
+    rmFindingsQAHospital,
+    preAuthFindingsQAHospital,
+  } = getTasksAndDocs({
     claimType: dashboardData?.claimType,
     claimCase: caseData,
   });
@@ -558,8 +563,8 @@ const FinalInvestigationReport = ({
       <SingleLine>Summary of investigation</SingleLine>
       <Text style={styles.txt}>
         {isRM
-          ? rmFindingsQA?.investigationSummary
-          : caseData?.postQARecommendation?.summaryOfInvestigation}
+          ? rmFindingsQA?.investigationSummary || "-"
+          : preAuthFindingsQA?.investigationSummary || "-"}
       </Text>
       <TwoSectionView
         data={investigationConclusion}

@@ -7,7 +7,6 @@ import SectionHeading from "./SectionHeading";
 import TwoSectionView from "./TwoSectionView";
 import ThreeSectionView from "./ThreeSectionView";
 import { convertToIndianFormat, getTasksAndDocs } from "@/lib/helpers";
-import FraudIndicatorTable from "./FraudIndicatorTable";
 import { StyleSheet, Text, View } from "@react-pdf/renderer";
 import { CaseDetail, IDashboardData } from "@/lib/utils/types/fniDataTypes";
 import PreAuthDetails from "./PreaAuth/PreAuthDetails";
@@ -239,11 +238,11 @@ const AssignmentSummary = ({
         <SingleLine>
           Pre-Qc Observations: {caseData?.preQcObservation || "-"}
         </SingleLine>
-        {invType !== "External" ? (
+        {/* {invType !== "External" ? (
           <FraudIndicatorTable
             indicatorsList={data?.fraudIndicators?.indicatorsList || []}
           />
-        ) : null}
+        ) : null} */}
 
         {docType === "final-investigation-report" ? (
           <TwoSectionView
