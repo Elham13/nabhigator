@@ -42,9 +42,10 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
 
   let encryptedClaimId: string = "";
 
-  getEncryptClaimId(dashboardData?.claimId).then(
-    (str) => (encryptedClaimId = str)
-  );
+  getEncryptClaimId(dashboardData?.claimId).then((str) => {
+    console.log("str: ", str);
+    encryptedClaimId = str;
+  });
 
   let link = `/pdf-view-and-download?claimId=${encryptedClaimId}`;
 
@@ -59,6 +60,7 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
   console.log("process.env.NEXT_PUBLIC_KEY: ", process.env.NEXT_PUBLIC_KEY);
   console.log("process.env.NEXT_PUBLIC_IV: ", process.env.NEXT_PUBLIC_IV);
   console.log("process.env.NEXT_PUBLIC_SALT: ", process.env.NEXT_PUBLIC_SALT);
+  console.log("encryptedClaimId: ", encryptedClaimId);
 
   return (
     <>
