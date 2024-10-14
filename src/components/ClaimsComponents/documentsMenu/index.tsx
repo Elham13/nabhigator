@@ -75,10 +75,7 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
             <Menu.Item
               color="blue"
               onClick={() => {
-                window.open(
-                  `/pdf-view-and-download?claimId=${encryptedClaimId}&docType=assignment`,
-                  "_blank"
-                );
+                window.open(`${link}&docType=assignment`, "_blank");
               }}
             >
               Assignment Report
@@ -92,10 +89,7 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
                 <Menu.Item
                   color="cyan"
                   onClick={() => {
-                    window.open(
-                      `/pdf-view-and-download?claimId=${encryptedClaimId}&docType=investigation`,
-                      "_blank"
-                    );
+                    window.open(`${link}&docType=investigation`, "_blank");
                   }}
                 >
                   Investigation Report
@@ -107,7 +101,7 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
                   color="grape"
                   onClick={() => {
                     window.open(
-                      `/pdf-view-and-download?claimId=${encryptedClaimId}&docType=final-investigation-report`,
+                      `${link}&docType=final-investigation-report`,
                       "_blank"
                     );
                   }}
