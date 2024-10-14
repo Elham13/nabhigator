@@ -558,3 +558,89 @@ export const getTasksAndDocs = ({
 
   return result;
 };
+
+const hexToBytes = (hex?: string) => {
+  if (!hex) return;
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
+  }
+  return bytes;
+};
+
+export const decryptAppID = async (encryptedText: string) => {
+  const IV = process.env.NEXT_PUBLIC_IV;
+  const KEY = process.env.NEXT_PUBLIC_KEY;
+  const salt = process.env.NEXT_PUBLIC_SALT || "";
+
+  const decIV = hexToBytes(IV);
+  const decKey = hexToBytes(KEY);
+
+  try {
+    if (!decKey || !decIV) throw new Error("decKey or decIV is undefined");
+    const algorithm = { name: "AES-CBC", iv: decIV };
+    const cryptoKey = await crypto.subtle.importKey(
+      "raw",
+      decKey,
+      algorithm,
+      false,
+      ["decrypt"]
+    );
+
+    const encryptedArray = new Uint8Array(Buffer.from(encryptedText, "hex"));
+    const decryptedArrayBuffer = await crypto.subtle.decrypt(
+      algorithm,
+      cryptoKey,
+      encryptedArray
+    );
+
+    let decrypted = new TextDecoder().decode(decryptedArrayBuffer);
+    const originalPlainText = decrypted?.slice(
+      0,
+      decrypted?.length - salt?.length
+    );
+    return originalPlainText;
+  } catch (error) {
+    // try base 64 decode.
+    let bufferObj = Buffer.from(encryptedText, "base64");
+
+    // Encode the Buffer as a utf8 string
+    let decodedString = bufferObj.toString("utf8");
+    return decodedString;
+  }
+};
+
+export const encryptPlainText = async (plaintext: string): Promise<string> => {
+  const fixedKey = process.env.NEXT_PUBLIC_KEY as string;
+  const fixedIV = process.env.NEXT_PUBLIC_IV as string;
+  const salt = process.env.NEXT_PUBLIC_SALT || ""; // generates a random 8-byte salt
+  const strDecKey = hexToBytes(fixedKey);
+  const strFixedIV = hexToBytes(fixedIV);
+
+  if (!strDecKey || !strFixedIV) return "";
+  const algorithm = { name: "AES-CBC", iv: strFixedIV };
+  const cryptoKey = await crypto.subtle.importKey(
+    "raw",
+    strDecKey,
+    algorithm,
+    false,
+    ["encrypt"]
+  );
+
+  const textToEncrypt = new TextEncoder().encode(plaintext + salt);
+  const encryptedArrayBuffer = await crypto.subtle.encrypt(
+    algorithm,
+    cryptoKey,
+    textToEncrypt
+  );
+
+  let encrypted = Buffer.from(encryptedArrayBuffer).toString("hex");
+  return encrypted;
+};
+
+export const getEncryptClaimId = async (claimId?: number) => {
+  if (!claimId) return "";
+  const encryptedClaimId = await encryptPlainText(claimId?.toString());
+
+  return encryptedClaimId;
+};

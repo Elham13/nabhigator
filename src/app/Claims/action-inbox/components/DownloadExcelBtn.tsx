@@ -142,7 +142,6 @@ const DownloadExcelBtn = ({ filters, sort, searchTerm, origin }: PropTypes) => {
         allocationType: el?.allocationType || "Not Allocated",
         __v: undefined,
         rowColor: undefined,
-        encryptedClaimId: undefined,
         _id: undefined,
         contractDetails: undefined,
         members: undefined,

@@ -13,6 +13,7 @@ import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { StorageKeys } from "@/lib/utils/types/enums";
 import { useLocalStorage } from "@mantine/hooks";
 import Loading from "@/components/Loading";
+import { getEncryptClaimId } from "@/lib/helpers";
 
 const TriageSummary = dynamic(
   () => import("@/components/ClaimsComponents/TriageSummary"),
@@ -209,7 +210,9 @@ const DetailsAccordion = ({
                     variant="outline"
                     onClick={() => {
                       window.open(
-                        `/pdf-view-and-download?claimId=${data?.encryptedClaimId}&docType=investigation`,
+                        `/pdf-view-and-download?claimId=${getEncryptClaimId(
+                          data?.claimId
+                        )}&docType=investigation`,
                         "_blank"
                       );
                     }}

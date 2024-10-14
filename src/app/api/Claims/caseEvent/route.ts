@@ -6,7 +6,6 @@ import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
 import { PipelineStage } from "mongoose";
 import CaseEvent from "@/lib/Models/caseEvent";
-import { addEncryptedClaimId } from "@/lib/helpers/getDataHelpers";
 
 const router = createEdgeRouter<NextRequest, {}>();
 
@@ -45,7 +44,6 @@ router.post(async (req) => {
 
     let data = await CaseEvent.aggregate(pipeline);
 
-    data = await addEncryptedClaimId(data);
     const count = await CaseEvent.countDocuments(searchPayload);
 
     return NextResponse.json(

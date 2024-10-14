@@ -1,12 +1,12 @@
 import React from "react";
 import { HydratedDocument, PipelineStage } from "mongoose";
 import DocumentDetailsContainer from "./components/DocumentDetailsContainer";
-import { decryptAppID } from "@/lib/helpers/authHelpers";
 import connectDB from "@/lib/db/dbConnectWithMongoose";
 import { CaseDetail, IDashboardData } from "@/lib/utils/types/fniDataTypes";
 import DashboardData from "@/lib/Models/dashboardData";
 import { Databases } from "@/lib/utils/types/enums";
 import ClaimCase from "@/lib/Models/claimCase";
+import { decryptAppID } from "@/lib/helpers";
 
 export type TDocType =
   | "authorization-letter"
