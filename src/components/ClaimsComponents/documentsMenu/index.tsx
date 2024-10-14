@@ -21,6 +21,7 @@ type PropTypes = {
 const DocumentsMenu = ({ dashboardData }: PropTypes) => {
   const [open, setOpen] = useState<boolean>(false);
   const [docs, setDocs] = useState<IGetDocumentDetailsDoc[]>([]);
+  const [encryptedClaimId, setEncryptedClaimId] = useState<string>("");
 
   const getWDMSDocs = async (type: "claim" | "policy") => {
     try {
@@ -40,12 +41,10 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
     }
   };
 
-  let encryptedClaimId: string = "";
-
   getEncryptClaimId(dashboardData?.claimId)
     .then((str) => {
       console.log("str: ", str);
-      encryptedClaimId = str;
+      setEncryptedClaimId(str);
     })
     .catch((err) => showError(err));
 
