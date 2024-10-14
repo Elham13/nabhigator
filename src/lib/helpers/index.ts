@@ -1,5 +1,3 @@
-import crypto from "crypto";
-
 import { toast } from "react-toastify";
 import {
   CaseDetail,
@@ -623,7 +621,10 @@ export const encryptPlainText = async (plaintext: string): Promise<string> => {
   const strDecKey = hexToBytes(fixedKey);
   const strFixedIV = hexToBytes(fixedIV);
 
+  console.log("index.js fixedKey: ", fixedKey);
+  console.log("index.js fixedIV: ", fixedIV);
   console.log("index.js strDecKey: ", strDecKey);
+  console.log("index.js salt: ", salt);
   console.log("index.js strFixedIV: ", strFixedIV);
 
   if (!strDecKey || !strFixedIV) return "";

@@ -42,10 +42,12 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
 
   let encryptedClaimId: string = "";
 
-  getEncryptClaimId(dashboardData?.claimId).then((str) => {
-    console.log("str: ", str);
-    encryptedClaimId = str;
-  });
+  getEncryptClaimId(dashboardData?.claimId)
+    .then((str) => {
+      console.log("str: ", str);
+      encryptedClaimId = str;
+    })
+    .catch((err) => showError(err));
 
   let link = `/pdf-view-and-download?claimId=${encryptedClaimId}`;
 
