@@ -12,7 +12,7 @@ import {
   IGetDocumentDetailsDoc,
 } from "@/lib/utils/types/maximusResponseTypes";
 import { EndPoints } from "@/lib/utils/types/enums";
-import { showError } from "@/lib/helpers";
+import { getEncryptClaimId, showError } from "@/lib/helpers";
 
 type PropTypes = {
   dashboardData: IDashboardData | null;
@@ -59,7 +59,9 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
               color="blue"
               onClick={() => {
                 window.open(
-                  `/pdf-view-and-download?claimId=${dashboardData?.encryptedClaimId}&docType=assignment`,
+                  `/pdf-view-and-download?claimId=${getEncryptClaimId(
+                    dashboardData?.claimId
+                  )}&docType=assignment`,
                   "_blank"
                 );
               }}
@@ -76,7 +78,9 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
                   color="cyan"
                   onClick={() => {
                     window.open(
-                      `/pdf-view-and-download?claimId=${dashboardData?.encryptedClaimId}&docType=investigation`,
+                      `/pdf-view-and-download?claimId=${getEncryptClaimId(
+                        dashboardData?.claimId
+                      )}&docType=investigation`,
                       "_blank"
                     );
                   }}
@@ -90,7 +94,9 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
                   color="grape"
                   onClick={() => {
                     window.open(
-                      `/pdf-view-and-download?claimId=${dashboardData?.encryptedClaimId}&docType=final-investigation-report`,
+                      `/pdf-view-and-download?claimId=${getEncryptClaimId(
+                        dashboardData?.claimId
+                      )}&docType=final-investigation-report`,
                       "_blank"
                     );
                   }}

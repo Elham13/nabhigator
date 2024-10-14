@@ -11,7 +11,6 @@ import {
 } from "../utils/types/fniDataTypes";
 import ZoneStateMaster from "../Models/zoneStateMaster";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { encryptPlainText } from "./authHelpers";
 import { Types } from "mongoose";
 
 dayjs.extend(customParseFormat);
@@ -748,15 +747,5 @@ export const addColorCodes = async (data: IDashboardData[], role?: Role) => {
     })
   );
 
-  return updatedData;
-};
-
-export const addEncryptedClaimId = async (data: any[]) => {
-  const updatedData: any[] = [];
-  for (const obj of data) {
-    const encryptedClaimId = await encryptPlainText(obj?.claimId?.toString());
-    const updatedObj = { ...obj, encryptedClaimId };
-    updatedData.push(updatedObj);
-  }
   return updatedData;
 };

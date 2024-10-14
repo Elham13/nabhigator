@@ -554,7 +554,6 @@ export interface IDashboardData {
   fraudIndicators: IFraudIndicators;
   rejectionReasons?: RejectionReason[];
   claimId: number;
-  encryptedClaimId: string;
   claimType: "PreAuth" | "Reimbursement";
   benefitType: string;
   members: Member[];
@@ -901,7 +900,6 @@ export interface ICaseEvent {
   clusterManager: IUser | null | string;
   zonalManager: string;
   qaBy: string;
-  encryptedClaimId: string;
 }
 
 export interface IMultipleEvents extends ICaseEvent {

@@ -1,8 +1,6 @@
 import DashboardData from "@/lib/Models/dashboardData";
 import connectDB from "@/lib/db/dbConnectWithMongoose";
 import {
-  addColorCodes,
-  addEncryptedClaimId,
   addOpenAndClosureTAT,
   processGetDataFilters,
 } from "@/lib/helpers/getDataHelpers";
@@ -123,7 +121,6 @@ router.post(async (req) => {
     const count = await DashboardData.countDocuments(updatedFilter);
 
     // data = await addColorCodes(data, userRole);
-    data = await addEncryptedClaimId(data);
 
     return NextResponse.json(
       {
@@ -208,10 +205,6 @@ router.get(async (req) => {
 
     if (!data || data?.length < 1)
       throw new Error(`No record found with the id ${id || claimId}`);
-
-    data = await addEncryptedClaimId(data);
-
-    data = await addOpenAndClosureTAT(data);
 
     data = data[0];
 

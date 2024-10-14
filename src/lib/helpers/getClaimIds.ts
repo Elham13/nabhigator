@@ -173,13 +173,17 @@ export default async function getClaimIds(SourceSystem: "M" | "P") {
     let claimsData =
       data?.ClaimsData && data?.ClaimsData?.length > 0 ? data?.ClaimsData : [];
 
-    const claimIds = await UnwantedFNIData.aggregate([
+    const unwantedClaimIds = await UnwantedFNIData.aggregate([
       { $project: { Claims: 1 } },
     ]);
 
-    if (claimIds && claimIds?.length > 0) {
-      const claimIdsSet = new Set(claimIds.map((id) => id?.Claims));
-      claimsData = claimsData?.filter((el) => !claimIdsSet.has(el?.Claims));
+    if (unwantedClaimIds && unwantedClaimIds?.length > 0) {
+      const unwantedClaimIdsSet = new Set(
+        unwantedClaimIds.map((id) => id?.Claims)
+      );
+      claimsData = claimsData?.filter(
+        (el) => !unwantedClaimIdsSet.has(el?.Claims)
+      );
     }
 
     return { success: true, data: processResponse(claimsData) };
