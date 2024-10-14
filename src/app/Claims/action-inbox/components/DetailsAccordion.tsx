@@ -170,10 +170,9 @@ const DetailsAccordion = ({
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
   const [caseState, setCaseState] = useState<CaseState>(CaseState.ACCEPTED);
   const [value, setValue] = useState<string | null>(null);
+  const [encryptedClaimId, setEncryptedClaimId] = useState<string>("");
 
-  let encryptedClaimId: string = "";
-
-  getEncryptClaimId(data?.claimId).then((str) => (encryptedClaimId = str));
+  getEncryptClaimId(data?.claimId).then((str) => setEncryptedClaimId(str));
 
   const accordionItems = [
     ...(data?.claimType === "PreAuth"

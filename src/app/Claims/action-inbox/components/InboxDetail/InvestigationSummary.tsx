@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 import {
   Accordion,
   Box,
@@ -26,6 +26,7 @@ export default function InvestigationSummary({
   dashboardData,
   caseDetails,
 }: InvestigationSummaryProps) {
+  const [encryptedClaimId, setEncryptedClaimId] = useState<string>("");
   const KeyValueContainer = ({
     label,
     value,
@@ -434,10 +435,8 @@ export default function InvestigationSummary({
     caseDetails?.singleTasksAndDocs?.preAuthFindings
   );
 
-  let encryptedClaimId: string = "";
-
-  getEncryptClaimId(dashboardData?.claimId).then(
-    (str) => (encryptedClaimId = str)
+  getEncryptClaimId(dashboardData?.claimId).then((str) =>
+    setEncryptedClaimId(str)
   );
 
   return (

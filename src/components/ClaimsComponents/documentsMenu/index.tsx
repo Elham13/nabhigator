@@ -41,12 +41,9 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
     }
   };
 
-  getEncryptClaimId(dashboardData?.claimId)
-    .then((str) => {
-      console.log("str: ", str);
-      setEncryptedClaimId(str);
-    })
-    .catch((err) => showError(err));
+  getEncryptClaimId(dashboardData?.claimId).then((str) =>
+    setEncryptedClaimId(str)
+  );
 
   let link = `/pdf-view-and-download?claimId=${encryptedClaimId}`;
 
@@ -55,13 +52,6 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
   } else {
     link = `https://appform.nivabupa.com${link}`;
   }
-
-  console.log("link: ", link);
-  console.log("dashboardData?.claimId: ", dashboardData?.claimId);
-  console.log("process.env.NEXT_PUBLIC_KEY: ", process.env.NEXT_PUBLIC_KEY);
-  console.log("process.env.NEXT_PUBLIC_IV: ", process.env.NEXT_PUBLIC_IV);
-  console.log("process.env.NEXT_PUBLIC_SALT: ", process.env.NEXT_PUBLIC_SALT);
-  console.log("encryptedClaimId: ", encryptedClaimId);
 
   return (
     <>
