@@ -109,7 +109,7 @@ export const mainDashboardTableHeaders: ITableHeader[] = [
   {
     value: "investigatorRecommendation",
     label: "Investigator Recommendation",
-    sortable: false,
+    sortable: true,
   },
   {
     value: "claimInvestigators",
