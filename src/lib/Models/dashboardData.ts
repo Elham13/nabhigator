@@ -352,6 +352,10 @@ const DashboardDataSchema = new Schema(
     },
     sourceSystem: { type: String },
     tlInbox: { type: TLInboxSchema },
+    invReportReceivedDate: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );
