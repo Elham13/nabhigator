@@ -94,6 +94,11 @@ const DownloadExcelBtn = ({ filters, sort, searchTerm, origin }: PropTypes) => {
         dateOfClosure: el.dateOfClosure
           ? dayjs(el.dateOfClosure).format("DD-MMM-YYYY hh:mm:ss a")
           : "-",
+        DOA: el.hospitalizationDetails.dateOfAdmission
+          ? dayjs(el.hospitalizationDetails.dateOfAdmission).format(
+              "DD-MMM-YYYY hh:mm:ss a"
+            )
+          : "-",
         triageSummary: undefined,
         teamLead:
           el?.teamLead &&
