@@ -495,27 +495,8 @@ export const processGetDataFilters = async (obj: any) => {
   return processedObj;
 };
 
-export const addOpenAndClosureTAT = async (data: IDashboardData[]) => {
-  const updatedData = data.map((obj) => ({
-    ...obj,
-    openTAT: [NumericStage.CLOSED, NumericStage.REJECTED].includes(obj.stage)
-      ? obj.dateOfClosure
-        ? dayjs(obj?.dateOfClosure).diff(obj?.intimationDate, "days")
-        : 0
-      : dayjs().diff(obj?.intimationDate, "days"),
-    closureTAT:
-      [NumericStage.CLOSED, NumericStage.REJECTED].includes(obj.stage) &&
-      obj.dateOfClosure
-        ? dayjs().diff(obj?.dateOfClosure, "days")
-        : 0,
-  }));
-  return [...updatedData];
-};
-
 export const addColorCodes = async (data: IDashboardData[], role?: Role) => {
   let updatedData = [...data];
-
-  updatedData = await addOpenAndClosureTAT(updatedData);
 
   const oneDayBeforeNow = dayjs.utc().subtract(1, "day").toDate();
   const twoDayBeforeNow = dayjs.utc().subtract(2, "day").toDate();
