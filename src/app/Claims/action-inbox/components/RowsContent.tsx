@@ -10,6 +10,7 @@ import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { StorageKeys } from "@/lib/utils/types/enums";
 import {
   convertToIndianFormat,
+  getOpenAndClosureTAT,
   getStageLabel,
   getStatusColor,
 } from "@/lib/helpers";
@@ -174,8 +175,26 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
               columnName="allocationType"
               value={el?.allocationType || "-"}
             />
-            <TableCell columnName="openTAT" value={el?.openTAT || 0} />
-            <TableCell columnName="closureTAT" value={el?.closureTAT || 0} />
+            <TableCell
+              columnName="openTAT"
+              value={
+                getOpenAndClosureTAT({
+                  stage: el?.stage,
+                  dateOfClosure: el?.dateOfClosure,
+                  intimationDate: el?.intimationDate,
+                })?.openTAT || "-"
+              }
+            />
+            <TableCell
+              columnName="closureTAT"
+              value={
+                getOpenAndClosureTAT({
+                  stage: el?.stage,
+                  dateOfClosure: el?.dateOfClosure,
+                  intimationDate: el?.intimationDate,
+                })?.closureTAT || "-"
+              }
+            />
             <TableCell
               columnName="actions"
               value={

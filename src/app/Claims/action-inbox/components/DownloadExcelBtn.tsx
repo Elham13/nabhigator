@@ -12,7 +12,12 @@ import {
   TDashboardOrigin,
 } from "@/lib/utils/types/fniDataTypes";
 import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
-import { getStageLabel, removeEmptyProperties, showError } from "@/lib/helpers";
+import {
+  getOpenAndClosureTAT,
+  getStageLabel,
+  removeEmptyProperties,
+  showError,
+} from "@/lib/helpers";
 import { useLocalStorage } from "@mantine/hooks";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
 
@@ -177,6 +182,18 @@ const DownloadExcelBtn = ({ filters, sort, searchTerm, origin }: PropTypes) => {
         diagnosis: el?.claimDetails?.diagnosis,
         admissionType: el?.hospitalizationDetails?.admissionType,
         memberNo: el?.claimDetails?.memberNo,
+        openTAT:
+          getOpenAndClosureTAT({
+            stage: el?.stage,
+            dateOfClosure: el?.dateOfClosure,
+            intimationDate: el?.intimationDate,
+          })?.openTAT || "-",
+        closureTAT:
+          getOpenAndClosureTAT({
+            stage: el?.stage,
+            dateOfClosure: el?.dateOfClosure,
+            intimationDate: el?.intimationDate,
+          })?.closureTAT || "-",
       })
     );
 

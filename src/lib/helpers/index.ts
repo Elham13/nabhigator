@@ -2,6 +2,7 @@ import { toast } from "react-toastify";
 import {
   CaseDetail,
   DocumentData,
+  IDashboardData,
   ITasksAndDocuments,
   NumericStage,
   RevisedInvestigationFindings,
@@ -643,4 +644,27 @@ export const getEncryptClaimId = async (claimId?: number) => {
   const encryptedClaimId = await encryptPlainText(claimId?.toString());
 
   return encryptedClaimId;
+};
+
+export const getOpenAndClosureTAT = ({
+  stage,
+  dateOfClosure,
+  intimationDate,
+}: {
+  stage: NumericStage;
+  dateOfClosure?: Date | null;
+  intimationDate: string | null;
+}) => {
+  return {
+    openTAT: [NumericStage.CLOSED, NumericStage.REJECTED].includes(stage)
+      ? dateOfClosure
+        ? dayjs(dateOfClosure).diff(dayjs(intimationDate), "days")
+        : 0
+      : dayjs().diff(dayjs(intimationDate), "days"),
+    closureTAT:
+      [NumericStage.CLOSED, NumericStage.REJECTED].includes(stage) &&
+      dateOfClosure
+        ? dayjs().diff(dayjs(dateOfClosure), "days")
+        : 0,
+  };
 };
