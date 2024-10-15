@@ -2,13 +2,23 @@
 
 import React, { useEffect, useState } from "react";
 import { showError } from "@/lib/helpers";
-import { Box, Flex, Pagination, Table, Text, Title } from "@mantine/core";
+import {
+  Box,
+  Button,
+  Flex,
+  Pagination,
+  Table,
+  Text,
+  Title,
+} from "@mantine/core";
 import axios from "axios";
 import { EndPoints } from "@/lib/utils/types/enums";
 import { CaseDetail, ResponseType } from "@/lib/utils/types/fniDataTypes";
 import CommonTablePlaceholder from "@/components/ClaimsComponents/commonTable/CommonTablePlaceholder";
 import ActionButton from "./ActionButton";
 import dayjs from "dayjs";
+import DashboardDataModal from "./DashboardDataModal";
+import ClaimCaseModal from "./ClaimCaseModal";
 
 const FeedDoc = () => {
   const [loading, setLoading] = useState(false);
@@ -18,6 +28,7 @@ const FeedDoc = () => {
     count: 0,
   });
   const [claimCases, setClaimCases] = useState<CaseDetail[]>([]);
+  const [open, setOpen] = useState({ dData: false, claimCase: false });
 
   const getData = async () => {
     try {
@@ -43,6 +54,28 @@ const FeedDoc = () => {
 
   return (
     <Box p={20} bg="white">
+      <Flex gap={10}>
+        <Button onClick={() => setOpen((prev) => ({ ...prev, dData: true }))}>
+          Add to Dashboard Data
+        </Button>
+        <Button
+          onClick={() => setOpen((prev) => ({ ...prev, claimCase: true }))}
+        >
+          Add to Claim Cases
+        </Button>
+        {open?.dData && (
+          <DashboardDataModal
+            open={open?.dData}
+            onClose={() => setOpen((prev) => ({ ...prev, dData: false }))}
+          />
+        )}
+        {open?.claimCase && (
+          <ClaimCaseModal
+            open={open?.claimCase}
+            onClose={() => setOpen((prev) => ({ ...prev, claimCase: false }))}
+          />
+        )}
+      </Flex>
       <Table.ScrollContainer minWidth={800}>
         <Table highlightOnHover>
           <Table.Thead>

@@ -51,6 +51,14 @@ router.post(async (req) => {
       }
 
       message = "Fetched";
+    } else if (action === "addClaimCase") {
+      if (!payload) throw new Error("payload is required");
+      data = await ClaimCase.create(payload);
+      message = "Created";
+    } else if (action === "addDData") {
+      if (!payload) throw new Error("payload is required");
+      data = await DashboardData.create(payload);
+      message = "Created";
     } else {
       if (!payload) throw new Error("payload is required");
 
