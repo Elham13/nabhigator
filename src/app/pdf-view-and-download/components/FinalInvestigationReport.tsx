@@ -28,7 +28,9 @@ const FinalInvestigationReport = ({
 }: PropTypes) => {
   const {
     preAuthFindingsQA,
+    preAuthFindings,
     rmFindingsQA,
+    rmFindings,
     rmFindingsQAHospital,
     preAuthFindingsQAHospital,
   } = getTasksAndDocs({
@@ -563,8 +565,8 @@ const FinalInvestigationReport = ({
       <SingleLine>Summary of investigation</SingleLine>
       <Text style={styles.txt}>
         {isRM
-          ? rmFindingsQA?.investigationSummary || "-"
-          : preAuthFindingsQA?.investigationSummary || "-"}
+          ? rmFindings?.investigationSummary || "-"
+          : preAuthFindings?.investigationSummary || "-"}
       </Text>
       <TwoSectionView
         data={investigationConclusion}
