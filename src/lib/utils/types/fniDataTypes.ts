@@ -563,7 +563,7 @@ export interface IDashboardData {
   intimationDate: string | null;
   isReInvestigated: boolean;
   investigationCount: number;
-  caseId: CaseDetail | string | null;
+  caseId: string | null;
   dateOfOS: Date | null;
   dateOfClosure: Date | null;
   clusterManager: string | IUser;
@@ -588,6 +588,7 @@ export interface IDashboardData {
   dateOfFallingIntoAllocationBucket: Date | null;
   dateOfFallingIntoPostQaBucket: Date | null;
   dateOfFallingIntoReInvestigation: Date | null;
+  invReportReceivedDate: Date | null;
   investigatorRecommendation?: string;
   sourceSystem: TSourceSystem;
   tlInbox?: ITLInbox;
