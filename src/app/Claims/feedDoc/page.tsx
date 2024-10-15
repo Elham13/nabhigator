@@ -8,6 +8,7 @@ import { EndPoints } from "@/lib/utils/types/enums";
 import { CaseDetail, ResponseType } from "@/lib/utils/types/fniDataTypes";
 import CommonTablePlaceholder from "@/components/ClaimsComponents/commonTable/CommonTablePlaceholder";
 import ActionButton from "./ActionButton";
+import dayjs from "dayjs";
 
 const FeedDoc = () => {
   const [loading, setLoading] = useState(false);
@@ -58,7 +59,11 @@ const FeedDoc = () => {
                 <Table.Tr key={el?._id as string}>
                   <Table.Td>{el?._id as string}</Table.Td>
                   <Table.Td>
-                    {JSON.stringify(el?.singleTasksAndDocs?.docs)}
+                    {el?.singleTasksAndDocs?.invReportReceivedDate
+                      ? dayjs(
+                          el?.singleTasksAndDocs?.invReportReceivedDate
+                        ).format("DD-MMM-YYYY")
+                      : "-"}
                   </Table.Td>
                 </Table.Tr>
               ))
@@ -74,10 +79,9 @@ const FeedDoc = () => {
           <Text>Update {claimCases?.length} Records</Text>
           <ActionButton
             onDone={getData}
-            docs={claimCases?.map((el) => ({
-              id: el?._id as string,
-              // @ts-expect-error
-              doc: el?.documents,
+            payload={claimCases?.map((el) => ({
+              id: el?.dashboardDataId as string,
+              date: el?.singleTasksAndDocs?.invReportReceivedDate || null,
             }))}
           />
         </Flex>

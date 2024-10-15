@@ -1,7 +1,9 @@
 import connectDB from "@/lib/db/dbConnectWithMongoose";
 import ClaimCase from "@/lib/Models/claimCase";
+import DashboardData from "@/lib/Models/dashboardData";
 import { Databases } from "@/lib/utils/types/enums";
-import { CaseDetail } from "@/lib/utils/types/fniDataTypes";
+import { CaseDetail, IDashboardData } from "@/lib/utils/types/fniDataTypes";
+import { PipelineStage } from "mongoose";
 import { HydratedDocument } from "mongoose";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
@@ -21,17 +23,33 @@ router.post(async (req) => {
     let count: number = 0;
 
     if (action === "getData") {
-      const claimCase = await ClaimCase.find({
-        "singleTasksAndDocs.docs": { $eq: {} },
-        caseStatus: { $ne: "Rejected" },
+      const dData = await DashboardData.find({
+        caseId: { $exists: true, $ne: null },
+        $or: [
+          { invReportReceivedDate: { $exists: false } },
+          { invReportReceivedDate: null },
+        ],
       })
         .skip((pagination?.page - 1) * pagination?.limit)
         .limit(pagination?.limit || 10);
-      count = await ClaimCase.countDocuments({
-        "singleTasksAndDocs.docs": { $eq: {} },
-        caseStatus: { $ne: "Rejected" },
-      });
-      data = claimCase;
+
+      if (!!dData && dData?.length > 0) {
+        const ids = dData?.map((el) => el?.caseId);
+
+        const match: PipelineStage.Match["$match"] = {
+          "singleTasksAndDocs.invReportReceivedDate": {
+            $exists: true,
+            $ne: null,
+          },
+          _id: { $in: ids },
+        };
+
+        const stages: PipelineStage[] = [{ $match: match }];
+
+        data = await ClaimCase.aggregate(stages);
+        count = await ClaimCase.countDocuments(match);
+      }
+
       message = "Fetched";
     } else {
       if (!payload) throw new Error("payload is required");
@@ -40,18 +58,14 @@ router.post(async (req) => {
         for (const obj of payload) {
           if (!obj?.id) throw new Error("id is required");
 
-          const claimCase: HydratedDocument<CaseDetail> | null =
-            await ClaimCase.findById(obj?.id);
+          const dData: HydratedDocument<IDashboardData> | null =
+            await DashboardData.findById(obj?.id);
 
-          if (!claimCase)
-            throw new Error(`No Claim Case found with the id ${obj?.id}`);
+          if (!dData) throw new Error(`No data found with the id ${obj?.id}`);
 
-          if (claimCase?.allocationType === "Single") {
-            claimCase.singleTasksAndDocs!.docs! = new Map(obj?.doc);
-          } else {
-          }
+          dData.invReportReceivedDate = obj?.date;
 
-          await claimCase.save();
+          await dData.save();
         }
       }
 

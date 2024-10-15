@@ -7,24 +7,16 @@ import { EndPoints } from "@/lib/utils/types/enums";
 
 const ActionButton = ({
   onDone,
-  docs,
+  payload,
 }: {
   onDone: () => void;
-  docs: { id: string; doc: any }[];
+  payload: { id: string; date: Date | null }[];
 }) => {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const payload = docs?.map((el) => ({
-        ...el,
-        doc: !!el?.doc
-          ? el?.doc instanceof Map
-            ? Array.from(el?.doc.entries())
-            : Array.from(new Map(Object.entries(el?.doc))?.entries())
-          : null,
-      }));
       const { data } = await axios.post(EndPoints.FEED_DOCS, {
         payload,
       });
