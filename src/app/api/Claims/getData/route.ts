@@ -34,15 +34,6 @@ router.post(async (req) => {
       },
       {
         $lookup: {
-          from: "claimcases",
-          localField: "caseId",
-          foreignField: "_id",
-          as: "caseId",
-        },
-      },
-      { $unwind: { path: "$caseId", preserveNullAndEmptyArrays: true } },
-      {
-        $lookup: {
           from: "users",
           localField: "clusterManager",
           foreignField: "_id",
