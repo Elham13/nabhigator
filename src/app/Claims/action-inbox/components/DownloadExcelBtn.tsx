@@ -12,12 +12,7 @@ import {
   TDashboardOrigin,
 } from "@/lib/utils/types/fniDataTypes";
 import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
-import {
-  getStageLabel,
-  getTasksAndDocs,
-  removeEmptyProperties,
-  showError,
-} from "@/lib/helpers";
+import { getStageLabel, removeEmptyProperties, showError } from "@/lib/helpers";
 import { useLocalStorage } from "@mantine/hooks";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
 
@@ -73,24 +68,6 @@ const DownloadExcelBtn = ({ filters, sort, searchTerm, origin }: PropTypes) => {
     }
   };
 
-  const getRecAndDate = (
-    claimType: "PreAuth" | "Reimbursement",
-    claimCase: any
-  ) => {
-    const payload = { date: "", rec: "" };
-    const { tasksAndDocs } = getTasksAndDocs({ claimType, claimCase });
-
-    if (!!tasksAndDocs) {
-      if (!!tasksAndDocs?.invReportReceivedDate) {
-        payload.date = dayjs(tasksAndDocs?.invReportReceivedDate).format(
-          "DD-MMM-YYYY hh:mm:ss a"
-        );
-      }
-    }
-
-    return payload;
-  };
-
   const handleExport = async (data: IDashboardData[]) => {
     const updatedData = data?.map((el) =>
       removeEmptyProperties({
@@ -105,11 +82,9 @@ const DownloadExcelBtn = ({ filters, sort, searchTerm, origin }: PropTypes) => {
         dateOfOS: el.dateOfOS
           ? dayjs(el.dateOfOS).format("DD-MMM-YYYY hh:mm:ss a")
           : "-",
-        invReportReceivedDate:
-          (el.caseId &&
-            typeof el?.caseId === "object" &&
-            getRecAndDate(el?.claimType, el?.caseId)?.date) ||
-          "-",
+        invReportReceivedDate: el?.invReportReceivedDate
+          ? dayjs(el?.invReportReceivedDate).format("DD-MMM-YYYY hh:mm:ss a")
+          : "-",
 
         dateOfClosure: el.dateOfClosure
           ? dayjs(el.dateOfClosure).format("DD-MMM-YYYY hh:mm:ss a")
@@ -123,13 +98,8 @@ const DownloadExcelBtn = ({ filters, sort, searchTerm, origin }: PropTypes) => {
             : "-",
         postQa:
           el?.postQa && typeof el?.postQa !== "string" ? el?.postQa?.name : "-",
-        finalOutcome:
-          el?.caseId &&
-          typeof el?.caseId === "object" &&
-          !!el?.caseId.postQARecommendation?.frcuRecommendationOnClaims?.value
-            ? el?.caseId?.postQARecommendation?.frcuRecommendationOnClaims
-                ?.value
-            : "-",
+        // TODO: Add post qa frcu recommendation on claim value here
+        finalOutcome: "-",
         investigatorRecommendation: el?.investigatorRecommendation || "-",
         clusterManager:
           el?.clusterManager && typeof el?.clusterManager !== "string"

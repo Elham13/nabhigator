@@ -258,6 +258,7 @@ router.post(async (req) => {
     }
 
     findings.invReportReceivedDate = new Date();
+    dashboardData.invReportReceivedDate = new Date();
 
     await caseDetail.save();
     const data = await dashboardData.save();
