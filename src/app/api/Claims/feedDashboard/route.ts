@@ -130,7 +130,8 @@ router.post(async (req) => {
       }
     } else {
       // This is multiple entries, which gets the claim ids from the api
-      const sourceSystems = ["M", "P"] as const;
+      // const sourceSystems = ["M", "P"] as const;
+      const sourceSystems = ["M"] as const;
 
       for (const sourceSystem of sourceSystems) {
         const claimIdResponse = await getClaimIds(sourceSystem);
