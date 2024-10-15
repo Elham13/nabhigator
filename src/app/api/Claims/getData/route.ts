@@ -21,26 +21,17 @@ router.post(async (req) => {
     const sort = filter?.sort || null;
     const updatedFilter: any = await processGetDataFilters(filter);
 
-    const userRole = filter?.user?.activeRole
-      ? filter?.user?.activeRole
-      : filter?.source === "Investigators"
-      ? Role.INTERNAL_INVESTIGATOR
-      : undefined;
+    // const userRole = filter?.user?.activeRole
+    //   ? filter?.user?.activeRole
+    //   : filter?.source === "Investigators"
+    //   ? Role.INTERNAL_INVESTIGATOR
+    //   : undefined;
     await connectDB(Databases.FNI);
 
     const pipeline: PipelineStage[] = [
       {
         $match: updatedFilter,
       },
-      {
-        $lookup: {
-          from: "claimcases",
-          localField: "caseId",
-          foreignField: "_id",
-          as: "caseId",
-        },
-      },
-      { $unwind: { path: "$caseId", preserveNullAndEmptyArrays: true } },
       {
         $lookup: {
           from: "users",
