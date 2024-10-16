@@ -28,10 +28,7 @@ router.post(async (req) => {
       : undefined;
     await connectDB(Databases.FNI);
 
-    const pipeline: PipelineStage[] = [
-      {
-        $match: updatedFilter,
-      },
+    const pipeline: PipelineStage.FacetPipelineStage[] = [
       {
         $lookup: {
           from: "users",
@@ -105,10 +102,30 @@ router.post(async (req) => {
 
     // console.log("pipeline: ", pipeline[0]["$match"]);
 
-    let data = await DashboardData.aggregate(pipeline, { allowDiskUse: true });
-    const count = await DashboardData.countDocuments(updatedFilter);
+    let result = await DashboardData.aggregate(
+      [
+        {
+          $match: updatedFilter,
+        },
+        {
+          $facet: {
+            data: pipeline,
+            count: [
+              {
+                $count: "total",
+              },
+            ],
+          },
+        },
+      ],
+      { allowDiskUse: true }
+    );
 
-    // data = await addColorCodes(data, userRole);
+    const data = result.length > 0 ? result[0].data : [];
+    const count =
+      result.length > 0 && result[0].count.length > 0
+        ? result[0].count[0].total
+        : 0;
 
     return NextResponse.json(
       {
