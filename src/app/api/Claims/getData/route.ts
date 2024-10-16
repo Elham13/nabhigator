@@ -28,7 +28,7 @@ router.post(async (req) => {
       : undefined;
     await connectDB(Databases.FNI);
 
-    const pipeline: PipelineStage.FacetPipelineStage[] = [
+    const pipeline: PipelineStage[] = [
       {
         $lookup: {
           from: "users",
@@ -118,9 +118,10 @@ router.post(async (req) => {
       {
         $match: updatedFilter,
       },
+      ...pipeline,
       {
         $facet: {
-          data: pipeline,
+          data: [],
           count: [
             {
               $count: "total",
