@@ -27,7 +27,8 @@ import AWS from "aws-sdk";
 import { IRMFindings } from "../utils/types/rmDataTypes";
 
 export const showError = (error: any) => {
-  const message = error.response ? error.response.data.message : error.message;
+  let message = error.response ? error.response.data.message : error.message;
+
   toast.error(message || "Something went wrong");
 };
 
