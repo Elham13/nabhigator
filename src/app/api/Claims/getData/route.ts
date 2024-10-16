@@ -66,8 +66,24 @@ router.post(async (req) => {
       { $limit: filter?.pagination?.limit || 10 },
     ];
 
+    const mainPipeLine: PipelineStage[] = [
+      {
+        $match: updatedFilter,
+      },
+      {
+        $facet: {
+          data: pipeline,
+          count: [
+            {
+              $count: "total",
+            },
+          ],
+        },
+      },
+    ];
+
     if (!!filter?.colorCode) {
-      pipeline.unshift({
+      mainPipeLine.unshift({
         $addFields: {
           differenceInSeconds: {
             $divide: [
@@ -93,7 +109,7 @@ router.post(async (req) => {
       !!filter?.intimationDateRange &&
       Array.isArray(filter?.intimationDateRange)
     ) {
-      pipeline.unshift({
+      mainPipeLine.unshift({
         $addFields: {
           intimationDateAsDate: { $toDate: "$intimationDate" },
         },
@@ -102,24 +118,9 @@ router.post(async (req) => {
 
     // console.log("pipeline: ", pipeline[0]["$match"]);
 
-    let result = await DashboardData.aggregate(
-      [
-        {
-          $match: updatedFilter,
-        },
-        {
-          $facet: {
-            data: pipeline,
-            count: [
-              {
-                $count: "total",
-              },
-            ],
-          },
-        },
-      ],
-      { allowDiskUse: true }
-    );
+    let result = await DashboardData.aggregate(mainPipeLine, {
+      allowDiskUse: true,
+    });
 
     const data = result.length > 0 ? result[0].data : [];
     const count =
