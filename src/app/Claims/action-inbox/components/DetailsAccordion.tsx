@@ -15,6 +15,10 @@ import { useLocalStorage } from "@mantine/hooks";
 import Loading from "@/components/Loading";
 import { getEncryptClaimId } from "@/lib/helpers";
 
+const CompleteInvestigation = dynamic(() => import("./CompleteInvestigation"), {
+  ssr: false,
+  loading: () => <Loading />,
+});
 const TriageSummary = dynamic(
   () => import("@/components/ClaimsComponents/TriageSummary"),
   {
@@ -81,13 +85,6 @@ const RMInvestigationRecommendationContent = dynamic(
 );
 const RMInvestigationFindingsContent = dynamic(
   () => import("./InboxDetail/RMInvestigationFindingsContent"),
-  {
-    ssr: false,
-    loading: () => <Loading />,
-  }
-);
-const InvestigationFindings = dynamic(
-  () => import("./InboxDetail/InvestigationFindings"),
   {
     ssr: false,
     loading: () => <Loading />,
@@ -258,7 +255,11 @@ const DetailsAccordion = ({
                 {
                   value: "Change investigation findings",
                   content: value === "Change investigation findings" && (
-                    <ChangeFindings />
+                    <ChangeFindings
+                      data={data}
+                      caseDetail={caseDetail}
+                      setCaseDetail={setCaseDetail}
+                    />
                   ),
                 },
               ]
@@ -352,9 +353,10 @@ const DetailsAccordion = ({
                   <TasksAndDocsButtons setShowElement={setShowElement} />
                 ) : showElement.completeTasks &&
                   !showElement.completeDocuments ? (
-                  <InvestigationFindings
+                  <CompleteInvestigation
                     caseDetail={caseDetail}
-                    dashboardData={data}
+                    data={data}
+                    setCaseDetail={setCaseDetail}
                     onClose={() =>
                       setShowElement((prev) => ({
                         ...prev,

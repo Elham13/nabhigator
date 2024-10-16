@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import axios, { AxiosRequestConfig } from "axios";
-import { useRouter } from "next/navigation";
 import { showError } from "../helpers";
 
 type PropTypes<T> = {
@@ -27,7 +26,6 @@ export const useAxios = <T>({
   isMutation = false,
   onDone,
 }: PropTypes<T>): ReturnType<T> => {
-  const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<T>();
   const [error, setError] = useState<string>("");

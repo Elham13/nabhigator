@@ -12,6 +12,7 @@
     "@ant-design/nextjs-registry": "^1.0.0",
     "@aws-sdk/client-s3": "^3.637.0",
     "@aws-sdk/lib-storage": "^3.637.0",
+    "@aws-sdk/s3-request-presigner": "^3.670.0",
     "@mantine/core": "^7.11.2",
     "@mantine/dates": "^7.11.2",
     "@react-pdf/renderer": "^3.4.4",

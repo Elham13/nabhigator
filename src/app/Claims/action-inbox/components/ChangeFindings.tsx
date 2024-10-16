@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import { CaseDetail, IDashboardData } from "@/lib/utils/types/fniDataTypes";
 
 type PropTypes = {
   data?: IDashboardData;
+  caseDetail: CaseDetail | null;
+  setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
 };
 
-const ChangeFindings = ({ data }: PropTypes) => {
-  const [caseDetail, setCaseDetail] = useState<CaseDetail | null>(null);
+const ChangeFindings = ({ data, caseDetail, setCaseDetail }: PropTypes) => {
   return data?.claimType === "PreAuth" ? (
     <h1>InvestigationFindings Coming Soon</h1>
   ) : (

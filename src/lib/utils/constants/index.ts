@@ -113,12 +113,7 @@ export const visibleColumnsOptions: IVisibleColumn[] = [
     visible: true,
   },
   {
-    value: "investigationFindings.recommendation",
-    label: "Investigator Recommendation",
-    visible: false,
-  },
-  {
-    value: "investigationFindings.recommendation",
+    value: "investigatorRecommendation",
     label: "Investigator Recommendation",
     visible: true,
   },

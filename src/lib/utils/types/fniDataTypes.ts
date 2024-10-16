@@ -704,15 +704,15 @@ export interface IInvestigationFindings {
   patientDetails?: {
     patientName?: string;
     patientAge?: number;
-    patientGender?: TGender;
+    patientGender?: string;
     revisedPatientName?: string;
     revisedPatientAge?: number;
-    revisedPatientGender?: TGender;
+    revisedPatientGender?: string;
   };
   attendantDetails?: {
     status?: "Available" | "Not Available" | "NA";
     name?: string;
-    gender?: TGender;
+    gender?: string;
     relationship?: string;
     mobileNo?: string;
   };
@@ -721,9 +721,9 @@ export interface IInvestigationFindings {
   anyOtherPolicyWithNBHI?: string;
   otherPolicyNoWithNBHI?: string;
   policyNumber?: string;
-  anyPreviousClaimWithNBHI?: TYesNo;
+  anyPreviousClaimWithNBHI?: string;
   insurancePolicyOtherThanNBHI?: {
-    hasPolicy?: TYesNo;
+    hasPolicy?: string;
     nameOfInsuranceCompany?: string;
     policyNumber?: string;
   };
@@ -755,9 +755,9 @@ export interface IInvestigationFindings {
   providerCooperation?: TYesNo;
   reasonForProviderNotCooperation?: string;
   investigationSummary?: string;
-  recommendation?: string;
+  recommendation?: { value: string; code: string };
   inconclusiveRemark?: string;
-  frcuGroundOfRepudiation?: string[];
+  frcuGroundOfRepudiation?: { value: string; code: string }[];
   evidenceDocs?: string[];
   groundOfRepudiationNonCooperationOf?: "Insured" | "Hospital" | "Both";
   nonCooperationDetails?: string;

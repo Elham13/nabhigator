@@ -31,7 +31,7 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
           <Table.Tr key={el?._id as string}>
             <TableCell
               columnName="claimId"
-              style={{ backgroundColor: el.rowColor, color: "#fff" }}
+              style={{ backgroundColor: "green", color: "#fff" }}
               value={
                 <ClaimIdCell
                   data={el}
@@ -61,7 +61,7 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
               columnName="claimDetails.claimAmount"
               value={
                 el?.claimDetails?.claimAmount
-                  ? convertToIndianFormat(el?.claimDetails?.claimAmount)
+                  ? el?.claimDetails?.claimAmount?.toLocaleString()
                   : 0
               }
             />

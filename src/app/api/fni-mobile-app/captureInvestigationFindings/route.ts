@@ -74,7 +74,7 @@ const initialValues: IInvestigationFindings = {
   insuredOrAttendantCooperation: "No",
   providerCooperation: "No",
   investigationSummary: "",
-  recommendation: "",
+  recommendation: { value: "", code: "" },
   otherRecommendation: [],
   frcuGroundOfRepudiation: [],
   evidenceDocs: [],

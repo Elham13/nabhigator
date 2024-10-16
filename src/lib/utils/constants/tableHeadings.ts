@@ -79,12 +79,12 @@ export const mainDashboardTableHeaders: ITableHeader[] = [
   {
     value: "invReportReceivedDate",
     label: "Report Received Date",
-    sortable: false,
+    sortable: true,
   },
   {
     value: "dateOfClosure",
     label: "Date of Closure",
-    sortable: false,
+    sortable: true,
   },
   {
     value: "teamLead",
@@ -107,7 +107,7 @@ export const mainDashboardTableHeaders: ITableHeader[] = [
     sortable: false,
   },
   {
-    value: "investigationFindings.recommendation",
+    value: "investigatorRecommendation",
     label: "Investigator Recommendation",
     sortable: false,
   },

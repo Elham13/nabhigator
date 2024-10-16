@@ -1,9 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import axios from "axios";
-import { documentName, isImageUrl, showError } from "@/lib/helpers";
-import { SingleResponseType } from "@/lib/utils/types/fniDataTypes";
-import { EndPoints } from "@/lib/utils/types/enums";
+import { documentName, getSignedUrlHelper, isImageUrl } from "@/lib/helpers";
 import { IoEyeOutline, IoLinkOutline } from "react-icons/io5";
 import PopConfirm from "@/components/PopConfirm";
 import { MdOutlineDelete } from "react-icons/md";
@@ -20,20 +17,7 @@ const FileUploadFooter = ({ url, onDelete }: PropTypes) => {
 
   const docName = documentName(url) || "";
 
-  useEffect(() => {
-    const getUrl = async () => {
-      try {
-        const { data } = await axios.post<
-          SingleResponseType<{ signedUrl: string }>
-        >(EndPoints.GET_SIGNED_URL, { docKey: url });
-        setSignedUrl(data?.data?.signedUrl);
-      } catch (error: any) {
-        showError(error);
-      }
-    };
-
-    getUrl();
-  }, [url]);
+  getSignedUrlHelper(url).then((str) => setSignedUrl(str));
 
   return (
     <div className="flex items-center justify-between text-xs text-slate-300 group px-2 py-1 rounded hover:bg-slate-200">
@@ -65,7 +49,7 @@ const FileUploadFooter = ({ url, onDelete }: PropTypes) => {
         </PopConfirm>
       </div>
       {visible ? (
-        <Modal opened={visible} onClose={() => setVisible(false)}>
+        <Modal opened={visible} onClose={() => setVisible(false)} size="xl">
           <p>{docName}</p>
           <div className="mt-4">
             {isImageUrl(url) ? (
