@@ -106,7 +106,7 @@ router.post(async (req) => {
     // console.log("pipeline: ", pipeline[0]["$match"]);
 
     let data = await DashboardData.aggregate(pipeline, { allowDiskUse: true });
-    const count = await DashboardData.countDocuments(updatedFilter);
+    // const count = await DashboardData.countDocuments(updatedFilter);
 
     // data = await addColorCodes(data, userRole);
 
@@ -115,7 +115,7 @@ router.post(async (req) => {
         success: true,
         message: "Fetch Successfully",
         data,
-        count,
+        count: 1000,
       },
       { status: 200 }
     );

@@ -31,7 +31,7 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
           <Table.Tr key={el?._id as string}>
             <TableCell
               columnName="claimId"
-              style={{ backgroundColor: el.rowColor, color: "#fff" }}
+              style={{ backgroundColor: "green", color: "#fff" }}
               value={
                 <ClaimIdCell
                   data={el}
