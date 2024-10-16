@@ -57,6 +57,54 @@ router.post(async (req) => {
         },
       },
       { $unwind: { path: "$postQa", preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          claimId: 1,
+          claimType: 1,
+          claimSubType: 1,
+          lossType: 1,
+          benefitType: 1,
+          contractDetails: 1,
+          members: 1,
+          insuredDetails: 1,
+          claimDetails: 1,
+          hospitalDetails: 1,
+          hospitalizationDetails: 1,
+          historicalClaim: 1,
+          fraudIndicators: 1,
+          triageSummary: 1,
+          allocationType: 1,
+          stage: 1,
+          intimationDate: 1,
+          isReInvestigated: 1,
+          investigationCount: 1,
+          applicationId: 1,
+          "teamLead._id": "$teamLead._id",
+          "teamLead.name": "$teamLead.name",
+          "postQa._id": "$postQa._id",
+          "postQa.name": "$postQa.name",
+          "clusterManager._id": "$clusterManager._id",
+          "clusterManager.name": "$clusterManager.name",
+          caseId: 1,
+          dateOfOS: 1,
+          dateOfClosure: 1,
+          claimInvestigators: 1,
+          lossDate: 1,
+          sumInsured: 1,
+          rejectionReasons: 1,
+          cataractOrDayCareProcedure: 1,
+          locked: 1,
+          actionsTaken: 1,
+          expedition: 1,
+          dateOfFallingIntoAllocationBucket: 1,
+          dateOfFallingIntoPostQaBucket: 1,
+          dateOfFallingIntoReInvestigation: 1,
+          investigatorRecommendation: 1,
+          sourceSystem: 1,
+          tlInbox: 1,
+          invReportReceivedDate: 1,
+        },
+      },
       { $sort: sort ? sort : { updatedAt: -1 } },
       {
         $skip: updatedFilter?.claimId
@@ -118,9 +166,7 @@ router.post(async (req) => {
 
     // console.log("pipeline: ", pipeline[0]["$match"]);
 
-    let result = await DashboardData.aggregate(mainPipeLine, {
-      allowDiskUse: true,
-    });
+    let result = await DashboardData.aggregate(mainPipeLine, {});
 
     const data = result.length > 0 ? result[0].data : [];
     const count =
