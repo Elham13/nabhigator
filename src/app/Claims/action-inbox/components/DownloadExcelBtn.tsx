@@ -65,7 +65,8 @@ const DownloadExcelBtn = ({ filters, sort, searchTerm, origin }: PropTypes) => {
         EndPoints.DASHBOARD_DATA,
         payload
       );
-      await handleExport(data?.data);
+      if (!!data?.data && data?.data?.length > 0)
+        await handleExport(data?.data);
     } catch (error) {
       showError(error);
     } finally {
