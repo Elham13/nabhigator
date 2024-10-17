@@ -23,11 +23,12 @@ router.post(async (req) => {
     await connectDB(Databases.FNI);
 
     let data: any = null;
+    let dData: any = null;
     let message = "";
     let count: number = 0;
 
     if (action === "getData") {
-      const dData = await DashboardData.find({
+      dData = await DashboardData.find({
         stage: { $ne: NumericStage.REJECTED },
         caseId: { $exists: true, $ne: null },
         $or: [
@@ -39,7 +40,7 @@ router.post(async (req) => {
         .limit(pagination?.limit || 10);
 
       if (!!dData && dData?.length > 0) {
-        const ids = dData?.map((el) => el?.caseId);
+        const ids = dData?.map((el: any) => el?.caseId);
 
         const match: PipelineStage.Match["$match"] = {
           $or: [
@@ -108,6 +109,7 @@ router.post(async (req) => {
         success: true,
         message,
         data,
+        dData,
         count,
       },
       { status: 200 }
