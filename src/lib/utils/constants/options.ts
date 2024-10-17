@@ -1882,34 +1882,34 @@ export const groundOfRepudiationOptions = [
   { value: "Other", label: "Other" },
 ];
 
-export const doneNotDoneOptions: DefaultOptionType[] = [
+export const doneNotDoneOptions = [
   { value: "Done", label: "Done" },
   { value: "Not Done", label: "Not Done" },
 ];
 
-export const yesNAOptions: DefaultOptionType[] = [
+export const yesNAOptions = [
   { value: "Yes", label: "Yes" },
   { value: "NA", label: "NA" },
 ];
 
-export const doctorQualificationOptions: DefaultOptionType[] = [
+export const doctorQualificationOptions = [
   { value: "Modern Medicine", label: "Modern Medicine" },
   { value: "AYUSH", label: "AYUSH" },
   { value: "No clue", label: "No clue" },
 ];
 
-export const doctorRegNoOptions: DefaultOptionType[] = [
+export const doctorRegNoOptions = [
   { value: "Available", label: "Available" },
   { value: "Not Available", label: "Not Available" },
   { value: "Not Shared", label: "Not Shared" },
 ];
 
-export const meetingStatusOptions: DefaultOptionType[] = [
+export const meetingStatusOptions = [
   { value: "Untraceable", label: "Untraceable" },
   { value: "Traceable", label: "Traceable" },
 ];
 
-export const reportsSignedByOptions: DefaultOptionType[] = [
+export const reportsSignedByOptions = [
   { value: "Not signed", label: "Not signed" },
   {
     value: "Signed- but no credentials available",
@@ -1920,14 +1920,14 @@ export const reportsSignedByOptions: DefaultOptionType[] = [
   { value: "Signed by Radiologist", label: "Signed by Radiologist" },
 ];
 
-export const labReportsOptions: DefaultOptionType[] = [
+export const labReportsOptions = [
   { value: "Verified", label: "Verified" },
   { value: "Not Verified", label: "Not Verified" },
   { value: "Non Co-operation", label: "Non Co-operation" },
   { value: "NA", label: "NA" },
 ];
 
-export const billsVerifiedOptions: DefaultOptionType[] = [
+export const billsVerifiedOptions = [
   { value: "Yes- Non Discrepant", label: "Yes- Non Discrepant" },
   { value: "Yes- Discrepant", label: "Yes- Discrepant" },
   { value: "No", label: "No" },
@@ -1935,7 +1935,7 @@ export const billsVerifiedOptions: DefaultOptionType[] = [
   { value: "NA", label: "NA" },
 ];
 
-export const establishmentVerificationOptions: DefaultOptionType[] = [
+export const establishmentVerificationOptions = [
   {
     value: "Exist on the address as per contract",
     label: "Exist on the address as per contract",
@@ -1946,7 +1946,7 @@ export const establishmentVerificationOptions: DefaultOptionType[] = [
   },
 ];
 
-export const establishmentStatusOptions: DefaultOptionType[] = [
+export const establishmentStatusOptions = [
   {
     label: "Exists on another address",
     value: "Exists on another address",
@@ -1957,7 +1957,7 @@ export const establishmentStatusOptions: DefaultOptionType[] = [
   },
 ];
 
-export const paymentMethodOptions: DefaultOptionType[] = [
+export const paymentMethodOptions = [
   { value: "Wallet", label: "Wallet" },
   { value: "Card", label: "Card" },
   { value: "NEFT", label: "NEFT" },
@@ -1966,14 +1966,14 @@ export const paymentMethodOptions: DefaultOptionType[] = [
   { value: "Mix", label: "Mix" },
 ];
 
-export const hospitalInfrastructureOptions: DefaultOptionType[] = [
+export const hospitalInfrastructureOptions = [
   { value: "Poor Setup", label: "Poor Setup" },
   { value: "Primary Care", label: "Primary Care" },
   { value: "Secondary Care", label: "Secondary Care" },
   { value: "Tertiary Care", label: "Tertiary Care" },
 ];
 
-export const establishmentTypeOptions: DefaultOptionType[] = [
+export const establishmentTypeOptions = [
   { label: "Prop. firm", value: "Prop. firm" },
   { label: "Partnership Firm", value: "Partnership Firm" },
   { label: "Pvt. Ltd.", value: "Pvt. Ltd." },
@@ -1983,50 +1983,50 @@ export const establishmentTypeOptions: DefaultOptionType[] = [
   { label: "Trust", value: "Trust" },
 ];
 
-export const empRelationshipOptions: DefaultOptionType[] = [
+export const empRelationshipOptions = [
   { label: "Employees", value: "Employees" },
   { label: "Family Members", value: "Family Members" },
   { label: "Friends", value: "Friends" },
   { label: "Relatives", value: "Relatives" },
 ];
 
-export const refundInvoiceOptions: DefaultOptionType[] = [
+export const refundInvoiceOptions = [
   { value: "Collected", label: "Collected" },
   { value: "Not Shared", label: "Not Shared" },
   { value: "Not available with insured", label: "Not available with insured" },
 ];
 
-export const icpsCollectedOptions: DefaultOptionType[] = [
+export const icpsCollectedOptions = [
   { value: "Yes", label: "Yes" },
   { value: "No", label: "No" },
   { value: "No Records", label: "No Records" },
   { value: "Not Shared", label: "Not Shared" },
 ];
 
-export const consultationOrFollowupOptions: DefaultOptionType[] = [
+export const consultationOrFollowupOptions = [
   { value: "Discrepant", label: "Discrepant" },
   { value: "Non Discrepant", label: "Non Discrepant" },
   { value: "Non Co-operation", label: "Non Co-operation" },
 ];
 
-export const consultationIsRelatedToDiagnosisOptions: DefaultOptionType[] = [
+export const consultationIsRelatedToDiagnosisOptions = [
   { value: "Yes", label: "Yes" },
   { value: "No", label: "No" },
   { value: "Non Co-operation", label: "Non Co-operation" },
 ];
 
-export const scanResultOptions: DefaultOptionType[] = [
+export const scanResultOptions = [
   { value: "No details fetched", label: "No details fetched" },
   { value: "Scan- discrepant bill", label: "Scan- discrepant bill" },
   { value: "Scan – Non Discrepant Bil", label: "Scan – Non Discrepant Bil" },
 ];
 
-export const discrepancyStatusOptions: DefaultOptionType[] = [
+export const discrepancyStatusOptions = [
   { value: "Discrepant", label: "Discrepant" },
   { value: "Non Discrepant", label: "Non Discrepant" },
 ];
 
-export const billVerificationResultOptions: DefaultOptionType[] = [
+export const billVerificationResultOptions = [
   { value: "Pharmacy does not exist", label: "Pharmacy does not exist" },
   { value: "Bills are forged", label: "Bills are forged" },
   { value: "Name mismatch", label: "Name mismatch" },
@@ -2037,7 +2037,7 @@ export const billVerificationResultOptions: DefaultOptionType[] = [
   { value: "Others", label: "Others" },
 ];
 
-export const labBillVerificationResultOptions: DefaultOptionType[] = [
+export const labBillVerificationResultOptions = [
   { value: "Lab does not exist", label: "Lab does not exist" },
   { value: "Bills are forged", label: "Bills are forged" },
   { value: "Reports are forged", label: "Reports are forged" },
@@ -2053,34 +2053,34 @@ export const labBillVerificationResultOptions: DefaultOptionType[] = [
   { value: "Others", label: "Others" },
 ];
 
-export const hospitalSpecialtyOptions: DefaultOptionType[] = [
+export const hospitalSpecialtyOptions = [
   { value: "Single", label: "Single" },
   { value: "Multi", label: "Multi" },
 ];
 
-export const medicinesOptions: DefaultOptionType[] = [
+export const medicinesOptions = [
   { value: "In-house", label: "In-house" },
   { value: "Outsourced", label: "Outsourced" },
 ];
 
-export const hospitalOperationsOptions: DefaultOptionType[] = [
+export const hospitalOperationsOptions = [
   { value: "Day Care", label: "Day Care" },
   { value: "OPD", label: "OPD" },
   { value: "Indoor 24 hours", label: "Indoor 24 hours" },
   { value: "Not operational at night", label: "Not operational at night" },
 ];
 
-export const recordKeepingOptions: DefaultOptionType[] = [
+export const recordKeepingOptions = [
   { value: "Manual", label: "Manual" },
   { value: "Electronic", label: "Electronic" },
 ];
 
-export const indoorEntryOptions: DefaultOptionType[] = [
+export const indoorEntryOptions = [
   { value: "Verified", label: "Verified" },
   { value: "Not Verified", label: "Not Verified" },
 ];
 
-export const billVerificationOptions: DefaultOptionType[] = [
+export const billVerificationOptions = [
   { value: "Yes- non discrepant", label: "Yes- non discrepant" },
   { value: "Yes- discrepant", label: "Yes- discrepant" },
   { value: "No", label: "No" },
@@ -2088,7 +2088,7 @@ export const billVerificationOptions: DefaultOptionType[] = [
   { value: "Non Co-operation", label: "Non Co-operation" },
 ];
 
-export const paymentReceiptsOptions: DefaultOptionType[] = [
+export const paymentReceiptsOptions = [
   { value: "Verified- Non discrepant", label: "Verified- Non discrepant" },
   { value: "Verified- discrepant", label: "Verified- discrepant" },
   { value: "Not Verified", label: "Not Verified" },
@@ -2096,18 +2096,18 @@ export const paymentReceiptsOptions: DefaultOptionType[] = [
   { value: "Non Co-operation", label: "Non Co-operation" },
 ];
 
-export const reasonOfInsuredNotVisitOptions: DefaultOptionType[] = [
+export const reasonOfInsuredNotVisitOptions = [
   { value: "Non Contactable", label: "Non Contactable" },
   { value: "Non Co-operation", label: "Non Co-operation" },
   { value: "Untraceable", label: "Untraceable" },
 ];
 
-export const policyTypeOptions: DefaultOptionType[] = [
+export const policyTypeOptions = [
   { value: "Fresh", label: "Fresh" },
   { value: "Port", label: "Port" },
 ];
 
-export const previousInsurersOptions: DefaultOptionType[] = [
+export const previousInsurersOptions = [
   {
     value: "Bajaj Allianz Life Insurance Company Limited",
     label: "Bajaj Allianz Life Insurance Company Limited",
@@ -2348,7 +2348,7 @@ export const previousInsurersOptions: DefaultOptionType[] = [
   { value: "Navi General Insurance Ltd", label: "Navi General Insurance Ltd" },
 ];
 
-export const firstConsultationOptions: DefaultOptionType[] = [
+export const firstConsultationOptions = [
   { value: "OPD of treating Hospital", label: "OPD of treating Hospital" },
   { value: "Online Consultation", label: "Online Consultation" },
   { value: "Family Doctor", label: "Family Doctor" },
@@ -2358,27 +2358,26 @@ export const firstConsultationOptions: DefaultOptionType[] = [
   { value: "NA", label: "NA" },
 ];
 
-export const firstConsultationReferralSlipOptions: DefaultOptionType[] = [
+export const firstConsultationReferralSlipOptions = [
   { value: "Collected", label: "Collected" },
   { value: "Not Collected", label: "Not Collected" },
   { value: "Not shared", label: "Not shared" },
   { value: "NA", label: "NA" },
 ];
 
-export const attendantDetailsAtTheTimeOfAdmissionOptions: DefaultOptionType[] =
-  [
-    { value: "Shared", label: "Shared" },
-    { value: "Not known", label: "Not known" },
-    { value: "Not Disclosed", label: "Not Disclosed" },
-    { value: "NA", label: "NA" },
-  ];
+export const attendantDetailsAtTheTimeOfAdmissionOptions = [
+  { value: "Shared", label: "Shared" },
+  { value: "Not known", label: "Not known" },
+  { value: "Not Disclosed", label: "Not Disclosed" },
+  { value: "NA", label: "NA" },
+];
 
-export const disclosedNotDisclosedOptions: DefaultOptionType[] = [
+export const disclosedNotDisclosedOptions = [
   { value: "Not Disclosed", label: "Not Disclosed" },
   { value: "Disclosed", label: "Disclosed" },
 ];
 
-export const treatmentTypeOptions: DefaultOptionType[] = [
+export const treatmentTypeOptions = [
   { value: "Only Tablets", label: "Only Tablets" },
   { value: "Medicines with IV fluid", label: "Medicines with IV fluid" },
   {
@@ -2389,21 +2388,21 @@ export const treatmentTypeOptions: DefaultOptionType[] = [
   { value: "NA", label: "NA" },
 ];
 
-export const anesthesiaOptions: DefaultOptionType[] = [
+export const anesthesiaOptions = [
   { value: "Yes", label: "Yes" },
   { value: "No", label: "No" },
   { value: "Not Known", label: "Not Known" },
   { value: "NA", label: "NA" },
 ];
 
-export const typeOfAnesthesiaOptions: DefaultOptionType[] = [
+export const typeOfAnesthesiaOptions = [
   { value: "General", label: "General" },
   { value: "Local", label: "Local" },
   { value: "Spinal", label: "Spinal" },
   { value: "Not Known", label: "Not Known" },
 ];
 
-export const rmClassOfAccommodationOptions: DefaultOptionType[] = [
+export const rmClassOfAccommodationOptions = [
   { value: "General Ward", label: "General Ward" },
   { value: "Single Room", label: "Single Room" },
   { value: "Twin Sharing", label: "Twin Sharing" },
@@ -2415,7 +2414,7 @@ export const rmClassOfAccommodationOptions: DefaultOptionType[] = [
   { value: "Other", label: "Other" },
 ];
 
-export const rmRelationshipOptions: DefaultOptionType[] = [
+export const rmRelationshipOptions = [
   {
     label: "Family",
     title: "Family",
@@ -2442,7 +2441,7 @@ export const rmRelationshipOptions: DefaultOptionType[] = [
   },
 ];
 
-export const untraceableBasisOptions: DefaultOptionType[] = [
+export const untraceableBasisOptions = [
   {
     value: "On the given address as per contract details",
     label: "On the given address as per contract details",

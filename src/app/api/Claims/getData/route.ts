@@ -30,6 +30,9 @@ router.post(async (req) => {
 
     const pipeline: PipelineStage[] = [
       {
+        $match: updatedFilter,
+      },
+      {
         $lookup: {
           from: "users",
           localField: "clusterManager",
@@ -92,23 +95,21 @@ router.post(async (req) => {
           invReportReceivedDate: 1,
         },
       },
-      { $sort: sort ? sort : { updatedAt: -1 } },
-      {
-        $skip: updatedFilter?.claimId
-          ? 0
-          : (filter?.pagination?.page - 1) * filter?.pagination?.limit,
-      },
-      { $limit: filter?.pagination?.limit || 10 },
     ];
 
     const mainPipeLine: PipelineStage[] = [
-      {
-        $match: updatedFilter,
-      },
       ...pipeline,
       {
         $facet: {
-          data: [],
+          data: [
+            { $sort: sort ? sort : { updatedAt: -1 } },
+            {
+              $skip: updatedFilter?.claimId
+                ? 0
+                : (filter?.pagination?.page - 1) * filter?.pagination?.limit,
+            },
+            { $limit: filter?.pagination?.limit || 10 },
+          ],
           count: [
             {
               $count: "total",
@@ -119,7 +120,7 @@ router.post(async (req) => {
     ];
 
     if (!!filter?.colorCode) {
-      mainPipeLine.unshift({
+      pipeline.unshift({
         $addFields: {
           differenceInSeconds: {
             $divide: [
@@ -145,7 +146,7 @@ router.post(async (req) => {
       !!filter?.intimationDateRange &&
       Array.isArray(filter?.intimationDateRange)
     ) {
-      mainPipeLine.unshift({
+      pipeline.unshift({
         $addFields: {
           intimationDateAsDate: { $toDate: "$intimationDate" },
         },
@@ -154,7 +155,9 @@ router.post(async (req) => {
 
     // console.log("pipeline: ", pipeline[0]["$match"]);
 
-    let result = await DashboardData.aggregate(mainPipeLine, {});
+    let result = await DashboardData.aggregate(mainPipeLine, {
+      allowDiskUse: true,
+    });
 
     const data = result.length > 0 ? result[0].data : [];
     const count =
