@@ -250,6 +250,10 @@ const ClaimCaseSchema = new Schema<any>(
       documents: { type: [String], default: [] },
     },
     insuredAddress: { type: String },
+    //TODO: Remove this later
+    reportReceivedDate: { type: Date, default: null },
+    //TODO: Remove this later
+    invReportReceivedDate: { type: Date, default: null },
     insuredCity: { type: String },
     insuredState: { type: String },
     insuredPinCode: { type: Number },
