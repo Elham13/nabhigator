@@ -91,6 +91,7 @@ router.post(async (req) => {
           locked: 1,
           actionsTaken: 1,
           expedition: 1,
+          investigatorRecommendation: 1,
           dateOfFallingIntoPostQaBucket: 1,
           invReportReceivedDate: 1,
         },
