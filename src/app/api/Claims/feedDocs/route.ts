@@ -2,7 +2,11 @@ import connectDB from "@/lib/db/dbConnectWithMongoose";
 import ClaimCase from "@/lib/Models/claimCase";
 import DashboardData from "@/lib/Models/dashboardData";
 import { Databases } from "@/lib/utils/types/enums";
-import { CaseDetail, IDashboardData } from "@/lib/utils/types/fniDataTypes";
+import {
+  CaseDetail,
+  IDashboardData,
+  NumericStage,
+} from "@/lib/utils/types/fniDataTypes";
 import { PipelineStage } from "mongoose";
 import { HydratedDocument } from "mongoose";
 import { createEdgeRouter } from "next-connect";
@@ -24,6 +28,7 @@ router.post(async (req) => {
 
     if (action === "getData") {
       const dData = await DashboardData.find({
+        stage: { $ne: NumericStage.REJECTED },
         caseId: { $exists: true, $ne: null },
         $or: [
           { invReportReceivedDate: { $exists: false } },
@@ -37,10 +42,26 @@ router.post(async (req) => {
         const ids = dData?.map((el) => el?.caseId);
 
         const match: PipelineStage.Match["$match"] = {
-          "singleTasksAndDocs.invReportReceivedDate": {
-            $exists: true,
-            $ne: null,
-          },
+          $or: [
+            {
+              "singleTasksAndDocs.invReportReceivedDate": {
+                $exists: true,
+                $ne: null,
+              },
+            },
+            {
+              reportReceivedDate: {
+                $exists: true,
+                $ne: null,
+              },
+            },
+            {
+              invReportReceivedDate: {
+                $exists: true,
+                $ne: null,
+              },
+            },
+          ],
           _id: { $in: ids },
         };
 
@@ -66,14 +87,16 @@ router.post(async (req) => {
         for (const obj of payload) {
           if (!obj?.id) throw new Error("id is required");
 
-          const dData: HydratedDocument<IDashboardData> | null =
-            await DashboardData.findById(obj?.id);
+          if (!!obj?.date) {
+            const dData: HydratedDocument<IDashboardData> | null =
+              await DashboardData.findById(obj?.id);
 
-          if (!dData) throw new Error(`No data found with the id ${obj?.id}`);
+            if (!dData) throw new Error(`No data found with the id ${obj?.id}`);
 
-          dData.invReportReceivedDate = obj?.date;
+            dData.invReportReceivedDate = obj?.date;
 
-          await dData.save();
+            await dData.save();
+          }
         }
       }
 

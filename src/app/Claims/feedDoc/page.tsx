@@ -23,7 +23,7 @@ import ClaimCaseModal from "./ClaimCaseModal";
 const FeedDoc = () => {
   const [loading, setLoading] = useState(false);
   const [pagination, setPagination] = useState({
-    limit: 50,
+    limit: 500,
     page: 1,
     count: 0,
   });
@@ -31,6 +31,7 @@ const FeedDoc = () => {
   const [open, setOpen] = useState({ dData: false, claimCase: false });
 
   const getData = async () => {
+    setLoading(true);
     try {
       const { data } = await axios.post<ResponseType<CaseDetail>>(
         EndPoints.FEED_DOCS,
@@ -88,18 +89,27 @@ const FeedDoc = () => {
             {loading ? (
               <CommonTablePlaceholder type="loader" colSpan={2} />
             ) : claimCases?.length > 0 ? (
-              claimCases?.map((el) => (
-                <Table.Tr key={el?._id as string}>
-                  <Table.Td>{el?._id as string}</Table.Td>
-                  <Table.Td>
-                    {el?.singleTasksAndDocs?.invReportReceivedDate
-                      ? dayjs(
-                          el?.singleTasksAndDocs?.invReportReceivedDate
-                        ).format("DD-MMM-YYYY")
-                      : "-"}
-                  </Table.Td>
-                </Table.Tr>
-              ))
+              claimCases?.map((el) => {
+                const date = !!el?.singleTasksAndDocs?.invReportReceivedDate
+                  ? el?.singleTasksAndDocs?.invReportReceivedDate
+                  : // @ts-expect-error
+                  !!el?.reportReceivedDate
+                  ? // @ts-expect-error
+                    el?.reportReceivedDate
+                  : // @ts-expect-error
+                  !!el?.invReportReceivedDate
+                  ? // @ts-expect-error
+                    el?.invReportReceivedDate
+                  : "";
+                return (
+                  <Table.Tr key={el?._id as string}>
+                    <Table.Td>{el?._id as string}</Table.Td>
+                    <Table.Td>
+                      {!!date ? dayjs(date).format("DD-MMM-YYYY") : "-"}
+                    </Table.Td>
+                  </Table.Tr>
+                );
+              })
             ) : (
               <CommonTablePlaceholder type="empty" colSpan={2} />
             )}
@@ -114,7 +124,17 @@ const FeedDoc = () => {
             onDone={getData}
             payload={claimCases?.map((el) => ({
               id: el?.dashboardDataId as string,
-              date: el?.singleTasksAndDocs?.invReportReceivedDate || null,
+              date: !!el?.singleTasksAndDocs?.invReportReceivedDate
+                ? el?.singleTasksAndDocs?.invReportReceivedDate
+                : // @ts-expect-error
+                !!el?.reportReceivedDate
+                ? // @ts-expect-error
+                  el?.reportReceivedDate
+                : // @ts-expect-error
+                !!el?.invReportReceivedDate
+                ? // @ts-expect-error
+                  el?.invReportReceivedDate
+                : "",
             }))}
           />
         </Flex>
