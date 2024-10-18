@@ -85,8 +85,8 @@ const NPSConfirmation = ({
   }, [data?.insuredDetails?.contactNo]);
 
   useEffect(() => {
-    if (findings) {
-      Object.entries(findings).map(([key, value]: any) => {
+    if (!!findings && !!findings[taskName]) {
+      Object.entries(findings[taskName]).map(([key, value]: any) => {
         setValues((prev) => ({
           ...prev,
           [key]: value,

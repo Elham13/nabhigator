@@ -1,15 +1,15 @@
 import React, { Dispatch, SetStateAction } from "react";
 import { CaseDetail, IDashboardData } from "@/lib/utils/types/fniDataTypes";
 import dynamic from "next/dynamic";
-import Loading from "@/components/Loading";
 import { getTasksAndDocs } from "@/lib/helpers";
 import { AccordionItem, CustomAccordion } from "@/components/CustomAccordion";
+import { BiCog } from "react-icons/bi";
 
 const RMInvestigationFindings = dynamic(
   () => import("./InboxDetail/RMInvestigationFindings"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 
@@ -17,7 +17,7 @@ const InvestigationFindings = dynamic(
   () => import("./InboxDetail/InvestigationFindings"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 

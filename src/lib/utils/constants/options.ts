@@ -5,7 +5,6 @@ import {
   IMoreFiltersOptions,
   ValueLabel,
 } from "../types/fniDataTypes";
-import { DefaultOptionType } from "antd/es/select";
 
 export const claimSubTypeOptions: ValueLabel[] = [
   { value: "In-patient Hospitalization", label: "In patient hospitalization" },

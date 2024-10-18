@@ -2,110 +2,110 @@ import React, { Dispatch, ReactNode, SetStateAction, Suspense } from "react";
 import { CaseDetail, IDashboardData } from "@/lib/utils/types/fniDataTypes";
 import { IRMFindings } from "@/lib/utils/types/rmDataTypes";
 import dynamic from "next/dynamic";
-import Loading from "@/components/Loading";
+import { BiCog } from "react-icons/bi";
 
 const NPSConfirmation = dynamic(() => import("./modules/NPSConfirmation"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 const PrePostVerification = dynamic(
   () => import("./modules/PrePostVerification"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const HospitalDailyCash = dynamic(() => import("./modules/HospitalDailyCash"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 const OPDVerification = dynamic(() => import("./modules/OPDVerification"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 const AHCVerification = dynamic(() => import("./modules/AHCVerification"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 const ClaimVerification = dynamic(() => import("./modules/ClaimVerification"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 const InsuredVerification = dynamic(
   () => import("./modules/InsuredVerification"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const VicinityVerification = dynamic(
   () => import("./modules/VicinityVerification"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const HospitalVerification = dynamic(
   () => import("./modules/HospitalVerification"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const TreatingDoctorVerification = dynamic(
   () => import("./modules/TreatingDoctorVerification"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const FamilyOrReferringDoctorVerification = dynamic(
   () => import("./modules/FamilyOrReferringDoctorVerification"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const LabOrPathologistVerification = dynamic(
   () => import("./modules/LabOrPathologistVerification"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const ChemistVerification = dynamic(
   () => import("./modules/ChemistVerification"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const EmployerVerification = dynamic(
   () => import("./modules/EmployerVerification"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const RandomVicinityVerification = dynamic(
   () => import("./modules/RandomVicinityVerification"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const EmploymentAndEstablishmentVerification = dynamic(
   () => import("./modules/EmploymentAndEstablishmentVerification"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const MiscellaneousVerification = dynamic(
   () => import("./modules/MiscellaneousVerification"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 
@@ -249,7 +249,9 @@ const Tasks = ({
     ),
   };
   return (
-    <Suspense fallback={<Loading size={30} />}>{tasksMap[taskName]}</Suspense>
+    <Suspense fallback={<BiCog className="animate-spin" />}>
+      {tasksMap[taskName]}
+    </Suspense>
   );
 };
 

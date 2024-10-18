@@ -2,10 +2,10 @@ import React from "react";
 import { Title } from "@mantine/core";
 import PageWrapper from "@/components/ClaimsComponents/PageWrapper";
 import dynamic from "next/dynamic";
-import Loading from "@/components/Loading";
+import { BiCog } from "react-icons/bi";
 const DetailsContent = dynamic(() => import("../components/DetailsContent"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 
 type PropTypes = {

@@ -13,16 +13,17 @@ import ExtraUploads from "./ExtraUploads";
 import { getTasksAndDocs } from "@/lib/helpers";
 import { AccordionItem, CustomAccordion } from "@/components/CustomAccordion";
 import dynamic from "next/dynamic";
-import Loading from "@/components/Loading";
 import { useLocalStorage } from "@mantine/hooks";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { StorageKeys } from "@/lib/utils/types/enums";
 import { BsEye } from "react-icons/bs";
+import { BiCog } from "react-icons/bi";
+
 const TasksAndDocumentsButtons = dynamic(
   () => import("./TasksAndDocumentsButtons"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 

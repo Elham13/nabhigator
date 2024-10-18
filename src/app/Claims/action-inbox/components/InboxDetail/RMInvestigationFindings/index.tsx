@@ -31,7 +31,7 @@ const RMInvestigationFindings = ({
       tasksAndDocs?.tasks &&
       tasksAndDocs?.tasks?.length > 0
     ) {
-      tasksAndDocs?.tasks?.map((task) => (
+      return tasksAndDocs?.tasks?.map((task) => (
         <AccordionItem key={task?.name} title={task?.name}>
           <Tasks
             taskName={task?.name}
@@ -42,13 +42,14 @@ const RMInvestigationFindings = ({
           />
         </AccordionItem>
       ));
-      return [];
     } else return [];
   }, [tasksAndDocs]);
 
   return (
     <Box>
-      <Title order={3}>Tasks Assigned</Title>
+      <Title order={3} my={20}>
+        Tasks Assigned
+      </Title>
       <CustomAccordion>{items}</CustomAccordion>
       <CommonFormComponent
         findings={rmFindings}

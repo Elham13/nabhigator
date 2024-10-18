@@ -18,49 +18,49 @@ import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
 import { getStageLabel, showError } from "@/lib/helpers";
 import CustomMarquee from "@/components/CustomMarquee";
-import Loading from "@/components/Loading";
+import { BiCog } from "react-icons/bi";
 
 const PreQcFooter = dynamic(() => import("./InboxDetail/PreQcFooter"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 const PostQAFooter = dynamic(() => import("./InboxDetail/PostQAFooter"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 const AllocationFooter = dynamic(
   () => import("./InboxDetail/AllocationFooter"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const SkipInvestigation = dynamic(
   () => import("./InboxDetail/SkipInvestigation"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const Expedite = dynamic(() => import("./InboxDetail/Expedite"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 const NotificationModal = dynamic(() => import("./NotificationModal"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 const DetailsAccordion = dynamic(() => import("./DetailsAccordion"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 const PostQaLeadFooter = dynamic(() => import("./PostQaLeadFooter"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 const FrozenRibbon = dynamic(() => import("./InboxDetail/FrozenRibbon"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 
 const showElementInitials: IShowElement = {

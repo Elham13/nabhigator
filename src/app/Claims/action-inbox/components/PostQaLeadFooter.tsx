@@ -2,10 +2,11 @@ import React, { Dispatch, SetStateAction } from "react";
 import { IShowElement } from "@/lib/utils/types/fniDataTypes";
 import { Box, Button } from "@mantine/core";
 import dynamic from "next/dynamic";
-import Loading from "@/components/Loading";
+import { BiCog } from "react-icons/bi";
+
 const PostQaList = dynamic(() => import("./PostQaList"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 
 type PropTypes = {

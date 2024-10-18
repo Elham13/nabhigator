@@ -23,7 +23,7 @@ import {
   IRMFindings,
 } from "@/lib/utils/types/rmDataTypes";
 import { CaseDetail, SingleResponseType } from "@/lib/utils/types/fniDataTypes";
-import { EndPoints } from "@/lib/utils/types/enums";
+import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
 import { getSelectOption } from "@/lib/helpers";
 import {
   groundOfRepudiationOptions,
@@ -34,6 +34,8 @@ import {
 } from "@/lib/utils/constants/options";
 import FileUpload from "@/components/ClaimsComponents/FileUpload";
 import FileUploadFooter from "@/components/ClaimsComponents/FileUpload/FileUploadFooter";
+import { IUserFromSession } from "@/lib/utils/types/authTypes";
+import { useLocalStorage } from "@mantine/hooks";
 
 const formName = "TheCommonForm";
 
@@ -73,12 +75,16 @@ const CommonFormComponent = ({
   caseId,
   setCaseDetail,
 }: PropTypes) => {
+  const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
   const [values, setValues] = useState<IInitialValues>(initialFormValues);
 
   const { refetch: submit, loading } = useAxios<
     SingleResponseType<CaseDetail | null>
   >({
-    config: { url: EndPoints.CAPTURE_INVESTIGATION_FINDINGS, method: "POST" },
+    config: {
+      url: EndPoints.CAPTURE_RM_INVESTIGATION_FINDINGS,
+      method: "POST",
+    },
     dependencyArr: [],
     isMutation: true,
     onDone: (res) => {
@@ -90,6 +96,7 @@ const CommonFormComponent = ({
     const payload: Record<string, any> = {
       id: caseId,
       name: formName,
+      userId: user?._id,
     };
 
     if (payload?.id && payload?.userId) {

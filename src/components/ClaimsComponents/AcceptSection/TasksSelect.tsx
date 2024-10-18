@@ -17,10 +17,10 @@ import { configureRMTasksAndDocuments } from "@/lib/helpers";
 import { toast } from "react-toastify";
 import dynamic from "next/dynamic";
 import { useTasks } from "@/lib/providers/TasksAndDocsProvider";
-import Loading from "@/components/Loading";
+import { BiCog } from "react-icons/bi";
 
 const InvestigatorsList = dynamic(() => import("../InvestigatorsList"), {
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
   ssr: false,
 });
 

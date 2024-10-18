@@ -15,10 +15,11 @@ import {
 } from "@/lib/utils/types/fniDataTypes";
 import { showError } from "@/lib/helpers";
 import PageWrapper from "@/components/ClaimsComponents/PageWrapper";
-import Loading from "@/components/Loading";
+import { BiCog } from "react-icons/bi";
+
 const LeaveDetail = dynamic(() => import("./components/LeaveDetail"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 
 const MangeUser = () => {

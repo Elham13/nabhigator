@@ -13,20 +13,20 @@ import { StorageKeys } from "@/lib/utils/types/enums";
 
 import dynamic from "next/dynamic";
 import { useTasks } from "@/lib/providers/TasksAndDocsProvider";
-import Loading from "../Loading";
+import { BiCog } from "react-icons/bi";
 
 const SingleAllocationTasks = dynamic(
   () => import("./AcceptSection/SingleAllocationTasks"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const DualAllocationTasks = dynamic(
   () => import("./AcceptSection//DualAllocationTasks"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 
