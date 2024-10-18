@@ -35,12 +35,13 @@ router.post(async (req) => {
     };
 
     // Expires in 1 hour
-    const expires = new Date(Date.now() + 60 * 60 * 1000);
+    const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
 
     const session = await encrypt({ user: data, expires });
 
     // Save the session in a cookie
-    cookies().set("session", session, { expires, httpOnly: true });
+    // cookies().set("session", session, { expires, httpOnly: true });
+    cookies().set("session", session, { httpOnly: true });
 
     return NextResponse.json(
       {

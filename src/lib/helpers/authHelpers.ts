@@ -4,7 +4,6 @@ import { ISession } from "../utils/types/authTypes";
 import { NextRequest, NextResponse } from "next/server";
 import { NextHandler } from "next-connect";
 import { IUser, Investigator } from "../utils/types/fniDataTypes";
-import dayjs from "dayjs";
 
 const secretKey =
   process.env.JWT_SECRET || "lkasjdfoi32ujroijlkajf983jfjaslkdfjlkadsjf";
@@ -18,7 +17,7 @@ export async function encrypt(payload: {
   return await new SignJWT(JSON.parse(JSON.stringify(payload)))
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("1 hour from now")
+    .setExpirationTime("365 days from now")
     .sign(key);
 }
 
@@ -94,24 +93,24 @@ export async function updateSession(request: NextRequest, next: NextHandler) {
         return res;
       }
 
-      if (dayjs().subtract(1, "hour").isAfter(dayjs(parsed.expires))) {
-        cookies().delete("session");
-        url.pathname = "/Claims/login";
-        return NextResponse.redirect(url);
-      } else if (dayjs().isAfter(dayjs(parsed?.expires))) {
-        // Refresh the session so it doesn't expire
-        parsed.expires = dayjs().add(1, "hour").toDate();
-        const res = NextResponse.next();
+      // if (dayjs().subtract(1, "hour").isAfter(dayjs(parsed.expires))) {
+      //   cookies().delete("session");
+      //   url.pathname = "/Claims/login";
+      //   return NextResponse.redirect(url);
+      // } else if (dayjs().isAfter(dayjs(parsed?.expires))) {
+      //   // Refresh the session so it doesn't expire
+      //   parsed.expires = dayjs().add(1, "hour").toDate();
+      //   const res = NextResponse.next();
 
-        res.cookies.set({
-          name: "session",
-          value: await encrypt(parsed),
-          httpOnly: true,
-          expires: parsed.expires,
-        });
+      //   res.cookies.set({
+      //     name: "session",
+      //     value: await encrypt(parsed),
+      //     httpOnly: true,
+      //     // expires: parsed.expires,
+      //   });
 
-        return res;
-      }
+      //   return res;
+      // }
     }
   }
 
