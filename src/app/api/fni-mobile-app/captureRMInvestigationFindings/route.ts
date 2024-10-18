@@ -77,9 +77,8 @@ router.post(async (req) => {
       const key = payload.key as keyof IRMFindings;
 
       if (taskName === "TheCommonForm") {
-        const findings = isQa ? tempFindingsQa : tempFindings;
-
-        findings[key] = payload.value;
+        tempFindings[key] = payload.value;
+        tempFindingsQa[key] = payload.value;
 
         if (!isQa && key === "recommendation" && !!payload?.value) {
           const dashboardData = await DashboardData.findOne({
