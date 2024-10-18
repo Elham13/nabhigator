@@ -94,6 +94,7 @@ router.post(async (req) => {
           investigatorRecommendation: 1,
           dateOfFallingIntoPostQaBucket: 1,
           invReportReceivedDate: 1,
+          updatedAt: 1,
         },
       },
       { $sort: sort ? sort : { updatedAt: -1 } },
@@ -139,7 +140,8 @@ router.post(async (req) => {
       });
     }
 
-    // console.log("pipeline: ", pipeline[0]["$match"]);
+    // console.log("pipeline: ", pipeline);
+    // console.log("pipeline: ", pipeline[0]["$match"], filter?.pagination);
 
     let data = await DashboardData.aggregate(pipeline, {
       allowDiskUse: true,
