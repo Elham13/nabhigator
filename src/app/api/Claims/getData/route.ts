@@ -96,6 +96,13 @@ router.post(async (req) => {
           invReportReceivedDate: 1,
         },
       },
+      { $sort: sort ? sort : { updatedAt: -1 } },
+      {
+        $skip: updatedFilter?.claimId
+          ? 0
+          : (filter?.pagination?.page - 1) * filter?.pagination?.limit,
+      },
+      { $limit: filter?.pagination?.limit || 10 },
     ];
 
     if (!!filter?.colorCode) {
@@ -138,7 +145,7 @@ router.post(async (req) => {
       allowDiskUse: true,
     });
 
-    let count = await DashboardData.countDocuments(updatedFilter);
+    const count = await DashboardData.countDocuments(updatedFilter);
 
     return NextResponse.json(
       {
