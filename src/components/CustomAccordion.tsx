@@ -1,4 +1,4 @@
-import { Box } from "@mantine/core";
+import { Box, Flex, Text } from "@mantine/core";
 import { useState, ReactNode } from "react";
 import { IoChevronDown } from "react-icons/io5";
 
@@ -15,21 +15,19 @@ const AccordionItem: React.FC<AccordionItemProps> = ({ title, children }) => {
   };
 
   return (
-    <Box className="border-b dark:border-slate-700">
-      <Box
+    <Box className="border rounded-lg">
+      <Flex
+        justify="space-between"
+        align="center"
         onClick={toggleAccordion}
-        className="flex justify-between items-center py-2 px-4 cursor-pointer bg-slate-50 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-950"
+        className="py-2 px-4 cursor-pointer"
       >
-        <span className="text-sm">{title}</span>
-        <span>
-          <IoChevronDown
-            className={`transition-all ${isOpen ? "rotate-180" : "rotate-0"}`}
-          />
-        </span>
-      </Box>
-      {isOpen && (
-        <div className="p-4 bg-gray-50 dark:bg-slate-800">{children}</div>
-      )}
+        <Text className="text-sm">{title}</Text>
+        <IoChevronDown
+          className={`transition-all ${isOpen ? "rotate-180" : "rotate-0"}`}
+        />
+      </Flex>
+      {isOpen && <Box className="p-4">{children}</Box>}
     </Box>
   );
 };

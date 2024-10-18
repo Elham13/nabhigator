@@ -61,7 +61,7 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
               columnName="claimDetails.claimAmount"
               value={
                 el?.claimDetails?.claimAmount
-                  ? convertToIndianFormat(el?.claimDetails?.claimAmount)
+                  ? el?.claimDetails?.claimAmount?.toLocaleString()
                   : 0
               }
             />

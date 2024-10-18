@@ -31,14 +31,6 @@ router.get(async (req) => {
         },
         {
           $lookup: {
-            from: "claiminvestigators",
-            localField: "investigator",
-            foreignField: "_id",
-            as: "investigator",
-          },
-        },
-        {
-          $lookup: {
             from: "users",
             localField: "assignedBy",
             foreignField: "_id",

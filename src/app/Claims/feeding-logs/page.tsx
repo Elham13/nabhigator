@@ -27,10 +27,11 @@ import LoaderPlaceholder from "@/components/ClaimsComponents/LoaderPlaceholder";
 import dynamic from "next/dynamic";
 import { useDebouncedValue } from "@mantine/hooks";
 import { claimSubTypeOptions } from "@/lib/utils/constants/options";
-import Loading from "@/components/Loading";
+import { BiCog } from "react-icons/bi";
+
 const FeedingLogTable = dynamic(() => import("./components/FeedingLogTable"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 
 const formDataInitials = {

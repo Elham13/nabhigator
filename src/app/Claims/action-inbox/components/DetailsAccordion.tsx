@@ -12,137 +12,134 @@ import dynamic from "next/dynamic";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { StorageKeys } from "@/lib/utils/types/enums";
 import { useLocalStorage } from "@mantine/hooks";
-import Loading from "@/components/Loading";
 import { getEncryptClaimId } from "@/lib/helpers";
+import { BiCog } from "react-icons/bi";
 
+const CompleteInvestigation = dynamic(() => import("./CompleteInvestigation"), {
+  ssr: false,
+  loading: () => <BiCog className="animate-spin" />,
+});
 const TriageSummary = dynamic(
   () => import("@/components/ClaimsComponents/TriageSummary"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const ConsolidatedDetail = dynamic(() => import("./ConsolidatedDetail"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 const FraudIndicatorTable = dynamic(
   () => import("@/components/ClaimsComponents/FraudIndicators"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const GeneralContent = dynamic(() => import("./InboxDetail/GeneralContent"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 const ContractDetailsContent = dynamic(
   () => import("./InboxDetail/ContractDetailsContent"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const HistoricalClaimTable = dynamic(
   () => import("./InboxDetail/HistoricalClaimTable"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const TasksAndDocumentsContent = dynamic(
   () => import("./InboxDetail/TasksAndDocumentsContent"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const InvestigationFindingsContent = dynamic(
   () => import("./InboxDetail/InvestigationFindingsContent"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const InvestigationRecommendationContent = dynamic(
   () => import("./InboxDetail/InvestigationRecommendationContent"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const RMInvestigationRecommendationContent = dynamic(
   () => import("./InboxDetail/RMInvestigationRecommendationContent"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const RMInvestigationFindingsContent = dynamic(
   () => import("./InboxDetail/RMInvestigationFindingsContent"),
   {
     ssr: false,
-    loading: () => <Loading />,
-  }
-);
-const InvestigationFindings = dynamic(
-  () => import("./InboxDetail/InvestigationFindings"),
-  {
-    ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const ChangeFindings = dynamic(() => import("./ChangeFindings"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 
 const MembersTable = dynamic(() => import("./InboxDetail/MembersTable"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 const Allocation = dynamic(() => import("./InboxDetail/Allocation"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 const TasksAndDocsButtons = dynamic(
   () => import("./InboxDetail/TasksAndDocsButtons"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const CompleteDocuments = dynamic(
   () => import("./InboxDetail/RMContent/CompleteDocuments"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const InvestigationRejectionDetails = dynamic(
   () => import("./InboxDetail/InvestigationRejectionDetails"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const WDMSDocuments = dynamic(() => import("./InboxDetail/WDMSDocuments"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 const ClaimTypeDetails = dynamic(
   () => import("./InboxDetail/ClaimTypeDetails"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 const DownloadAssignmentSummary = dynamic(
   () => import("./InboxDetail/DownloadAssignmentSummary"),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <BiCog className="animate-spin" />,
   }
 );
 
@@ -258,7 +255,11 @@ const DetailsAccordion = ({
                 {
                   value: "Change investigation findings",
                   content: value === "Change investigation findings" && (
-                    <ChangeFindings />
+                    <ChangeFindings
+                      data={data}
+                      caseDetail={caseDetail}
+                      setCaseDetail={setCaseDetail}
+                    />
                   ),
                 },
               ]
@@ -352,9 +353,10 @@ const DetailsAccordion = ({
                   <TasksAndDocsButtons setShowElement={setShowElement} />
                 ) : showElement.completeTasks &&
                   !showElement.completeDocuments ? (
-                  <InvestigationFindings
+                  <CompleteInvestigation
                     caseDetail={caseDetail}
-                    dashboardData={data}
+                    data={data}
+                    setCaseDetail={setCaseDetail}
                     onClose={() =>
                       setShowElement((prev) => ({
                         ...prev,
