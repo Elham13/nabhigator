@@ -25,6 +25,8 @@ import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import AWS from "aws-sdk";
 import { IRMFindings } from "../utils/types/rmDataTypes";
+import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export const showError = (error: any) => {
   let message = error.response ? error.response.data.message : error.message;
@@ -668,4 +670,38 @@ export const getOpenAndClosureTAT = ({
         ? dayjs().diff(dayjs(dateOfClosure), "days")
         : 0,
   };
+};
+
+export const getSignedUrlHelper = async (url: string) => {
+  try {
+    if (!url) throw new Error("url is required");
+    const accessKeyId = process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID_UAT;
+    const secretAccessKey = process.env.NEXT_PUBLIC_AWS_SECRET_KEY_ID_UAT;
+    const region = process.env.NEXT_PUBLIC_AWS_DEFAULT_REGION_UAT;
+    const bucketName =
+      process.env.NEXT_PUBLIC_CONFIG === "PROD"
+        ? process.env.NEXT_PUBLIC_S3_BUCKET_NAME_PROD
+        : process.env.NEXT_PUBLIC_S3_BUCKET_NAME_UAT;
+    if (!accessKeyId) throw new Error("accessKeyId is required");
+    if (!secretAccessKey) throw new Error("secretAccessKey is required");
+    if (!region) throw new Error("region is required");
+    if (!bucketName) throw new Error("bucketName is required");
+
+    const client = new S3Client({
+      credentials: {
+        accessKeyId,
+        secretAccessKey,
+      },
+      region,
+    });
+    const command = new GetObjectCommand({ Bucket: bucketName, Key: url });
+    const signedUrl = await getSignedUrl(client, command, {
+      expiresIn: 3600,
+    });
+
+    return signedUrl;
+  } catch (error: any) {
+    showError(error);
+    return "";
+  }
 };

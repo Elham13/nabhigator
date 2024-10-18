@@ -2,7 +2,7 @@ import DashboardData from "@/lib/Models/dashboardData";
 import connectDB from "@/lib/db/dbConnectWithMongoose";
 import { processGetDataFilters } from "@/lib/helpers/getDataHelpers";
 import { Databases } from "@/lib/utils/types/enums";
-import { Role } from "@/lib/utils/types/fniDataTypes";
+// import { Role } from "@/lib/utils/types/fniDataTypes";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { PipelineStage, Types } from "mongoose";
@@ -21,11 +21,11 @@ router.post(async (req) => {
     const sort = filter?.sort || null;
     const updatedFilter: any = await processGetDataFilters(filter);
 
-    const userRole = filter?.user?.activeRole
-      ? filter?.user?.activeRole
-      : filter?.source === "Investigators"
-      ? Role.INTERNAL_INVESTIGATOR
-      : undefined;
+    // const userRole = filter?.user?.activeRole
+    //   ? filter?.user?.activeRole
+    //   : filter?.source === "Investigators"
+    //   ? Role.INTERNAL_INVESTIGATOR
+    //   : undefined;
     await connectDB(Databases.FNI);
 
     const pipeline: PipelineStage[] = [

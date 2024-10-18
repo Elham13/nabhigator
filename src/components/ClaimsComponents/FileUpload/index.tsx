@@ -11,7 +11,6 @@ import { VscCloudUpload } from "react-icons/vsc";
 type PropType = {
   doc: DocumentData | Omit<DocumentData, "location">;
   docName: string;
-  disabled: boolean;
   claimId: number;
   getUrl: (
     docId: string,
@@ -22,7 +21,7 @@ type PropType = {
   ) => void;
 };
 
-const FileUpload = ({ doc, docName, disabled, claimId, getUrl }: PropType) => {
+const FileUpload = ({ doc, docName, claimId, getUrl }: PropType) => {
   const [progress, setProgress] = useState(0);
 
   const uploadFile = async (e: ChangeEvent<HTMLInputElement>) => {

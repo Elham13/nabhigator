@@ -2416,9 +2416,8 @@ export const rmClassOfAccommodationOptions = [
 
 export const rmRelationshipOptions = [
   {
-    label: "Family",
-    title: "Family",
-    options: [
+    group: "Family",
+    items: [
       { value: "Father", label: "Father" },
       { value: "Mother", label: "Mother" },
       { value: "Spouse", label: "Spouse" },
@@ -2428,9 +2427,8 @@ export const rmRelationshipOptions = [
     ],
   },
   {
-    label: "Others",
-    title: "Others",
-    options: [
+    group: "Others",
+    items: [
       { value: "Friend", label: "Friend" },
       { value: "Passerby", label: "Passerby" },
       { value: "Neighbor", label: "Neighbor" },
