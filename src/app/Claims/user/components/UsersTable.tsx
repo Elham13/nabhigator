@@ -14,7 +14,7 @@ import {
   Flex,
 } from "@mantine/core";
 import axios from "axios";
-import { BiSearch, BiUpload, BiUserPlus } from "react-icons/bi";
+import { BiCog, BiSearch, BiUpload, BiUserPlus } from "react-icons/bi";
 import { useRouter } from "next/navigation";
 import { useDebouncedValue } from "@mantine/hooks";
 import { AiOutlineClear } from "react-icons/ai";
@@ -25,10 +25,9 @@ import CommonTableHead from "@/components/ClaimsComponents/commonTable/CommonTab
 import { usersTableHeaders } from "@/lib/utils/constants/tableHeadings";
 import CommonTablePlaceholder from "@/components/ClaimsComponents/commonTable/CommonTablePlaceholder";
 import dynamic from "next/dynamic";
-import Loading from "@/components/Loading";
 const UploadModal = dynamic(() => import("./UploadModal"), {
   ssr: false,
-  loading: () => <Loading />,
+  loading: () => <BiCog className="animate-spin" />,
 });
 
 const tableHeadings = [
