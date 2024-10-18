@@ -1,9 +1,18 @@
-import React, { Dispatch, Fragment, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import { CaseDetail, IDashboardData } from "@/lib/utils/types/fniDataTypes";
 import dynamic from "next/dynamic";
 import Loading from "@/components/Loading";
 import { getTasksAndDocs } from "@/lib/helpers";
 import { AccordionItem, CustomAccordion } from "@/components/CustomAccordion";
+
+const RMInvestigationFindings = dynamic(
+  () => import("./InboxDetail/RMInvestigationFindings"),
+  {
+    ssr: false,
+    loading: () => <Loading />,
+  }
+);
+
 const InvestigationFindings = dynamic(
   () => import("./InboxDetail/InvestigationFindings"),
   {
@@ -25,13 +34,50 @@ const CompleteInvestigation = ({
   setCaseDetail,
   onClose,
 }: PropTypes) => {
-  const { preAuthFindings, preAuthFindingsHospital } = getTasksAndDocs({
+  const {
+    preAuthFindings,
+    preAuthFindingsHospital,
+    rmFindings,
+    rmFindingsHospital,
+    tasksAndDocs,
+    tasksAndDocsHospital,
+  } = getTasksAndDocs({
     claimType: data?.claimType,
     claimCase: caseDetail,
   });
 
   //   TODO: Add this
-  if (data?.claimType === "Reimbursement") return <h1>Coming Soon</h1>;
+  if (data?.claimType === "Reimbursement")
+    return caseDetail?.allocationType === "Single" ? (
+      <RMInvestigationFindings
+        tasksAndDocs={tasksAndDocs}
+        rmFindings={rmFindings}
+        caseDetail={caseDetail}
+        dashboardData={data}
+        setCaseDetail={setCaseDetail}
+      />
+    ) : (
+      <CustomAccordion>
+        <AccordionItem title="Insured Part">
+          <RMInvestigationFindings
+            tasksAndDocs={tasksAndDocs}
+            rmFindings={rmFindings}
+            caseDetail={caseDetail}
+            dashboardData={data}
+            setCaseDetail={setCaseDetail}
+          />
+        </AccordionItem>
+        <AccordionItem title="Hospital Part">
+          <RMInvestigationFindings
+            tasksAndDocs={tasksAndDocsHospital}
+            rmFindings={rmFindingsHospital}
+            caseDetail={caseDetail}
+            dashboardData={data}
+            setCaseDetail={setCaseDetail}
+          />
+        </AccordionItem>
+      </CustomAccordion>
+    );
 
   return caseDetail?.allocationType === "Single" ? (
     <InvestigationFindings

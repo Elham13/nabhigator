@@ -1618,7 +1618,7 @@ const InvestigationFindings = ({
                 doc={tempDocInitials}
                 docName="doc"
                 getUrl={handleGetUrl}
-                claimId={dashboardData?.claimId}
+                claimId={dashboardData?.claimId || 0}
               />
             </Grid.Col>
 

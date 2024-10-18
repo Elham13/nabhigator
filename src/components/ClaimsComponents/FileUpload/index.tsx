@@ -11,7 +11,7 @@ import { VscCloudUpload } from "react-icons/vsc";
 type PropType = {
   doc: DocumentData | Omit<DocumentData, "location">;
   docName: string;
-  claimId?: number;
+  claimId: number;
   getUrl: (
     docId: string,
     docName: string,
