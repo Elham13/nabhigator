@@ -98,28 +98,6 @@ router.post(async (req) => {
       },
     ];
 
-    const mainPipeLine: PipelineStage[] = [
-      ...pipeline,
-      {
-        $facet: {
-          data: [
-            { $sort: sort ? sort : { updatedAt: -1 } },
-            {
-              $skip: updatedFilter?.claimId
-                ? 0
-                : (filter?.pagination?.page - 1) * filter?.pagination?.limit,
-            },
-            { $limit: filter?.pagination?.limit || 10 },
-          ],
-          count: [
-            {
-              $count: "total",
-            },
-          ],
-        },
-      },
-    ];
-
     if (!!filter?.colorCode) {
       pipeline.unshift({
         $addFields: {
@@ -156,15 +134,11 @@ router.post(async (req) => {
 
     // console.log("pipeline: ", pipeline[0]["$match"]);
 
-    let result = await DashboardData.aggregate(mainPipeLine, {
+    let data = await DashboardData.aggregate(pipeline, {
       allowDiskUse: true,
     });
 
-    const data = result.length > 0 ? result[0].data : [];
-    const count =
-      result.length > 0 && result[0].count.length > 0
-        ? result[0].count[0].total
-        : 0;
+    let count = await DashboardData.countDocuments(updatedFilter);
 
     return NextResponse.json(
       {

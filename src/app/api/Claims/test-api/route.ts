@@ -1,37 +1,107 @@
-import ClaimCase from "@/lib/Models/claimCase";
 import connectDB from "@/lib/db/dbConnectWithMongoose";
 import { Databases } from "@/lib/utils/types/enums";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
-import dayjs from "dayjs";
-import DashboardData from "@/lib/Models/dashboardData";
-import { HydratedDocument } from "mongoose";
-import {
-  CaseDetail,
-  EventNames,
-  IDashboardData,
-  IUser,
-  IZoneStateMaster,
-  NumericStage,
-  Role,
-} from "@/lib/utils/types/fniDataTypes";
-import ClaimInvestigator from "@/lib/Models/claimInvestigator";
-import User from "@/lib/Models/user";
-import NewPinCodeMaster from "@/lib/Models/newPinCodeMaster";
-import NewStateDistrictMaster from "@/lib/Models/newStateDistrictMaster";
-import ZoneStateMaster from "@/lib/Models/zoneStateMaster";
-import ZoneMaster from "@/lib/Models/zoneMaster";
-import CaseEvent from "@/lib/Models/caseEvent";
-import { buildMaximusUrl } from "@/lib/helpers/wdmsHelpers";
-import axios from "axios";
-import { IGetFNIData } from "@/lib/utils/types/maximusResponseTypes";
-import UnwantedFNIData from "@/lib/Models/uwantedFNIData";
-
-// dayjs.extend(utc);
 // dayjs.extend(timezone);
 
 const router = createEdgeRouter<NextRequest, {}>();
+
+const dbQueries = () => {
+  // For report recieved date
+  // db.dashboarddatas
+  //   .aggregate([
+  //     {
+  //       $match: {
+  //         stage: { $in: [12, 4] },
+  //         caseId: { $exists: true, $ne: null },
+  //         $or: [
+  //           { invReportReceivedDate: { $exists: false } },
+  //           { invReportReceivedDate: null },
+  //         ],
+  //       },
+  //     },
+  //     { $project: { claimId: 1, invReportReceivedDate: 1, caseId: 1 } },
+  //   ])
+  //   .forEach(function (doc) {
+  //     const claimCase = db.claimcases.findOne({ _id: doc.caseId });
+  //     if (claimCase) {
+  //       let date = null;
+  //       if (
+  //         claimCase.singleTasksAndDocs &&
+  //         claimCase.singleTasksAndDocs.invReportReceivedDate
+  //       ) {
+  //         date = claimCase.singleTasksAndDocs.invReportReceivedDate;
+  //       } else if (claimCase.reportReceivedDate) {
+  //         date = claimCase.reportReceivedDate;
+  //       } else if (claimCase.invReportReceivedDate) {
+  //         date = claimCase.invReportReceivedDate;
+  //       } else {
+  //         print("No condition success for caseId: " + claimCase._id);
+  //       }
+  //       if (date) {
+  //         print("Update success: " + claimCase._id);
+  //         db.dashboarddatas.findAndModify({
+  //           query: { _id: doc._id },
+  //           update: { $set: { invReportReceivedDate: date } },
+  //         });
+  //       }
+  //     } else {
+  //       print("Document not found for caseId: " + doc.caseId);
+  //     }
+  //   });
+  // For recommendation
+  // db.dashboarddatas
+  //   .aggregate([
+  //     {
+  //       $match: {
+  //         stage: { $in: [12, 4] },
+  //         caseId: { $exists: true, $ne: null },
+  //         $or: [
+  //           { investigatorRecommendation: { $exists: false } },
+  //           { investigatorRecommendation: null },
+  //           { investigatorRecommendation: "" },
+  //         ],
+  //       },
+  //     },
+  //     { $project: { claimId: 1, investigatorRecommendation: 1, caseId: 1 } },
+  //   ])
+  //   .forEach(function (doc) {
+  //     const claimCase = db.claimcases.findOne({ _id: doc.caseId });
+  //     if (claimCase) {
+  //       let recommendation = null;
+  //       if (
+  //         claimCase.singleTasksAndDocs &&
+  //         claimCase.singleTasksAndDocs.preAuthFindings &&
+  //         claimCase.singleTasksAndDocs.preAuthFindings &&
+  //         claimCase.singleTasksAndDocs.preAuthFindings.recommendation &&
+  //         claimCase.singleTasksAndDocs.preAuthFindings.recommendation.value
+  //       ) {
+  //         recommendation =
+  //           claimCase.singleTasksAndDocs.preAuthFindings.recommendation.value;
+  //       } else if (
+  //         claimCase.investigationFindings &&
+  //         claimCase.investigationFindings &&
+  //         claimCase.investigationFindings &&
+  //         claimCase.investigationFindings.recommendation &&
+  //         claimCase.investigationFindings.recommendation.value
+  //       ) {
+  //         recommendation = claimCase.investigationFindings.recommendation.value;
+  //       } else {
+  //         print("No condition success for caseId: " + claimCase._id);
+  //       }
+  //       if (recommendation) {
+  //         print("Update success: " + claimCase._id);
+  //         db.dashboarddatas.findAndModify({
+  //           query: { _id: doc._id },
+  //           update: { $set: { investigatorRecommendation: recommendation } },
+  //         });
+  //       }
+  //     } else {
+  //       print("Document not found for caseId: " + doc.caseId);
+  //     }
+  //   });
+};
 
 router.post(async (req) => {
   const body = await req?.json();
