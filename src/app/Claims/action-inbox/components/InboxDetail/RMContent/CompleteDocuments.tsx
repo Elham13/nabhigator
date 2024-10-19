@@ -1,27 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   ActionIcon,
   Box,
+  Button,
   Divider,
-  Flex,
+  Loader,
   Stack,
-  Text,
   Title,
 } from "@mantine/core";
 import { IoMdClose } from "react-icons/io";
-import UploadDoc from "../UploadDoc";
-import axios from "axios";
-import { BiHide, BiLink } from "react-icons/bi";
-import { HiLocationMarker } from "react-icons/hi";
-import { MdOutlineDeleteSweep } from "react-icons/md";
 import {
   CaseDetail,
   DocumentData,
   LocationType,
-  SingleResponseType,
+  ResponseDoc,
 } from "@/lib/utils/types/fniDataTypes";
-import { showError } from "@/lib/helpers";
+import { getTasksAndDocs, showError } from "@/lib/helpers";
 import { EndPoints } from "@/lib/utils/types/enums";
+import { useAxios } from "@/lib/hooks/useAxios";
+import FileUpload from "@/components/ClaimsComponents/FileUpload";
+import { AccordionItem, CustomAccordion } from "@/components/CustomAccordion";
 
 type PropTypes = {
   caseDetail: CaseDetail | null;
@@ -31,22 +29,90 @@ type PropTypes = {
   claimType?: "PreAuth" | "Reimbursement";
 };
 
-const CompleteDocuments = ({
-  caseDetail,
+type DocumentUploadProps = {
+  caseId: string;
+  docs: ResponseDoc | null;
+  claimId: number;
+  part?: "insured" | "hospital";
+  setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
+};
+
+type DocumentButtonProps = {
+  caseId: string;
+  doc: DocumentData;
+  claimId: number;
+  docKey: string;
+  deviceLocation: LocationType | null;
+  part?: "insured" | "hospital";
+  setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
+};
+
+const DocumentButton = ({
+  doc,
+  caseId,
   claimId,
-  claimType,
-  onClose,
+  docKey,
+  deviceLocation,
+  part,
   setCaseDetail,
-}: PropTypes) => {
-  const [location, setLocation] = useState<LocationType | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+}: DocumentButtonProps) => {
+  const { refetch: addDoc, loading } = useAxios<any>({
+    config: {
+      url: EndPoints.SAVE_DOCUMENTS,
+      method: "POST",
+    },
+    dependencyArr: [deviceLocation, caseId],
+    isMutation: true,
+    trigger: !!caseId,
+    onDone: (data) => {
+      if (data?.updatedCase) setCaseDetail(data?.updatedCase);
+    },
+  });
+
+  return (
+    <Box key={doc._id} mb={8}>
+      {loading ? (
+        <Loader type="dots" />
+      ) : (
+        <FileUpload
+          doc={doc}
+          docName={docKey}
+          claimId={claimId}
+          getUrl={(docId, docName, docUrl, action, docIndex) =>
+            addDoc({
+              id: caseId,
+              docName,
+              docId,
+              docUrl,
+              action,
+              location: deviceLocation,
+              docIndex,
+              part,
+            })
+          }
+        />
+      )}
+    </Box>
+  );
+};
+
+const DocumentUpload = ({
+  caseId,
+  docs,
+  claimId,
+  part,
+  setCaseDetail,
+}: DocumentUploadProps) => {
+  const [deviceLocation, setDeviceLocation] = useState<LocationType | null>(
+    null
+  );
 
   const getCurrentPosition = async () => {
     try {
       if (typeof window !== undefined) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            setLocation({
+            setDeviceLocation({
               latitude: position.coords.latitude,
               longitude: position.coords.longitude,
             });
@@ -62,63 +128,9 @@ const CompleteDocuments = ({
     }
   };
 
-  const handleChange = async (
-    docId: string,
-    docName: string,
-    docUrl: string,
-    action: "Add" | "Remove",
-    docIndex?: number
-  ) => {
-    try {
-      if (!location) throw new Error("Please enable access to location!");
-      const { data } = await axios.post(EndPoints.UPDATE_CASE_DETAIL, {
-        id: caseDetail?._id,
-        docName,
-        docId,
-        docUrl,
-        action,
-        location,
-        docIndex,
-      });
-
-      setCaseDetail(data?.updatedCase);
-    } catch (error: any) {
-      showError(error);
-    }
-  };
-
-  const handleOpenDoc = async (docKey: string, name: string) => {
-    try {
-      setLoading(true);
-      const { data } = await axios.post<
-        SingleResponseType<{ signedUrl: string }>
-      >(EndPoints.GET_SIGNED_URL, { docKey });
-
-      const signedUrl = data?.data?.signedUrl;
-
-      window.open(
-        `/Claims/action-inbox/documents?url=${signedUrl}&name=${name}`,
-        "_blank"
-      );
-    } catch (error: any) {
-      showError(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     getCurrentPosition();
   }, []);
-
-  let docs = {};
-
-  if (caseDetail?.allocationType === "Single") {
-    docs = caseDetail?.singleTasksAndDocs?.docs || {};
-  } else if (caseDetail?.allocationType === "Dual") {
-    // TODO: Handle for dual
-    docs = caseDetail?.insuredTasksAndDocs?.docs || {};
-  }
 
   return (
     <Box mt={16}>
@@ -126,17 +138,12 @@ const CompleteDocuments = ({
       <Title order={2} ta="center" c="green" my={20}>
         Complete Documents
       </Title>
-      <ActionIcon className="float-right" onClick={onClose}>
-        <IoMdClose />
-      </ActionIcon>
-
       <Box mt={60}>
-        {docs && Object.keys(docs)?.length > 0
+        {!!docs && Object.keys(docs)?.length > 0
           ? Object.keys(docs)?.map((docKey, ind) => {
-              const docArr: DocumentData[] = docs
-                ? // @ts-ignore
-                  docs[docKey]
-                : [];
+              const docArr: DocumentData[] = docs[docKey];
+
+              if (docKey === "NPS Confirmation") return null;
 
               return (
                 <Stack key={ind}>
@@ -144,71 +151,20 @@ const CompleteDocuments = ({
                     Documents of {docKey}
                   </Title>
                   {docArr?.length > 0
-                    ? docArr?.map((el, index) =>
-                        el?.docUrl && el?.docUrl?.length > 0 ? (
-                          el?.docUrl?.map((url, ind) => {
-                            const isHidden =
-                              el?.replacedDocUrls?.includes(url) ||
-                              el?.hiddenDocUrls?.includes(url);
-
-                            if (isHidden) return <BiHide key={index} />;
-
-                            return (
-                              <Flex
-                                key={ind}
-                                gap={4}
-                                align="center"
-                                justify="space-between"
-                                className="hover:bg-slate-100"
-                              >
-                                <ActionIcon
-                                  variant="light"
-                                  loading={loading}
-                                  onClick={() => handleOpenDoc(url, el?.name)}
-                                >
-                                  <BiLink />
-                                </ActionIcon>
-                                <ActionIcon
-                                  variant="light"
-                                  onClick={() => {
-                                    window.open(
-                                      `https://www.google.com/maps?q=${el?.location?.latitude},${el?.location?.longitude}`,
-                                      "_blank"
-                                    );
-                                  }}
-                                >
-                                  <HiLocationMarker />
-                                </ActionIcon>
-                                <Text>{el?.name}</Text>
-                                <ActionIcon
-                                  variant="light"
-                                  color="red"
-                                  onClick={() =>
-                                    handleChange(
-                                      el?._id || "",
-                                      docKey,
-                                      "",
-                                      "Remove",
-                                      ind
-                                    )
-                                  }
-                                >
-                                  <MdOutlineDeleteSweep />
-                                </ActionIcon>
-                              </Flex>
-                            );
-                          })
-                        ) : (
-                          <UploadDoc
-                            key={index}
-                            docName={el?.name}
-                            claimId={claimId}
-                            getUrl={(url) =>
-                              handleChange(el?._id || "", docKey, url, "Add")
-                            }
-                          />
-                        )
-                      )
+                    ? docArr?.map((doc) => (
+                        <DocumentButton
+                          key={doc?._id}
+                          {...{
+                            caseId,
+                            claimId,
+                            deviceLocation,
+                            doc,
+                            docKey,
+                            part,
+                            setCaseDetail,
+                          }}
+                        />
+                      ))
                     : null}
                 </Stack>
               );
@@ -217,6 +173,82 @@ const CompleteDocuments = ({
       </Box>
     </Box>
   );
+};
+
+const CompleteDocuments = ({
+  caseDetail,
+  claimId,
+  claimType,
+  onClose,
+  setCaseDetail,
+}: PropTypes) => {
+  const { tasksAndDocs, tasksAndDocsHospital } = getTasksAndDocs({
+    claimType,
+    claimCase: caseDetail,
+  });
+
+  if (caseDetail?.allocationType === "Single")
+    return (
+      <Box className="relative bg-white">
+        <Box className="absolute top-0 right-0">
+          <ActionIcon onClick={onClose}>
+            <IoMdClose />
+          </ActionIcon>
+        </Box>
+
+        <DocumentUpload
+          {...{
+            caseId: (caseDetail?._id as string) || "",
+            claimId: claimId || 0,
+            setCaseDetail,
+            docs: tasksAndDocs?.docs as ResponseDoc,
+          }}
+        />
+
+        <Button onClick={onClose} mt={10}>
+          Submit
+        </Button>
+      </Box>
+    );
+  else
+    return (
+      <Box className="relative bg-white">
+        <Box className="absolute top-0 right-0">
+          <ActionIcon onClick={onClose}>
+            <IoMdClose />
+          </ActionIcon>
+        </Box>
+
+        <CustomAccordion>
+          <AccordionItem title="Insured Part Documents">
+            <DocumentUpload
+              {...{
+                caseId: (caseDetail?._id as string) || "",
+                claimId: claimId || 0,
+                setCaseDetail,
+                docs: tasksAndDocs?.docs as ResponseDoc,
+                part: "insured",
+              }}
+            />
+          </AccordionItem>
+          <AccordionItem title="Hospital Part Documents">
+            <DocumentUpload
+              {...{
+                caseId: (caseDetail?._id as string) || "",
+                claimId: claimId || 0,
+                setCaseDetail,
+                docs: tasksAndDocsHospital?.docs as ResponseDoc,
+                part: "hospital",
+              }}
+            />
+          </AccordionItem>
+        </CustomAccordion>
+
+        <Button onClick={onClose} mt={10}>
+          Submit
+        </Button>
+      </Box>
+    );
 };
 
 export default CompleteDocuments;

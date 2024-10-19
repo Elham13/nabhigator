@@ -89,7 +89,7 @@ const findPostQaUser = async (props: IProps) => {
 };
 
 router.post(async (req) => {
-  const { id, userId, userName } = await req?.json();
+  const { id, userId, userName, type } = await req?.json();
 
   try {
     if (!id) throw new Error("id is required!");
@@ -120,27 +120,45 @@ router.post(async (req) => {
       );
       findings = caseDetail?.singleTasksAndDocs || null;
     } else if (caseDetail?.allocationType === "Dual") {
-      if (!userId) throw new Error("userId is required");
-      dashboardData.claimInvestigators = dashboardData?.claimInvestigators?.map(
-        (inv) => {
-          if (inv?._id?.toString() === userId)
+      if (type === "notInvestigator") {
+        dashboardData.claimInvestigators =
+          dashboardData?.claimInvestigators?.map((inv) => {
             return { ...inv, investigationStatus: "Completed" };
-          return inv;
-        }
-      );
+          });
+      } else {
+        if (!userId) throw new Error("userId is required");
+        dashboardData.claimInvestigators =
+          dashboardData?.claimInvestigators?.map((inv) => {
+            if (inv?._id?.toString() === userId)
+              return { ...inv, investigationStatus: "Completed" };
+            return inv;
+          });
+      }
 
-      if (
-        caseDetail?.insuredTasksAndDocs?.investigator?.toString() === userId
-      ) {
-        findings = caseDetail?.insuredTasksAndDocs || null;
-      } else if (
-        caseDetail?.hospitalTasksAndDocs?.investigator?.toString() === userId
-      ) {
-        findings = caseDetail?.hospitalTasksAndDocs || null;
+      if (!type) {
+        if (
+          caseDetail?.insuredTasksAndDocs?.investigator?.toString() === userId
+        ) {
+          findings = caseDetail?.insuredTasksAndDocs || null;
+        } else if (
+          caseDetail?.hospitalTasksAndDocs?.investigator?.toString() === userId
+        ) {
+          findings = caseDetail?.hospitalTasksAndDocs || null;
+        }
       }
     } else throw new Error("allocationType not found");
 
-    if (!findings) throw new Error("Failed to find the tasks and documents");
+    if (type === "notInvestigator") {
+      if (caseDetail?.allocationType === "Single") {
+        caseDetail.singleTasksAndDocs!.invReportReceivedDate = new Date();
+      } else if (caseDetail?.allocationType === "Dual") {
+        caseDetail.insuredTasksAndDocs!.invReportReceivedDate = new Date();
+        caseDetail.hospitalTasksAndDocs!.invReportReceivedDate = new Date();
+      }
+    } else {
+      if (!findings) throw new Error("Failed to find the tasks and documents");
+      findings.invReportReceivedDate = new Date();
+    }
 
     const canClose = dashboardData?.claimInvestigators?.every(
       (inv) => inv?.investigationStatus === "Completed"
@@ -222,6 +240,9 @@ router.post(async (req) => {
           eventRemarks =
             eventRemarks += `, and moved to Post QA Lead bucket because no Post Qa matched`;
         }
+      } else {
+        eventRemarks =
+          eventRemarks += `, and moved to Post QA Lead bucket because no Post Qa matched`;
       }
 
       dashboardData.stage = stage;
@@ -257,7 +278,6 @@ router.post(async (req) => {
       });
     }
 
-    findings.invReportReceivedDate = new Date();
     dashboardData.invReportReceivedDate = new Date();
 
     await caseDetail.save();

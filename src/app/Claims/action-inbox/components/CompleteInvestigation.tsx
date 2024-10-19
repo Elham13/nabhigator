@@ -1,9 +1,11 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, Fragment } from "react";
 import { CaseDetail, IDashboardData } from "@/lib/utils/types/fniDataTypes";
 import dynamic from "next/dynamic";
 import { getTasksAndDocs } from "@/lib/helpers";
 import { AccordionItem, CustomAccordion } from "@/components/CustomAccordion";
 import { BiCog } from "react-icons/bi";
+import { ActionIcon, Box, Button } from "@mantine/core";
+import { IoIosClose } from "react-icons/io";
 
 const RMInvestigationFindings = dynamic(
   () => import("./InboxDetail/RMInvestigationFindings"),
@@ -46,19 +48,15 @@ const CompleteInvestigation = ({
     claimCase: caseDetail,
   });
 
-  //   TODO: Add this
   if (data?.claimType === "Reimbursement")
-    return caseDetail?.allocationType === "Single" ? (
-      <RMInvestigationFindings
-        tasksAndDocs={tasksAndDocs}
-        rmFindings={rmFindings}
-        caseDetail={caseDetail}
-        dashboardData={data}
-        setCaseDetail={setCaseDetail}
-      />
-    ) : (
-      <CustomAccordion>
-        <AccordionItem title="Insured Part">
+    return (
+      <Box className="relative bg-white">
+        <Box className="absolute top-0 right-0">
+          <ActionIcon color="red" onClick={onClose}>
+            <IoIosClose />
+          </ActionIcon>
+        </Box>
+        {caseDetail?.allocationType === "Single" ? (
           <RMInvestigationFindings
             tasksAndDocs={tasksAndDocs}
             rmFindings={rmFindings}
@@ -66,48 +64,74 @@ const CompleteInvestigation = ({
             dashboardData={data}
             setCaseDetail={setCaseDetail}
           />
-        </AccordionItem>
-        <AccordionItem title="Hospital Part">
-          <RMInvestigationFindings
-            tasksAndDocs={tasksAndDocsHospital}
-            rmFindings={rmFindingsHospital}
-            caseDetail={caseDetail}
-            dashboardData={data}
-            setCaseDetail={setCaseDetail}
-          />
-        </AccordionItem>
-      </CustomAccordion>
+        ) : (
+          <CustomAccordion>
+            <AccordionItem title="Insured Part">
+              <RMInvestigationFindings
+                tasksAndDocs={tasksAndDocs}
+                rmFindings={rmFindings}
+                caseDetail={caseDetail}
+                dashboardData={data}
+                setCaseDetail={setCaseDetail}
+              />
+            </AccordionItem>
+            <AccordionItem title="Hospital Part">
+              <RMInvestigationFindings
+                tasksAndDocs={tasksAndDocsHospital}
+                rmFindings={rmFindingsHospital}
+                caseDetail={caseDetail}
+                dashboardData={data}
+                setCaseDetail={setCaseDetail}
+              />
+            </AccordionItem>
+          </CustomAccordion>
+        )}
+
+        <Button mt={20} onClick={onClose}>
+          Submit
+        </Button>
+      </Box>
     );
 
-  return caseDetail?.allocationType === "Single" ? (
-    <InvestigationFindings
-      dashboardData={data || null}
-      caseId={caseDetail?._id as string}
-      findings={preAuthFindings}
-      onClose={onClose}
-      setCaseDetail={setCaseDetail}
-    />
-  ) : (
-    <CustomAccordion>
-      <AccordionItem title="Insured Part">
+  return (
+    <Box className="relative bg-white">
+      <Box className="absolute top-0 right-0">
+        <ActionIcon color="red" onClick={onClose}>
+          <IoIosClose />
+        </ActionIcon>
+      </Box>
+      {caseDetail?.allocationType === "Single" ? (
         <InvestigationFindings
           dashboardData={data || null}
           caseId={caseDetail?._id as string}
           findings={preAuthFindings}
-          onClose={onClose}
           setCaseDetail={setCaseDetail}
         />
-      </AccordionItem>
-      <AccordionItem title="Hospital Part">
-        <InvestigationFindings
-          dashboardData={data || null}
-          caseId={caseDetail?._id as string}
-          findings={preAuthFindingsHospital}
-          onClose={onClose}
-          setCaseDetail={setCaseDetail}
-        />
-      </AccordionItem>
-    </CustomAccordion>
+      ) : (
+        <CustomAccordion>
+          <AccordionItem title="Insured Part">
+            <InvestigationFindings
+              dashboardData={data || null}
+              caseId={caseDetail?._id as string}
+              findings={preAuthFindings}
+              setCaseDetail={setCaseDetail}
+            />
+          </AccordionItem>
+          <AccordionItem title="Hospital Part">
+            <InvestigationFindings
+              dashboardData={data || null}
+              caseId={caseDetail?._id as string}
+              findings={preAuthFindingsHospital}
+              setCaseDetail={setCaseDetail}
+            />
+          </AccordionItem>
+        </CustomAccordion>
+      )}
+
+      <Button mt={20} onClick={onClose}>
+        Submit
+      </Button>
+    </Box>
   );
 };
 

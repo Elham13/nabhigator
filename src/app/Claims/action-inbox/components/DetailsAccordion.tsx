@@ -1,4 +1,10 @@
-import React, { Dispatch, Fragment, SetStateAction, useState } from "react";
+import React, {
+  Dispatch,
+  Fragment,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 import { Accordion, Box, Button, Divider, Text, Title } from "@mantine/core";
 import {
   CaseDetail,
@@ -15,10 +21,13 @@ import { useLocalStorage } from "@mantine/hooks";
 import { getEncryptClaimId } from "@/lib/helpers";
 import { BiCog } from "react-icons/bi";
 
-const CompleteInvestigation = dynamic(() => import("./CompleteInvestigation"), {
-  ssr: false,
-  loading: () => <BiCog className="animate-spin" />,
-});
+const CompleteInvestigationFooter = dynamic(
+  () => import("./InboxDetail/CompleteInvestigationFooter"),
+  {
+    ssr: false,
+    loading: () => <BiCog className="animate-spin" />,
+  }
+);
 const TriageSummary = dynamic(
   () => import("@/components/ClaimsComponents/TriageSummary"),
   {
@@ -103,20 +112,6 @@ const Allocation = dynamic(() => import("./InboxDetail/Allocation"), {
   ssr: false,
   loading: () => <BiCog className="animate-spin" />,
 });
-const TasksAndDocsButtons = dynamic(
-  () => import("./InboxDetail/TasksAndDocsButtons"),
-  {
-    ssr: false,
-    loading: () => <BiCog className="animate-spin" />,
-  }
-);
-const CompleteDocuments = dynamic(
-  () => import("./InboxDetail/RMContent/CompleteDocuments"),
-  {
-    ssr: false,
-    loading: () => <BiCog className="animate-spin" />,
-  }
-);
 const InvestigationRejectionDetails = dynamic(
   () => import("./InboxDetail/InvestigationRejectionDetails"),
   {
@@ -169,7 +164,12 @@ const DetailsAccordion = ({
   const [value, setValue] = useState<string | null>(null);
   const [encryptedClaimId, setEncryptedClaimId] = useState<string>("");
 
-  getEncryptClaimId(data?.claimId).then((str) => setEncryptedClaimId(str));
+  useEffect(() => {
+    (async () => {
+      const str = await getEncryptClaimId(data?.claimId);
+      setEncryptedClaimId(str);
+    })();
+  }, [data?.claimId]);
 
   const accordionItems = [
     ...(data?.claimType === "PreAuth"
@@ -347,39 +347,15 @@ const DetailsAccordion = ({
           {
             value: "Complete investigation",
             content: value === "Complete investigation" && (
-              <Fragment>
-                {!showElement.completeTasks &&
-                !showElement.completeDocuments ? (
-                  <TasksAndDocsButtons setShowElement={setShowElement} />
-                ) : showElement.completeTasks &&
-                  !showElement.completeDocuments ? (
-                  <CompleteInvestigation
-                    caseDetail={caseDetail}
-                    data={data}
-                    setCaseDetail={setCaseDetail}
-                    onClose={() =>
-                      setShowElement((prev) => ({
-                        ...prev,
-                        completeTasks: false,
-                      }))
-                    }
-                  />
-                ) : showElement.completeDocuments &&
-                  !showElement.completeTasks ? (
-                  <CompleteDocuments
-                    caseDetail={caseDetail}
-                    claimId={data?.claimId}
-                    setCaseDetail={setCaseDetail}
-                    claimType={data?.claimType}
-                    onClose={() =>
-                      setShowElement((prev) => ({
-                        ...prev,
-                        completeDocuments: false,
-                      }))
-                    }
-                  />
-                ) : null}
-              </Fragment>
+              <CompleteInvestigationFooter
+                {...{
+                  caseDetail,
+                  data,
+                  setCaseDetail,
+                  setShowElement,
+                  showElement,
+                }}
+              />
             ),
           },
         ]
