@@ -69,12 +69,18 @@ router.post(async (req) => {
           benefitType: 1,
           "insuredDetails.insuredName": "$insuredDetails.insuredName",
           "claimDetails.claimAmount": "$claimDetails.claimAmount",
+          "claimDetails.diagnosis": "$claimDetails.diagnosis",
           "hospitalDetails.providerName": "$hospitalDetails.providerName",
           "hospitalDetails.providerCity": "$hospitalDetails.providerCity",
           "hospitalDetails.providerState": "$hospitalDetails.providerState",
           "hospitalDetails.dateOfAdmission": "$hospitalDetails.dateOfAdmission",
+          "hospitalDetails.providerAddress": "$hospitalDetails.providerAddress",
           "hospitalizationDetails.dateOfAdmission":
             "$hospitalizationDetails.dateOfAdmission",
+          "hospitalizationDetails.dateOfDischarge":
+            "$hospitalizationDetails.dateOfDischarge",
+          "hospitalizationDetails.admissionType":
+            "$hospitalizationDetails.admissionType",
           allocationType: 1,
           stage: 1,
           intimationDate: 1,
