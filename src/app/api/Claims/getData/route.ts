@@ -97,7 +97,7 @@ router.post(async (req) => {
           updatedAt: 1,
         },
       },
-      // { $sort: sort ? sort : { updatedAt: -1 } },
+      { $sort: sort ? sort : { _id: -1 } },
       {
         $skip: updatedFilter?.claimId
           ? 0
