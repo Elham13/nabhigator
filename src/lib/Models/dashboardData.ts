@@ -351,6 +351,7 @@ const DashboardDataSchema = new Schema(
       type: String,
     },
     sourceSystem: { type: String },
+    finalOutCome: { type: String },
     tlInbox: { type: TLInboxSchema },
     invReportReceivedDate: {
       type: Date,

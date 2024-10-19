@@ -590,6 +590,7 @@ export interface IDashboardData {
   dateOfFallingIntoReInvestigation: Date | null;
   invReportReceivedDate: Date | null;
   investigatorRecommendation?: string;
+  finalOutCome?: string;
   sourceSystem: TSourceSystem;
   tlInbox?: ITLInbox;
   createdAt: string;

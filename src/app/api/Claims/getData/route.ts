@@ -100,6 +100,7 @@ router.post(async (req) => {
           investigatorRecommendation: 1,
           dateOfFallingIntoPostQaBucket: 1,
           invReportReceivedDate: 1,
+          finalOutCome: 1,
           updatedAt: 1,
         },
       },
