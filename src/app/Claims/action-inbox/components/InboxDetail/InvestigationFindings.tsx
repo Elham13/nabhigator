@@ -7,7 +7,6 @@ import React, {
   useState,
 } from "react";
 import {
-  ActionIcon,
   Box,
   Grid,
   MultiSelect,
@@ -20,7 +19,6 @@ import {
 } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import dayjs from "dayjs";
-import { IoMdClose } from "react-icons/io";
 import {
   CaseDetail,
   IDashboardData,
@@ -127,6 +125,8 @@ const initialValues: IInvestigationFindings = {
 };
 
 type PropTypes = {
+  formPart?: "Insured" | "Hospital";
+  isQa?: boolean;
   findings: RevisedInvestigationFindings | null;
   dashboardData: IDashboardData | null;
   caseId: string;
@@ -134,6 +134,8 @@ type PropTypes = {
 };
 
 const InvestigationFindings = ({
+  formPart,
+  isQa,
   findings,
   dashboardData,
   caseId,
@@ -166,6 +168,8 @@ const InvestigationFindings = ({
       key: name,
       value: providedValue || value,
       userId: user?._id,
+      isQa,
+      formPart,
     };
     submit(payload);
     if (shouldSetValues)

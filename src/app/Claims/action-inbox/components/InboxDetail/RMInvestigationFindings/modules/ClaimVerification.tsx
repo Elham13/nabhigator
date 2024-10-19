@@ -14,12 +14,20 @@ const initialFormValues: IClaimVerification = {
 };
 
 type PropTypes = {
+  formPart?: "Insured" | "Hospital";
+  isQa?: boolean;
   findings: IRMFindings | null;
   caseId?: string;
   setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
 };
 
-const ClaimVerification = ({ findings, caseId, setCaseDetail }: PropTypes) => {
+const ClaimVerification = ({
+  isQa,
+  formPart,
+  findings,
+  caseId,
+  setCaseDetail,
+}: PropTypes) => {
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
   const [values, setValues] = useState<IClaimVerification>(initialFormValues);
 
@@ -49,6 +57,8 @@ const ClaimVerification = ({ findings, caseId, setCaseDetail }: PropTypes) => {
       userId: user?._id,
       name: taskName,
       isBulk,
+      isQa,
+      formPart,
     };
 
     if (payload?.id && payload?.userId && !!value) {

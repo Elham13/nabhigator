@@ -43,7 +43,7 @@ const initialValues = {
 };
 
 router.post(async (req) => {
-  const { id, key, value, isPostQa, userId } = await req?.json();
+  const { id, key, value, isQa, userId, formPart } = await req?.json();
 
   try {
     if (!id) throw new Error("id is required");
@@ -71,10 +71,18 @@ router.post(async (req) => {
       tempFindingsQa =
         caseDetail?.singleTasksAndDocs?.preAuthFindingsPostQa || {};
     } else if (allocationType === "Dual") {
-      if (caseDetail?.insuredTasksAndDocs?.investigator?.toString() === userId)
-        part = "Insured";
-      if (caseDetail?.hospitalTasksAndDocs?.investigator?.toString() === userId)
-        part = "Hospital";
+      if (!!formPart) {
+        part = formPart;
+      } else {
+        if (
+          caseDetail?.insuredTasksAndDocs?.investigator?.toString() === userId
+        )
+          part = "Insured";
+        if (
+          caseDetail?.hospitalTasksAndDocs?.investigator?.toString() === userId
+        )
+          part = "Hospital";
+      }
 
       tempFindings =
         part === "Insured"
@@ -98,14 +106,14 @@ router.post(async (req) => {
     if (key && value) {
       const tempKey = key as keyof RevisedInvestigationFindings;
 
-      if (isPostQa) {
+      if (isQa) {
         tempFindingsQa[tempKey] = value;
       } else {
         tempFindings[tempKey] = value;
         tempFindingsQa[tempKey] = value;
       }
 
-      if (isPostQa) {
+      if (isQa) {
         if (allocationType === "Single") {
           caseDetail.singleTasksAndDocs!.preAuthFindingsPostQa = tempFindingsQa;
         } else {

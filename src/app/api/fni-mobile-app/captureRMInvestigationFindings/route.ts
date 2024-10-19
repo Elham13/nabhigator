@@ -21,7 +21,8 @@ const commonFormKeys = [
 ] as const;
 
 router.post(async (req) => {
-  const { id, name, payload, isQa, userId, isBulk } = await req?.json();
+  const { id, name, payload, isQa, userId, isBulk, formPart } =
+    await req?.json();
 
   try {
     if (!id) throw new Error("id is required");
@@ -49,10 +50,16 @@ router.post(async (req) => {
       tempFindings = claimCase?.singleTasksAndDocs?.rmFindings || {};
       tempFindingsQa = claimCase?.singleTasksAndDocs?.rmFindingsPostQA || {};
     } else if (allocationType === "Dual") {
-      if (claimCase?.insuredTasksAndDocs?.investigator?.toString() === userId)
-        part = "Insured";
-      if (claimCase?.hospitalTasksAndDocs?.investigator?.toString() === userId)
-        part = "Hospital";
+      if (!!formPart) {
+        part = formPart;
+      } else {
+        if (claimCase?.insuredTasksAndDocs?.investigator?.toString() === userId)
+          part = "Insured";
+        if (
+          claimCase?.hospitalTasksAndDocs?.investigator?.toString() === userId
+        )
+          part = "Hospital";
+      }
 
       tempFindings =
         part === "Insured"
@@ -77,8 +84,12 @@ router.post(async (req) => {
       const key = payload.key as keyof IRMFindings;
 
       if (taskName === "TheCommonForm") {
-        tempFindings[key] = payload.value;
-        tempFindingsQa[key] = payload.value;
+        if (isQa) {
+          tempFindingsQa[key] = payload.value;
+        } else {
+          tempFindings[key] = payload.value;
+          tempFindingsQa[key] = payload.value;
+        }
 
         if (!isQa && key === "recommendation" && !!payload?.value) {
           const dashboardData = await DashboardData.findOne({

@@ -11,6 +11,8 @@ import { Box, Title } from "@mantine/core";
 import CommonFormComponent from "../CommonFormComponent";
 
 type PropTypes = {
+  isQa?: boolean;
+  formPart?: "Insured" | "Hospital";
   tasksAndDocs: ITasksAndDocuments | null;
   rmFindings: IRMFindings | null;
   caseDetail: CaseDetail | null;
@@ -19,6 +21,8 @@ type PropTypes = {
 };
 
 const RMInvestigationFindings = ({
+  isQa,
+  formPart,
   tasksAndDocs,
   rmFindings,
   caseDetail,
@@ -35,6 +39,8 @@ const RMInvestigationFindings = ({
         <AccordionItem key={task?.name} title={task?.name}>
           <Tasks
             taskName={task?.name}
+            isQa={isQa}
+            formPart={formPart}
             data={dashboardData}
             caseId={caseDetail?._id as string}
             findings={rmFindings}
@@ -43,7 +49,7 @@ const RMInvestigationFindings = ({
         </AccordionItem>
       ));
     } else return [];
-  }, [tasksAndDocs]);
+  }, [tasksAndDocs, caseDetail?._id, dashboardData, rmFindings]);
 
   return (
     <Box>
@@ -52,6 +58,8 @@ const RMInvestigationFindings = ({
       </Title>
       <CustomAccordion>{items}</CustomAccordion>
       <CommonFormComponent
+        isQa={isQa}
+        formPart={formPart}
         findings={rmFindings}
         claimId={dashboardData?.claimId}
         caseId={caseDetail?._id as string}

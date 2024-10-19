@@ -61,12 +61,16 @@ const initialFormValues: ILabOrPathologistVerification = {
 };
 
 type PropTypes = {
+  formPart?: "Insured" | "Hospital";
+  isQa?: boolean;
   findings: IRMFindings | null;
   caseId?: string;
   setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
 };
 
 const LabOrPathologistVerification = ({
+  isQa,
+  formPart,
   findings,
   caseId,
   setCaseDetail,
@@ -92,6 +96,8 @@ const LabOrPathologistVerification = ({
       id: caseId,
       userId: user?._id,
       name: taskName,
+      isQa,
+      formPart,
     };
 
     if (payload?.id && payload?.userId && !!value) {

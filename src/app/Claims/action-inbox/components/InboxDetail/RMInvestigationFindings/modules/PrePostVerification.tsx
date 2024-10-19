@@ -77,12 +77,16 @@ const initialFormValues: IPrePostVerification = {
 };
 
 type PropTypes = {
+  formPart?: "Insured" | "Hospital";
+  isQa?: boolean;
   findings: IRMFindings | null;
   caseId?: string;
   setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
 };
 
 const PrePostVerification = ({
+  isQa,
+  formPart,
   caseId,
   findings,
   setCaseDetail,
@@ -115,6 +119,8 @@ const PrePostVerification = ({
       id: caseId,
       userId: user?._id,
       name: taskName,
+      isQa,
+      formPart,
     };
 
     if (payload?.id && payload?.userId && !!value) {

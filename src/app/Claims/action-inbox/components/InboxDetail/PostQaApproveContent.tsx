@@ -19,6 +19,7 @@ import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
 import {
   getEncryptClaimId,
   getFinalOutcomeCode,
+  getTasksAndDocs,
   showError,
 } from "@/lib/helpers";
 
@@ -57,33 +58,32 @@ const PostQaApproveContent = ({
   const getRecommendation = () => {
     let value = "";
     let code = "";
+
+    const {
+      preAuthFindings,
+      preAuthFindingsHospital,
+      rmFindings,
+      rmFindingsHospital,
+    } = getTasksAndDocs({
+      claimType: data?.claimType,
+      claimCase: caseDetail,
+    });
+
     if (data?.claimType === "PreAuth") {
       if (caseDetail?.allocationType === "Single") {
-        value =
-          caseDetail?.singleTasksAndDocs?.preAuthFindings?.recommendation
-            ?.value || "";
-        code =
-          caseDetail?.singleTasksAndDocs?.preAuthFindings?.recommendation
-            ?.code || "";
+        value = preAuthFindings?.recommendation?.value || "";
+        code = preAuthFindings?.recommendation?.code || "";
       } else if (caseDetail?.allocationType === "Dual") {
-        // TODO: Handle for dual
-        value =
-          caseDetail?.insuredTasksAndDocs?.preAuthFindings?.recommendation
-            ?.value || "";
-        code =
-          caseDetail?.insuredTasksAndDocs?.preAuthFindings?.recommendation
-            ?.code || "";
+        value = preAuthFindingsHospital?.recommendation?.value || "";
+        code = preAuthFindingsHospital?.recommendation?.code || "";
       }
     } else if (data?.claimType === "Reimbursement") {
       if (caseDetail?.allocationType === "Single") {
-        value =
-          caseDetail?.singleTasksAndDocs?.rmFindings?.recommendation?.value ||
-          "";
+        value = rmFindings?.recommendation?.value || "";
+        code = rmFindings?.recommendation?.code || "";
       } else if (caseDetail?.allocationType === "Dual") {
-        // TODO: Handle for dual
-        value =
-          caseDetail?.insuredTasksAndDocs?.rmFindings?.recommendation?.value ||
-          "";
+        value = rmFindingsHospital?.recommendation?.value || "";
+        code = rmFindingsHospital?.recommendation?.code || "";
       }
     }
 

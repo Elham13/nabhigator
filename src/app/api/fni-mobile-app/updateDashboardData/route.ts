@@ -118,7 +118,11 @@ router.post(async (req) => {
           ];
         } else {
           recipients = ["FIAllocation@nivabupa.com"];
-          ccRecipients = ["team.claims@nivabupa.com", postQaUserEmail];
+          ccRecipients = [
+            "team.claims@nivabupa.com",
+            "Sanjay.Kumar16@nivabupa.com",
+            postQaUserEmail,
+          ];
         }
 
         const invId = dashboardData?.claimInvestigators[0]?._id;
@@ -197,6 +201,8 @@ router.post(async (req) => {
       }
       if (!!postQARecommendation) {
         caseDetail.postQARecommendation = postQARecommendation;
+        dashboardData.finalOutcome =
+          postQARecommendation?.frcuRecommendationOnClaims?.value || "-";
         await caseDetail?.save();
       }
 

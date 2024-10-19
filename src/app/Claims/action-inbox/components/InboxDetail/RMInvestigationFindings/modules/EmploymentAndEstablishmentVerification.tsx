@@ -56,12 +56,16 @@ const initialFormValues: IEmploymentAndEstablishmentVerification = {
 };
 
 type PropTypes = {
+  formPart?: "Insured" | "Hospital";
+  isQa?: boolean;
   findings: IRMFindings | null;
   caseId?: string;
   setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
 };
 
 const EmploymentAndEstablishmentVerification = ({
+  isQa,
+  formPart,
   findings,
   caseId,
   setCaseDetail,
@@ -96,6 +100,8 @@ const EmploymentAndEstablishmentVerification = ({
       userId: user?._id,
       name: taskName,
       isBulk,
+      isQa,
+      formPart,
     };
 
     if (payload?.id && payload?.userId && !!value) {
