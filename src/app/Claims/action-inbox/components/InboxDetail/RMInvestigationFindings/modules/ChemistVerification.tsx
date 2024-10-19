@@ -37,12 +37,14 @@ const initialFormValues: IChemistVerification = {
 };
 
 type PropTypes = {
+  isQa?: boolean;
   findings: IRMFindings | null;
   caseId?: string;
   setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
 };
 
 const ChemistVerification = ({
+  isQa,
   findings,
   caseId,
   setCaseDetail,
@@ -81,6 +83,7 @@ const ChemistVerification = ({
       id: caseId,
       userId: user?._id,
       name: taskName,
+      isQa,
     };
 
     if (payload?.id && payload?.userId && !!value) {

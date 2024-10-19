@@ -63,6 +63,7 @@ const initialFormValues: IHospitalDailyCashPart = {
 };
 
 type PropTypes = {
+  isQa?: boolean;
   data: IDashboardData | null;
   caseId?: string;
   findings: IRMFindings | null;
@@ -70,6 +71,7 @@ type PropTypes = {
 };
 
 const HospitalDailyCash = ({
+  isQa,
   data,
   findings,
   caseId,
@@ -106,6 +108,7 @@ const HospitalDailyCash = ({
       userId: user?._id,
       name: taskName,
       isBulk,
+      isQa,
     };
 
     if (payload?.id && payload?.userId && !!value) {

@@ -81,7 +81,7 @@ const initialValues: IInvestigationFindings = {
 };
 
 router.post(async (req) => {
-  const { id, key, value, isPostQa, userId } = await req?.json();
+  const { id, key, value, isQa, userId } = await req?.json();
 
   try {
     if (!id) throw new Error("id is required");
@@ -136,14 +136,14 @@ router.post(async (req) => {
     if (key && value) {
       const tempKey = key as keyof RevisedInvestigationFindings;
 
-      if (isPostQa) {
+      if (isQa) {
         tempFindingsQa[tempKey] = value;
       } else {
         tempFindings[tempKey] = value;
         tempFindingsQa[tempKey] = value;
       }
 
-      if (isPostQa) {
+      if (isQa) {
         if (allocationType === "Single") {
           caseDetail.singleTasksAndDocs!.preAuthFindingsPostQa = tempFindingsQa;
         } else {

@@ -24,6 +24,7 @@ const InvestigationFindings = dynamic(
 );
 
 type PropTypes = {
+  isQa?: boolean;
   data?: IDashboardData;
   caseDetail: CaseDetail | null;
   setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
@@ -31,6 +32,7 @@ type PropTypes = {
 };
 
 const CompleteInvestigation = ({
+  isQa,
   data,
   caseDetail,
   setCaseDetail,
@@ -39,7 +41,11 @@ const CompleteInvestigation = ({
   const {
     preAuthFindings,
     preAuthFindingsHospital,
+    preAuthFindingsQA,
+    preAuthFindingsQAHospital,
     rmFindings,
+    rmFindingsQA,
+    rmFindingsQAHospital,
     rmFindingsHospital,
     tasksAndDocs,
     tasksAndDocsHospital,
@@ -58,8 +64,9 @@ const CompleteInvestigation = ({
         </Box>
         {caseDetail?.allocationType === "Single" ? (
           <RMInvestigationFindings
+            isQa={isQa}
             tasksAndDocs={tasksAndDocs}
-            rmFindings={rmFindings}
+            rmFindings={isQa ? rmFindingsQA : rmFindings}
             caseDetail={caseDetail}
             dashboardData={data}
             setCaseDetail={setCaseDetail}
@@ -68,8 +75,9 @@ const CompleteInvestigation = ({
           <CustomAccordion>
             <AccordionItem title="Insured Part">
               <RMInvestigationFindings
+                isQa={isQa}
                 tasksAndDocs={tasksAndDocs}
-                rmFindings={rmFindings}
+                rmFindings={isQa ? rmFindingsQA : rmFindings}
                 caseDetail={caseDetail}
                 dashboardData={data}
                 setCaseDetail={setCaseDetail}
@@ -77,8 +85,9 @@ const CompleteInvestigation = ({
             </AccordionItem>
             <AccordionItem title="Hospital Part">
               <RMInvestigationFindings
+                isQa={isQa}
                 tasksAndDocs={tasksAndDocsHospital}
-                rmFindings={rmFindingsHospital}
+                rmFindings={isQa ? rmFindingsQAHospital : rmFindingsHospital}
                 caseDetail={caseDetail}
                 dashboardData={data}
                 setCaseDetail={setCaseDetail}
@@ -102,26 +111,31 @@ const CompleteInvestigation = ({
       </Box>
       {caseDetail?.allocationType === "Single" ? (
         <InvestigationFindings
+          isQa={isQa}
           dashboardData={data || null}
           caseId={caseDetail?._id as string}
-          findings={preAuthFindings}
+          findings={isQa ? preAuthFindingsQA : preAuthFindings}
           setCaseDetail={setCaseDetail}
         />
       ) : (
         <CustomAccordion>
           <AccordionItem title="Insured Part">
             <InvestigationFindings
+              isQa={isQa}
               dashboardData={data || null}
               caseId={caseDetail?._id as string}
-              findings={preAuthFindings}
+              findings={isQa ? preAuthFindingsQA : preAuthFindings}
               setCaseDetail={setCaseDetail}
             />
           </AccordionItem>
           <AccordionItem title="Hospital Part">
             <InvestigationFindings
+              isQa={isQa}
               dashboardData={data || null}
               caseId={caseDetail?._id as string}
-              findings={preAuthFindingsHospital}
+              findings={
+                isQa ? preAuthFindingsQAHospital : preAuthFindingsHospital
+              }
               setCaseDetail={setCaseDetail}
             />
           </AccordionItem>

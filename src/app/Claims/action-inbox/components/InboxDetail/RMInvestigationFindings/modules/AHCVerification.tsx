@@ -37,12 +37,18 @@ const initialFormValues: IAHCVerificationPart = {
 };
 
 type PropTypes = {
+  isQa?: boolean;
   findings: IRMFindings | null;
   caseId?: string;
   setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
 };
 
-const AHCVerification = ({ findings, caseId, setCaseDetail }: PropTypes) => {
+const AHCVerification = ({
+  isQa,
+  findings,
+  caseId,
+  setCaseDetail,
+}: PropTypes) => {
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
   const [values, setValues] = useState<IAHCVerificationPart>(initialFormValues);
 
@@ -74,6 +80,7 @@ const AHCVerification = ({ findings, caseId, setCaseDetail }: PropTypes) => {
       userId: user?._id,
       name: taskName,
       isBulk,
+      isQa,
     };
 
     if (payload?.id && payload?.userId && !!value) {

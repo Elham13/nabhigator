@@ -110,6 +110,7 @@ const MiscellaneousVerification = dynamic(
 );
 
 type PropTypes = {
+  isQa?: boolean;
   taskName: string;
   data: IDashboardData | null;
   caseId?: string;
@@ -118,6 +119,7 @@ type PropTypes = {
 };
 
 const Tasks = ({
+  isQa,
   data,
   caseId,
   findings,
@@ -127,6 +129,7 @@ const Tasks = ({
   const tasksMap: Record<string, ReactNode> = {
     "NPS Confirmation": (
       <NPSConfirmation
+        isQa={isQa}
         data={data}
         caseId={caseId}
         findings={findings}
@@ -135,6 +138,7 @@ const Tasks = ({
     ),
     "Pre-Post Verification": (
       <PrePostVerification
+        isQa={isQa}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -142,6 +146,7 @@ const Tasks = ({
     ),
     "Hospital Daily Cash Part": (
       <HospitalDailyCash
+        isQa={isQa}
         data={data}
         caseId={caseId}
         findings={findings}
@@ -150,6 +155,7 @@ const Tasks = ({
     ),
     "OPD Verification Part": (
       <OPDVerification
+        isQa={isQa}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -157,6 +163,7 @@ const Tasks = ({
     ),
     "AHC Verification Part": (
       <AHCVerification
+        isQa={isQa}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -164,6 +171,7 @@ const Tasks = ({
     ),
     "Claim Verification": (
       <ClaimVerification
+        isQa={isQa}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -171,6 +179,7 @@ const Tasks = ({
     ),
     "Insured Verification": (
       <InsuredVerification
+        isQa={isQa}
         data={data}
         caseId={caseId}
         findings={findings}
@@ -179,6 +188,7 @@ const Tasks = ({
     ),
     "Vicinity Verification": (
       <VicinityVerification
+        isQa={isQa}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -186,6 +196,7 @@ const Tasks = ({
     ),
     "Hospital Verification": (
       <HospitalVerification
+        isQa={isQa}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -193,6 +204,7 @@ const Tasks = ({
     ),
     "Treating Doctor Verification": (
       <TreatingDoctorVerification
+        isQa={isQa}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -200,6 +212,7 @@ const Tasks = ({
     ),
     "Family Doctor Part/Referring Doctor Verification": (
       <FamilyOrReferringDoctorVerification
+        isQa={isQa}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -207,6 +220,7 @@ const Tasks = ({
     ),
     "Lab Part/Pathologist Verification": (
       <LabOrPathologistVerification
+        isQa={isQa}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -214,6 +228,7 @@ const Tasks = ({
     ),
     "Chemist Verification": (
       <ChemistVerification
+        isQa={isQa}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -221,6 +236,7 @@ const Tasks = ({
     ),
     "Employer Verification": (
       <EmployerVerification
+        isQa={isQa}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -228,6 +244,7 @@ const Tasks = ({
     ),
     "Random Vicinity Hospital/Lab/Doctor/Chemist Verification": (
       <RandomVicinityVerification
+        isQa={isQa}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -235,6 +252,7 @@ const Tasks = ({
     ),
     "Employment & Establishment Verification": (
       <EmploymentAndEstablishmentVerification
+        isQa={isQa}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -242,6 +260,7 @@ const Tasks = ({
     ),
     "Miscellaneous Verification": (
       <MiscellaneousVerification
+        isQa={isQa}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}

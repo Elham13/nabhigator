@@ -20,7 +20,6 @@ import {
 } from "@mantine/core";
 import { DateInput } from "@mantine/dates";
 import dayjs from "dayjs";
-import { IoMdClose } from "react-icons/io";
 import {
   CaseDetail,
   IDashboardData,
@@ -127,6 +126,7 @@ const initialValues: IInvestigationFindings = {
 };
 
 type PropTypes = {
+  isQa?: boolean;
   findings: RevisedInvestigationFindings | null;
   dashboardData: IDashboardData | null;
   caseId: string;
@@ -134,6 +134,7 @@ type PropTypes = {
 };
 
 const InvestigationFindings = ({
+  isQa,
   findings,
   dashboardData,
   caseId,
@@ -166,6 +167,7 @@ const InvestigationFindings = ({
       key: name,
       value: providedValue || value,
       userId: user?._id,
+      isQa,
     };
     submit(payload);
     if (shouldSetValues)

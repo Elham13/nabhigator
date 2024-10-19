@@ -1,6 +1,7 @@
 import React from "react";
 import { IDashboardData } from "@/lib/utils/types/fniDataTypes";
 import dayjs from "dayjs";
+import { getOpenAndClosureTAT } from "@/lib/helpers";
 
 type PropTypes = {
   data: IDashboardData | null;
@@ -25,7 +26,14 @@ const FrozenRibbon = ({ data }: PropTypes) => {
       </p>
       <p>
         TAT:&nbsp;
-        <strong>{data?.openTAT || "0"} days</strong>
+        <strong>
+          {getOpenAndClosureTAT({
+            stage: data?.stage,
+            dateOfClosure: data?.dateOfClosure,
+            intimationDate: data?.intimationDate,
+          })?.openTAT || "-"}
+          &nbsp;days
+        </strong>
       </p>
     </div>
   );

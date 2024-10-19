@@ -63,6 +63,7 @@ const tempDoc = {
 };
 
 type PropTypes = {
+  isQa?: boolean;
   findings: IRMFindings | null;
   claimId?: number;
   caseId?: string;
@@ -70,6 +71,7 @@ type PropTypes = {
 };
 
 const CommonFormComponent = ({
+  isQa,
   findings,
   claimId,
   caseId,
@@ -97,6 +99,7 @@ const CommonFormComponent = ({
       id: caseId,
       name: formName,
       userId: user?._id,
+      isQa,
     };
 
     if (payload?.id && payload?.userId) {

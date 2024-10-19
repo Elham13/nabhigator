@@ -17,12 +17,14 @@ const initialFormValues: IRandomVicinityVerification = {
 };
 
 type PropTypes = {
+  isQa?: boolean;
   findings: IRMFindings | null;
   caseId?: string;
   setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
 };
 
 const RandomVicinityVerification = ({
+  isQa,
   findings,
   caseId,
   setCaseDetail,
@@ -57,6 +59,7 @@ const RandomVicinityVerification = ({
       userId: user?._id,
       name: taskName,
       isBulk,
+      isQa,
     };
 
     if (payload?.id && payload?.userId && !!value) {

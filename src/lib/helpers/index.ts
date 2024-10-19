@@ -654,17 +654,19 @@ export const getOpenAndClosureTAT = ({
   dateOfClosure,
   intimationDate,
 }: {
-  stage: NumericStage;
+  stage?: NumericStage;
   dateOfClosure?: Date | null;
-  intimationDate: string | null;
+  intimationDate?: string | null;
 }) => {
   return {
-    openTAT: [NumericStage.CLOSED, NumericStage.REJECTED].includes(stage)
-      ? dateOfClosure
-        ? dayjs(dateOfClosure).diff(dayjs(intimationDate), "days")
-        : 0
-      : dayjs().diff(dayjs(intimationDate), "days"),
+    openTAT:
+      !!stage && [NumericStage.CLOSED, NumericStage.REJECTED].includes(stage)
+        ? dateOfClosure
+          ? dayjs(dateOfClosure).diff(dayjs(intimationDate), "days")
+          : 0
+        : dayjs().diff(dayjs(intimationDate), "days"),
     closureTAT:
+      !!stage &&
       [NumericStage.CLOSED, NumericStage.REJECTED].includes(stage) &&
       dateOfClosure
         ? dayjs().diff(dayjs(dateOfClosure), "days")
