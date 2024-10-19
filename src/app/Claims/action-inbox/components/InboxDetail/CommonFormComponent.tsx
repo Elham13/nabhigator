@@ -63,6 +63,7 @@ const tempDoc = {
 };
 
 type PropTypes = {
+  formPart?: "Insured" | "Hospital";
   isQa?: boolean;
   findings: IRMFindings | null;
   claimId?: number;
@@ -71,6 +72,7 @@ type PropTypes = {
 };
 
 const CommonFormComponent = ({
+  formPart,
   isQa,
   findings,
   claimId,
@@ -100,6 +102,7 @@ const CommonFormComponent = ({
       name: formName,
       userId: user?._id,
       isQa,
+      formPart,
     };
 
     if (payload?.id && payload?.userId) {

@@ -23,6 +23,7 @@ const initialFormValues: IMiscellaneousVerification = {
   verificationSummary: "",
 };
 type PropTypes = {
+  formPart?: "Insured" | "Hospital";
   isQa?: boolean;
   findings: IRMFindings | null;
   caseId?: string;
@@ -31,6 +32,7 @@ type PropTypes = {
 
 const MiscellaneousVerification = ({
   isQa,
+  formPart,
   findings,
   caseId,
   setCaseDetail,
@@ -67,6 +69,7 @@ const MiscellaneousVerification = ({
       userId: user?._id,
       name: taskName,
       isQa,
+      formPart,
     };
 
     if (payload?.id && payload?.userId && !!value) {

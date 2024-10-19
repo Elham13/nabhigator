@@ -110,6 +110,7 @@ const MiscellaneousVerification = dynamic(
 );
 
 type PropTypes = {
+  formPart?: "Insured" | "Hospital";
   isQa?: boolean;
   taskName: string;
   data: IDashboardData | null;
@@ -119,6 +120,7 @@ type PropTypes = {
 };
 
 const Tasks = ({
+  formPart,
   isQa,
   data,
   caseId,
@@ -130,6 +132,7 @@ const Tasks = ({
     "NPS Confirmation": (
       <NPSConfirmation
         isQa={isQa}
+        formPart={formPart}
         data={data}
         caseId={caseId}
         findings={findings}
@@ -139,6 +142,7 @@ const Tasks = ({
     "Pre-Post Verification": (
       <PrePostVerification
         isQa={isQa}
+        formPart={formPart}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -147,6 +151,7 @@ const Tasks = ({
     "Hospital Daily Cash Part": (
       <HospitalDailyCash
         isQa={isQa}
+        formPart={formPart}
         data={data}
         caseId={caseId}
         findings={findings}
@@ -156,6 +161,7 @@ const Tasks = ({
     "OPD Verification Part": (
       <OPDVerification
         isQa={isQa}
+        formPart={formPart}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -164,6 +170,7 @@ const Tasks = ({
     "AHC Verification Part": (
       <AHCVerification
         isQa={isQa}
+        formPart={formPart}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -172,6 +179,7 @@ const Tasks = ({
     "Claim Verification": (
       <ClaimVerification
         isQa={isQa}
+        formPart={formPart}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -180,6 +188,7 @@ const Tasks = ({
     "Insured Verification": (
       <InsuredVerification
         isQa={isQa}
+        formPart={formPart}
         data={data}
         caseId={caseId}
         findings={findings}
@@ -189,6 +198,7 @@ const Tasks = ({
     "Vicinity Verification": (
       <VicinityVerification
         isQa={isQa}
+        formPart={formPart}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -197,6 +207,7 @@ const Tasks = ({
     "Hospital Verification": (
       <HospitalVerification
         isQa={isQa}
+        formPart={formPart}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -205,6 +216,7 @@ const Tasks = ({
     "Treating Doctor Verification": (
       <TreatingDoctorVerification
         isQa={isQa}
+        formPart={formPart}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -213,6 +225,7 @@ const Tasks = ({
     "Family Doctor Part/Referring Doctor Verification": (
       <FamilyOrReferringDoctorVerification
         isQa={isQa}
+        formPart={formPart}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -221,6 +234,7 @@ const Tasks = ({
     "Lab Part/Pathologist Verification": (
       <LabOrPathologistVerification
         isQa={isQa}
+        formPart={formPart}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -229,6 +243,7 @@ const Tasks = ({
     "Chemist Verification": (
       <ChemistVerification
         isQa={isQa}
+        formPart={formPart}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -237,6 +252,7 @@ const Tasks = ({
     "Employer Verification": (
       <EmployerVerification
         isQa={isQa}
+        formPart={formPart}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -245,6 +261,7 @@ const Tasks = ({
     "Random Vicinity Hospital/Lab/Doctor/Chemist Verification": (
       <RandomVicinityVerification
         isQa={isQa}
+        formPart={formPart}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -253,6 +270,7 @@ const Tasks = ({
     "Employment & Establishment Verification": (
       <EmploymentAndEstablishmentVerification
         isQa={isQa}
+        formPart={formPart}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}
@@ -261,6 +279,7 @@ const Tasks = ({
     "Miscellaneous Verification": (
       <MiscellaneousVerification
         isQa={isQa}
+        formPart={formPart}
         caseId={caseId}
         findings={findings}
         setCaseDetail={setCaseDetail}

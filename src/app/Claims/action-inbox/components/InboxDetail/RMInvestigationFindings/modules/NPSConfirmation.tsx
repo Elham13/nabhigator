@@ -29,6 +29,7 @@ const initialFormValues: INPSVerification = {
 };
 
 type PropTypes = {
+  formPart?: "Insured" | "Hospital";
   isQa?: boolean;
   data: IDashboardData | null;
   findings: IRMFindings | null;
@@ -38,6 +39,7 @@ type PropTypes = {
 
 const NPSConfirmation = ({
   isQa,
+  formPart,
   data,
   findings,
   caseId,
@@ -66,6 +68,7 @@ const NPSConfirmation = ({
       userId: user?._id,
       name: taskName,
       isQa,
+      formPart,
     };
 
     if (payload?.id && payload?.userId && !!value) {

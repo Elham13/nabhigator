@@ -54,72 +54,57 @@ const CompleteInvestigation = ({
     claimCase: caseDetail,
   });
 
-  if (data?.claimType === "Reimbursement")
-    return (
-      <Box className="relative bg-white">
+  return (
+    <Box className="relative bg-white">
+      {!isQa && (
         <Box className="absolute top-0 right-0">
           <ActionIcon color="red" onClick={onClose}>
             <IoIosClose />
           </ActionIcon>
         </Box>
-        {caseDetail?.allocationType === "Single" ? (
-          <RMInvestigationFindings
-            isQa={isQa}
-            tasksAndDocs={tasksAndDocs}
-            rmFindings={isQa ? rmFindingsQA : rmFindings}
-            caseDetail={caseDetail}
-            dashboardData={data}
-            setCaseDetail={setCaseDetail}
-          />
-        ) : (
-          <CustomAccordion>
-            <AccordionItem title="Insured Part">
-              <RMInvestigationFindings
-                isQa={isQa}
-                tasksAndDocs={tasksAndDocs}
-                rmFindings={isQa ? rmFindingsQA : rmFindings}
-                caseDetail={caseDetail}
-                dashboardData={data}
-                setCaseDetail={setCaseDetail}
-              />
-            </AccordionItem>
-            <AccordionItem title="Hospital Part">
-              <RMInvestigationFindings
-                isQa={isQa}
-                tasksAndDocs={tasksAndDocsHospital}
-                rmFindings={isQa ? rmFindingsQAHospital : rmFindingsHospital}
-                caseDetail={caseDetail}
-                dashboardData={data}
-                setCaseDetail={setCaseDetail}
-              />
-            </AccordionItem>
-          </CustomAccordion>
-        )}
+      )}
 
-        <Button mt={20} onClick={onClose}>
-          Submit
-        </Button>
-      </Box>
-    );
-
-  return (
-    <Box className="relative bg-white">
-      <Box className="absolute top-0 right-0">
-        <ActionIcon color="red" onClick={onClose}>
-          <IoIosClose />
-        </ActionIcon>
-      </Box>
-      {caseDetail?.allocationType === "Single" ? (
-        <InvestigationFindings
-          isQa={isQa}
-          dashboardData={data || null}
-          caseId={caseDetail?._id as string}
-          findings={isQa ? preAuthFindingsQA : preAuthFindings}
-          setCaseDetail={setCaseDetail}
-        />
+      {data?.claimType === "Reimbursement" ? (
+        <Fragment>
+          {caseDetail?.allocationType === "Single" ? (
+            <RMInvestigationFindings
+              isQa={isQa}
+              tasksAndDocs={tasksAndDocs}
+              rmFindings={isQa ? rmFindingsQA : rmFindings}
+              caseDetail={caseDetail}
+              dashboardData={data}
+              setCaseDetail={setCaseDetail}
+            />
+          ) : (
+            <CustomAccordion>
+              <AccordionItem title="Insured Part">
+                <RMInvestigationFindings
+                  isQa={isQa}
+                  formPart="Insured"
+                  tasksAndDocs={tasksAndDocs}
+                  rmFindings={isQa ? rmFindingsQA : rmFindings}
+                  caseDetail={caseDetail}
+                  dashboardData={data}
+                  setCaseDetail={setCaseDetail}
+                />
+              </AccordionItem>
+              <AccordionItem title="Hospital Part">
+                <RMInvestigationFindings
+                  isQa={isQa}
+                  formPart="Hospital"
+                  tasksAndDocs={tasksAndDocsHospital}
+                  rmFindings={isQa ? rmFindingsQAHospital : rmFindingsHospital}
+                  caseDetail={caseDetail}
+                  dashboardData={data}
+                  setCaseDetail={setCaseDetail}
+                />
+              </AccordionItem>
+            </CustomAccordion>
+          )}
+        </Fragment>
       ) : (
-        <CustomAccordion>
-          <AccordionItem title="Insured Part">
+        <Fragment>
+          {caseDetail?.allocationType === "Single" ? (
             <InvestigationFindings
               isQa={isQa}
               dashboardData={data || null}
@@ -127,24 +112,40 @@ const CompleteInvestigation = ({
               findings={isQa ? preAuthFindingsQA : preAuthFindings}
               setCaseDetail={setCaseDetail}
             />
-          </AccordionItem>
-          <AccordionItem title="Hospital Part">
-            <InvestigationFindings
-              isQa={isQa}
-              dashboardData={data || null}
-              caseId={caseDetail?._id as string}
-              findings={
-                isQa ? preAuthFindingsQAHospital : preAuthFindingsHospital
-              }
-              setCaseDetail={setCaseDetail}
-            />
-          </AccordionItem>
-        </CustomAccordion>
+          ) : (
+            <CustomAccordion>
+              <AccordionItem title="Insured Part">
+                <InvestigationFindings
+                  isQa={isQa}
+                  formPart="Insured"
+                  dashboardData={data || null}
+                  caseId={caseDetail?._id as string}
+                  findings={isQa ? preAuthFindingsQA : preAuthFindings}
+                  setCaseDetail={setCaseDetail}
+                />
+              </AccordionItem>
+              <AccordionItem title="Hospital Part">
+                <InvestigationFindings
+                  isQa={isQa}
+                  formPart="Hospital"
+                  dashboardData={data || null}
+                  caseId={caseDetail?._id as string}
+                  findings={
+                    isQa ? preAuthFindingsQAHospital : preAuthFindingsHospital
+                  }
+                  setCaseDetail={setCaseDetail}
+                />
+              </AccordionItem>
+            </CustomAccordion>
+          )}
+        </Fragment>
       )}
 
-      <Button mt={20} onClick={onClose}>
-        Submit
-      </Button>
+      {!isQa && (
+        <Button mt={20} onClick={onClose}>
+          Submit
+        </Button>
+      )}
     </Box>
   );
 };

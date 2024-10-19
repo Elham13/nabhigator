@@ -7,7 +7,6 @@ import React, {
   useState,
 } from "react";
 import {
-  ActionIcon,
   Box,
   Grid,
   MultiSelect,
@@ -126,6 +125,7 @@ const initialValues: IInvestigationFindings = {
 };
 
 type PropTypes = {
+  formPart?: "Insured" | "Hospital";
   isQa?: boolean;
   findings: RevisedInvestigationFindings | null;
   dashboardData: IDashboardData | null;
@@ -134,6 +134,7 @@ type PropTypes = {
 };
 
 const InvestigationFindings = ({
+  formPart,
   isQa,
   findings,
   dashboardData,
@@ -168,6 +169,7 @@ const InvestigationFindings = ({
       value: providedValue || value,
       userId: user?._id,
       isQa,
+      formPart,
     };
     submit(payload);
     if (shouldSetValues)

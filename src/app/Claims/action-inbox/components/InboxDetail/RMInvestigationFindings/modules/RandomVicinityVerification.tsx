@@ -17,6 +17,7 @@ const initialFormValues: IRandomVicinityVerification = {
 };
 
 type PropTypes = {
+  formPart?: "Insured" | "Hospital";
   isQa?: boolean;
   findings: IRMFindings | null;
   caseId?: string;
@@ -25,6 +26,7 @@ type PropTypes = {
 
 const RandomVicinityVerification = ({
   isQa,
+  formPart,
   findings,
   caseId,
   setCaseDetail,
@@ -60,6 +62,7 @@ const RandomVicinityVerification = ({
       name: taskName,
       isBulk,
       isQa,
+      formPart,
     };
 
     if (payload?.id && payload?.userId && !!value) {

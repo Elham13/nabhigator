@@ -46,6 +46,7 @@ const initialFormValues: ITreatingDoctorVerification = {
 };
 
 type PropTypes = {
+  formPart?: "Insured" | "Hospital";
   isQa?: boolean;
   findings: IRMFindings | null;
   caseId?: string;
@@ -54,6 +55,7 @@ type PropTypes = {
 
 const TreatingDoctorVerification = ({
   isQa,
+  formPart,
   findings,
   caseId,
   setCaseDetail,
@@ -91,6 +93,7 @@ const TreatingDoctorVerification = ({
       name: taskName,
       isBulk,
       isQa,
+      formPart,
     };
 
     if (payload?.id && payload?.userId && !!value) {

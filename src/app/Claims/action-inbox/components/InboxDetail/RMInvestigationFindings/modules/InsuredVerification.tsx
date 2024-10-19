@@ -55,6 +55,7 @@ const initialFormValues: IInsuredVerification = {
 };
 
 type PropTypes = {
+  formPart?: "Insured" | "Hospital";
   isQa?: boolean;
   data: IDashboardData | null;
   findings: IRMFindings | null;
@@ -64,6 +65,7 @@ type PropTypes = {
 
 const InsuredVerification = ({
   isQa,
+  formPart,
   data,
   findings,
   caseId,
@@ -102,6 +104,7 @@ const InsuredVerification = ({
       name: taskName,
       isBulk,
       isQa,
+      formPart,
     };
 
     if (payload?.id && payload?.userId && !!value) {

@@ -43,6 +43,7 @@ const initialFormValues: IFamilyDoctorOrReferringDoctorVerification = {
 };
 
 type PropTypes = {
+  formPart?: "Insured" | "Hospital";
   isQa?: boolean;
   findings: IRMFindings | null;
   caseId?: string;
@@ -51,6 +52,7 @@ type PropTypes = {
 
 const FamilyOrReferringDoctorVerification = ({
   isQa,
+  formPart,
   findings,
   caseId,
   setCaseDetail,
@@ -86,6 +88,7 @@ const FamilyOrReferringDoctorVerification = ({
       name: taskName,
       isBulk,
       isQa,
+      formPart,
     };
 
     if (payload?.id && payload?.userId && !!value) {
