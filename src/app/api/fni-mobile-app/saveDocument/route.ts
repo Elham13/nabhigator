@@ -14,18 +14,14 @@ router.post(async (req) => {
 
   const {
     id,
-    taskId,
     docName,
     docId,
     docUrl,
     action,
     docIndex,
-    comment,
-    taskComment,
     location,
-    postQaDoc,
-    postQaOverRulingReason,
     userId,
+    part,
   } = body;
 
   try {
@@ -49,17 +45,24 @@ router.post(async (req) => {
     if (caseDetail?.allocationType === "Single") {
       docs = caseDetail?.singleTasksAndDocs?.docs as DocumentMap;
     } else if (caseDetail?.allocationType === "Dual") {
-      if (!userId) throw new Error(`userId is required`);
-      if (
-        !!caseDetail?.insuredTasksAndDocs?.investigator &&
-        caseDetail?.insuredTasksAndDocs?.investigator?.toString() === userId
-      ) {
-        docs = caseDetail?.insuredTasksAndDocs?.docs as DocumentMap;
-      } else if (
-        !!caseDetail?.hospitalTasksAndDocs?.investigator &&
-        caseDetail?.hospitalTasksAndDocs?.investigator?.toString() === userId
-      ) {
-        docs = caseDetail?.hospitalTasksAndDocs?.docs as DocumentMap;
+      if (!!part) {
+        if (part === "insured")
+          docs = caseDetail?.insuredTasksAndDocs?.docs as DocumentMap;
+        else if (part === "hospital")
+          docs = caseDetail?.hospitalTasksAndDocs?.docs as DocumentMap;
+        else throw new Error(`Invalid value of part ${part}`);
+      } else if (!!userId) {
+        if (
+          !!caseDetail?.insuredTasksAndDocs?.investigator &&
+          caseDetail?.insuredTasksAndDocs?.investigator?.toString() === userId
+        ) {
+          docs = caseDetail?.insuredTasksAndDocs?.docs as DocumentMap;
+        } else if (
+          !!caseDetail?.hospitalTasksAndDocs?.investigator &&
+          caseDetail?.hospitalTasksAndDocs?.investigator?.toString() === userId
+        ) {
+          docs = caseDetail?.hospitalTasksAndDocs?.docs as DocumentMap;
+        }
       }
     }
 

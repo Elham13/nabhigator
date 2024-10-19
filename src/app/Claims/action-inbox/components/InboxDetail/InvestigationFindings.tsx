@@ -130,7 +130,6 @@ type PropTypes = {
   findings: RevisedInvestigationFindings | null;
   dashboardData: IDashboardData | null;
   caseId: string;
-  onClose: () => void;
   setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
 };
 
@@ -138,7 +137,6 @@ const InvestigationFindings = ({
   findings,
   dashboardData,
   caseId,
-  onClose,
   setCaseDetail,
 }: PropTypes) => {
   const firstReqDone = useRef<boolean>(false);
@@ -259,16 +257,9 @@ const InvestigationFindings = ({
 
   return (
     <Box py={4}>
-      <Box className="relative mb-4">
-        <Title order={3} ta="center" mb={10}>
-          Investigation Findings
-        </Title>
-        <Box className="absolute top-0 right-0 block w-fit">
-          <ActionIcon onClick={onClose}>
-            <IoMdClose />
-          </ActionIcon>
-        </Box>
-      </Box>
+      <Title order={3} ta="center" mb={10}>
+        Investigation Findings
+      </Title>
 
       <Grid>
         <Grid.Col span={{ base: 12, md: 6 }}>
