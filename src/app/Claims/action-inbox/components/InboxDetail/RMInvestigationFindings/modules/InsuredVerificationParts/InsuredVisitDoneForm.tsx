@@ -1748,7 +1748,7 @@ const InsuredVisitDoneForm = ({
         <NumberInput
           label="Total amount paid"
           placeholder="Total amount paid"
-          value={values?.totalAmountPaid || "0"} //TODO: Calculate this
+          value={values?.totalAmountPaid || "0"}
           disabled
         />
       </Grid.Col>

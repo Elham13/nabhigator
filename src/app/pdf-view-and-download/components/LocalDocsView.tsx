@@ -1,9 +1,7 @@
 import React, { Fragment } from "react";
 import { Button, Menu } from "@mantine/core";
-import { MdDoNotDisturbAlt } from "react-icons/md";
 import { CaseDetail, DocumentData } from "@/lib/utils/types/fniDataTypes";
 import { getTasksAndDocs } from "@/lib/helpers";
-import { BiHide } from "react-icons/bi";
 
 type PropTypes = {
   caseData: CaseDetail | null;
@@ -11,7 +9,13 @@ type PropTypes = {
 };
 
 const LocalDocsView = ({ caseData, claimType }: PropTypes) => {
-  const { tasksAndDocs, preAuthFindings } = getTasksAndDocs({
+  const {
+    tasksAndDocs,
+    preAuthFindings,
+    rmFindings,
+    preAuthFindingsHospital,
+    rmFindingsHospital,
+  } = getTasksAndDocs({
     claimType,
     claimCase: caseData,
   });
@@ -28,89 +32,210 @@ const LocalDocsView = ({ caseData, claimType }: PropTypes) => {
         {docs &&
           Object.keys(docs)?.map((docKey, ind) => {
             const doc = docs[docKey];
+            if (docKey === "NPS Confirmation") return null;
             return (
               <Fragment key={ind}>
-                <Menu.Label>Documents of {docKey}</Menu.Label>
-                {doc?.length > 0 ? (
-                  doc.map((el) =>
-                    el?.docUrl?.map((d, i) => {
-                      const isHidden =
-                        el?.replacedDocUrls?.includes(d) ||
-                        el?.hiddenDocUrls?.includes(d);
+                {!!doc && doc?.length > 0 && (
+                  <Fragment>
+                    <Menu.Label>Documents of {docKey}</Menu.Label>
+                    {doc.map((el) =>
+                      el?.docUrl?.map((d, i) => {
+                        const isHidden =
+                          el?.replacedDocUrls?.includes(d) ||
+                          el?.hiddenDocUrls?.includes(d);
 
-                      if (isHidden) return <BiHide key={i} />;
-                      return (
-                        <Menu.Item
-                          key={i}
-                          disabled={!d}
-                          color={d ? "green" : "gray"}
-                          onClick={() => {
-                            window.open(
-                              `/Claims/action-inbox/documents?url=${d}&name=${el.name}`,
-                              "_blank"
-                            );
-                          }}
-                        >
-                          {el?.name} {i + 1}
-                        </Menu.Item>
-                      );
-                    })
-                  )
-                ) : (
-                  <Menu.Item color="red" rightSection={<MdDoNotDisturbAlt />}>
-                    No Data
-                  </Menu.Item>
+                        if (isHidden) return null;
+                        return (
+                          <Menu.Item
+                            key={i}
+                            disabled={!d}
+                            color={d ? "green" : "gray"}
+                            onClick={() => {
+                              window.open(
+                                `/Claims/action-inbox/documents?url=${d}&name=${el.name}`,
+                                "_blank"
+                              );
+                            }}
+                          >
+                            Document: {i + 1}
+                          </Menu.Item>
+                        );
+                      })
+                    )}
+                  </Fragment>
                 )}
               </Fragment>
             );
           })}
         <Menu.Divider />
-        <Menu.Label>Post QA Uploads</Menu.Label>
         {caseData?.postQARecommendation?.documents &&
-        caseData?.postQARecommendation?.documents?.length > 0 ? (
-          caseData?.postQARecommendation?.documents?.map((el, ind) => (
-            <Menu.Item
-              key={ind}
-              onClick={() => {
-                window.open(
-                  `/Claims/action-inbox/documents?url=${el}&name=PostQADoc`,
-                  "_blank"
-                );
-              }}
-            >
-              Doc {ind + 1}
-            </Menu.Item>
-          ))
-        ) : (
-          <Menu.Item color="red" rightSection={<MdDoNotDisturbAlt />}>
-            No Data
-          </Menu.Item>
-        )}
+          caseData?.postQARecommendation?.documents?.length > 0 && (
+            <Fragment>
+              <Menu.Label>Post QA Uploads</Menu.Label>
+              {caseData?.postQARecommendation?.documents?.map((el, ind) => (
+                <Menu.Item
+                  key={ind}
+                  c="green"
+                  onClick={() => {
+                    window.open(
+                      `/Claims/action-inbox/documents?url=${el}&name=PostQADoc`,
+                      "_blank"
+                    );
+                  }}
+                >
+                  Document: {ind + 1}
+                </Menu.Item>
+              ))}
+            </Fragment>
+          )}
         <Menu.Divider />
-        <Menu.Label>Evidences</Menu.Label>
-        {/* TODO: Handle for RM */}
-        {preAuthFindings?.evidenceDocs &&
-        preAuthFindings?.evidenceDocs?.length > 0 ? (
-          preAuthFindings?.evidenceDocs?.map((el, ind) => (
-            <Menu.Item
-              key={ind}
-              onClick={() => {
-                window.open(
-                  `/Claims/action-inbox/documents?url=${el}&name=Evidence ${
-                    ind + 1
-                  }`,
-                  "_blank"
-                );
-              }}
-            >
-              Evidence {ind + 1}
-            </Menu.Item>
-          ))
-        ) : (
-          <Menu.Item color="red" rightSection={<MdDoNotDisturbAlt />}>
-            No Data
-          </Menu.Item>
-        )}
+        {claimType === "PreAuth" ? (
+          caseData?.allocationType === "Single" ? (
+            preAuthFindings?.evidenceDocs &&
+            preAuthFindings?.evidenceDocs?.length > 0 ? (
+              <Fragment>
+                <Menu.Label>Evidences</Menu.Label>
+                {preAuthFindings?.evidenceDocs?.map((el, ind) => (
+                  <Menu.Item
+                    key={ind}
+                    c="green"
+                    onClick={() => {
+                      window.open(
+                        `/Claims/action-inbox/documents?url=${el}&name=Evidence ${
+                          ind + 1
+                        }`,
+                        "_blank"
+                      );
+                    }}
+                  >
+                    Evidence {ind + 1}
+                  </Menu.Item>
+                ))}
+              </Fragment>
+            ) : null
+          ) : caseData?.allocationType === "Dual" ? (
+            <Fragment>
+              {preAuthFindings?.evidenceDocs &&
+              preAuthFindings?.evidenceDocs?.length > 0 ? (
+                <Fragment>
+                  <Menu.Label>Insured Part Evidences</Menu.Label>
+                  {preAuthFindings?.evidenceDocs?.map((el, ind) => (
+                    <Menu.Item
+                      key={ind}
+                      c="green"
+                      onClick={() => {
+                        window.open(
+                          `/Claims/action-inbox/documents?url=${el}&name=Evidence ${
+                            ind + 1
+                          }`,
+                          "_blank"
+                        );
+                      }}
+                    >
+                      Evidence {ind + 1}
+                    </Menu.Item>
+                  ))}
+                </Fragment>
+              ) : null}
+              {preAuthFindingsHospital?.evidenceDocs &&
+              preAuthFindingsHospital?.evidenceDocs?.length > 0 ? (
+                <Fragment>
+                  <Menu.Label>Hospital Part Evidences</Menu.Label>
+                  {preAuthFindingsHospital?.evidenceDocs?.map((el, ind) => (
+                    <Menu.Item
+                      key={ind}
+                      c="green"
+                      onClick={() => {
+                        window.open(
+                          `/Claims/action-inbox/documents?url=${el}&name=Evidence ${
+                            ind + 1
+                          }`,
+                          "_blank"
+                        );
+                      }}
+                    >
+                      Evidence {ind + 1}
+                    </Menu.Item>
+                  ))}
+                </Fragment>
+              ) : null}
+            </Fragment>
+          ) : null
+        ) : claimType === "Reimbursement" ? (
+          caseData?.allocationType === "Single" ? (
+            rmFindings?.recommendation?.evidences &&
+            rmFindings?.recommendation?.evidences?.length > 0 ? (
+              <Fragment>
+                <Menu.Label>Evidences</Menu.Label>
+                {rmFindings?.recommendation?.evidences?.map((el, ind) => (
+                  <Menu.Item
+                    key={ind}
+                    c="green"
+                    onClick={() => {
+                      window.open(
+                        `/Claims/action-inbox/documents?url=${el}&name=Evidence ${
+                          ind + 1
+                        }`,
+                        "_blank"
+                      );
+                    }}
+                  >
+                    Evidence {ind + 1}
+                  </Menu.Item>
+                ))}
+              </Fragment>
+            ) : null
+          ) : caseData?.allocationType === "Dual" ? (
+            <Fragment>
+              {rmFindings?.recommendation?.evidences &&
+              rmFindings?.recommendation?.evidences?.length > 0 ? (
+                <Fragment>
+                  <Menu.Label>Insured Part Evidences</Menu.Label>
+                  {rmFindings?.recommendation?.evidences?.map((el, ind) => (
+                    <Menu.Item
+                      key={ind}
+                      c="green"
+                      onClick={() => {
+                        window.open(
+                          `/Claims/action-inbox/documents?url=${el}&name=Evidence ${
+                            ind + 1
+                          }`,
+                          "_blank"
+                        );
+                      }}
+                    >
+                      Evidence {ind + 1}
+                    </Menu.Item>
+                  ))}
+                </Fragment>
+              ) : null}
+              {rmFindingsHospital?.recommendation?.evidences &&
+              rmFindingsHospital?.recommendation?.evidences?.length > 0 ? (
+                <Fragment>
+                  <Menu.Label>Hospital Part Evidences</Menu.Label>
+                  {rmFindingsHospital?.recommendation?.evidences?.map(
+                    (el, ind) => (
+                      <Menu.Item
+                        key={ind}
+                        c="green"
+                        onClick={() => {
+                          window.open(
+                            `/Claims/action-inbox/documents?url=${el}&name=Evidence ${
+                              ind + 1
+                            }`,
+                            "_blank"
+                          );
+                        }}
+                      >
+                        Evidence {ind + 1}
+                      </Menu.Item>
+                    )
+                  )}
+                </Fragment>
+              ) : null}
+            </Fragment>
+          ) : null
+        ) : null}
       </Menu.Dropdown>
     </Menu>
   );
