@@ -157,11 +157,7 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
                   : "-"
               }
             />
-            {/* TODO: Add post qa frcu recommendation on claim value here */}
-            <TableCell
-              columnName="frcuRecommendationOnClaims"
-              value={el?.finalOutcome}
-            />
+            <TableCell columnName="finalOutcome" value={el?.finalOutcome} />
             <TableCell
               columnName="investigatorRecommendation"
               value={el?.investigatorRecommendation || "-"}
