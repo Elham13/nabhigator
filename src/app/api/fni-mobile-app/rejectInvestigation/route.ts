@@ -112,11 +112,10 @@ router.post(async (req) => {
     if (dashboardData?.clusterManager)
       userIds.push(dashboardData?.clusterManager);
 
-    // TODO: type this
-    const users: any = await User.find({
+    const users: IUser[] = (await User.find({
       _id: { $in: userIds },
       status: "Active",
-    }).lean();
+    }).lean()) as IUser[];
     const allocatorUser: HydratedDocument<IUser> | null = await User.findById(
       updatedCase?.assignedBy
     );
