@@ -4,10 +4,8 @@ import {
   Box,
   Button,
   CloseIcon,
-  FileButton,
   Flex,
   Modal,
-  Progress,
   Text,
   TextInput,
 } from "@mantine/core";
@@ -15,7 +13,6 @@ import { useLocalStorage } from "@mantine/hooks";
 import axios from "axios";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { RiUploadCloudLine } from "react-icons/ri";
 import { toast } from "react-toastify";
 import {
   CaseDetail,
@@ -26,8 +23,12 @@ import {
 } from "@/lib/utils/types/fniDataTypes";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
-import { showError, uploadFile } from "@/lib/helpers";
+import { showError } from "@/lib/helpers";
 import TasksAndDocsProvider from "@/lib/providers/TasksAndDocsProvider";
+import FileUploadFooter from "@/components/ClaimsComponents/FileUpload/FileUploadFooter";
+import FileUpload from "@/components/ClaimsComponents/FileUpload";
+import { tempDocInitials } from "@/lib/utils/constants";
+import { useAxios } from "@/lib/hooks/useAxios";
 const ChangeTask = dynamic(
   () => import("@/components/ClaimsComponents/ChangeTask")
 );
@@ -49,36 +50,42 @@ const PostQaReworkContent = ({
   const [values, setValues] = useState({
     comment: caseData?.postQaComment || "",
   });
-  const [progress, setProgress] = useState<number>(0);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [stageUpdating, setStageUpdating] = useState<boolean>(false);
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
   const [caseDetail, setCaseDetail] = useState<CaseDetail | null>(null);
 
-  const handleUploadDocument = async (file: File | null) => {
-    if (!file) return;
+  const { refetch: submit } = useAxios<any>({
+    config: { url: EndPoints.UPDATE_CASE_DETAIL, method: "POST" },
+    dependencyArr: [],
+    isMutation: true,
+    onDone: (res) => {
+      if (res?.updatedCase) setCaseDetail(res?.updatedCase);
+    },
+  });
 
-    try {
-      setProgress(10);
-      //  TODO: Need to increase the progress from 0 to 100 somehow
-      const docKey = await uploadFile(file, data?.claimId || 0);
+  const handleRemove = (index: number) => {
+    const payload = {
+      id: caseDetail?._id,
+      action: "AddPostQADocument",
+      index,
+    };
+    submit(payload);
+  };
 
-      const { data: caseResponse } = await axios.post(
-        EndPoints.UPDATE_CASE_DETAIL,
-        {
-          id: caseDetail?._id,
-          action: "AddPostQADocument",
-          postQaDoc: docKey,
-        }
-      );
+  const handleGetUrl = (
+    id: string,
+    name: string,
+    url: string,
+    action: "Add" | "Remove"
+  ) => {
+    const payload = {
+      id: caseDetail?._id,
+      action: "AddPostQADocument",
+      postQaDoc: url,
+    };
 
-      setCaseDetail(caseResponse?.updatedCase);
-      setProgress(100);
-    } catch (error: any) {
-      showError(error);
-    } finally {
-      setProgress(0);
-    }
+    submit(payload);
   };
 
   const updateStage = async () => {
@@ -148,23 +155,25 @@ const PostQaReworkContent = ({
       >
         {showElement?.changeTask ? "Cancel" : "Change Tasks"}
       </Button>
-      <div>
-        <FileButton onChange={handleUploadDocument}>
-          {(props) => (
-            <Button {...props} color="cyan">
-              Upload Document&nbsp;
-              <RiUploadCloudLine />
-            </Button>
-          )}
-        </FileButton>
-        {progress > 0 ? <Progress striped animated value={progress} /> : null}
-        {caseDetail &&
-          caseDetail?.postQARecommendation?.documents &&
+      <Box>
+        <Text className="font-semibold">Upload Document: </Text>
+        {!!caseDetail &&
+          !!caseDetail?.postQARecommendation?.documents &&
           caseDetail?.postQARecommendation?.documents?.length > 0 &&
-          caseDetail?.postQARecommendation?.documents?.map((doc, ind) => (
-            <Text key={ind}>{doc}</Text>
+          caseDetail?.postQARecommendation?.documents?.map((el, ind) => (
+            <FileUploadFooter
+              key={ind}
+              url={el}
+              onDelete={() => handleRemove(ind)}
+            />
           ))}
-      </div>
+        <FileUpload
+          doc={tempDocInitials}
+          docName="doc"
+          getUrl={handleGetUrl}
+          claimId={data?.claimId || 0}
+        />
+      </Box>
       {showElement.changeTask ? (
         <TasksAndDocsProvider>
           <ChangeTask

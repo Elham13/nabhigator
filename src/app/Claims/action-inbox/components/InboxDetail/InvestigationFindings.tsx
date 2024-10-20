@@ -54,15 +54,7 @@ import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import TimePicker from "@/components/TimePicker";
 import FileUploadFooter from "@/components/ClaimsComponents/FileUpload/FileUploadFooter";
 import FileUpload from "@/components/ClaimsComponents/FileUpload";
-
-const tempDocInitials = {
-  _id: "",
-  docUrl: [],
-  name: "",
-  location: null,
-  hiddenDocUrls: [],
-  replacedDocUrls: [],
-};
+import { tempDocInitials } from "@/lib/utils/constants";
 
 const initialValues: IInvestigationFindings = {
   dateOfVisitToInsured: null,

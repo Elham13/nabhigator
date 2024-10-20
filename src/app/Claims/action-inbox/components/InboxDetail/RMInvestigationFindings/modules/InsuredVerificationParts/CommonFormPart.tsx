@@ -3,15 +3,7 @@ import { Grid, Text, TextInput } from "@mantine/core";
 import { IInsuredVerification } from "@/lib/utils/types/rmDataTypes";
 import FileUploadFooter from "@/components/ClaimsComponents/FileUpload/FileUploadFooter";
 import FileUpload from "@/components/ClaimsComponents/FileUpload";
-
-const tempDoc = {
-  _id: "",
-  docUrl: [],
-  name: "",
-  location: null,
-  hiddenDocUrls: [],
-  replacedDocUrls: [],
-};
+import { tempDocInitials } from "@/lib/utils/constants";
 
 type CommonFormPartPropTypes = {
   title: "Non Contactable" | "Non Co-operation";
@@ -76,7 +68,7 @@ const CommonFormPart = ({
           ))}
         <FileUpload
           claimId={claimId}
-          doc={tempDoc}
+          doc={tempDocInitials}
           docName="doc"
           getUrl={handleGetUrl}
         />

@@ -12,15 +12,7 @@ const router = createEdgeRouter<NextRequest, {}>();
 router.post(async (req) => {
   const body = await req?.json();
 
-  const {
-    id,
-    taskId,
-    action,
-    comment,
-    taskComment,
-    postQaDoc,
-    postQaOverRulingReason,
-  } = body;
+  const { id, action, postQaDoc, index, postQaOverRulingReason } = body;
 
   try {
     if (!id) throw new Error(`Id is missing`);
@@ -35,50 +27,27 @@ router.post(async (req) => {
     let updatedCase: any = null;
     let message: string = "No transaction happened!";
 
-    if (taskId) {
-      // TODO: Handle this
-      // const task = caseDetail?.tasksAssigned?.find(
-      //   (el: any) => el?._id?.toString() === taskId
-      // );
-      // if (!task) throw new Error(`No Task found with the id ${taskId}`);
-      // if (action === "ToggleTask") {
-      //   if (task.completed) task.comment = "";
-      //   task.completed = !task?.completed;
-      //   updatedCase = await caseDetail.save();
-      //   message = "Task toggled!";
-      // } else if (action === "AddTaskComment") {
-      //   task.comment = taskComment;
-      //   updatedCase = await caseDetail.save();
-      //   message = `Comment added to the task ${taskId}!`;
-      // }
-    }
-
-    if (action === "AddComment") {
-      // TODO: Handle This
-      // if (!comment) throw new Error("Comment is missing!");
-      // caseDetail.investigatorComment = comment;
-      // updatedCase = await caseDetail.save();
-      // message = "Comment added successfully!";
-    }
-
     if (action === "AddPostQADocument") {
-      if (!postQaDoc) throw new Error("Post QA document is required");
-      updatedCase = await ClaimCase.findByIdAndUpdate(
-        id,
-        {
-          $push: { "postQARecommendation.documents": postQaDoc },
-        },
-        { new: true, useFindAndModify: false }
-      );
-      message = "Document added successfully!";
-    }
-
-    if (action === "AddInvestigationFindings") {
-      // TODO: Handle This
-      // const tempObj = { ...body, createdAt: new Date() };
-      // caseDetail.investigationFindings = tempObj;
-      // updatedCase = await caseDetail.save();
-      // message = "Investigation findings captured successfully";
+      if (!!index || index === 0) {
+        const foundCase = await ClaimCase.findById(id);
+        if (!foundCase) throw new Error(`No data found with the id ${id}`);
+        foundCase.postQARecommendation.documents =
+          foundCase?.postQARecommendation?.documents?.filter(
+            (_: any, ind: number) => ind !== index
+          );
+        updatedCase = await foundCase.save();
+        message = "Document deleted successfully!";
+      } else {
+        if (!postQaDoc) throw new Error("Post QA document is required");
+        updatedCase = await ClaimCase.findByIdAndUpdate(
+          id,
+          {
+            $push: { "postQARecommendation.documents": postQaDoc },
+          },
+          { new: true, useFindAndModify: false }
+        );
+        message = "Document added successfully!";
+      }
     }
 
     if (action === "AddOverRulingReason") {
