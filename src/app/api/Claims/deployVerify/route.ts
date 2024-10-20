@@ -11,7 +11,7 @@ router.get(async (req) => {
         success: true,
         message: "Version Update",
         env: process.env.NEXT_PUBLIC_CONFIG,
-        version: 0.093,
+        version: 0.094,
       },
       { status: 200 }
     );
