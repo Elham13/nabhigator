@@ -177,7 +177,6 @@ const TasksAndDocumentsSchema = new Schema<ITasksAndDocumentsSchema>(
     invReportReceivedDate: { type: Date, default: null },
     outSourcingDate: { type: Date, default: null },
     investigationRejected: { type: InvestigationRejectSchema, default: null },
-    investigatorComment: { type: String },
   },
   { timestamps: true }
 );

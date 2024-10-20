@@ -3,15 +3,7 @@ import { Grid, Text, TextInput } from "@mantine/core";
 import { IInsuredVerification } from "@/lib/utils/types/rmDataTypes";
 import FileUploadFooter from "@/components/ClaimsComponents/FileUpload/FileUploadFooter";
 import FileUpload from "@/components/ClaimsComponents/FileUpload";
-
-const tempDoc = {
-  _id: "",
-  docUrl: [],
-  name: "",
-  location: null,
-  hiddenDocUrls: [],
-  replacedDocUrls: [],
-};
+import { tempDocInitials } from "@/lib/utils/constants";
 
 interface IOnChangeParams {
   name: string | string[];
@@ -132,7 +124,7 @@ const PolicyOtherThanNBHIFormPart = ({
           ))}
         <FileUpload
           claimId={claimId}
-          doc={tempDoc}
+          doc={tempDocInitials}
           docName="doc"
           getUrl={handleGetUrl}
         />

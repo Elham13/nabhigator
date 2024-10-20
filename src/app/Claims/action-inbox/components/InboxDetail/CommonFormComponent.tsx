@@ -36,6 +36,7 @@ import FileUpload from "@/components/ClaimsComponents/FileUpload";
 import FileUploadFooter from "@/components/ClaimsComponents/FileUpload/FileUploadFooter";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { useLocalStorage } from "@mantine/hooks";
+import { tempDocInitials } from "@/lib/utils/constants";
 
 const formName = "TheCommonForm";
 
@@ -51,15 +52,6 @@ const initialFormValues: IInitialValues = {
   discrepanciesOrIrregularitiesObserved: "",
   recommendation: { value: "", code: "" },
   otherRecommendation: [],
-};
-
-const tempDoc = {
-  _id: "",
-  docUrl: [],
-  name: "",
-  location: null,
-  hiddenDocUrls: [],
-  replacedDocUrls: [],
 };
 
 type PropTypes = {
@@ -332,7 +324,7 @@ const CommonFormComponent = ({
                       />
                     ))}
                   <FileUpload
-                    doc={tempDoc}
+                    doc={tempDocInitials}
                     docName="doc"
                     getUrl={handleGetUrl}
                     claimId={claimId || 0}

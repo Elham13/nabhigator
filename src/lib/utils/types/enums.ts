@@ -30,7 +30,6 @@ export enum EndPoints {
   FAILED_CASES = "/api/Claims/failedCases",
   FEED_DASHBOARD = "/api/Claims/feedDashboard",
   GET_DISTRICTS = "/api/Claims/newStateDistrictMaster",
-  GET_SIGNED_URL = "/api/Claims/getSignedUrl",
   HOSPITAL_PROVIDER = "/api/Claims/hospitalProviders",
   HOSPITAL_PROVIDERS = "/api/Claims/hospitalProviders",
   INVESTIGATORS = "/api/Claims/investigator",

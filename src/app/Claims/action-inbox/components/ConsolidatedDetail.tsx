@@ -107,7 +107,7 @@ const ConsolidatedDetail = ({ data }: PropTypes) => {
       <GridCol span={{ sm: 12, md: 6 }}>
         <KeyValueContainer
           label="Referred From"
-          value={data?.contractDetails?.sourcing} //TODO: Need to confirm this value
+          value={data?.contractDetails?.sourcing}
         />
       </GridCol>
       <GridCol span={{ sm: 12, md: 6 }}>

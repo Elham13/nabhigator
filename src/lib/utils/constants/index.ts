@@ -188,3 +188,12 @@ export const changeTaskInitialValues: AcceptedValues = {
   insuredPinCode: 0,
   allocatorComment: "",
 };
+
+export const tempDocInitials = {
+  _id: "",
+  docUrl: [],
+  name: "",
+  location: null,
+  hiddenDocUrls: [],
+  replacedDocUrls: [],
+};

@@ -32,20 +32,12 @@ import {
 } from "@/lib/utils/constants/options";
 import FileUploadFooter from "@/components/ClaimsComponents/FileUpload/FileUploadFooter";
 import FileUpload from "@/components/ClaimsComponents/FileUpload";
+import { tempDocInitials } from "@/lib/utils/constants";
 
 const InsuredVisitDoneForm = dynamic(
   () => import("./InsuredVerificationParts/InsuredVisitDoneForm"),
   { ssr: false, loading: () => <BiCog className="animate-spin" /> }
 );
-
-const tempDoc = {
-  _id: "",
-  docUrl: [],
-  name: "",
-  location: null,
-  hiddenDocUrls: [],
-  replacedDocUrls: [],
-};
 
 const taskName = "Insured Verification";
 
@@ -339,7 +331,7 @@ const InsuredVerification = ({
                     />
                   ))}
                 <FileUpload
-                  doc={tempDoc}
+                  doc={tempDocInitials}
                   docName="doc"
                   getUrl={handleGetUrl}
                   claimId={data?.claimId || 0}

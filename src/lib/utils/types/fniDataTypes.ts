@@ -798,7 +798,6 @@ export interface ITasksAndDocuments {
   invReportReceivedDate?: Date | null;
   outSourcingDate?: Date | null;
   investigationRejected?: IInvestigationRejected;
-  investigatorComment?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -923,7 +922,6 @@ export interface AcceptedValues
     | "updatedAt"
     | "assignedBy"
     | "intimationDate"
-    | "investigatorComment"
     | "rejectionReasons"
     | "updatedBy"
     | "outSourcingDate"

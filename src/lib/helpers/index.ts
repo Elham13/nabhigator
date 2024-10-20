@@ -2,7 +2,6 @@ import { toast } from "react-toastify";
 import {
   CaseDetail,
   DocumentData,
-  IDashboardData,
   ITasksAndDocuments,
   NumericStage,
   RevisedInvestigationFindings,
@@ -23,7 +22,6 @@ import {
 } from "../utils/constants/options";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import AWS from "aws-sdk";
 import { IRMFindings } from "../utils/types/rmDataTypes";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -148,38 +146,6 @@ export const getSelectOption = (name: string) => {
       env === "UAT" ? recommendationOptions : recommendationProdOptions,
   };
   return options[name] || ([] as any[]);
-};
-
-export const uploadFile = async (file: File, claimId: number) => {
-  try {
-    const bucketName =
-      process.env.NEXT_PUBLIC_CONFIG === "PROD"
-        ? process.env.NEXT_PUBLIC_S3_BUCKET_NAME_PROD
-        : process.env.NEXT_PUBLIC_S3_BUCKET_NAME_UAT;
-
-    const s3 = new AWS.S3({
-      accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID_UAT,
-      secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_KEY_ID_UAT,
-      region: process.env.NEXT_PUBLIC_AWS_DEFAULT_REGION_UAT,
-    });
-
-    const name = `${claimId || "claimIdNotFound"}/${dayjs().unix()}-${
-      file?.name
-    }`;
-
-    const params = {
-      Bucket: bucketName || "",
-      Key: `fni-docs/${name}` || "",
-      Body: file,
-      ContentType: file.type,
-    };
-
-    await s3.upload(params).promise();
-    return params?.Key;
-  } catch (error) {
-    showError(error);
-    return "";
-  }
 };
 
 export const getFinalOutcomeCode = (
