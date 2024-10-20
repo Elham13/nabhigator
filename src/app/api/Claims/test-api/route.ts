@@ -1,4 +1,6 @@
 import connectDB from "@/lib/db/dbConnectWithMongoose";
+import ClaimCase from "@/lib/Models/claimCase";
+import DashboardData from "@/lib/Models/dashboardData";
 import { Databases } from "@/lib/utils/types/enums";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
@@ -109,9 +111,26 @@ router.post(async (req) => {
   try {
     await connectDB(Databases.FNI);
 
-    // const allCases: any = await ClaimCase.find({});
+    let updateCount = 0;
+    if (body?.action === "finalOutcome") {
+      const dashboardData = await DashboardData.find({ stage: 12 });
 
-    // const updatedIds = [];
+      for (let obj of dashboardData) {
+        if (!!obj?.caseId) {
+          const claimCase = await ClaimCase.findById(obj?.caseId);
+
+          if (!!claimCase) {
+            let finalOutcome =
+              claimCase?.postQARecommendation?.frcuRecommendationOnClaims
+                ?.value || "";
+
+            obj.finalOutcome = finalOutcome;
+            await obj.save();
+            updateCount += 1;
+          }
+        }
+      }
+    }
 
     // for (let obj of allCases) {
     //   obj.preQcObservation = obj?.preQcObservation || "Testing";
@@ -181,6 +200,7 @@ router.post(async (req) => {
         success: true,
         message: "Success",
         data: null,
+        updateCount,
       },
       { status: 200 }
     );

@@ -109,8 +109,7 @@ const DownloadExcelBtn = ({ filters, sort, searchTerm, origin }: PropTypes) => {
             : "-",
         postQa:
           el?.postQa && typeof el?.postQa !== "string" ? el?.postQa?.name : "-",
-        // TODO: Add post qa frcu recommendation on claim value here
-        finalOutcome: el?.finalOutCome || "-",
+        finalOutcome: el?.finalOutcome || "-",
         investigatorRecommendation: el?.investigatorRecommendation || "-",
         clusterManager:
           el?.clusterManager && typeof el?.clusterManager !== "string"
