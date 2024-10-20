@@ -108,7 +108,7 @@ export const visibleColumnsOptions: IVisibleColumn[] = [
     visible: true,
   },
   {
-    value: "frcuRecommendationOnClaims",
+    value: "finalOutcome",
     label: "Final Outcome",
     visible: true,
   },

@@ -102,7 +102,7 @@ export const mainDashboardTableHeaders: ITableHeader[] = [
     sortable: false,
   },
   {
-    value: "frcuRecommendationOnClaims",
+    value: "finalOutcome",
     label: "Final Outcome",
     sortable: false,
   },
