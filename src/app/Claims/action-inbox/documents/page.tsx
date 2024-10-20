@@ -1,6 +1,7 @@
-import React from "react";
-import { S3 } from "aws-sdk";
-import { isImageUrl } from "@/lib/helpers";
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { getSignedUrlHelper, isImageUrl } from "@/lib/helpers";
 import Image from "next/image";
 
 let docUrl =
@@ -20,25 +21,18 @@ type PropTypes = {
   searchParams: TSearchParams;
 };
 
-const Documents = async ({ searchParams }: PropTypes) => {
+const Documents = ({ searchParams }: PropTypes) => {
+  const [signedUrl, setSignedUrl] = useState<string>("");
   const { url, name } = searchParams;
 
-  const s3 = new S3({
-    accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID_UAT,
-    secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_KEY_ID_UAT,
-    region: process.env.NEXT_PUBLIC_AWS_DEFAULT_REGION_UAT,
-  });
-
-  const bucketName =
-    process.env.NEXT_PUBLIC_CONFIG == "PROD"
-      ? process.env.NEXT_PUBLIC_S3_BUCKET_NAME_PROD
-      : process.env.NEXT_PUBLIC_S3_BUCKET_NAME_UAT;
-
-  const signedUrl = s3.getSignedUrl("getObject", {
-    Bucket: bucketName,
-    Key: url,
-    Expires: 60 * 60 * 60,
-  });
+  useEffect(() => {
+    (async () => {
+      if (!!url) {
+        const str = await getSignedUrlHelper(url);
+        setSignedUrl(str);
+      }
+    })();
+  }, [url]);
 
   return (
     <div className="flex justify-center items-center flex-col h-screen">

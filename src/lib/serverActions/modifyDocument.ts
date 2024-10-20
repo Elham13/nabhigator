@@ -11,7 +11,11 @@ import {
 import { captureCaseEvent } from "@/app/api/Claims/caseEvent/helpers";
 import DashboardData from "../Models/dashboardData";
 import dayjs from "dayjs";
-import AWS from "aws-sdk";
+import {
+  PutObjectCommand,
+  PutObjectCommandInput,
+  S3Client,
+} from "@aws-sdk/client-s3";
 
 type ArgsType = {
   action: "hide" | "unhide" | "replace";
@@ -120,31 +124,41 @@ export const modifyDocument = async (args: ArgsType) => {
 
         replacedDocUrls?.push(targetUrl);
 
+        const accessKeyId = process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID_UAT;
+        const secretAccessKey = process.env.NEXT_PUBLIC_AWS_SECRET_KEY_ID_UAT;
+        const region = process.env.NEXT_PUBLIC_AWS_DEFAULT_REGION_UAT;
         const bucketName =
           process.env.NEXT_PUBLIC_CONFIG === "PROD"
             ? process.env.NEXT_PUBLIC_S3_BUCKET_NAME_PROD
             : process.env.NEXT_PUBLIC_S3_BUCKET_NAME_UAT;
+        if (!accessKeyId) throw new Error("accessKeyId is required");
+        if (!secretAccessKey) throw new Error("secretAccessKey is required");
+        if (!region) throw new Error("region is required");
+        if (!bucketName) throw new Error("bucketName is required");
 
-        const s3 = new AWS.S3({
-          accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID_UAT,
-          secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_KEY_ID_UAT,
-          region: process.env.NEXT_PUBLIC_AWS_DEFAULT_REGION_UAT,
+        const client = new S3Client({
+          credentials: {
+            accessKeyId,
+            secretAccessKey,
+          },
+          region,
         });
 
         const name = `${
           dashboardData?.claimId || "claimIdNotFound"
         }/${dayjs().unix()}-${file?.name}`;
 
-        const params = {
+        const input: PutObjectCommandInput = {
           Bucket: bucketName || "",
           Key: `fni-docs/${name}` || "",
           Body: await blobToUint8Array(file),
           ContentType: file.type,
         };
 
-        await s3.upload(params).promise();
+        const command = new PutObjectCommand(input);
+        await client.send(command);
 
-        targetDocObj?.docUrl?.splice(docIndex, 0, params?.Key);
+        targetDocObj?.docUrl?.splice(docIndex, 0, input?.Key as string);
         targetDocObj.replacedDocUrls = replacedDocUrls;
 
         docArray = docArray?.map((el) => {
@@ -161,7 +175,7 @@ export const modifyDocument = async (args: ArgsType) => {
             dashboardData?.intimationDate || new Date().toLocaleDateString(),
           stage: dashboardData?.stage,
           claimId: dashboardData?.claimId,
-          eventRemarks: `The document replaced with ${params?.Key}`,
+          eventRemarks: `The document replaced with ${input?.Key}`,
           userName,
         });
 
