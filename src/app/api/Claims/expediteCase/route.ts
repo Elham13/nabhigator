@@ -125,11 +125,11 @@ router.post(async (req) => {
       )
         throw new Error("investigatorId is required");
 
-      const investigators: Investigator[] = await ClaimInvestigator.find({
+      const investigators: Investigator[] = (await ClaimInvestigator.find({
         _id: {
           $in: investigatorId?.map((el: string) => new Types.ObjectId(el)),
         },
-      }).lean();
+      }).lean()) as Investigator[];
 
       if (!investigators || investigators?.length < 1)
         throw new Error(
@@ -177,10 +177,10 @@ router.post(async (req) => {
         }
       }
     } else {
-      const users: IUser[] = await User.find({
+      const users: IUser[] = (await User.find({
         role: userRole,
         status: "Active",
-      }).lean();
+      }).lean()) as IUser[];
 
       if (!users || users?.length === 0) throw new Error(`No user found`);
 
