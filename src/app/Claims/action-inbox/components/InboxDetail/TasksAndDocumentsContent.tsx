@@ -1,5 +1,13 @@
 import React, { Dispatch, SetStateAction } from "react";
-import { ActionIcon, Box, Divider, Table, Text, Title } from "@mantine/core";
+import {
+  ActionIcon,
+  Box,
+  Divider,
+  Stack,
+  Table,
+  Text,
+  Title,
+} from "@mantine/core";
 import { HiLocationMarker } from "react-icons/hi";
 import {
   CaseDetail,
@@ -9,7 +17,6 @@ import {
   Role,
   Task,
 } from "@/lib/utils/types/fniDataTypes";
-import ExtraUploads from "./ExtraUploads";
 import { getTasksAndDocs } from "@/lib/helpers";
 import { AccordionItem, CustomAccordion } from "@/components/CustomAccordion";
 import dynamic from "next/dynamic";
@@ -18,6 +25,8 @@ import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { StorageKeys } from "@/lib/utils/types/enums";
 import { BsEye } from "react-icons/bs";
 import { BiCog } from "react-icons/bi";
+import ExtraUploadPreAuth from "./ExtraUploads/PreAuth";
+import ExtraUploadsReimbursement from "./ExtraUploads/Reimbursement";
 
 const TasksAndDocumentsButtons = dynamic(
   () => import("./TasksAndDocumentsButtons"),
@@ -43,6 +52,9 @@ const DocumentTable = ({
   setCaseDetail,
 }: DocumentTableProps) => {
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
+
+  if (docKey === "NPS Confirmation") return null;
+
   return (
     <Box key={docKey}>
       <Title order={5} c="cyan" my={8}>
@@ -203,7 +215,14 @@ const TasksAndDocumentsContent = ({
       </Box>
     );
 
-  const { tasksAndDocs, tasksAndDocsHospital } = getTasksAndDocs({
+  const {
+    tasksAndDocs,
+    tasksAndDocsHospital,
+    preAuthFindings,
+    preAuthFindingsHospital,
+    rmFindings,
+    rmFindingsHospital,
+  } = getTasksAndDocs({
     claimType: dashboardData?.claimType,
     claimCase: caseDetail,
   });
@@ -215,13 +234,20 @@ const TasksAndDocumentsContent = ({
   return (
     <Box>
       {caseDetail?.allocationType === "Single" ? (
-        <AssignedTasksAndDocs
-          tasks={tasks}
-          docs={docs as ResponseDoc}
-          typeOfDoc="single"
-          setCaseDetail={setCaseDetail}
-          caseId={caseDetail?._id as string}
-        />
+        <Stack>
+          <AssignedTasksAndDocs
+            tasks={tasks}
+            docs={docs as ResponseDoc}
+            typeOfDoc="single"
+            setCaseDetail={setCaseDetail}
+            caseId={caseDetail?._id as string}
+          />
+          {dashboardData?.claimType === "PreAuth" ? (
+            <ExtraUploadPreAuth findings={preAuthFindings} />
+          ) : (
+            <ExtraUploadsReimbursement rmFindings={rmFindings} />
+          )}
+        </Stack>
       ) : (
         <CustomAccordion>
           <AccordionItem title="Insured Part">
@@ -232,6 +258,11 @@ const TasksAndDocumentsContent = ({
               caseId={caseDetail?._id as string}
               setCaseDetail={setCaseDetail}
             />
+            {dashboardData?.claimType === "PreAuth" ? (
+              <ExtraUploadPreAuth findings={preAuthFindings} />
+            ) : (
+              <ExtraUploadsReimbursement rmFindings={rmFindings} />
+            )}
           </AccordionItem>
           <AccordionItem title="Hospital Part">
             <AssignedTasksAndDocs
@@ -241,11 +272,14 @@ const TasksAndDocumentsContent = ({
               caseId={caseDetail?._id as string}
               setCaseDetail={setCaseDetail}
             />
+            {dashboardData?.claimType === "PreAuth" ? (
+              <ExtraUploadPreAuth findings={preAuthFindingsHospital} />
+            ) : (
+              <ExtraUploadsReimbursement rmFindings={rmFindingsHospital} />
+            )}
           </AccordionItem>
         </CustomAccordion>
       )}
-
-      <ExtraUploads dashboardData={dashboardData} caseDetail={caseDetail} />
     </Box>
   );
 };
