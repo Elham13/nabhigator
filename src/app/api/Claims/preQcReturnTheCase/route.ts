@@ -263,7 +263,8 @@ router.post(async (req) => {
 
     const ccRecipients: string[] = ["Sanjay.Kumar16@nivabupa.com"];
 
-    const users: IUser[] = await User.find({ status: "Active" }).lean();
+    // TODO: Type this
+    const users: any = await User.find({ status: "Active" }).lean();
 
     for (const us of users) {
       if (oldStage === NumericStage.INVESTIGATION_SKIPPED_AND_COMPLETING) {

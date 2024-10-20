@@ -125,7 +125,8 @@ router.post(async (req) => {
       )
         throw new Error("investigatorId is required");
 
-      const investigators: Investigator[] = await ClaimInvestigator.find({
+      // TODO: type this
+      const investigators: any[] = await ClaimInvestigator.find({
         _id: {
           $in: investigatorId?.map((el: string) => new Types.ObjectId(el)),
         },
@@ -177,7 +178,8 @@ router.post(async (req) => {
         }
       }
     } else {
-      const users: IUser[] = await User.find({
+      // TODO: type this
+      const users: any = await User.find({
         role: userRole,
         status: "Active",
       }).lean();

@@ -112,7 +112,8 @@ router.post(async (req) => {
     if (dashboardData?.clusterManager)
       userIds.push(dashboardData?.clusterManager);
 
-    const users: IUser[] = await User.find({
+    // TODO: type this
+    const users: any = await User.find({
       _id: { $in: userIds },
       status: "Active",
     }).lean();
