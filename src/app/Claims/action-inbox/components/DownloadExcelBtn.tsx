@@ -52,7 +52,7 @@ const DownloadExcelBtn = ({ filters, sort, searchTerm, origin }: PropTypes) => {
           ? { $in: filters?.benefitType }
           : undefined,
       filterApplied: true,
-      pagination: { limit: 10000, page: 1 },
+      pagination: { limit: 100000, page: 1 },
       intimationDate: filters?.intimationDate
         ? dayjs(filters?.intimationDate)
             .tz("Asia/Kolkata")
