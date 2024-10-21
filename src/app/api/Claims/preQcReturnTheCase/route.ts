@@ -253,13 +253,21 @@ router.post(async (req) => {
           },
         ];
 
-    const recipients: string[] = [
-      "Pre.Auth@nivabupa.com",
-      "Preauth.Team@nivabupa.com",
-      "Rohit.Choudhary@nivabupa.com",
-      "Sudeshna.Mallick@nivabupa.com",
-      "Aditya.Srivastava@nivabupa.com",
-    ];
+    const claimType = dashboardData?.claimType;
+
+    let recipients: string[] = ["FIAllocation@nivabupa.com"];
+
+    if (claimType === "PreAuth") {
+      recipients = [
+        "Pre.Auth@nivabupa.com",
+        "Preauth.Team@nivabupa.com",
+        "Rohit.Choudhary@nivabupa.com",
+        "Sudeshna.Mallick@nivabupa.com",
+        "Aditya.Srivastava@nivabupa.com",
+      ];
+    } else {
+      recipients = ["team.claims@nivabupa.com"];
+    }
 
     const ccRecipients: string[] = ["Sanjay.Kumar16@nivabupa.com"];
 
@@ -291,8 +299,6 @@ router.post(async (req) => {
     const encryptedClaimId: string = await getEncryptClaimId(
       dashboardData?.claimId
     );
-
-    const claimType = dashboardData?.claimType;
 
     const emailContent = `<div><p style="font-weight:700">Dear Team,</p><p><span style="font-weight:700">${
       claimType === "PreAuth" ? "Pre-Auth" : "Claim"
