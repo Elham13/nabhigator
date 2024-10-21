@@ -468,6 +468,7 @@ export enum EventNames {
   DOCUMENT_DELETED = "Document Deleted",
   DOCUMENT_RESTORED = "Document Restored",
   DOCUMENT_REPLACED = "Document Replaced",
+  STAGE_CHANGE = "Stage changed",
 }
 
 export interface INewCityMaster {

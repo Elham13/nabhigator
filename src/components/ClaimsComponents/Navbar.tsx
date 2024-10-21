@@ -71,7 +71,14 @@ const Navbar = () => {
           ]
         : []),
       ...(user?.activeRole === Role.ADMIN
-        ? [{ name: "Users", icon: <BiUser />, href: "/Claims/user" }]
+        ? [
+            { name: "Users", icon: <BiUser />, href: "/Claims/user" },
+            {
+              name: "Admin Config",
+              icon: <BiUser />,
+              href: "/Claims/admin-config",
+            },
+          ]
         : []),
       ...(user?.config.canSeeFailedCases === "Yes"
         ? [
