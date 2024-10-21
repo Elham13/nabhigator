@@ -105,6 +105,7 @@ router.post(async (req) => {
             "Preauth.Team@nivabupa.com",
             "Rohit.Choudhary@nivabupa.com",
             "Sudeshna.Mallick@nivabupa.com",
+            "Team.Claims@nivabupa.com",
             // "Aditya.Srivastava@nivabupa.com",
           ];
           ccRecipients = [
