@@ -136,9 +136,13 @@ router.post(async (req) => {
       ccRecipients?.push(user?.email);
     }
 
+    const claimType = dashboardData?.claimType;
+
     const emailContent = `<div><p>Dear Team,</p><p><span style="font-weight:700">${
       investigator?.investigatorName
-    }</span> has returned the Pre-Auth ID <span style="text-decoration:underline">${
+    }</span> has returned the ${
+      claimType === "PreAuth" ? "Pre-Auth" : "Claim"
+    } ID <span style="text-decoration:underline">${
       dashboardData?.claimId
     }</span> due to ${rejectionReason} with Remarks (${remark}).</p><p>The case was assigned to him on <span style="font-weight:700">${dayjs(
       dashboardData?.dateOfOS
@@ -160,7 +164,9 @@ router.post(async (req) => {
       from: FromEmails.DO_NOT_REPLY,
       recipients: allocationUserEmails,
       cc_recipients: ccRecipients,
-      subject: `Return from Investigator (${investigator?.investigatorName}) Pre-Auth ID = ${dashboardData?.claimId}`,
+      subject: `Return from Investigator (${investigator?.investigatorName}) ${
+        claimType === "PreAuth" ? "Pre-Auth" : "Claim"
+      } ID = ${dashboardData?.claimId}`,
       html: emailContent,
     });
 

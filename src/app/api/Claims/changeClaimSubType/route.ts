@@ -156,7 +156,7 @@ router.post(async (req) => {
 
         await sendEmail({
           from: FromEmails.DO_NOT_REPLY,
-          recipients: tl?.email,
+          recipients: [tl?.email, "Sanjay.Kumar16@nivabupa.com"],
           subject: `${userName} request to change claim sub-type`,
           bodyText,
         });
@@ -257,7 +257,7 @@ router.post(async (req) => {
 
         await sendEmail({
           from: FromEmails.DO_NOT_REPLY,
-          recipients: inv?.email,
+          recipients: [...inv?.email, "Sanjay.Kumar16@nivabupa.com"],
           subject: `Claim sub-type change request status update`,
           bodyText,
         });

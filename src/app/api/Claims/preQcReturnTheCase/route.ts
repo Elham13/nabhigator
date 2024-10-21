@@ -292,13 +292,23 @@ router.post(async (req) => {
       dashboardData?.claimId
     );
 
-    const emailContent = `<div><p style="font-weight:700">Dear Team,</p><p><span style="font-weight:700">Pre-Auth ID ${dashboardData?.claimId}</span> is returned from Pre-QC by ${user?.name}</p><p><span style="font-weight:700">Reason and Remarks: </span>${summaryOfInvestigation}</p><p>Kindly refer to FRCU Final Investigation Report and documents collected, <a href="${webUrl}/pdf-view-and-download?claimId=${encryptedClaimId}&docType=final-investigation-report&invType=${inv?.Type}">here.</a></p><p>The FRCU recommendation and summary can be referred in Maximus/Phoenix. The URL to access the Final Report and documents are available there as well.</p><p>Regards,</p><p>FRCU</p></div>`;
+    const claimType = dashboardData?.claimType;
+
+    const emailContent = `<div><p style="font-weight:700">Dear Team,</p><p><span style="font-weight:700">${
+      claimType === "PreAuth" ? "Pre-Auth" : "Claim"
+    } ID ${dashboardData?.claimId}</span> is returned from Pre-QC by ${
+      user?.name
+    }</p><p><span style="font-weight:700">Reason and Remarks: </span>${summaryOfInvestigation}</p><p>Kindly refer to FRCU Final Investigation Report and documents collected, <a href="${webUrl}/pdf-view-and-download?claimId=${encryptedClaimId}&docType=final-investigation-report&invType=${
+      inv?.Type
+    }">here.</a></p><p>The FRCU recommendation and summary can be referred in Maximus/Phoenix. The URL to access the Final Report and documents are available there as well.</p><p>Regards,</p><p>FRCU</p></div>`;
 
     const { success, message } = await sendEmail({
       from: FromEmails.DO_NOT_REPLY,
       recipients,
       cc_recipients: ccRecipients,
-      subject: `Pre-Auth ID ${dashboardData?.claimId}, ${summaryOfInvestigation}`,
+      subject: `${claimType === "PreAuth" ? "Pre-Auth" : "Claim"} ID ${
+        dashboardData?.claimId
+      }, ${summaryOfInvestigation}`,
       html: emailContent,
     });
 
