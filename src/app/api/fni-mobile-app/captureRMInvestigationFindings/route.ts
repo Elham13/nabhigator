@@ -172,11 +172,14 @@ router.post(async (req) => {
               ? tempFindings.toJSON()
               : tempFindings;
           const obj = tfs[taskName];
-          if (taskName === "Insured Verification") {
-            tasksCompleted = isInsuredPartCompleted(obj);
-          } else {
-            if (hasValue(obj)) tasksCompleted = true;
-          }
+          // if (taskName === "Insured Verification") {
+          //   tasksCompleted = isInsuredPartCompleted(obj);
+          // } else {
+          //   if (hasValue(obj)) tasksCompleted = true;
+          // }
+
+          // TODO: Fix the above
+          if (hasValue(obj)) tasksCompleted = true;
         }
 
         let tasks: Task[] = [];
