@@ -16,68 +16,31 @@ import { NextRequest, NextResponse } from "next/server";
 
 const router = createEdgeRouter<NextRequest, {}>();
 
-const initialValues: IInvestigationFindings = {
+const initialValues = {
   dateOfVisitToInsured: null,
+  timeOfVisitToInsured: null,
   dateOfVisitToHospital: null,
-  hospitalizationStatus: {
-    value: "",
-    differedAdmission: "",
-    cancelledAdmission: "",
-  },
-  hospitalizationDetails: {
-    dateOfAdmission: null,
-    timeOfAdmission: null,
-    dateOfDischarge: null,
-    timeOfDischarge: null,
-    tentativeDateOfAdmission: null,
-    tentativeDateOfDischarge: null,
-    proposedDateOfAdmission: null,
-    proposedDateOfDischarge: null,
-  },
-  patientDetails: {
-    patientName: "",
-    patientAge: 0,
-    patientGender: "Male",
-    revisedPatientName: "",
-    revisedPatientAge: 0,
-    revisedPatientGender: undefined,
-  },
-  attendantDetails: {
-    status: "NA",
-    name: "",
-  },
-  occupationOfInsured: "",
-  workPlaceDetails: "",
-  anyOtherPolicyWithNBHI: "",
-  anyPreviousClaimWithNBHI: "No",
-  insurancePolicyOtherThanNBHI: {
-    hasPolicy: "No",
-  },
-  classOfAccommodation: {
-    status: "",
-  },
-  changeInClassOfAccommodation: {
-    status: "",
-  },
-  patientOnActiveLineOfTreatment: {
-    status: "",
-  },
-  mismatchInDiagnosis: {
-    status: "",
-  },
-  discrepancies: {
-    status: "",
-  },
-  patientHabit: [],
-  pedOrNoneDisclosure: "NA",
-  ailment: [],
-  insuredOrAttendantCooperation: "No",
-  providerCooperation: "No",
-  investigationSummary: "",
-  recommendation: { value: "", code: "" },
-  otherRecommendation: [],
-  frcuGroundOfRepudiation: [],
-  evidenceDocs: [],
+  timeOfVisitToHospital: null,
+  hospitalizationStatus: null,
+  patientDetails: null,
+  attendantDetails: null,
+  occupationOfInsured: null,
+  workPlaceDetails: null,
+  anyOtherPolicyWithNBHI: null,
+  anyPreviousClaimWithNBHI: null,
+  insurancePolicyOtherThanNBHI: null,
+  classOfAccommodation: null,
+  changeInClassOfAccommodation: null,
+  patientOnActiveLineOfTreatment: null,
+  mismatchInDiagnosis: null,
+  discrepancies: null,
+  patientHabit: null,
+  pedOrNoneDisclosure: null,
+  insuredOrAttendantCooperation: null,
+  providerCooperation: null,
+  investigationSummary: null,
+  recommendation: null,
+  otherRecommendation: null,
 };
 
 router.post(async (req) => {

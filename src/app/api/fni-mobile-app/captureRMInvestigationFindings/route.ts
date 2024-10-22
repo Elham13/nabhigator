@@ -8,7 +8,7 @@ import { HydratedDocument, Types } from "mongoose";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
-import { hasValue } from "./helpers";
+import { hasValue, isInsuredPartCompleted } from "./helpers";
 import { Document } from "mongoose";
 
 const router = createEdgeRouter<NextRequest, {}>();
@@ -172,7 +172,11 @@ router.post(async (req) => {
               ? tempFindings.toJSON()
               : tempFindings;
           const obj = tfs[taskName];
-          if (hasValue(obj)) tasksCompleted = true;
+          if (taskName === "Insured Verification") {
+            tasksCompleted = isInsuredPartCompleted(obj);
+          } else {
+            if (hasValue(obj)) tasksCompleted = true;
+          }
         }
 
         let tasks: Task[] = [];
