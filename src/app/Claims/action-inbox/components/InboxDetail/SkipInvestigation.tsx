@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Box, Button, Flex, Modal, Text } from "@mantine/core";
+import { Box, Button, Flex, Modal, Text, TextInput } from "@mantine/core";
 import { useLocalStorage } from "@mantine/hooks";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -57,11 +57,13 @@ const modalInitials: TModal = { open: false, action: "" };
 const SkipInvestigation = ({ dashboardData, onDone }: PropTypes) => {
   const [modal, setModal] = useState<TModal>(modalInitials);
   const [loading, setLoading] = useState<boolean>(false);
+  const [remarks, setRemarks] = useState<string>("");
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
 
   const handleSkip = async () => {
     setLoading(true);
     try {
+      if (!remarks) throw new Error("Please add your remarks");
       const { data } = await axios.post<SingleResponseType<IDashboardData>>(
         EndPoints.UPDATE_DASHBOARD_DATA,
         {
@@ -73,6 +75,8 @@ const SkipInvestigation = ({ dashboardData, onDone }: PropTypes) => {
               ? "skipInvestigationAndReAssign"
               : "cancelSkipInvestigation",
           userId: user?._id,
+          remarks,
+          userName: user?.name,
         }
       );
       toast.success(data?.message);
@@ -137,6 +141,15 @@ const SkipInvestigation = ({ dashboardData, onDone }: PropTypes) => {
                 : cancelText}
               <Text>By clicking confirm you agree to proceed</Text>
               <Text>Are you sure to proceed?</Text>
+
+              <TextInput
+                label="Remarks"
+                placeholder="Remarks"
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+                required
+                withAsterisk
+              />
             </Box>
             <Flex columnGap={10} mt={50}>
               <Button loading={loading} color="green" onClick={handleSkip}>
