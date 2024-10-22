@@ -564,9 +564,7 @@ const FinalInvestigationReport = ({
       ) : null}
       <SingleLine>Summary of investigation</SingleLine>
       <Text style={styles.txt}>
-        {isRM
-          ? rmFindings?.investigationSummary || "-"
-          : preAuthFindings?.investigationSummary || "-"}
+        {caseData?.postQARecommendation?.summaryOfInvestigation || "-"}
       </Text>
       <TwoSectionView
         data={investigationConclusion}
