@@ -109,6 +109,7 @@ const initialValues: IInvestigationFindings = {
   },
   patientHabit: [],
   ailment: [],
+  port: "",
   investigationSummary: "",
   recommendation: { value: "", code: "" },
   otherRecommendation: [],
@@ -1541,6 +1542,24 @@ const InvestigationFindings = ({
             />
           </Grid.Col>
         )}
+
+        <Grid.Col span={{ base: 12, md: 6 }}>
+          <Select
+            label="Is Ported?"
+            placeholder="Is Ported?"
+            required
+            withAsterisk
+            data={yesNoOptions}
+            value={values.port || ""}
+            onChange={(val) =>
+              setValues((prev) => ({
+                ...prev,
+                port: val || "",
+              }))
+            }
+            onBlur={() => handleBlur("port")}
+          />
+        </Grid.Col>
 
         <Grid.Col span={{ base: 12, md: 6 }}>
           <Textarea

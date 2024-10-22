@@ -459,6 +459,11 @@ const Findings = ({
               />
             </GridCol>
           )}
+          {findings?.port && (
+            <GridCol span={{ sm: 12, md: 12 }}>
+              <KeyValueContainer label="Is Ported" value={findings?.port} />
+            </GridCol>
+          )}
           {findings?.investigationSummary && (
             <GridCol span={{ sm: 12, md: 12 }}>
               <KeyValueContainer

@@ -5,7 +5,6 @@ import { Databases } from "@/lib/utils/types/enums";
 import {
   CaseDetail,
   IDashboardData,
-  IInvestigationFindings,
   RevisedInvestigationFindings,
   Task,
 } from "@/lib/utils/types/fniDataTypes";
@@ -34,6 +33,7 @@ const initialValues = {
   patientOnActiveLineOfTreatment: null,
   mismatchInDiagnosis: null,
   discrepancies: null,
+  port: null,
   patientHabit: null,
   pedOrNoneDisclosure: null,
   insuredOrAttendantCooperation: null,

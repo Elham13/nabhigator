@@ -115,6 +115,7 @@ const InvestigationFindingSchema = new Schema({
   reasonForInsuredNotCooperation: String,
   providerCooperation: String,
   reasonForProviderNotCooperation: String,
+  port: String,
   investigationSummary: String,
   recommendation: { value: String, code: String },
   inconclusiveRemark: String,
