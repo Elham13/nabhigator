@@ -9,7 +9,6 @@ import { IDashboardData, Role } from "@/lib/utils/types/fniDataTypes";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { StorageKeys } from "@/lib/utils/types/enums";
 import {
-  convertToIndianFormat,
   getOpenAndClosureTAT,
   getStageLabel,
   getStatusColor,
@@ -52,7 +51,7 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
             <TableCell
               columnName="stage"
               value={
-                <Badge color={getStatusColor(el?.stage)}>
+                <Badge color={getStatusColor(el?.stage)} className="!block">
                   {getStageLabel(el?.stage)}
                 </Badge>
               }

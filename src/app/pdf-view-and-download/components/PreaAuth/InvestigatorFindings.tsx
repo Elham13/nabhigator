@@ -452,18 +452,6 @@ const InvestigatorFindings = ({ caseData, dashboardData }: PropTypes) => {
         "DD-MMM-YYYY hh:mm:ss a"
       ),
     },
-    {
-      key: "Name of QA",
-      value: caseData?.qaBy || "-",
-    },
-    {
-      key: "Date of report submission",
-      value: caseData?.reportSubmissionDateQa
-        ? dayjs(caseData?.reportSubmissionDateQa).format(
-            "DD-MMM-YYYY hh:mm:ss a"
-          )
-        : "-",
-    },
   ];
 
   return (
