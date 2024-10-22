@@ -357,6 +357,10 @@ export default function InvestigationSummary({
       value: preAuthFindings?.providerCooperation || "-",
     },
     {
+      key: "Is Ported?",
+      value: preAuthFindings?.port || "-",
+    },
+    {
       key: "Investigation Summary",
       value: preAuthFindings?.investigationSummary || "-",
     },

@@ -756,6 +756,7 @@ export interface IInvestigationFindings {
   reasonForInsuredNotCooperation?: string;
   providerCooperation?: TYesNo;
   reasonForProviderNotCooperation?: string;
+  port?: string;
   investigationSummary?: string;
   recommendation?: { value: string; code: string };
   inconclusiveRemark?: string;

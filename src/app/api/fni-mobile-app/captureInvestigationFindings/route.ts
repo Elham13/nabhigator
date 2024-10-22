@@ -33,6 +33,7 @@ const initialValues = {
   patientOnActiveLineOfTreatment: null,
   mismatchInDiagnosis: null,
   discrepancies: null,
+  port: null,
   patientHabit: null,
   pedOrNoneDisclosure: null,
   insuredOrAttendantCooperation: null,

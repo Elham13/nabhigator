@@ -437,6 +437,10 @@ const InvestigatorFindings = ({ caseData, dashboardData }: PropTypes) => {
           ?.map((el) => el?.detail?.map((e) => e.remark)?.join(", "))
           ?.join(", ") || "-",
     },
+    {
+      key: "Is Ported?",
+      value: preAuthFindings?.port || "-",
+    },
   ];
 
   const investigationFooter = [
