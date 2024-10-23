@@ -288,7 +288,8 @@ router.post(async (req) => {
       user?.email
     );
 
-    if (!maximusRes?.success) throw new Error(maximusRes.message);
+    if (!maximusRes?.success)
+      throw new Error(`Maximus Error: ${maximusRes.message}`);
 
     responseObj.message = `Case assigned to ${
       allocationType === "Dual"
