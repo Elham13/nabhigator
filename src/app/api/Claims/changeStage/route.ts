@@ -36,20 +36,20 @@ router.post(async (req) => {
 
     if (!data) throw new Error(`No data found with the id ${id}`);
 
-    if (data?.stage === newStage)
-      throw new Error(
-        `This case is already in ${getStageLabel(data?.stage)} stage`
-      );
+    // if (data?.stage === newStage)
+    //   throw new Error(
+    //     `This case is already in ${getStageLabel(data?.stage)} stage`
+    //   );
 
-    if (data?.stage === NumericStage.PENDING_FOR_PRE_QC)
-      throw new Error(
-        `You should not change a case with the stage ${getStageLabel(
-          data?.stage
-        )}`
-      );
+    // if (data?.stage === NumericStage.PENDING_FOR_PRE_QC)
+    //   throw new Error(
+    //     `You should not change a case with the stage ${getStageLabel(
+    //       data?.stage
+    //     )}`
+    //   );
 
-    if (newStage === NumericStage.CLOSED)
-      throw new Error(`You should not close a case all of a sudden`);
+    // if (newStage === NumericStage.CLOSED)
+    //   throw new Error(`You should not close a case all of a sudden`);
 
     dayjs.extend(utc);
     dayjs.extend(timezone);
