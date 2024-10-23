@@ -72,6 +72,7 @@ const DocumentDetailsContainer = ({
           <LocalDocsView
             caseData={caseData}
             claimType={dashboardData?.claimType}
+            claimId={dashboardData?.claimId || 0}
           />
         )}
       </Box>
