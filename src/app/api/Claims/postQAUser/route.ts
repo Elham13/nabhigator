@@ -87,6 +87,8 @@ router.post(async (req) => {
             },
           ];
 
+      data = await dashboardData.save();
+
       await captureCaseEvent({
         claimId: dashboardData?.claimId,
         intimationDate:
@@ -99,7 +101,6 @@ router.post(async (req) => {
         userName: executerName,
       });
 
-      data = await dashboardData.save();
       message = `Case successfully assigned to ${userName}`;
     } else throw new Error("Wrong action");
 

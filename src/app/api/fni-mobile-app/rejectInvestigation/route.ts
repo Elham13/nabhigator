@@ -22,9 +22,6 @@ import User from "@/lib/Models/user";
 import sendEmail from "@/lib/helpers/sendEmail";
 import { captureCaseEvent } from "../../Claims/caseEvent/helpers";
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
-
 const router = createEdgeRouter<NextRequest, {}>();
 
 router.post(async (req) => {
@@ -112,6 +109,9 @@ router.post(async (req) => {
     if (dashboardData?.clusterManager)
       userIds.push(dashboardData?.clusterManager);
 
+    await investigator.save();
+    await dashboardData.save();
+
     const users: IUser[] = (await User.find({
       _id: { $in: userIds },
       status: "Active",
@@ -172,6 +172,8 @@ router.post(async (req) => {
 
     if (!success) throw new Error(`Failed to send Email ${mailerMsg}`);
 
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
     await captureCaseEvent({
       claimId: dashboardData?.claimId,
       intimationDate:
@@ -182,9 +184,6 @@ router.post(async (req) => {
       userName: investigator?.investigatorName || "",
       eventRemarks: `Investigation rejected with comment ${remark}`,
     });
-
-    await investigator.save();
-    await dashboardData.save();
 
     return NextResponse.json(
       {

@@ -107,47 +107,6 @@ router.post(async (req) => {
         recycle: false,
       };
 
-      // Update investigators daily and/or monthly assign
-      for (let i = 0; i < investigators?.length; i++) {
-        const inv = investigators[i];
-        const updateRes = await updateInvestigators(inv);
-        if (!updateRes?.success) throw new Error(updateRes?.message);
-
-        // TODO: Fix this
-        // if (updateRes?.recycle) {
-        //   if (isManual) {
-        //     throw new Error(
-        //       `The ${updateRes?.type} limit of the investigator (${updateRes?.invName}) is reached please select a different investigator.`
-        //     );
-        //   }
-        //   tempRes.recycle = true;
-        //   investigators = [];
-        //   break;
-        // }
-
-        inv?.email?.length > 0 &&
-          inv?.email?.map(async (mail: string) => {
-            const cc_recipients: string[] = [
-              "FIAllocation@nivabupa.com",
-              "Sanjay.Kumar16@nivabupa.com",
-            ];
-            if (dashboardData?.teamLead) {
-              const tl = await User.findById(dashboardData?.teamLead);
-              if (tl) cc_recipients?.push(tl?.email);
-            }
-            if (dashboardData?.clusterManager) {
-              const cm = await User.findById(dashboardData?.clusterManager);
-              if (cm) cc_recipients?.push(cm?.email);
-            }
-            await sendEmail({
-              from: FromEmails.DO_NOT_REPLY,
-              recipients: mail,
-              cc_recipients,
-              subject: `New Case assigned (${dashboardData?.claimId})`,
-              bodyText: `Dear ${inv?.investigatorName} \nA new case has been assigned to you with the id ${dashboardData?.claimId}\n\n\nWish you best of luck\nNabhigator`,
-            });
-          });
-      }
       // if (!tempRes.recycle) break;
       break;
     }
@@ -252,6 +211,28 @@ router.post(async (req) => {
       dashboardData.claimInvestigators = invs;
     }
 
+    const maximusRes = await tellMaximusCaseIsAssigned(
+      dashboardData?.toJSON(),
+      investigators[0],
+      body?.preQcObservation,
+      user?.email
+    );
+
+    if (!maximusRes?.success)
+      throw new Error(`Maximus Error: ${maximusRes.message}`);
+
+    responseObj.message = `Case assigned to ${
+      allocationType === "Dual"
+        ? investigators[0].investigatorName +
+          " and " +
+          investigators[1].investigatorName
+        : investigators[0].investigatorName
+    }`;
+    responseObj.data = investigators;
+
+    if (newCase !== null) await newCase.save();
+    await dashboardData.save();
+
     await captureCaseEvent({
       eventName: isManual
         ? EventNames.MANUAL_ALLOCATION
@@ -281,26 +262,48 @@ router.post(async (req) => {
       investigatorIds: investigators?.map((el: Investigator) => el?._id),
     });
 
-    const maximusRes = await tellMaximusCaseIsAssigned(
-      dashboardData?.toJSON(),
-      investigators[0],
-      body?.preQcObservation,
-      user?.email
-    );
+    // Update investigators daily and/or monthly assign and send email
+    for (let i = 0; i < investigators?.length; i++) {
+      const inv = investigators[i];
+      const updateRes = await updateInvestigators(inv);
+      if (!updateRes?.success) throw new Error(updateRes?.message);
 
-    if (!maximusRes?.success)
-      throw new Error(`Maximus Error: ${maximusRes.message}`);
+      // TODO: Fix this
+      // if (updateRes?.recycle) {
+      //   if (isManual) {
+      //     throw new Error(
+      //       `The ${updateRes?.type} limit of the investigator (${updateRes?.invName}) is reached please select a different investigator.`
+      //     );
+      //   }
+      //   tempRes.recycle = true;
+      //   investigators = [];
+      //   break;
+      // }
 
-    responseObj.message = `Case assigned to ${
-      allocationType === "Dual"
-        ? investigators[0].investigatorName +
-          " and " +
-          investigators[1].investigatorName
-        : investigators[0].investigatorName
-    }`;
-    responseObj.data = investigators;
-    if (newCase !== null) await newCase.save();
-    await dashboardData.save();
+      inv?.email?.length > 0 &&
+        inv?.email?.map(async (mail: string) => {
+          const cc_recipients: string[] = [
+            "FIAllocation@nivabupa.com",
+            "Sanjay.Kumar16@nivabupa.com",
+          ];
+          if (dashboardData?.teamLead) {
+            const tl = await User.findById(dashboardData?.teamLead);
+            if (tl) cc_recipients?.push(tl?.email);
+          }
+          if (dashboardData?.clusterManager) {
+            const cm = await User.findById(dashboardData?.clusterManager);
+            if (cm) cc_recipients?.push(cm?.email);
+          }
+          await sendEmail({
+            from: FromEmails.DO_NOT_REPLY,
+            recipients: mail,
+            cc_recipients,
+            subject: `New Case assigned (${dashboardData?.claimId})`,
+            bodyText: `Dear ${inv?.investigatorName} \nA new case has been assigned to you with the id ${dashboardData?.claimId}\n\n\nWish you best of luck\nNabhigator`,
+          });
+        });
+    }
+
     return NextResponse.json(responseObj, { status: statusCode });
   } catch (error: any) {
     return NextResponse.json(
