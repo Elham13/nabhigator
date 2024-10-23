@@ -44,17 +44,6 @@ router.post(async (req) => {
     if (!dashboardData)
       throw new Error(`No data found with the Id ${dashboardDataId}`);
 
-    await captureCaseEvent({
-      claimId: dashboardData?.claimId,
-      intimationDate:
-        dashboardData?.intimationDate ||
-        dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
-      eventName: EventNames.TASK_UPDATE_BY_QA,
-      userName: user?.name,
-      stage: NumericStage.POST_QC,
-      qaBy: user?.name,
-    });
-
     const invIds: string[] = [];
 
     if (allocationType === "Single") {
@@ -111,6 +100,18 @@ router.post(async (req) => {
 
       dashboardData.claimInvestigators = claimInvestigators;
     }
+
+    await captureCaseEvent({
+      claimId: dashboardData?.claimId,
+      intimationDate:
+        dashboardData?.intimationDate ||
+        dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
+      eventName: EventNames.TASK_UPDATE_BY_QA,
+      userName: user?.name,
+      stage: NumericStage.POST_QC,
+      qaBy: user?.name,
+    });
+
     await dashboardData.save();
 
     const data = await ClaimCase.findByIdAndUpdate(

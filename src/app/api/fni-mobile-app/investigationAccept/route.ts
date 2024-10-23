@@ -58,6 +58,8 @@ router.post(async (req) => {
 
     dashboardData.stage = stage;
 
+    const data = await dashboardData.save();
+
     dayjs.extend(utc);
     dayjs.extend(timezone);
     await captureCaseEvent({
@@ -71,8 +73,6 @@ router.post(async (req) => {
       eventRemarks: `Investigator ${userName || "-"} accepted the case.`,
       userName,
     });
-
-    const data = await dashboardData.save();
 
     return NextResponse.json(
       {

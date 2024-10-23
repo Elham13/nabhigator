@@ -320,6 +320,8 @@ router.post(async (req) => {
 
     if (!success) throw new Error(`Failed to send email: ${message}`);
 
+    await dashboardData.save();
+
     await captureCaseEvent({
       eventName: EventNames.PRE_QC_REJECTED,
       eventRemarks,
@@ -330,7 +332,6 @@ router.post(async (req) => {
       claimId: dashboardData?.claimId,
       userName: user?.name,
     });
-    await dashboardData.save();
 
     return NextResponse.json(
       {

@@ -24,9 +24,6 @@ import { captureCaseEvent } from "../../Claims/caseEvent/helpers";
 import ClaimInvestigator from "@/lib/Models/claimInvestigator";
 import { getEncryptClaimId } from "@/lib/helpers";
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
-
 const router = createEdgeRouter<NextRequest, {}>();
 
 router.post(async (req) => {
@@ -49,6 +46,8 @@ router.post(async (req) => {
     await connectDB(Databases.FNI);
 
     let message: string = "";
+    let eventName: string = "";
+    let eventRemarks: string = "";
     let data: any = null;
 
     const dashboardData = await DashboardData.findById(id);
@@ -66,9 +65,6 @@ router.post(async (req) => {
 
     if (action === "changeStage") {
       if (!stage) throw new Error("stage is required!");
-
-      let eventName: string = "";
-      let eventRemarks: string = "";
 
       if (stage === NumericStage.INVESTIGATION_ACCEPTED) {
         eventName = EventNames.CASE_ACCEPTED;
@@ -96,6 +92,14 @@ router.post(async (req) => {
                 noted: true,
               }))
             : dashboardData?.expedition;
+
+        caseDetail.reportSubmissionDateQa = new Date();
+        caseDetail.qaBy = userName;
+        dashboardData.dateOfClosure = new Date();
+
+        await caseDetail.save();
+        eventName = EventNames.QA_COMPLETED;
+        eventRemarks = `Investigation approved and QA completed with summary of investigation: ${postQARecommendation?.summaryOfInvestigation}`;
 
         const postQaUser: HydratedDocument<IUser> | null = await User.findById(
           userId
@@ -170,14 +174,6 @@ router.post(async (req) => {
 
         if (!success) throw new Error(`Failed to send Email: ${mailerMsg}`);
 
-        caseDetail.reportSubmissionDateQa = new Date();
-        caseDetail.qaBy = userName;
-        dashboardData.dateOfClosure = new Date();
-
-        await caseDetail.save();
-        eventName = EventNames.QA_COMPLETED;
-        eventRemarks = `Investigation approved and QA completed with summary of investigation: ${postQARecommendation?.summaryOfInvestigation}`;
-
         message = `Case closed successfully and Email sent to ${mailResponse?.accepted?.join(
           ", "
         )}`;
@@ -198,18 +194,6 @@ router.post(async (req) => {
               userId,
             },
           ];
-
-      await captureCaseEvent({
-        claimId: dashboardData?.claimId,
-        intimationDate:
-          dashboardData?.intimationDate ||
-          dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
-        eventName: eventName,
-        stage: stage,
-        userId: userId as string,
-        eventRemarks: eventRemarks,
-        userName: userName,
-      });
 
       if (!!postQaComment) {
         caseDetail.postQaComment = postQaComment;
@@ -250,20 +234,11 @@ router.post(async (req) => {
           ];
       data = await dashboardData.save();
 
-      await captureCaseEvent({
-        claimId: dashboardData?.claimId,
-        intimationDate:
-          dashboardData?.intimationDate ||
-          dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
-        eventName: data?.locked?.status
-          ? EventNames.CASE_LOCKED
-          : EventNames.CASE_UNLOCKED,
-        stage: dashboardData.stage,
-        userId: userId as string,
-        eventRemarks: data?.locked?.status
-          ? EventNames.CASE_LOCKED
-          : EventNames.CASE_UNLOCKED,
-      });
+      eventName = data?.locked?.status
+        ? EventNames.CASE_LOCKED
+        : EventNames.CASE_UNLOCKED;
+
+      eventRemarks = eventName;
 
       message = `Cases successfully ${msg}`;
     } else if (action === "skipInvestigationAndComplete") {
@@ -290,16 +265,8 @@ router.post(async (req) => {
           ];
       dashboardData.stage = NumericStage.INVESTIGATION_SKIPPED_AND_COMPLETING;
 
-      await captureCaseEvent({
-        claimId: dashboardData?.claimId,
-        intimationDate:
-          dashboardData?.intimationDate ||
-          dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
-        eventName: EventNames.INVESTIGATION_SKIPPED_AND_COMPLETING,
-        stage: dashboardData.stage,
-        userId: userId as string,
-        eventRemarks: `${EventNames.INVESTIGATION_SKIPPED_AND_COMPLETING} with remarks ${remarks}`,
-      });
+      eventName = EventNames.INVESTIGATION_SKIPPED_AND_COMPLETING;
+      eventRemarks = `${eventName} with remarks ${remarks}`;
 
       await informInvestigators({ userName, data: dashboardData, userId });
 
@@ -329,16 +296,8 @@ router.post(async (req) => {
             },
           ];
       dashboardData.stage = NumericStage.INVESTIGATION_SKIPPED_AND_RE_ASSIGNING;
-      await captureCaseEvent({
-        claimId: dashboardData?.claimId,
-        intimationDate:
-          dashboardData?.intimationDate ||
-          dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
-        eventName: EventNames.INVESTIGATION_SKIPPED_AND_RE_ASSIGNING,
-        stage: dashboardData.stage,
-        userId: userId as string,
-        eventRemarks: EventNames.INVESTIGATION_SKIPPED_AND_RE_ASSIGNING,
-      });
+      eventName = eventRemarks =
+        EventNames.INVESTIGATION_SKIPPED_AND_RE_ASSIGNING;
 
       await informInvestigators({ userName, data: dashboardData, userId });
 
@@ -369,16 +328,7 @@ router.post(async (req) => {
             },
           ];
 
-      await captureCaseEvent({
-        claimId: dashboardData?.claimId,
-        intimationDate:
-          dashboardData?.intimationDate ||
-          dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
-        eventName: EventNames.INVESTIGATION_SKIPPED_CANCELEd,
-        stage: dashboardData.stage,
-        userId: userId as string,
-        eventRemarks: EventNames.INVESTIGATION_SKIPPED_CANCELEd,
-      });
+      eventName = eventRemarks = EventNames.INVESTIGATION_SKIPPED_CANCELEd;
 
       await informInvestigators({
         userName,
@@ -409,6 +359,20 @@ router.post(async (req) => {
 
       data = await dashboardData.save();
     }
+
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
+    await captureCaseEvent({
+      claimId: dashboardData?.claimId,
+      intimationDate:
+        dashboardData?.intimationDate ||
+        dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
+      eventName,
+      stage: stage,
+      userId: userId as string,
+      eventRemarks,
+      userName: userName,
+    });
 
     return NextResponse.json(
       {

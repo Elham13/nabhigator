@@ -94,6 +94,10 @@ router.post(async (req) => {
       if (data?.claimSubType === claimSubType)
         throw new Error(`The claim sub-type is already ${claimSubType}`);
 
+      await changeTasksAndDocs(data?.caseId as string, claimSubType);
+
+      response = await data.save();
+
       await captureCaseEvent({
         eventName: EventNames.CLAIM_SUB_TYPE_CHANGE,
         intimationDate:
@@ -107,9 +111,6 @@ router.post(async (req) => {
         userName,
       });
 
-      await changeTasksAndDocs(data?.caseId as string, claimSubType);
-
-      response = await data.save();
       statusMessage = "You have successfully changed the claim sub type";
     } else {
       const tl: HydratedDocument<IUser> | null = await User.findById(

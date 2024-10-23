@@ -23,8 +23,6 @@ export const sendCaseToAllocationBucket = async ({
   user,
   eventRemarks,
 }: ISendCaseToAllocation) => {
-  dayjs.extend(utc);
-  dayjs.extend(timezone);
   try {
     let newCase: HydratedDocument<CaseDetail> | null = null;
     if (body?.allocationType === "Single") {
@@ -65,6 +63,11 @@ export const sendCaseToAllocationBucket = async ({
     dashboardData.dateOfFallingIntoAllocationBucket = new Date();
     dashboardData.teamLead = dashboardData.teamLead || null;
 
+    if (newCase) await newCase.save();
+    await dashboardData?.save();
+
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
     await captureCaseEvent({
       eventName: EventNames.MOVE_TO_ALLOCATION_BUCKET,
       eventRemarks,
@@ -75,9 +78,6 @@ export const sendCaseToAllocationBucket = async ({
       claimId: dashboardData?.claimId,
       userName: user?.name,
     });
-
-    if (newCase) await newCase.save();
-    await dashboardData?.save();
 
     return { success: true, message: "Success" };
   } catch (error: any) {

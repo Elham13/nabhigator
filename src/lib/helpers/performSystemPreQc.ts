@@ -12,8 +12,6 @@ import {
 import { isWeekend } from ".";
 import { captureCaseEvent } from "@/app/api/Claims/caseEvent/helpers";
 import { runPreQCAutoAllocation } from "./runPreQCAutoAllocation";
-dayjs.extend(utc);
-dayjs.extend(timezone);
 
 const runTriage = async (fni: IDashboardData) => {
   if (!fni) throw new Error("No data with that id");
@@ -491,6 +489,8 @@ const runTriage = async (fni: IDashboardData) => {
     triageStatus = "Accepted";
   } else triageStatus = "Rejected";
 
+  dayjs.extend(utc);
+  dayjs.extend(timezone);
   await captureCaseEvent({
     claimId: fni?.claimId,
     intimationDate:
@@ -516,6 +516,9 @@ export const performSystemPreQc = async (
     if (!data?._id) throw new Error("Id is required for system pre qc");
     if (data) {
       const result = await runTriage(data);
+
+      dayjs.extend(utc);
+      dayjs.extend(timezone);
       await captureCaseEvent({
         claimId: data?.claimId,
         intimationDate:

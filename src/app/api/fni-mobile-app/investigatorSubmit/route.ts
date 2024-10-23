@@ -246,42 +246,30 @@ router.post(async (req) => {
       }
 
       dashboardData.stage = stage;
-
-      dayjs.extend(utc);
-      dayjs.extend(timezone);
-      await captureCaseEvent({
-        claimId: dashboardData?.claimId,
-        intimationDate:
-          dashboardData?.intimationDate ||
-          dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
-        eventName: EventNames.INVESTIGATION_REPORT_SUBMITTED,
-        stage: stage,
-        userId: userId as string,
-        eventRemarks,
-        userName,
-      });
     } else {
-      dayjs.extend(utc);
-      dayjs.extend(timezone);
-      await captureCaseEvent({
-        claimId: dashboardData?.claimId,
-        intimationDate:
-          dashboardData?.intimationDate ||
-          dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
-        eventName: EventNames.INVESTIGATION_REPORT_SUBMITTED,
-        stage: dashboardData?.stage,
-        userId: userId as string,
-        eventRemarks: `Investigator ${
-          userName || "-"
-        } completed the case and submitted`,
-        userName,
-      });
+      eventRemarks = `Investigator ${
+        userName || "-"
+      } completed the case and submitted`;
     }
 
     dashboardData.invReportReceivedDate = new Date();
 
     await caseDetail.save();
     const data = await dashboardData.save();
+
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
+    await captureCaseEvent({
+      claimId: dashboardData?.claimId,
+      intimationDate:
+        dashboardData?.intimationDate ||
+        dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
+      eventName: EventNames.INVESTIGATION_REPORT_SUBMITTED,
+      stage: stage,
+      userId: userId as string,
+      eventRemarks,
+      userName,
+    });
 
     return NextResponse.json(
       {
