@@ -165,7 +165,9 @@ const Findings = ({ findings }: { findings: IRMFindings | null }) => {
                           variant="light"
                           onClick={() => {
                             window.open(
-                              `/Claims/action-inbox/documents?url=${evidence}&name=Evidence`,
+                              `/Claims/action-inbox/documents?url=${encodeURIComponent(
+                                evidence
+                              )}&name=Evidence`,
                               "_blank"
                             );
                           }}

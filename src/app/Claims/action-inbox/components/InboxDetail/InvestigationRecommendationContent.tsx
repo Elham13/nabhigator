@@ -75,7 +75,9 @@ const Recommendations = ({
                   variant="light"
                   onClick={() => {
                     window.open(
-                      `/Claims/action-inbox/documents?url=${doc}&name=Evidence`,
+                      `/Claims/action-inbox/documents?url=${encodeURIComponent(
+                        doc
+                      )}&name=Evidence`,
                       "_blank"
                     );
                   }}
