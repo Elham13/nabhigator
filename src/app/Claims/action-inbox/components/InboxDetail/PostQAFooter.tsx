@@ -14,6 +14,7 @@ type PropTypes = {
   data: IDashboardData | null;
   caseDetail: CaseDetail | null;
   showElement: IShowElement;
+  setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
   setShowElement: Dispatch<SetStateAction<IShowElement>>;
 };
 
@@ -21,12 +22,14 @@ const PostQAFooter = ({
   data,
   caseDetail,
   showElement,
+  setCaseDetail,
   setShowElement,
 }: PropTypes) => {
   return showElement.postQaAccept ? (
     <PostQaApproveContent
       data={data}
       caseDetail={caseDetail}
+      setCaseDetail={setCaseDetail}
       handleCancel={() =>
         setShowElement((prev) => ({
           ...prev,
