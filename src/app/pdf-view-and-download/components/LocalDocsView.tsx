@@ -236,7 +236,9 @@ const LocalDocsView = ({ caseData, claimType, claimId }: PropTypes) => {
 
     for (let i = 0; i < documents?.length; i++) {
       const a = document.createElement("a");
-      const signedUrl = await getSignedUrlHelper(documents[i]?.url);
+      const signedUrl = await getSignedUrlHelper(
+        encodeURIComponent(documents[i]?.url)
+      );
       a.href = signedUrl;
       a.target = "_blank";
       a.download = documents[i]?.name;
