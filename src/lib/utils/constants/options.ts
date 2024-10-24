@@ -16,6 +16,11 @@ export const claimSubTypeOptions: ValueLabel[] = [
   { value: "Pre-Post", label: "Pre-Post" },
   { value: "Hospital Daily Cash", label: "Hospital Daily Cash" },
   { value: "PA/CI", label: "PA/CI" },
+  { value: "C-Day care Procedures", label: "C-Day care Procedures" },
+  {
+    value: "2-Alternative Treatment In Patient",
+    label: "Alternative Treatment In Patient",
+  },
 ];
 
 export const moreFiltersOptions: IMoreFiltersOptions[] = [
@@ -31,6 +36,7 @@ export const moreFiltersOptions: IMoreFiltersOptions[] = [
   { value: "claimInvestigators", label: "Field Investigator", type: "array" },
   { value: "lossType", label: "Loss Type", type: "select" },
   { value: "colorCode", label: "Color Code", type: "select" },
+  { value: "allocationType", label: "Allocation Type", type: "select" },
   { value: "openTAT", label: "Open TAT", type: "number" },
   { value: "closureTAT", label: "Closure TAT", type: "number" },
   {

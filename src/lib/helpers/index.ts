@@ -272,7 +272,14 @@ export const configureRMTasksAndDocuments = ({
   const newDocs = new Map<string, DocumentData[]>();
   const newTasks: Task[] = [];
 
-  if (claimSubType === "In-patient Hospitalization") {
+  if (
+    !!claimSubType &&
+    [
+      "In-patient Hospitalization",
+      "C-Day care Procedures",
+      "2-Alternative Treatment In Patient",
+    ].includes(claimSubType)
+  ) {
     for (const el of rmMainObjectOptionsMap) {
       let tempTasks = [
         "Insured Verification",
