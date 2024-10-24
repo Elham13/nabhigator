@@ -21,6 +21,13 @@ import { useLocalStorage } from "@mantine/hooks";
 import { getEncryptClaimId } from "@/lib/helpers";
 import { BiCog } from "react-icons/bi";
 
+const RejectionReasons = dynamic(
+  () => import("./InboxDetail/RejectionReasons"),
+  {
+    ssr: false,
+    loading: () => <BiCog className="animate-spin" />,
+  }
+);
 const CompleteInvestigationFooter = dynamic(
   () => import("./InboxDetail/CompleteInvestigationFooter"),
   {
@@ -413,6 +420,19 @@ const DetailsAccordion = ({
                   }
                 />
               </Fragment>
+            ),
+          },
+        ]
+      : []),
+
+    ...(caseDetail?.caseStatus === "Rejected"
+      ? [
+          {
+            value: "Rejection Reasons",
+            content: (
+              <RejectionReasons
+                rejectionReasons={caseDetail?.rejectionReasons}
+              />
             ),
           },
         ]

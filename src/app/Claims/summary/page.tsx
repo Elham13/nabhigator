@@ -16,9 +16,12 @@ import axios from "axios";
 import dayjs from "dayjs";
 import { PiFolderOpenLight } from "react-icons/pi";
 import {
+  CaseDetail,
   ICaseEvent,
   IDashboardData,
   IMultipleEvents,
+  NumericStage,
+  RejectionReason,
   ResponseType,
   SingleResponseType,
 } from "@/lib/utils/types/fniDataTypes";
@@ -32,6 +35,7 @@ import {
   multipleEventTableHeading,
   singleEventTableHeading,
 } from "@/lib/utils/constants/tableHeadings";
+import RejectionReasons from "../action-inbox/components/InboxDetail/RejectionReasons";
 
 interface IFilters {
   claimId: string;
@@ -60,6 +64,9 @@ const Summary = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [dashboardData, setDashboardData] = useState<IDashboardData | null>(
     null
+  );
+  const [rejectionReasons, setRejectionReasons] = useState<RejectionReason[]>(
+    []
   );
 
   const handleChange = (name: keyof IFilters, val: string | null) => {
@@ -138,6 +145,7 @@ const Summary = () => {
   const handleClear = () => {
     setFilters(filtersInitial);
     handleFilter("clear");
+    setRejectionReasons([]);
   };
 
   const singleEventRow = useMemo(
@@ -174,14 +182,31 @@ const Summary = () => {
       // Get Dashboard Data
       (async () => {
         try {
+          setLoading(true);
           const { data } = await axios.get<SingleResponseType<IDashboardData>>(
             buildUrl(EndPoints.DASHBOARD_DATA, {
               claimId: actionEvent[0].claimId,
             })
           );
           setDashboardData(data?.data);
+
+          if (data?.data?.stage === NumericStage.REJECTED) {
+            const { data: caseDetail } = await axios.get<
+              SingleResponseType<CaseDetail>
+            >(
+              buildUrl(EndPoints.CASE_DETAIL, {
+                id: data?.data?.caseId,
+              })
+            );
+
+            if (caseDetail?.data?.rejectionReasons?.length > 0) {
+              setRejectionReasons(caseDetail?.data?.rejectionReasons);
+            }
+          }
         } catch (error: any) {
           showError(error);
+        } finally {
+          setLoading(false);
         }
       })();
     }
@@ -276,6 +301,10 @@ const Summary = () => {
             <Text c="dimmed">No Data</Text>
           </Stack>
         )}
+
+        {rejectionReasons?.length > 0 ? (
+          <RejectionReasons rejectionReasons={rejectionReasons} />
+        ) : null}
       </Group>
     </PageWrapper>
   );
