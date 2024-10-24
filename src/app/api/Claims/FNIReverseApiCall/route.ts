@@ -137,7 +137,7 @@ router.post(async (req) => {
     return NextResponse.json(
       {
         success: false,
-        message: error?.message,
+        message: `Maximus Error: ${error?.message}`,
         data: null,
       },
       { status: error?.statusCode || 500 }
