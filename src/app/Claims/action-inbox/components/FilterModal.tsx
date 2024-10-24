@@ -58,6 +58,7 @@ interface Options {
   claimInvestigators: ValueLabel[];
   lossType: ValueLabel[];
   colorCode: ValueLabel[];
+  allocationType: ValueLabel[];
   investigatorRecommendation: ValueLabel[];
 }
 
@@ -77,6 +78,10 @@ const FilterModal = ({
     claimInvestigators: [],
     lossType: lossTypeOptions,
     colorCode: colorCodeOptions,
+    allocationType: [
+      { value: "Single", label: "Single" },
+      { value: "Dual", label: "Dual" },
+    ],
     investigatorRecommendation: investigatorRecommendationOptions,
   });
 
