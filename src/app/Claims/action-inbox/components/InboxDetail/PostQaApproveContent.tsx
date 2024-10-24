@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Box, Button, Flex, Modal, Text } from "@mantine/core";
 import PostQaApproveForm from "./PostQaApproveForm";
 import InvestigationSummary from "./InvestigationSummary";
@@ -26,6 +26,7 @@ import {
 type PropTypes = {
   caseDetail: CaseDetail | null;
   data: IDashboardData | null;
+  setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
   handleCancel: () => void;
 };
 
@@ -44,6 +45,7 @@ const approvedValuesInitials: PostQaApproveFormValues = {
 const PostQaApproveContent = ({
   data,
   caseDetail,
+  setCaseDetail,
   handleCancel,
 }: PropTypes) => {
   const router = useRouter();
@@ -316,17 +318,21 @@ const PostQaApproveContent = ({
       ...prev,
       summaryOfInvestigation: summary || "",
       frcuRecommendationOnClaims: recommendation || "-",
+      documents: caseDetail?.postQARecommendation?.documents || [],
     }));
   }, [caseDetail, data?.claimType, recommendation]);
 
   return (
     <Box className="mt-4">
       <PostQaApproveForm
+        claimId={data?.claimId || 0}
         approvedValues={approvedValues}
         setApprovedValues={setApprovedValues}
         overRulingReason={overRulingReason}
         setOverRulingReason={setOverRulingReason}
         recommendation={recommendation}
+        caseDetail={caseDetail}
+        setCaseDetail={setCaseDetail}
       />
       <InvestigationSummary dashboardData={data} caseDetails={caseDetail} />
       <Button mt={12} color="green" onClick={handleClose}>

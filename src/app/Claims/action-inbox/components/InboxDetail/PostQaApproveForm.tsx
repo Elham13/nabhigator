@@ -1,7 +1,22 @@
-import React from "react";
-import { Grid, MultiSelect, Select, TextInput, Textarea } from "@mantine/core";
-import { PostQaApproveFormValues } from "@/lib/utils/types/fniDataTypes";
+import React, { Dispatch, SetStateAction } from "react";
+import {
+  Grid,
+  MultiSelect,
+  Select,
+  Text,
+  TextInput,
+  Textarea,
+} from "@mantine/core";
+import {
+  CaseDetail,
+  PostQaApproveFormValues,
+} from "@/lib/utils/types/fniDataTypes";
 import { getSelectOption } from "@/lib/helpers";
+import FileUploadFooter from "@/components/ClaimsComponents/FileUpload/FileUploadFooter";
+import { useAxios } from "@/lib/hooks/useAxios";
+import { EndPoints } from "@/lib/utils/types/enums";
+import FileUpload from "@/components/ClaimsComponents/FileUpload";
+import { tempDocInitials } from "@/lib/utils/constants";
 
 const ClaimsGroundOfRepudiationOptions = [
   "PED/NDC",
@@ -40,19 +55,23 @@ const sourcingRecommendationOptions = [
 const regulatoryReportingRecommendationOptions = ["Yes", "No", "NA"];
 
 type PropTypes = {
+  claimId: number;
+  caseDetail: CaseDetail | null;
   approvedValues: PostQaApproveFormValues;
   overRulingReason: string;
   recommendation?: string;
-  setApprovedValues: React.Dispatch<
-    React.SetStateAction<PostQaApproveFormValues>
-  >;
-  setOverRulingReason: React.Dispatch<React.SetStateAction<string>>;
+  setApprovedValues: Dispatch<SetStateAction<PostQaApproveFormValues>>;
+  setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
+  setOverRulingReason: Dispatch<SetStateAction<string>>;
 };
 
 const PostQaApproveForm = ({
+  claimId,
+  caseDetail,
   approvedValues,
   overRulingReason,
   recommendation,
+  setCaseDetail,
   setApprovedValues,
   setOverRulingReason,
 }: PropTypes) => {
@@ -81,6 +100,39 @@ const PostQaApproveForm = ({
       ...prev,
       frcuRecommendationOnClaims: val || "",
     }));
+  };
+
+  const { refetch: submit } = useAxios<any>({
+    config: { url: EndPoints.UPDATE_CASE_DETAIL, method: "POST" },
+    dependencyArr: [],
+    isMutation: true,
+    onDone: (res) => {
+      if (res?.updatedCase) setCaseDetail(res?.updatedCase);
+    },
+  });
+
+  const handleRemove = (index: number) => {
+    const payload = {
+      id: caseDetail?._id,
+      action: "AddPostQADocument",
+      index,
+    };
+    submit(payload);
+  };
+
+  const handleGetUrl = (
+    id: string,
+    name: string,
+    url: string,
+    action: "Add" | "Remove"
+  ) => {
+    const payload = {
+      id: caseDetail?._id,
+      action: "AddPostQADocument",
+      postQaDoc: url,
+    };
+
+    submit(payload);
   };
 
   return (
@@ -152,6 +204,25 @@ const PostQaApproveForm = ({
                 data={ClaimsGroundOfRepudiationOptions}
                 clearable
                 hidePickedOptions
+              />
+            </Grid.Col>
+
+            <Grid.Col span={{ sm: 12, md: 6 }}>
+              <Text className="font-semibold">Upload Document: </Text>
+              {!!approvedValues?.documents &&
+                approvedValues?.documents?.length > 0 &&
+                approvedValues?.documents?.map((el, ind) => (
+                  <FileUploadFooter
+                    key={ind}
+                    url={el}
+                    onDelete={() => handleRemove(ind)}
+                  />
+                ))}
+              <FileUpload
+                doc={tempDocInitials}
+                docName="doc"
+                getUrl={handleGetUrl}
+                claimId={claimId}
               />
             </Grid.Col>
           </>

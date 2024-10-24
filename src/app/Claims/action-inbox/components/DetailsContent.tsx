@@ -252,6 +252,7 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
                 caseDetail={caseDetail}
                 data={data}
                 showElement={showElement}
+                setCaseDetail={setCaseDetail}
                 setShowElement={setShowElement}
               />
             ) : null}
