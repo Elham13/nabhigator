@@ -53,7 +53,9 @@ const OPDTasks = ({ values }: PropTypes) => {
                     variant="light"
                     onClick={() => {
                       window.open(
-                        `/Claims/action-inbox/documents?url=${url}&name=Insured Not Visit Proof`,
+                        `/Claims/action-inbox/documents?url=${encodeURIComponent(
+                          url
+                        )}&name=Insured Not Visit Proof`,
                         "_blank"
                       );
                     }}
@@ -202,7 +204,9 @@ const OPDTasks = ({ values }: PropTypes) => {
                           variant="light"
                           onClick={() => {
                             window.open(
-                              `/Claims/action-inbox/documents?url=${url}&name=Insurance Policy Other Than NBHI Document`,
+                              `/Claims/action-inbox/documents?url=${encodeURIComponent(
+                                url
+                              )}&name=Insurance Policy Other Than NBHI Document`,
                               "_blank"
                             );
                           }}
@@ -252,7 +256,7 @@ const OPDTasks = ({ values }: PropTypes) => {
             </>
           ) : null}
 
-          {values?.prevInsurancePolicyCopy ? (
+          {!!values?.prevInsurancePolicyCopy ? (
             <Box>
               <Title order={5} c="orange">
                 Previous Insurance Policy Copy
@@ -261,7 +265,9 @@ const OPDTasks = ({ values }: PropTypes) => {
                 variant="light"
                 onClick={() => {
                   window.open(
-                    `/Claims/action-inbox/documents?url=${values?.prevInsurancePolicyCopy}&name=Previous Insurance Policy Copy`,
+                    `/Claims/action-inbox/documents?url=${encodeURIComponent(
+                      values?.prevInsurancePolicyCopy!
+                    )}&name=Previous Insurance Policy Copy`,
                     "_blank"
                   );
                 }}

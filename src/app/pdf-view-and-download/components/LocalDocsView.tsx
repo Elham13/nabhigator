@@ -236,9 +236,7 @@ const LocalDocsView = ({ caseData, claimType, claimId }: PropTypes) => {
 
     for (let i = 0; i < documents?.length; i++) {
       const a = document.createElement("a");
-      const signedUrl = await getSignedUrlHelper(
-        encodeURIComponent(documents[i]?.url)
-      );
+      const signedUrl = await getSignedUrlHelper(documents[i]?.url);
       a.href = signedUrl;
       a.target = "_blank";
       a.download = documents[i]?.name;
@@ -278,7 +276,9 @@ const LocalDocsView = ({ caseData, claimType, claimId }: PropTypes) => {
                             color={d ? "green" : "gray"}
                             onClick={() => {
                               window.open(
-                                `/Claims/action-inbox/documents?url=${d}&name=${el.name}`,
+                                `/Claims/action-inbox/documents?url=${encodeURIComponent(
+                                  d
+                                )}&name=${el.name}`,
                                 "_blank"
                               );
                             }}
@@ -304,7 +304,9 @@ const LocalDocsView = ({ caseData, claimType, claimId }: PropTypes) => {
                   c="green"
                   onClick={() => {
                     window.open(
-                      `/Claims/action-inbox/documents?url=${el}&name=PostQADoc`,
+                      `/Claims/action-inbox/documents?url=${encodeURIComponent(
+                        el
+                      )}&name=PostQADoc`,
                       "_blank"
                     );
                   }}
@@ -327,9 +329,9 @@ const LocalDocsView = ({ caseData, claimType, claimId }: PropTypes) => {
                     c="green"
                     onClick={() => {
                       window.open(
-                        `/Claims/action-inbox/documents?url=${el}&name=Evidence ${
-                          ind + 1
-                        }`,
+                        `/Claims/action-inbox/documents?url=${encodeURIComponent(
+                          el
+                        )}&name=Evidence ${ind + 1}`,
                         "_blank"
                       );
                     }}
@@ -351,9 +353,9 @@ const LocalDocsView = ({ caseData, claimType, claimId }: PropTypes) => {
                       c="green"
                       onClick={() => {
                         window.open(
-                          `/Claims/action-inbox/documents?url=${el}&name=Evidence ${
-                            ind + 1
-                          }`,
+                          `/Claims/action-inbox/documents?url=${encodeURIComponent(
+                            el
+                          )}&name=Evidence ${ind + 1}`,
                           "_blank"
                         );
                       }}
@@ -373,9 +375,9 @@ const LocalDocsView = ({ caseData, claimType, claimId }: PropTypes) => {
                       c="green"
                       onClick={() => {
                         window.open(
-                          `/Claims/action-inbox/documents?url=${el}&name=Evidence ${
-                            ind + 1
-                          }`,
+                          `/Claims/action-inbox/documents?url=${encodeURIComponent(
+                            el
+                          )}&name=Evidence ${ind + 1}`,
                           "_blank"
                         );
                       }}
@@ -399,9 +401,9 @@ const LocalDocsView = ({ caseData, claimType, claimId }: PropTypes) => {
                     c="green"
                     onClick={() => {
                       window.open(
-                        `/Claims/action-inbox/documents?url=${el}&name=Evidence ${
-                          ind + 1
-                        }`,
+                        `/Claims/action-inbox/documents?url=${encodeURIComponent(
+                          el
+                        )}&name=Evidence ${ind + 1}`,
                         "_blank"
                       );
                     }}
@@ -423,9 +425,9 @@ const LocalDocsView = ({ caseData, claimType, claimId }: PropTypes) => {
                       c="green"
                       onClick={() => {
                         window.open(
-                          `/Claims/action-inbox/documents?url=${el}&name=Evidence ${
-                            ind + 1
-                          }`,
+                          `/Claims/action-inbox/documents?url=${encodeURIComponent(
+                            el
+                          )}&name=Evidence ${ind + 1}`,
                           "_blank"
                         );
                       }}
@@ -446,9 +448,9 @@ const LocalDocsView = ({ caseData, claimType, claimId }: PropTypes) => {
                         c="green"
                         onClick={() => {
                           window.open(
-                            `/Claims/action-inbox/documents?url=${el}&name=Evidence ${
-                              ind + 1
-                            }`,
+                            `/Claims/action-inbox/documents?url=${encodeURIComponent(
+                              el
+                            )}&name=Evidence ${ind + 1}`,
                             "_blank"
                           );
                         }}
