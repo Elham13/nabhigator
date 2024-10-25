@@ -298,7 +298,7 @@ router.post(async (req) => {
             from: FromEmails.DO_NOT_REPLY,
             recipients: mail,
             cc_recipients,
-            subject: `New Case assigned (${dashboardData?.claimId})`,
+            subject: `New Case assigned (${dashboardData?.claimId}_${dashboardData?.claimType})`,
             bodyText: `Dear ${inv?.investigatorName} \nA new case has been assigned to you with the id ${dashboardData?.claimId}\n\n\nWish you best of luck\nNabhigator`,
           });
         });
