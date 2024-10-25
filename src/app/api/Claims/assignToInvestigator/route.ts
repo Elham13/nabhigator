@@ -282,10 +282,7 @@ router.post(async (req) => {
 
       inv?.email?.length > 0 &&
         inv?.email?.map(async (mail: string) => {
-          const cc_recipients: string[] = [
-            "FIAllocation@nivabupa.com",
-            "Sanjay.Kumar16@nivabupa.com",
-          ];
+          const cc_recipients: string[] = ["FIAllocation@nivabupa.com"];
           if (dashboardData?.teamLead) {
             const tl = await User.findById(dashboardData?.teamLead);
             if (tl) cc_recipients?.push(tl?.email);
@@ -298,7 +295,7 @@ router.post(async (req) => {
             from: FromEmails.DO_NOT_REPLY,
             recipients: mail,
             cc_recipients,
-            subject: `New Case assigned (${dashboardData?.claimId})`,
+            subject: `New Case assigned (${dashboardData?.claimId}_${dashboardData?.claimType})`,
             bodyText: `Dear ${inv?.investigatorName} \nA new case has been assigned to you with the id ${dashboardData?.claimId}\n\n\nWish you best of luck\nNabhigator`,
           });
         });

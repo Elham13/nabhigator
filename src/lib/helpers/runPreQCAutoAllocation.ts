@@ -133,7 +133,7 @@ export const runPreQCAutoAllocation = async (
           await sendEmail({
             from: FromEmails.DO_NOT_REPLY,
             recipients: mail,
-            subject: `New Case assigned (${data?.claimId})`,
+            subject: `New Case assigned (${data?.claimId}_${data?.claimType})`,
             bodyText: `Dear ${inv?.investigatorName} \nA new case has been assigned to you with the id ${data?.claimId} (System Pre-QC Auto-Allocation)\n\n\nWish you best of luck\nNabhigator`,
           });
         });
