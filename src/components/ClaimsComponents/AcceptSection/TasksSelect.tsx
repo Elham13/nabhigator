@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  AcceptedValues,
   DocumentData,
   DocumentMap,
   IDashboardData,
@@ -13,7 +12,7 @@ import {
   mainPartRMOptions,
   rmMainObjectOptionsMap,
 } from "@/lib/utils/constants/options";
-import { configureRMTasksAndDocuments } from "@/lib/helpers";
+import { configureRMTasksAndDocuments, showError } from "@/lib/helpers";
 import { toast } from "react-toastify";
 import dynamic from "next/dynamic";
 import { useTasks } from "@/lib/providers/TasksAndDocsProvider";
@@ -64,77 +63,83 @@ const TasksSelect = ({ title, part, dashboardData }: PropTypes) => {
   ]);
 
   const handleSelect = (value: string[]) => {
-    let docs = new Map(
-      documents && Object.keys(documents)?.length > 0
-        ? (documents as DocumentMap)
-        : []
-    );
+    try {
+      let docs = documents
+        ? Array.isArray(documents)
+          ? documents.length > 0 && (documents[0] as any) instanceof Array
+            ? new Map(documents) // If the input is an array of entries, create a Map
+            : Object.fromEntries(documents) // If it's just a simple array of key-value pairs, convert to object
+          : null
+        : null;
 
-    if (docs && docs?.size > 0) {
-      if (docs?.size < value?.length) {
-        const lastEl = value[value?.length - 1];
-        const tempOptions = mainObjectOptionsMap.find(
-          (el) => el.name === lastEl
-        )?.options;
-        const options = tempOptions?.map((el) => ({
-          name: el.value,
-          docUrl: [],
-          hiddenDocUrls: [],
-          replacedDocUrls: [],
-          location: null,
-        }));
-        docs?.set(lastEl, options || []);
+      if (!!docs && docs?.size > 0) {
+        if (docs?.size < value?.length) {
+          const lastEl = value[value?.length - 1];
+          const tempOptions = mainObjectOptionsMap.find(
+            (el) => el.name === lastEl
+          )?.options;
+          const options = tempOptions?.map((el) => ({
+            name: el.value,
+            docUrl: [],
+            hiddenDocUrls: [],
+            replacedDocUrls: [],
+            location: null,
+          }));
+          docs?.set(lastEl, options || []);
+        } else {
+          for (let [key, val] of documents as DocumentMap) {
+            if (!value?.includes(key)) docs?.delete(key);
+          }
+        }
       } else {
-        for (let [key, val] of documents as DocumentMap) {
-          if (!value?.includes(key)) docs?.delete(key);
+        const firstEl = value?.[0];
+        const tempOptions = mainObjectOptionsMap.find(
+          (el) => el.name === firstEl
+        )?.options;
+        const options =
+          tempOptions?.map((el) => ({
+            name: el.value,
+            docUrl: [],
+            hiddenDocUrls: [],
+            replacedDocUrls: [],
+            location: null,
+          })) || [];
+        if (docs === null) {
+          const map = new Map();
+          map.set(firstEl, options);
+          docs = map;
+        } else {
+          docs?.set(firstEl, options || []);
         }
       }
-    } else {
-      const firstEl = value?.[0];
-      const tempOptions = mainObjectOptionsMap.find(
-        (el) => el.name === firstEl
-      )?.options;
-      const options =
-        tempOptions?.map((el) => ({
-          name: el.value,
-          docUrl: [],
-          hiddenDocUrls: [],
-          replacedDocUrls: [],
-          location: null,
-        })) || [];
-      if (docs === null) {
-        const map = new Map();
-        map.set(firstEl, options);
-        docs = map;
-      } else {
-        docs?.set(firstEl, options || []);
+
+      const payload = {
+        tasks: [
+          ...value.map((el) => ({
+            name: el,
+            completed: false,
+            comment: "",
+          })),
+        ],
+        docs,
+      };
+      let key = "";
+
+      if (part === "Hospital") {
+        key = "hospitalTasksAndDocs";
+      } else if (part === "Insured") {
+        key = "insuredTasksAndDocs";
+      } else if (part === "None") {
+        key = "singleTasksAndDocs";
       }
+      if (!!key)
+        dispatch({
+          type: "change_state",
+          value: { [key]: payload },
+        });
+    } catch (error: any) {
+      showError(error);
     }
-
-    const payload = {
-      tasks: [
-        ...value.map((el) => ({
-          name: el,
-          completed: false,
-          comment: "",
-        })),
-      ],
-      docs,
-    };
-    let key = "";
-
-    if (part === "Hospital") {
-      key = "hospitalTasksAndDocs";
-    } else if (part === "Insured") {
-      key = "insuredTasksAndDocs";
-    } else if (part === "None") {
-      key = "singleTasksAndDocs";
-    }
-    if (!!key)
-      dispatch({
-        type: "change_state",
-        value: { [key]: payload },
-      });
   };
 
   const handleSelectDocument = (docName: string, val: string[]) => {
@@ -251,7 +256,26 @@ const TasksSelect = ({ title, part, dashboardData }: PropTypes) => {
 
   useEffect(() => {
     // Setting the default tasks and documents
-    if (!!dashboardData?.claimType && mainObjectOptionsMap?.length > 0) {
+    let isNoDefaultTasks = false;
+
+    const taskMappings = {
+      None: tasksState?.singleTasksAndDocs?.tasks,
+      Hospital: tasksState?.hospitalTasksAndDocs?.tasks,
+      Insured: tasksState?.insuredTasksAndDocs?.tasks,
+    };
+
+    if (
+      !taskMappings[part] ||
+      (taskMappings[part] && taskMappings[part].length < 1)
+    ) {
+      isNoDefaultTasks = true;
+    }
+
+    if (
+      !!dashboardData?.claimType &&
+      mainObjectOptionsMap?.length > 0 &&
+      isNoDefaultTasks
+    ) {
       if (dashboardData?.claimType === "PreAuth") {
         const newDocs = new Map<string, DocumentData[]>();
         const preAuthDocs = mainObjectOptionsMap
