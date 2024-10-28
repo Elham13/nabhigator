@@ -24,6 +24,7 @@ export enum EndPoints {
   DASHBOARD_COUNTS = "/api/Claims/dashboardCounts",
   DASHBOARD_DATA = "/api/Claims/getData",
   DOWNLOAD_EXCEL = "/api/Claims/downloadExcel",
+  DOWNLOAD_NPS = "/api/Claims/downloadNPS",
   EXTERNAL_INV_LIST = "/api/Claims/externalInvestigatorsList",
   EXPEDITE_CASE = "/api/Claims/expediteCase",
   FAILED_CASES = "/api/Claims/failedCases",

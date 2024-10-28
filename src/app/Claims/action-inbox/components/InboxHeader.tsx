@@ -19,6 +19,7 @@ import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { StorageKeys } from "@/lib/utils/types/enums";
 import { showError } from "@/lib/helpers";
 import uploadDashboardData from "@/lib/serverActions/uploadDashboardData";
+import DownloadNPS from "./DownloadNPS";
 
 interface PropType {
   values: DashboardFilters;
@@ -202,6 +203,9 @@ const InboxHeader = ({
           />
         ) : null}
         <TableAdjustment />
+        {!!user?.activeRole && [Role.ADMIN, Role.ALLOCATION, Role.PRE_QC] ? (
+          <DownloadNPS />
+        ) : null}
       </Box>
     </Box>
   );
