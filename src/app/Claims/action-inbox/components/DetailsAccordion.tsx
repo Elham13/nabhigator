@@ -21,6 +21,13 @@ import { useLocalStorage } from "@mantine/hooks";
 import { getEncryptClaimId } from "@/lib/helpers";
 import { BiCog } from "react-icons/bi";
 
+const NPSConfirmationImmediate = dynamic(
+  () => import("./InboxDetail/RMContent/NPSConfirmationImmediate"),
+  {
+    ssr: false,
+    loading: () => <BiCog className="animate-spin" />,
+  }
+);
 const RejectionReasons = dynamic(
   () => import("./InboxDetail/RejectionReasons"),
   {
@@ -293,6 +300,18 @@ const DetailsAccordion = ({
               <ClaimTypeDetails data={data} setData={setData} />
             ),
           },
+          ...(!!caseDetail?.singleTasksAndDocs?.rmFindings?.[
+            "NPS Confirmation"
+          ] ||
+          !!caseDetail?.insuredTasksAndDocs?.rmFindings?.["NPS Confirmation"] ||
+          !!caseDetail?.hospitalTasksAndDocs?.rmFindings?.["NPS Confirmation"]
+            ? [
+                {
+                  value: "NPS Confirmation",
+                  content: <NPSConfirmationImmediate caseDetail={caseDetail} />,
+                },
+              ]
+            : []),
         ]
       : []),
     {
