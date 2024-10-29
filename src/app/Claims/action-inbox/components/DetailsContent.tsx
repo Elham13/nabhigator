@@ -54,10 +54,6 @@ const DetailsAccordion = dynamic(() => import("./DetailsAccordion"), {
   ssr: false,
   loading: () => <BiCog className="animate-spin" />,
 });
-const PostQaLeadFooter = dynamic(() => import("./PostQaLeadFooter"), {
-  ssr: false,
-  loading: () => <BiCog className="animate-spin" />,
-});
 const FrozenRibbon = dynamic(() => import("./InboxDetail/FrozenRibbon"), {
   ssr: false,
   loading: () => <BiCog className="animate-spin" />,
@@ -275,16 +271,6 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
               data?.stage as NumericStage
             ) ? (
               <Expedite dashboardData={data} />
-            ) : null}
-
-            {user?.activeRole === Role.POST_QA_LEAD && origin === "inbox" ? (
-              <PostQaLeadFooter
-                {...{
-                  showElement,
-                  setShowElement,
-                  claimId: data?.claimId || 0,
-                }}
-              />
             ) : null}
           </Box>
         </>

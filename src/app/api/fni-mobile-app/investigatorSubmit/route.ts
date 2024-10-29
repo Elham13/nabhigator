@@ -14,6 +14,7 @@ import {
   IUser,
   IZoneStateMaster,
   NumericStage,
+  Role,
 } from "@/lib/utils/types/fniDataTypes";
 import { HydratedDocument, PipelineStage } from "mongoose";
 import DashboardData from "@/lib/Models/dashboardData";
@@ -32,33 +33,36 @@ interface IProps {
 const findPostQaUser = async (props: IProps) => {
   const { claimType, providerState } = props;
 
+  dayjs.extend(utc);
+  dayjs.extend(timezone);
+  const now = dayjs().tz("Europe/London");
+
+  const currentHour = now.hour();
+  const currentMinute = now.minute();
+
   const addField: PipelineStage.AddFields["$addFields"] = {
-    fromTimeHour: {
-      $dateToString: {
-        format: "%H:%M:%S",
-        date: "$config.reportReceivedTime.from",
-      },
+    fromHour: {
+      $hour: "$config.reportReceivedTime.from",
     },
-    toTimeHour: {
-      $dateToString: {
-        format: "%H:%M:%S",
-        date: "$config.reportReceivedTime.to",
-      },
+    fromMinute: {
+      $minute: "$config.reportReceivedTime.from",
+    },
+    toHour: {
+      $hour: "$config.reportReceivedTime.to",
+    },
+    toMinute: {
+      $minute: "$config.reportReceivedTime.to",
     },
   };
 
-  const targetTime = dayjs().format("hh:mm:ss");
-
   const match: PipelineStage.Match["$match"] = {
+    role: Role.POST_QA,
+    $expr: {
+      $lte: ["$config.dailyAssign", "$config.dailyThreshold"],
+    },
     status: "Active",
     "config.leadView": claimType,
     "config.reportReceivedTime": { $exists: true },
-    $expr: {
-      $and: [
-        { $lt: ["$fromTimeHour", targetTime] },
-        { $gt: ["$toTimeHour", targetTime] },
-      ],
-    },
   };
 
   const zoneState: HydratedDocument<IZoneStateMaster> | null =
@@ -72,14 +76,29 @@ const findPostQaUser = async (props: IProps) => {
 
   const pipeline: PipelineStage[] = [
     {
+      $match: match,
+    },
+    { $addFields: addField },
+    {
       $match: {
         $expr: {
-          $lte: ["$config.dailyAssign", "$config.dailyThreshold"],
+          $and: [
+            {
+              $lt: [
+                { $add: ["$fromHour", { $divide: ["$fromMinute", 60] }] },
+                { $add: [currentHour, { $divide: [currentMinute, 60] }] },
+              ],
+            },
+            {
+              $gt: [
+                { $add: ["$toHour", { $divide: ["$toMinute", 60] }] },
+                { $add: [currentHour, { $divide: [currentMinute, 60] }] },
+              ],
+            },
+          ],
         },
       },
     },
-    { $addFields: addField },
-    { $match: match },
     { $sort: { "config.thresholdUpdatedAt": 1 } },
   ];
 
@@ -188,40 +207,26 @@ router.post(async (req) => {
             throw new Error(`Failed to find a user with the id ${obj?._id}`);
 
           const dailyThreshold = user?.config?.dailyThreshold || 0;
-          const dailyAssign = user?.config?.dailyAssign || 0;
+          let dailyAssign = user?.config?.dailyAssign || 0;
           const updatedAt = user?.config?.thresholdUpdatedAt || null;
+
+          if (!!updatedAt) {
+            const noOfDaysSinceUpdated = dayjs()
+              .startOf("day")
+              .diff(dayjs(updatedAt).startOf("day"), "day");
+
+            if (noOfDaysSinceUpdated > 0) {
+              // Means it's not updated today
+              dailyAssign = 0;
+            }
+          } else {
+            // There is no updated date so we know this user is getting assigned for the first time
+            dailyAssign = 0;
+          }
 
           const dailyLimitReached = dailyThreshold - dailyAssign <= 1;
 
-          if (dailyLimitReached) {
-            if (updatedAt) {
-              const noOfDaysSinceUpdated = dayjs()
-                .startOf("day")
-                .diff(dayjs(updatedAt).startOf("day"), "day");
-
-              if (noOfDaysSinceUpdated > 0) {
-                // It is not updated today, therefore reset the daily assign
-                user.config.dailyAssign = 1;
-                user.config.thresholdUpdatedAt = new Date();
-                dashboardData.postQa = user?._id;
-                eventRemarks =
-                  eventRemarks += `, and assigned to post qa ${user?.name}`;
-                await user.save();
-                isAssigned = true;
-                break;
-              }
-            } else {
-              // There is no updated date, so we know that it's the first time this user is getting assigned
-              user.config.dailyAssign = 1;
-              user.config.thresholdUpdatedAt = new Date();
-              dashboardData.postQa = user?._id;
-              eventRemarks =
-                eventRemarks += `, and assigned to post qa ${user?.name}`;
-              await user.save();
-              isAssigned = true;
-              break;
-            }
-          } else {
+          if (!dailyLimitReached) {
             // Limit is not reached
             user.config.dailyAssign = user?.config?.dailyAssign
               ? user.config.dailyAssign + 1
@@ -294,3 +299,54 @@ router.post(async (req) => {
 export async function POST(request: NextRequest, ctx: RequestContext) {
   return router.run(request, ctx) as Promise<void>;
 }
+
+const pipeline = [
+  {
+    $match: {
+      $expr: {
+        $lte: ["$config.dailyAssign", "$config.dailyThreshold"],
+      },
+    },
+  },
+  {
+    $addFields: {
+      fromTimeHour: {
+        $dateToString: {
+          format: "%H:%M:%S",
+          date: "$config.reportReceivedTime.from",
+        },
+      },
+      toTimeHour: {
+        $dateToString: {
+          format: "%H:%M:%S",
+          date: "$config.reportReceivedTime.to",
+        },
+      },
+    },
+  },
+  {
+    $match: {
+      status: "Active",
+      "config.leadView": "PreAuth",
+      "config.reportReceivedTime": {
+        $exists: true,
+      },
+      $expr: {
+        $and: [
+          {
+            $lt: ["$fromTimeHour", "08:49:41"],
+          },
+          {
+            $gt: ["$toTimeHour", "08:49:41"],
+          },
+        ],
+      },
+      zone: "East",
+    },
+  },
+  {
+    $sort: {
+      "config.thresholdUpdatedAt": 1,
+    },
+  },
+];
