@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Badge, Box, Checkbox, Pagination, Table } from "@mantine/core";
+import { Box, Pagination, Table } from "@mantine/core";
 import { IUser, ResponseType, SortOrder } from "@/lib/utils/types/fniDataTypes";
 import { showError } from "@/lib/helpers";
 import axios from "axios";
@@ -13,6 +13,7 @@ import ShiftTimeCell from "./ShiftTimeCell";
 import ClaimTypeCell from "./ClaimTypeCell";
 import ThresholdsCell from "./ThresholdsCell";
 import StatusCell from "./StatusCell";
+import AssignButton from "./AssignButton";
 
 interface ILoadings {
   fetch: boolean;
@@ -31,16 +32,9 @@ const QAList = () => {
     page: 1,
     count: 0,
   });
-  const [selected, setSelected] = useState<string[]>([]);
 
   const handleSort = (sortKey: string, order: SortOrder) => {
     setSort({ [sortKey]: order });
-  };
-
-  const handleSelect = (id: string) => {
-    if (selected.includes(id))
-      setSelected((prev) => prev.filter((elem) => elem !== id));
-    else setSelected((prev) => [...prev, id]);
   };
 
   const getPostQA = useCallback(async () => {
@@ -72,12 +66,6 @@ const QAList = () => {
   const rows = useMemo(() => {
     return users?.map((el) => (
       <Table.Tr key={el?._id}>
-        <Table.Td className="whitespace-nowrap">
-          <Checkbox
-            checked={selected.includes(el?._id)}
-            onChange={() => handleSelect(el?._id)}
-          />
-        </Table.Td>
         <Table.Td className="whitespace-nowrap">{el?.name}</Table.Td>
         <Table.Td className="whitespace-nowrap">{el?.userId}</Table.Td>
         <Table.Td className="whitespace-nowrap">
@@ -106,10 +94,13 @@ const QAList = () => {
         <Table.Td className="whitespace-nowrap">
           {el?.role?.join(", ")}
         </Table.Td>
+        <Table.Td className="whitespace-nowrap">
+          <AssignButton el={el} refetch={() => getPostQA()} />
+        </Table.Td>
       </Table.Tr>
     ));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [users, selected]);
+  }, [users]);
 
   return (
     <Box>
@@ -119,14 +110,7 @@ const QAList = () => {
             tableHeadings={postQaTableHeaders}
             clear={false}
             onSort={handleSort}
-            hasSelection={true}
-            selectedCount={selected.length}
-            dataCount={users?.length}
-            onSelectAll={(checked) =>
-              checked
-                ? setSelected(users?.map((el) => el?._id))
-                : setSelected([])
-            }
+            hasSelection={false}
           />
 
           <Table.Tbody>

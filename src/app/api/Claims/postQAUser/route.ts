@@ -6,8 +6,9 @@ import {
   EventNames,
   IDashboardData,
   IUser,
+  NumericStage,
 } from "@/lib/utils/types/fniDataTypes";
-import { HydratedDocument, PipelineStage } from "mongoose";
+import { HydratedDocument, PipelineStage, Types } from "mongoose";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
@@ -139,6 +140,35 @@ router.post(async (req) => {
         user.status = status;
       }
       data = await user.save();
+    } else if (action === "assignCases") {
+      const { id, caseIds, userId } = body;
+      if (!id) throw new Error("id is required");
+      if (!userId) throw new Error("userId is required");
+      if (!caseIds || caseIds?.length < 1)
+        throw new Error("caseIds is required");
+
+      const user: HydratedDocument<IUser> | null = await User.findById(id);
+      if (!user) throw new Error(`Failed to find a user with the id ${id}`);
+
+      await DashboardData.updateMany(
+        {
+          _id: { $in: caseIds?.map((i: string) => new Types.ObjectId(i)) },
+        },
+        { $set: { postQa: user?._id } }
+      );
+
+      for (const dId of caseIds) {
+        await captureCaseEvent({
+          eventName: EventNames.MANUALLY_ASSIGNED_TO_POST_QA,
+          eventRemarks: `Manually assigned to ${user?.name}`,
+          intimationDate: dayjs()
+            .tz("Asia/Kolkata")
+            .format("DD-MMM-YYYY hh:mm:ss A"),
+          stage: NumericStage.POST_QC,
+          claimId: dId,
+          userId,
+        });
+      }
     } else throw new Error(`Wrong action ${action}`);
 
     return NextResponse.json(

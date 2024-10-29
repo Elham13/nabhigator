@@ -240,6 +240,19 @@ export const feedingLogsTableHeaders: ITableHeader[] = [
   },
 ];
 
+export const assignCaseTableHeaders: ITableHeader[] = [
+  {
+    value: "claimId",
+    label: "Claim Id",
+    sortable: false,
+  },
+  {
+    value: "claimType",
+    label: "Claim Type",
+    sortable: false,
+  },
+];
+
 export const multipleEventTableHeading: ITableHeader[] = [
   {
     value: "claimId",
@@ -398,6 +411,11 @@ export const postQaTableHeaders: ITableHeader[] = [
   {
     value: "role",
     label: "Role",
+    sortable: false,
+  },
+  {
+    value: "",
+    label: "Action",
     sortable: false,
   },
 ];
