@@ -2,7 +2,11 @@ import DashboardData from "@/lib/Models/dashboardData";
 import User from "@/lib/Models/user";
 import connectDB from "@/lib/db/dbConnectWithMongoose";
 import { Databases } from "@/lib/utils/types/enums";
-import { EventNames, IDashboardData } from "@/lib/utils/types/fniDataTypes";
+import {
+  EventNames,
+  IDashboardData,
+  IUser,
+} from "@/lib/utils/types/fniDataTypes";
 import { HydratedDocument, PipelineStage } from "mongoose";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
@@ -34,12 +38,11 @@ router.post(async (req) => {
       const { sort, skip, limit } = body;
       const match: PipelineStage.Match["$match"] = {
         role: "Post QA",
-        status: "Active",
       };
 
       const pipeline: PipelineStage[] = [
         { $match: match },
-        { $sort: { updatedAt: -1, ...(!!sort ? sort : {}) } },
+        { $sort: !!sort ? sort : { updatedAt: -1 } },
         { $skip: skip && limit ? skip * limit : 0 },
         { $limit: limit || 10 },
       ];
@@ -102,7 +105,41 @@ router.post(async (req) => {
       });
 
       message = `Case successfully assigned to ${userName}`;
-    } else throw new Error("Wrong action");
+    } else if (
+      [
+        "updateShiftTime",
+        "updateClaimType",
+        "updateThreshold",
+        "updateStatus",
+      ].includes(action)
+    ) {
+      const { id, time, claimType, type, threshold, status } = body;
+      if (!id) throw new Error("id is required");
+
+      const user: HydratedDocument<IUser> | null = await User.findById(id);
+
+      if (!user) throw new Error(`No user found with the id ${id}`);
+
+      if (action === "updateShiftTime") {
+        if (!time) throw new Error("Shift time values are required");
+        user.config.reportReceivedTime = time;
+      } else if (action === "updateClaimType") {
+        if (!claimType) throw new Error("Claim type is required");
+        user.config.leadView = claimType;
+      } else if (action === "updateThreshold") {
+        if (!type) throw new Error("type is required");
+        if (!threshold && threshold !== 0)
+          throw new Error("threshold is required");
+
+        const thresholdType: "dailyThreshold" | "dailyAssign" = type;
+        user.config[thresholdType] = threshold;
+      } else if (action === "updateStatus") {
+        if (!status) throw new Error("status is required");
+
+        user.status = status;
+      }
+      data = await user.save();
+    } else throw new Error(`Wrong action ${action}`);
 
     return NextResponse.json(
       {
