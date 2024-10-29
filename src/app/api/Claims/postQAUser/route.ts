@@ -50,62 +50,6 @@ router.post(async (req) => {
 
       data = await User.aggregate(pipeline);
       count = await User.countDocuments(match);
-    } else if (action === "assign") {
-      const { userId, claimId, executer, userName, executerName } = body;
-      if (!userId) throw new Error("userId is required");
-      if (!claimId) throw new Error("claimId is required");
-
-      const dashboardData: HydratedDocument<IDashboardData> | null =
-        await DashboardData.findOne({ claimId });
-
-      if (!dashboardData)
-        throw new Error(`No data found with claimId ${claimId}`);
-
-      await User.findByIdAndUpdate(
-        userId,
-        {
-          $inc: { "config.dailyAssign": 1 },
-          $set: { "config.thresholdUpdatedAt": new Date() },
-        },
-        { useFindAndModify: false }
-      );
-
-      dashboardData.dateOfFallingIntoPostQaBucket = new Date();
-      dashboardData.expedition =
-        dashboardData?.expedition && dashboardData?.expedition?.length > 0
-          ? dashboardData?.expedition?.map((el) => ({ ...el, noted: true }))
-          : dashboardData?.expedition;
-      dashboardData.postQa = userId;
-      dashboardData.actionsTaken = dashboardData?.actionsTaken
-        ? [
-            ...dashboardData?.actionsTaken,
-            {
-              actionName: EventNames.MANUALLY_ASSIGNED_TO_POST_QA,
-              userId: executer,
-            },
-          ]
-        : [
-            {
-              actionName: EventNames.MANUALLY_ASSIGNED_TO_POST_QA,
-              userId: executer,
-            },
-          ];
-
-      data = await dashboardData.save();
-
-      await captureCaseEvent({
-        claimId: dashboardData?.claimId,
-        intimationDate:
-          dashboardData?.intimationDate ||
-          dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
-        eventName: EventNames.MANUALLY_ASSIGNED_TO_POST_QA,
-        stage: dashboardData?.stage,
-        userId: userId as string,
-        eventRemarks: `${EventNames.MANUALLY_ASSIGNED_TO_POST_QA} (${userName}), by Post QA Lead ${executerName}`,
-        userName: executerName,
-      });
-
-      message = `Case successfully assigned to ${userName}`;
     } else if (
       [
         "updateShiftTime",
@@ -150,11 +94,49 @@ router.post(async (req) => {
       const user: HydratedDocument<IUser> | null = await User.findById(id);
       if (!user) throw new Error(`Failed to find a user with the id ${id}`);
 
+      const dailyThreshold = user?.config?.dailyThreshold || 0;
+      const dailyAssign = user?.config?.dailyAssign || 0;
+      const updatedAt = user?.config?.thresholdUpdatedAt || null;
+
+      const dailyLimitReached = dailyThreshold - dailyAssign <= 1;
+
+      if (dailyLimitReached) {
+        if (updatedAt) {
+          const noOfDaysSinceUpdated = dayjs()
+            .startOf("day")
+            .diff(dayjs(updatedAt).startOf("day"), "day");
+
+          if (noOfDaysSinceUpdated > 0) {
+            // It is not updated today, therefore reset the daily assign
+            user.config.dailyAssign = 1;
+            user.config.thresholdUpdatedAt = new Date();
+          } else
+            throw new Error(
+              "Daily limit reached, please select a different user or increase the daily assign"
+            );
+        } else {
+          // There is no updated date, so we know that it's the first time this user is getting assigned
+          user.config.dailyAssign = 1;
+          user.config.thresholdUpdatedAt = new Date();
+        }
+      } else {
+        // Limit is not reached
+        user.config.dailyAssign = !!dailyAssign ? dailyAssign + 1 : 1;
+        user.config.thresholdUpdatedAt = new Date();
+      }
+
+      await user?.save();
+
       await DashboardData.updateMany(
         {
           _id: { $in: caseIds?.map((i: string) => new Types.ObjectId(i)) },
         },
-        { $set: { postQa: user?._id } }
+        {
+          $set: {
+            postQa: user?._id,
+            dateOfFallingIntoPostQaBucket: new Date(),
+          },
+        }
       );
 
       for (const dId of caseIds) {
