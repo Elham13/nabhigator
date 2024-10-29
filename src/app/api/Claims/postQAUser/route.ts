@@ -95,30 +95,29 @@ router.post(async (req) => {
       if (!user) throw new Error(`Failed to find a user with the id ${id}`);
 
       const dailyThreshold = user?.config?.dailyThreshold || 0;
-      const dailyAssign = user?.config?.dailyAssign || 0;
+      let dailyAssign = user?.config?.dailyAssign || 0;
       const updatedAt = user?.config?.thresholdUpdatedAt || null;
+
+      if (!!updatedAt) {
+        const noOfDaysSinceUpdated = dayjs()
+          .startOf("day")
+          .diff(dayjs(updatedAt).startOf("day"), "day");
+
+        if (noOfDaysSinceUpdated > 0) {
+          // Means it's not updated today
+          dailyAssign = 0;
+        }
+      } else {
+        // There is no updated date so we know this user is getting assigned for the first time
+        dailyAssign = 0;
+      }
 
       const dailyLimitReached = dailyThreshold - dailyAssign <= 1;
 
       if (dailyLimitReached) {
-        if (updatedAt) {
-          const noOfDaysSinceUpdated = dayjs()
-            .startOf("day")
-            .diff(dayjs(updatedAt).startOf("day"), "day");
-
-          if (noOfDaysSinceUpdated > 0) {
-            // It is not updated today, therefore reset the daily assign
-            user.config.dailyAssign = 1;
-            user.config.thresholdUpdatedAt = new Date();
-          } else
-            throw new Error(
-              "Daily limit reached, please select a different user or increase the daily assign"
-            );
-        } else {
-          // There is no updated date, so we know that it's the first time this user is getting assigned
-          user.config.dailyAssign = 1;
-          user.config.thresholdUpdatedAt = new Date();
-        }
+        throw new Error(
+          "Daily limit reached, please select a different user or increase the daily assign"
+        );
       } else {
         // Limit is not reached
         user.config.dailyAssign = !!dailyAssign ? dailyAssign + 1 : 1;
@@ -127,29 +126,22 @@ router.post(async (req) => {
 
       await user?.save();
 
-      await DashboardData.updateMany(
-        {
-          _id: { $in: caseIds?.map((i: string) => new Types.ObjectId(i)) },
-        },
-        {
-          $set: {
-            postQa: user?._id,
-            dateOfFallingIntoPostQaBucket: new Date(),
-          },
-        }
-      );
-
       for (const dId of caseIds) {
+        const dData = await DashboardData.findById(dId);
+        dData.postQa = user?._id;
+        dData.dateOfFallingIntoPostQaBucket = new Date();
         await captureCaseEvent({
           eventName: EventNames.MANUALLY_ASSIGNED_TO_POST_QA,
           eventRemarks: `Manually assigned to ${user?.name}`,
-          intimationDate: dayjs()
-            .tz("Asia/Kolkata")
-            .format("DD-MMM-YYYY hh:mm:ss A"),
-          stage: NumericStage.POST_QC,
-          claimId: dId,
+          intimationDate:
+            dData?.intimationDate ||
+            dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
+          stage: dData?.stage,
+          claimId: dData?.claimId,
           userId,
         });
+
+        await dData.save();
       }
     } else throw new Error(`Wrong action ${action}`);
 

@@ -409,8 +409,8 @@ export const postQaTableHeaders: ITableHeader[] = [
     sortable: true,
   },
   {
-    value: "role",
-    label: "Role",
+    value: "zone",
+    label: "Zone",
     sortable: false,
   },
   {

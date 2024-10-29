@@ -92,7 +92,7 @@ const QAList = () => {
           <ClaimTypeCell user={el} refetch={() => getPostQA()} />
         </Table.Td>
         <Table.Td className="whitespace-nowrap">
-          {el?.role?.join(", ")}
+          {!!el?.zone ? el?.zone?.join(", ") : "-"}
         </Table.Td>
         <Table.Td className="whitespace-nowrap">
           <AssignButton el={el} refetch={() => getPostQA()} />
