@@ -240,6 +240,19 @@ export const feedingLogsTableHeaders: ITableHeader[] = [
   },
 ];
 
+export const assignCaseTableHeaders: ITableHeader[] = [
+  {
+    value: "claimId",
+    label: "Claim Id",
+    sortable: false,
+  },
+  {
+    value: "claimType",
+    label: "Claim Type",
+    sortable: false,
+  },
+];
+
 export const multipleEventTableHeading: ITableHeader[] = [
   {
     value: "claimId",
@@ -371,33 +384,38 @@ export const postQaTableHeaders: ITableHeader[] = [
     sortable: true,
   },
   {
-    value: "phone",
-    label: "Phone",
-    sortable: true,
+    value: "dailyThreshold",
+    label: "Daily Threshold",
+    sortable: false,
   },
   {
-    value: "password",
-    label: "Password",
-    sortable: true,
-  },
-  {
-    value: "role",
-    label: "Role",
+    value: "dailyAssign",
+    label: "Daily Assign",
     sortable: false,
   },
   {
     value: "status",
     label: "Status",
-    sortable: false,
+    sortable: true,
   },
   {
-    value: "state",
-    label: "State",
-    sortable: false,
+    value: "shiftTime",
+    label: "Shift Time",
+    sortable: true,
+  },
+  {
+    value: "leadView",
+    label: "Claim Type",
+    sortable: true,
   },
   {
     value: "zone",
     label: "Zone",
+    sortable: false,
+  },
+  {
+    value: "",
+    label: "Action",
     sortable: false,
   },
 ];
