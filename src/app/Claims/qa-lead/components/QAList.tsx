@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Box, Pagination, Table } from "@mantine/core";
+import { Box, Flex, Pagination, Table } from "@mantine/core";
 import { IUser, ResponseType, SortOrder } from "@/lib/utils/types/fniDataTypes";
 import { showError } from "@/lib/helpers";
 import axios from "axios";
@@ -95,7 +95,14 @@ const QAList = () => {
           {!!el?.zone ? el?.zone?.join(", ") : "-"}
         </Table.Td>
         <Table.Td className="whitespace-nowrap">
-          <AssignButton el={el} refetch={() => getPostQA()} />
+          <Flex gap={4}>
+            <AssignButton el={el} refetch={() => getPostQA()} action="assign" />
+            <AssignButton
+              el={el}
+              refetch={() => getPostQA()}
+              action="reassign"
+            />
+          </Flex>
         </Table.Td>
       </Table.Tr>
     ));

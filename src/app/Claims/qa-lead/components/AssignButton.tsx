@@ -27,9 +27,13 @@ import { toast } from "react-toastify";
 import { useDebouncedValue, useLocalStorage } from "@mantine/hooks";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
 
-type PropTypes = { el: IUser; refetch: () => void };
+type PropTypes = {
+  el: IUser;
+  action: "assign" | "reassign";
+  refetch: () => void;
+};
 
-const AssignButton = ({ el, refetch }: PropTypes) => {
+const AssignButton = ({ el, action, refetch }: PropTypes) => {
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
   const [loading, setLoading] = useState<boolean>(false);
   const [dataLoading, setDataLoading] = useState<boolean>(false);
@@ -64,7 +68,9 @@ const AssignButton = ({ el, refetch }: PropTypes) => {
       };
       await axios.post<ResponseType<IUser>>(EndPoints.POST_QA_USER, payload);
 
-      toast.success("Cases Assigned successfully");
+      toast.success(
+        `Cases ${action === "assign" ? "Assigned" : "Re-Assigned"} successfully`
+      );
       setOpen(false);
       refetch();
     } catch (error: any) {
@@ -79,12 +85,21 @@ const AssignButton = ({ el, refetch }: PropTypes) => {
       const fetchData = async () => {
         try {
           setDataLoading(true);
-          const payload = {
+          const payload: Record<string, any> = {
             pagination,
             claimId: debouncedClaimId || undefined,
             stage: NumericStage.POST_QC,
-            $or: [{ postQa: null }, { postQa: { $exists: false } }],
           };
+
+          if (action === "assign") {
+            payload["$or"] = [{ postQa: null }, { postQa: { $exists: false } }];
+          } else {
+            payload["$and"] = [
+              { postQa: { $exists: true } },
+              { postQa: { $ne: null } },
+            ];
+          }
+
           const { data } = await axios.post<ResponseType<IDashboardData>>(
             EndPoints.DASHBOARD_DATA,
             payload
@@ -104,13 +119,20 @@ const AssignButton = ({ el, refetch }: PropTypes) => {
 
   return (
     <Fragment>
-      <Button size="compact-xs" onClick={() => setOpen(true)}>
-        Assign
+      <Button
+        size="compact-xs"
+        onClick={() => setOpen(true)}
+        color={action === "reassign" ? "green" : undefined}
+      >
+        {action === "assign" ? "Assign" : "Re-Assign"}
       </Button>
 
       {open && (
         <Modal opened={open} onClose={() => setOpen(false)} size="xl">
-          <Title order={4}>Manually Assign cases to {el?.name}</Title>
+          <Title order={4}>
+            {action === "assign" ? "Manually Assign" : "Re-Assign"} cases to{" "}
+            {el?.name}
+          </Title>
 
           <Box mt={10}>
             <NumberInput
