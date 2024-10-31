@@ -187,7 +187,7 @@ export const numberToOrdinal = (number: number) => {
 };
 
 export const buildUrl = (url: string, params: Record<string, any> = {}) => {
-  const newUrl = new URL("http://localhost:3000/" + url);
+  const newUrl = new URL("http://localhost:8090/" + url);
 
   for (let k in params) {
     const value = params[k];

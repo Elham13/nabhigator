@@ -36,7 +36,7 @@ router.post(async (req) => {
 
     await connectDB(Databases.FNI);
 
-    let url = "http://localhost:3000";
+    let url = "http://localhost:8090";
     if (process.env.NEXT_PUBLIC_CONFIG === "UAT")
       url = "https://appform.nivabupa.com";
     if (process.env.NEXT_PUBLIC_CONFIG === "PROD")
