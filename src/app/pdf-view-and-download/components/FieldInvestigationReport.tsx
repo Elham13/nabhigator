@@ -35,6 +35,7 @@ const FieldInvestigationReport = ({
         <RMInvestigatorFindings
           caseData={caseData}
           claimType={dashboardData?.claimType}
+          claimInvestigators={dashboardData?.claimInvestigators}
         />
       ) : null}
     </View>
