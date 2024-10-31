@@ -250,6 +250,7 @@ const RMInvestigationFindingsContent = ({ claimType, caseData }: PropTypes) => {
     claimType,
     claimCase: caseData,
   });
+
   return caseData?.allocationType === "Single" ? (
     <Findings findings={rmFindings} />
   ) : (
