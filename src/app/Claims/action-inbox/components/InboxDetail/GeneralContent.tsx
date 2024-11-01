@@ -145,6 +145,12 @@ const GeneralContent = ({ data }: PropTypes) => {
           </GridCol>
           <GridCol span={{ sm: 12, md: 6 }}>
             <KeyValueContainer
+              label="Treating Doctor Name"
+              value={data?.hospitalizationDetails?.treatingDoctorName || "-"}
+            />
+          </GridCol>
+          <GridCol span={{ sm: 12, md: 6 }}>
+            <KeyValueContainer
               label="Date of Admission Original"
               value={data?.hospitalizationDetails?.dateOfAdmission}
             />
