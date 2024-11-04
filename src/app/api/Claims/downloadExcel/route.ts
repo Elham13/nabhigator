@@ -11,6 +11,7 @@ import archiver from "archiver";
 import { Readable } from "stream";
 import { getOpenAndClosureTAT, getStageLabel } from "@/lib/helpers";
 import dayjs from "dayjs";
+import { columns } from "./helpers";
 
 const router = createEdgeRouter<NextRequest, {}>();
 
@@ -118,89 +119,6 @@ router.post(async (req) => {
           isReInvestigated: 1,
           updatedAt: 1,
         },
-      },
-    ];
-
-    const columns: Partial<ExcelJS.Column>[] = [
-      { key: "claimId", header: "Claim Id" },
-      { key: "claimType", header: "Claim Type" },
-      { key: "claimSubType", header: "Claim SubType" },
-      { key: "lossType", header: "Loss Type" },
-      { key: "benefitType", header: "Benefit Type" },
-      { key: "insuredName", header: "Insured Name" },
-      { key: "insuredType", header: "Insured Type" },
-      { key: "age", header: "Insured Age" },
-      { key: "contactNo", header: "Insured Contact" },
-      { key: "emailId", header: "Insured Email" },
-      { key: "gender", header: "Insured Gender" },
-      { key: "claimAmount", header: "Claim Amount" },
-      { key: "diagnosis", header: "Diagnosis" },
-      { key: "billedAmount", header: "Billed Amount" },
-      { key: "claimStatus", header: "Claim Status" },
-      { key: "deductibleAmount", header: "Deductible Amount" },
-      { key: "memberNo", header: "Member No" },
-      { key: "providerName", header: "Provider Name" },
-      { key: "providerType", header: "Provider Type" },
-      { key: "providerNo", header: "Provider Number" },
-      { key: "providerCity", header: "Provider City" },
-      { key: "providerState", header: "Provider State" },
-      { key: "providerAddress", header: "Provider Address" },
-      { key: "pinCode", header: "Provider PinCode" },
-      { key: "dateOfAdmission", header: "Date Of Admission" },
-      { key: "dateOfDischarge", header: "Date Of Discharge" },
-      { key: "admissionType", header: "Admission Type" },
-      { key: "contractNo", header: "Contract No" },
-      { key: "policyNo", header: "Policy No" },
-      { key: "policyStartDate", header: "Policy Start Date" },
-      { key: "policyEndDate", header: "Policy End Date" },
-      { key: "agentName", header: "Agent Name" },
-      { key: "agentCode", header: "Agent Code" },
-      { key: "currentStatus", header: "Current Status" },
-      { key: "product", header: "Product" },
-      { key: "sourcing", header: "Sourcing" },
-      { key: "prevInsuranceCompany", header: "Prev Insurance Company" },
-      { key: "allocationType", header: "Allocation Type" },
-      { key: "stage", header: "Stage" },
-      { key: "intimationDate", header: "Intimation Date" },
-      { key: "teamLead", header: "Team Lead" },
-      { key: "postQa", header: "Post QA" },
-      { key: "clusterManager", header: "Cluster Manager" },
-      { key: "dateOfOS", header: "Date Of OS" },
-      { key: "dateOfClosure", header: "Date Of Closure" },
-      { key: "claimInvestigators", header: "Claim Investigators" },
-      { key: "lossDate", header: "Loss Date" },
-      { key: "locked", header: "Is Locked" },
-      {
-        key: "investigatorRecommendation",
-        header: "Investigator Recommendation",
-      },
-      {
-        key: "dateOfFallingIntoPostQaBucket",
-        header: "Date of falling into Post QA",
-      },
-      {
-        key: "invReportReceivedDate",
-        header: "Investigator Report Received Date",
-      },
-      {
-        key: "finalOutcome",
-        header: "Final Outcome",
-      },
-      {
-        key: "isReInvestigated",
-        header: "Is Re-Investigated",
-      },
-      {
-        key: "openTAT",
-        header: "Open TAT",
-      },
-      {
-        key: "closureTAT",
-        header: "Closure TAT",
-      },
-      {
-        key: "updatedAt",
-        header: "Updated At",
       },
     ];
 
@@ -364,7 +282,9 @@ router.post(async (req) => {
     const response = new Response(zip, {
       headers: {
         "Content-Type": "application/zip",
-        "Content-Disposition": "attachment; filename=records.zip",
+        "Content-Disposition": `attachment; filename=data_${dayjs().format(
+          "DD-MMM-YYYY hh:mm:ss a"
+        )}.zip`,
       },
     });
 
@@ -375,7 +295,9 @@ router.post(async (req) => {
     readableExcelStream.push(excelBuffer);
     readableExcelStream.push(null); // End the stream
 
-    zip.append(readableExcelStream, { name: "records.xlsx" });
+    zip.append(readableExcelStream, {
+      name: `data_${dayjs().format("DD-MMM-YYYY hh:mm:ss a")}.xlsx`,
+    });
 
     // Finalize the zip
     zip.finalize();
