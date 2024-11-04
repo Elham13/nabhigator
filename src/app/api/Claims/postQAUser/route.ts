@@ -7,6 +7,7 @@ import {
   IDashboardData,
   IUser,
   NumericStage,
+  Role,
 } from "@/lib/utils/types/fniDataTypes";
 import { HydratedDocument, PipelineStage, Types } from "mongoose";
 import { createEdgeRouter } from "next-connect";
@@ -36,10 +37,14 @@ router.post(async (req) => {
     await connectDB(Databases.FNI);
 
     if (action === "list") {
-      const { sort, skip, limit } = body;
+      const { sort, skip, limit, name } = body;
       const match: PipelineStage.Match["$match"] = {
-        role: "Post QA",
+        role: Role.POST_QA,
       };
+
+      if (!!name) {
+        match["name"] = { $regex: new RegExp(name, "i") };
+      }
 
       const pipeline: PipelineStage[] = [
         { $match: match },
@@ -55,10 +60,10 @@ router.post(async (req) => {
         "updateShiftTime",
         "updateClaimType",
         "updateThreshold",
-        "updateStatus",
+        "updateLeaveStatus",
       ].includes(action)
     ) {
-      const { id, time, claimType, type, threshold, status } = body;
+      const { id, time, claimType, type, threshold } = body;
       if (!id) throw new Error("id is required");
 
       const user: HydratedDocument<IUser> | null = await User.findById(id);
@@ -78,10 +83,24 @@ router.post(async (req) => {
 
         const thresholdType: "dailyThreshold" | "dailyAssign" = type;
         user.config[thresholdType] = threshold;
-      } else if (action === "updateStatus") {
-        if (!status) throw new Error("status is required");
-
-        user.status = status;
+      } else if (action === "updateLeaveStatus") {
+        const { payload } = body;
+        if (!payload) throw new Error("payload is required");
+        if (payload?.type === "Inactivate") {
+          user.leave = {
+            ...payload,
+            status: "Approved",
+          };
+        } else {
+          if (!!user.leave) user.leave.status = "";
+          else
+            user.leave = {
+              status: "",
+              fromDate: null,
+              toDate: null,
+              remark: "",
+            };
+        }
       }
       data = await user.save();
     } else if (action === "assignCases") {

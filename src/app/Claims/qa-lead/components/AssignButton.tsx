@@ -123,6 +123,7 @@ const AssignButton = ({ el, action, refetch }: PropTypes) => {
         size="compact-xs"
         onClick={() => setOpen(true)}
         color={action === "reassign" ? "green" : undefined}
+        disabled={el?.leave?.status === "Approved"}
       >
         {action === "assign" ? "Assign" : "Re-Assign"}
       </Button>

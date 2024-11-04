@@ -150,16 +150,21 @@ router.post(async (req) => {
     dashboardData.investigationCount += 1;
     dashboardData.allocationType = allocationType;
     dashboardData.dateOfOS = new Date();
-    dashboardData.stage =
-      isReInvestigated &&
+
+    if (
+      dashboardData.stage === NumericStage.POST_QC &&
       compareArrOfObjBasedOnProp(
         dashboardData?.claimInvestigators || [],
         investigators || [],
         "name",
         "investigatorName"
       )
-        ? NumericStage.IN_FIELD_REWORK
-        : NumericStage.IN_FIELD_FRESH;
+    ) {
+      dashboardData.stage = NumericStage.IN_FIELD_REWORK;
+    } else {
+      dashboardData.stage = NumericStage.IN_FIELD_FRESH;
+    }
+
     dashboardData.teamLead = dashboardData.teamLead || null;
 
     if (allocationType === "Single") {

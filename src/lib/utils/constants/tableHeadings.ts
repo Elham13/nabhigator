@@ -379,6 +379,26 @@ export const postQaTableHeaders: ITableHeader[] = [
     sortable: true,
   },
   {
+    value: "",
+    label: "Action",
+    sortable: false,
+  },
+  {
+    value: "leaveStatus",
+    label: "Leave Status",
+    sortable: false,
+  },
+  {
+    value: "shiftTime",
+    label: "Shift Time",
+    sortable: true,
+  },
+  {
+    value: "leadView",
+    label: "Claim Type",
+    sortable: true,
+  },
+  {
     value: "userId",
     label: "User ID",
     sortable: true,
@@ -394,28 +414,8 @@ export const postQaTableHeaders: ITableHeader[] = [
     sortable: false,
   },
   {
-    value: "status",
-    label: "Status",
-    sortable: true,
-  },
-  {
-    value: "shiftTime",
-    label: "Shift Time",
-    sortable: true,
-  },
-  {
-    value: "leadView",
-    label: "Claim Type",
-    sortable: true,
-  },
-  {
     value: "zone",
     label: "Zone",
-    sortable: false,
-  },
-  {
-    value: "",
-    label: "Action",
     sortable: false,
   },
 ];

@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Box, Flex, Pagination, Table } from "@mantine/core";
+import {
+  Box,
+  CloseButton,
+  Flex,
+  Input,
+  Pagination,
+  Table,
+} from "@mantine/core";
 import { IUser, ResponseType, SortOrder } from "@/lib/utils/types/fniDataTypes";
 import { showError } from "@/lib/helpers";
 import axios from "axios";
@@ -14,6 +21,8 @@ import ClaimTypeCell from "./ClaimTypeCell";
 import ThresholdsCell from "./ThresholdsCell";
 import StatusCell from "./StatusCell";
 import AssignButton from "./AssignButton";
+import { useDebouncedValue } from "@mantine/hooks";
+import { BiSearch } from "react-icons/bi";
 
 interface ILoadings {
   fetch: boolean;
@@ -22,11 +31,13 @@ interface ILoadings {
 
 const QAList = () => {
   const [users, setUsers] = useState<IUser[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch] = useDebouncedValue(searchTerm, 500);
+  const [sort, setSort] = useState<{ [x: string]: SortOrder } | null>(null);
   const [loadings, setLoadings] = useState<ILoadings>({
     fetch: false,
     assign: false,
   });
-  const [sort, setSort] = useState<{ [x: string]: SortOrder } | null>(null);
   const [pagination, setPagination] = useState({
     limit: 7,
     page: 1,
@@ -42,6 +53,7 @@ const QAList = () => {
     try {
       const payload = {
         action: "list",
+        name: debouncedSearch,
         sort: sort || undefined,
         limit: pagination?.limit,
         skip: pagination.page - 1,
@@ -57,43 +69,16 @@ const QAList = () => {
     } finally {
       setLoadings((prev) => ({ ...prev, fetch: false }));
     }
-  }, [pagination?.limit, pagination?.page, sort]);
+  }, [pagination?.limit, pagination?.page, sort, debouncedSearch]);
 
   useEffect(() => {
     getPostQA();
-  }, [pagination.page, pagination.limit, sort, getPostQA]);
+  }, [pagination.page, pagination.limit, sort, getPostQA, debouncedSearch]);
 
   const rows = useMemo(() => {
     return users?.map((el) => (
       <Table.Tr key={el?._id}>
         <Table.Td className="whitespace-nowrap">{el?.name}</Table.Td>
-        <Table.Td className="whitespace-nowrap">{el?.userId}</Table.Td>
-        <Table.Td className="whitespace-nowrap">
-          <ThresholdsCell
-            type="dailyThreshold"
-            user={el}
-            refetch={() => getPostQA()}
-          />
-        </Table.Td>
-        <Table.Td className="whitespace-nowrap">
-          <ThresholdsCell
-            type="dailyAssign"
-            user={el}
-            refetch={() => getPostQA()}
-          />
-        </Table.Td>
-        <Table.Td className="whitespace-nowrap">
-          <StatusCell user={el} refetch={() => getPostQA()} />
-        </Table.Td>
-        <Table.Td className="whitespace-nowrap">
-          <ShiftTimeCell user={el} refetch={() => getPostQA()} />
-        </Table.Td>
-        <Table.Td className="whitespace-nowrap">
-          <ClaimTypeCell user={el} refetch={() => getPostQA()} />
-        </Table.Td>
-        <Table.Td className="whitespace-nowrap">
-          {!!el?.zone ? el?.zone?.join(", ") : "-"}
-        </Table.Td>
         <Table.Td className="whitespace-nowrap">
           <Flex gap={4}>
             <AssignButton el={el} refetch={() => getPostQA()} action="assign" />
@@ -104,6 +89,29 @@ const QAList = () => {
             />
           </Flex>
         </Table.Td>
+        <Table.Td className="whitespace-nowrap">
+          <StatusCell user={el} refetch={() => getPostQA()} />
+        </Table.Td>
+        <Table.Td className="whitespace-nowrap">
+          <ShiftTimeCell user={el} refetch={() => getPostQA()} />
+        </Table.Td>
+        <Table.Td className="whitespace-nowrap">
+          <ClaimTypeCell user={el} refetch={() => getPostQA()} />
+        </Table.Td>
+        <Table.Td className="whitespace-nowrap">{el?.userId}</Table.Td>
+        <Table.Td className="whitespace-nowrap">
+          <ThresholdsCell
+            type="dailyThreshold"
+            user={el}
+            refetch={() => getPostQA()}
+          />
+        </Table.Td>
+        <Table.Td className="whitespace-nowrap">
+          {el?.config?.dailyAssign || 0}
+        </Table.Td>
+        <Table.Td className="whitespace-nowrap">
+          {!!el?.zone ? el?.zone?.join(", ") : "-"}
+        </Table.Td>
       </Table.Tr>
     ));
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -111,6 +119,23 @@ const QAList = () => {
 
   return (
     <Box>
+      <Input
+        radius="lg"
+        leftSection={<BiSearch />}
+        placeholder="Search Name"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.currentTarget.value)}
+        type="search"
+        rightSectionPointerEvents="all"
+        className="w-fit"
+        rightSection={
+          <CloseButton
+            aria-label="Clear search"
+            onClick={() => setSearchTerm("")}
+            style={{ display: searchTerm ? undefined : "none" }}
+          />
+        }
+      />
       <Table.ScrollContainer minWidth={800}>
         <Table highlightOnHover>
           <CommonTableHead

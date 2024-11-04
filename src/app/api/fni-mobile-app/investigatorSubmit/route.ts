@@ -61,6 +61,7 @@ const findPostQaUser = async (props: IProps) => {
       $lte: ["$config.dailyAssign", "$config.dailyThreshold"],
     },
     status: "Active",
+    "leave.status": { $ne: "Approved" },
     "config.leadView": claimType,
     "config.reportReceivedTime": { $exists: true },
   };
