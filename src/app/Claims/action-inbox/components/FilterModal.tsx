@@ -55,6 +55,7 @@ type PropTypes = {
 
 interface Options {
   clusterManager: ValueLabel[];
+  postQa: ValueLabel[];
   claimInvestigators: ValueLabel[];
   lossType: ValueLabel[];
   colorCode: ValueLabel[];
@@ -75,6 +76,7 @@ const FilterModal = ({
   const [teamLeadOptions, setTeamLeadsOptions] = useState<ValueLabel[]>([]);
   const [options, setOptions] = useState<Options>({
     clusterManager: [],
+    postQa: [],
     claimInvestigators: [],
     lossType: lossTypeOptions,
     colorCode: colorCodeOptions,
@@ -145,7 +147,7 @@ const FilterModal = ({
     try {
       const { data } = await axios.post<ResponseType<IUser>>(EndPoints.USER, {
         role: "TL",
-        limit: 1000,
+        limit: 1000000,
       });
       if (data?.data?.length > 0) {
         setTeamLeadsOptions(
@@ -161,12 +163,32 @@ const FilterModal = ({
     try {
       const { data } = await axios.post<ResponseType<IUser>>(EndPoints.USER, {
         role: Role.CLUSTER_MANAGER,
-        limit: 1000,
+        limit: 1000000,
       });
       if (data?.data?.length > 0) {
         setOptions((prev) => ({
           ...prev,
           clusterManager: data?.data?.map((el) => ({
+            value: el._id,
+            label: el.name,
+          })),
+        }));
+      }
+    } catch (error) {
+      showError(error);
+    }
+  }, []);
+
+  const getPostQa = useCallback(async () => {
+    try {
+      const { data } = await axios.post<ResponseType<IUser>>(EndPoints.USER, {
+        role: Role.POST_QA,
+        limit: 1000000,
+      });
+      if (data?.data?.length > 0) {
+        setOptions((prev) => ({
+          ...prev,
+          postQa: data?.data?.map((el) => ({
             value: el._id,
             label: el.name,
           })),
@@ -217,6 +239,12 @@ const FilterModal = ({
         getClusterManager();
 
       if (
+        filters?.moreFilters?.includes("postQa") &&
+        options.postQa?.length === 0
+      )
+        getPostQa();
+
+      if (
         filters?.moreFilters?.includes("claimInvestigators") &&
         options.claimInvestigators?.length === 0
       ) {
@@ -235,8 +263,10 @@ const FilterModal = ({
     filters,
     getInvestigators,
     getClusterManager,
+    getPostQa,
     options?.claimInvestigators?.length,
     options?.clusterManager?.length,
+    options?.postQa?.length,
   ]);
 
   const filterNotEmpty = Object.values({ ...filters })?.some((val) =>
