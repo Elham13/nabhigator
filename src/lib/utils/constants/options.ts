@@ -33,6 +33,7 @@ export const moreFiltersOptions: IMoreFiltersOptions[] = [
   },
   { value: "dateOfClosure", label: "Date of Closure", type: "date" },
   { value: "clusterManager", label: "Cluster Manager", type: "array" },
+  { value: "postQa", label: "Post QA", type: "array" },
   { value: "claimInvestigators", label: "Field Investigator", type: "array" },
   { value: "lossType", label: "Loss Type", type: "select" },
   { value: "colorCode", label: "Color Code", type: "select" },

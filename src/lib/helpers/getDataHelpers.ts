@@ -370,10 +370,15 @@ export const processGetDataFilters = async (obj: any) => {
   const teamLead = processedObj["teamLead"]
     ? new Types.ObjectId(processedObj["teamLead"])
     : undefined;
+
   const clusterManager =
     processedObj["clusterManager"]?.map(
       (id: string) => new Types.ObjectId(id)
     ) || [];
+
+  const postQa = !!processedObj["postQa"]
+    ? processedObj["postQa"]?.map((id: string) => new Types.ObjectId(id))
+    : [];
 
   if (teamLead) {
     processedObj["teamLead"] = teamLead;
@@ -382,6 +387,11 @@ export const processGetDataFilters = async (obj: any) => {
   if (clusterManager?.length > 0) {
     processedObj["clusterManager"] = {
       $in: clusterManager,
+    };
+  }
+  if (postQa?.length > 0) {
+    processedObj["postQa"] = {
+      $in: postQa,
     };
   }
 

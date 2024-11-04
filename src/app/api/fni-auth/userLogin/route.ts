@@ -22,10 +22,14 @@ router.post(async (req) => {
 
     const result: HydratedDocument<IUser> | null = await User.findOne({
       userId,
-      status: "Active",
     });
 
     if (!result) throw new Error("Wrong userId");
+
+    if (result?.status === "Inactive")
+      throw new Error(
+        "Your status is Inactive, please contact the admin to change your status!"
+      );
 
     if (result?.password !== password) throw new Error("Wrong password");
 
@@ -40,7 +44,6 @@ router.post(async (req) => {
     const session = await encrypt({ user: data, expires });
 
     // Save the session in a cookie
-    // cookies().set("session", session, { expires, httpOnly: true });
     cookies().set("session", session, { httpOnly: true });
 
     return NextResponse.json(
