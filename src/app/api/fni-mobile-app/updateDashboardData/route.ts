@@ -83,6 +83,7 @@ router.post(async (req) => {
 
         message = "Case returned back to field investigator";
       } else if (stage === NumericStage.CLOSED) {
+        // TODO: Remove this
         let recipients: string[] = [];
         let ccRecipients: string[] = [];
         dashboardData.expedition =

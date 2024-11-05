@@ -39,6 +39,7 @@ export enum EndPoints {
   NEW_PIN_CODE_MASTER = "/api/Claims/newPinCodeMaster",
   PIN_CODE = "/api/Claims/pinCode",
   PRE_QC_RETURN_THE_CASE = "/api/Claims/preQcReturnTheCase",
+  POST_QA_SUBMIT = "/api/Claims/postQaSubmit",
   POST_QA_USER = "/api/Claims/postQAUser",
   REVERSE_API = "/api/Claims/FNIReverseApiCall",
   RUN_TRIAGE = "/api/Claims/runTriagingLogic",
