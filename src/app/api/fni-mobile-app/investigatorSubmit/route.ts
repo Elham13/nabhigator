@@ -28,10 +28,27 @@ const router = createEdgeRouter<NextRequest, {}>();
 interface IProps {
   claimType: "PreAuth" | "Reimbursement";
   providerState: string;
+  claimAmount: number;
 }
 
+const getClaimAmountQuery = (claimAmount: number) => {
+  let amountString = "";
+  if (claimAmount < 100000) amountString = "Less than 1 Lakh";
+  else if (claimAmount > 100000 && claimAmount < 500000)
+    amountString = "1 Lakh - 5 Lakhs";
+  else if (claimAmount > 500000 && claimAmount < 1000000)
+    amountString = "5 Lakhs - 10 Lakhs";
+  else if (claimAmount > 1000000 && claimAmount < 2000000)
+    amountString = "10 Lakhs - 20 Lakhs";
+  else if (claimAmount > 2000000 && claimAmount < 5000000)
+    amountString = "20 Lakhs - 50 Lakhs";
+  else if (claimAmount > 5000000) amountString = "Greater than 50 Lakhs";
+
+  return amountString;
+};
+
 const findPostQaUser = async (props: IProps) => {
-  const { claimType, providerState } = props;
+  const { claimType, providerState, claimAmount } = props;
 
   dayjs.extend(utc);
   dayjs.extend(timezone);
@@ -57,9 +74,6 @@ const findPostQaUser = async (props: IProps) => {
 
   const match: PipelineStage.Match["$match"] = {
     role: Role.POST_QA,
-    $expr: {
-      $lte: ["$config.dailyAssign", "$config.dailyThreshold"],
-    },
     status: "Active",
     "leave.status": { $ne: "Approved" },
     "config.leadView": claimType,
@@ -73,6 +87,13 @@ const findPostQaUser = async (props: IProps) => {
 
   if (zoneState) {
     match["zone"] = zoneState?.Zone;
+  }
+
+  if (claimAmount > 0) {
+    const claimAmountQuery = getClaimAmountQuery(claimAmount);
+    if (!!claimAmountQuery) {
+      match["config.claimAmount"] = claimAmountQuery;
+    }
   }
 
   const pipeline: PipelineStage[] = [
@@ -101,9 +122,9 @@ const findPostQaUser = async (props: IProps) => {
                     },
                     {
                       $add: [
-                        4,
+                        currentHour,
                         {
-                          $divide: [45, 60],
+                          $divide: [currentMinute, 60],
                         },
                       ],
                     },
@@ -121,9 +142,9 @@ const findPostQaUser = async (props: IProps) => {
                     },
                     {
                       $add: [
-                        4,
+                        currentHour,
                         {
-                          $divide: [45, 60],
+                          $divide: [currentMinute, 60],
                         },
                       ],
                     },
@@ -230,18 +251,12 @@ router.post(async (req) => {
       const users: IUser[] = await findPostQaUser({
         claimType: dashboardData?.claimType,
         providerState: dashboardData?.hospitalDetails?.providerState,
+        claimAmount: dashboardData?.claimDetails?.claimAmount || 0,
       });
 
       if (users && users?.length > 0) {
         let isAssigned = false;
-        for (const obj of users) {
-          const user: HydratedDocument<IUser> | null = await User.findById(
-            obj?._id
-          );
-
-          if (!user)
-            throw new Error(`Failed to find a user with the id ${obj?._id}`);
-
+        for (const user of users) {
           const dailyThreshold = user?.config?.dailyThreshold || 0;
           let dailyAssign = user?.config?.dailyAssign || 0;
           const updatedAt = user?.config?.thresholdUpdatedAt || null;
@@ -260,18 +275,22 @@ router.post(async (req) => {
             dailyAssign = 0;
           }
 
-          const dailyLimitReached = dailyThreshold - dailyAssign <= 1;
+          const dailyLimitReached = dailyThreshold - dailyAssign < 1;
 
           if (!dailyLimitReached) {
             // Limit is not reached
-            user.config.dailyAssign = user?.config?.dailyAssign
-              ? user.config.dailyAssign + 1
+            const newUser: HydratedDocument<IUser> | null = await User.findById(
+              user?._id
+            );
+
+            newUser!.config.dailyAssign = !!newUser?.config?.dailyAssign
+              ? newUser!.config.dailyAssign + 1
               : 1;
-            user.config.thresholdUpdatedAt = new Date();
+            newUser!.config.thresholdUpdatedAt = new Date();
             dashboardData.postQa = user?._id;
             eventRemarks =
               eventRemarks += `, and assigned to post qa ${user?.name}`;
-            await user.save();
+            await newUser!.save();
             isAssigned = true;
             break;
           }

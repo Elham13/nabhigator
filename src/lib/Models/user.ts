@@ -52,6 +52,7 @@ const ConfigSchema = new Schema<IConfigSchema>(
     },
     dailyThreshold: { type: Number, default: 0 },
     dailyAssign: { type: Number, default: 0 },
+    claimAmount: { type: String },
     reportReceivedTime: {
       from: { type: Date, default: null },
       to: { type: Date, default: null },
