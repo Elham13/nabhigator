@@ -394,13 +394,13 @@ export const postQaTableHeaders: ITableHeader[] = [
     sortable: true,
   },
   {
-    value: "leadView",
-    label: "Claim Type",
+    value: "claimAmount",
+    label: "Claim Amount",
     sortable: true,
   },
   {
-    value: "userId",
-    label: "User ID",
+    value: "leadView",
+    label: "Claim Type",
     sortable: true,
   },
   {

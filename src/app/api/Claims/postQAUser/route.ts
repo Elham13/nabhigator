@@ -61,9 +61,10 @@ router.post(async (req) => {
         "updateClaimType",
         "updateThreshold",
         "updateLeaveStatus",
+        "updateClaimAmount",
       ].includes(action)
     ) {
-      const { id, time, claimType, type, threshold } = body;
+      const { id, time, claimType, type, threshold, claimAmount } = body;
       if (!id) throw new Error("id is required");
 
       const user: HydratedDocument<IUser> | null = await User.findById(id);
@@ -73,6 +74,9 @@ router.post(async (req) => {
       if (action === "updateShiftTime") {
         if (!time) throw new Error("Shift time values are required");
         user.config.reportReceivedTime = time;
+      } else if (action === "updateClaimAmount") {
+        if (!claimAmount) throw new Error("claimAmount is required");
+        user.config.claimAmount = claimAmount;
       } else if (action === "updateClaimType") {
         if (!claimType) throw new Error("Claim type is required");
         user.config.leadView = claimType;

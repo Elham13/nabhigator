@@ -27,6 +27,7 @@ export type UserConfig = {
   canExportConsolidatedInbox?: "Yes" | "No";
   dailyThreshold?: number;
   dailyAssign?: number;
+  claimAmount?: string;
   reportReceivedTime?: TReportReceivedTime;
   thresholdUpdatedAt?: Date;
   triggerSubType?: "Mandatory" | "Non Mandatory";
