@@ -616,68 +616,6 @@ const UserEdit = () => {
                       hidePickedOptions
                       clearable
                     />
-                    <TimeInput
-                      label="Report received time From"
-                      ref={fromTimeRef}
-                      rightSection={
-                        <ActionIcon
-                          variant="subtle"
-                          color="gray"
-                          onClick={() => fromTimeRef.current?.showPicker()}
-                        >
-                          <BsClock />
-                        </ActionIcon>
-                      }
-                      onChange={(e) => {
-                        setUpdatedValues((prev) => ({
-                          ...prev,
-                          config: {
-                            ...prev.config,
-                            reportReceivedTime: {
-                              ...prev.config?.reportReceivedTime,
-                              from: dayjs(e.target.value, "hh:mm").toDate(),
-                            },
-                          },
-                        }));
-                      }}
-                    />
-                    <TimeInput
-                      label="Report received time To"
-                      ref={toTimeRef}
-                      rightSection={
-                        <ActionIcon
-                          variant="subtle"
-                          color="gray"
-                          onClick={() => toTimeRef.current?.showPicker()}
-                        >
-                          <BsClock />
-                        </ActionIcon>
-                      }
-                      onChange={(e) =>
-                        setUpdatedValues((prev) => ({
-                          ...prev,
-                          config: {
-                            ...prev.config,
-                            reportReceivedTime: {
-                              ...prev.config?.reportReceivedTime,
-                              to: dayjs(e.target.value, "hh:mm").toDate(),
-                            },
-                          },
-                        }))
-                      }
-                    />
-                    <NumberInput
-                      label="Daily threshold"
-                      onChange={(val) =>
-                        setUpdatedValues((prev) => ({
-                          ...prev,
-                          config: {
-                            ...prev.config,
-                            dailyThreshold: val as number,
-                          },
-                        }))
-                      }
-                    />
                     <Select
                       label="User type"
                       placeholder="Select user type"

@@ -6,10 +6,9 @@ import {
   EventNames,
   IDashboardData,
   IUser,
-  NumericStage,
   Role,
 } from "@/lib/utils/types/fniDataTypes";
-import { HydratedDocument, PipelineStage, Types } from "mongoose";
+import { HydratedDocument, PipelineStage } from "mongoose";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
