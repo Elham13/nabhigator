@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from "react";
 import { IUser, ResponseType } from "@/lib/utils/types/fniDataTypes";
 import dayjs from "dayjs";
-import { Button, Flex, Grid, Modal, Title } from "@mantine/core";
+import { Button, Flex, Grid, Modal, Switch, Title } from "@mantine/core";
 import TimePicker from "@/components/TimePicker";
 import axios from "axios";
 import { EndPoints } from "@/lib/utils/types/enums";
@@ -25,7 +25,11 @@ const ShiftTimeCell = ({ user, refetch }: PropTypes) => {
   };
 
   const [time, setTime] = useState(() => {
-    const obj = { from: new Date(), to: new Date() };
+    const obj = {
+      from: new Date(),
+      to: new Date(),
+      is24Hour: user?.config?.reportReceivedTime?.is24Hour || false,
+    };
     if (getTime().start !== "-")
       obj.from = dayjs(getTime().start, "hh:mm a").toDate();
     if (getTime().end !== "-")
@@ -64,8 +68,10 @@ const ShiftTimeCell = ({ user, refetch }: PropTypes) => {
         onClick={() => setOpen(true)}
       >
         {!!user?.config?.reportReceivedTime
-          ? `${getTime().start} - ${getTime().end}`
-          : null}
+          ? user?.config?.reportReceivedTime?.is24Hour
+            ? "24 Hours"
+            : `${getTime().start} - ${getTime().end}`
+          : "-"}
       </div>
       {open && (
         <Modal opened={open} onClose={() => setOpen(false)}>
@@ -96,6 +102,17 @@ const ShiftTimeCell = ({ user, refetch }: PropTypes) => {
                 }}
               />
             </Grid.Col>
+            <Grid.Col span={{ base: 12, md: 6 }}>
+              <Switch
+                label="Is 24 Hours"
+                checked={time?.is24Hour}
+                onChange={(e) =>
+                  setTime((prev) => ({ ...prev, is24Hour: e.target.checked }))
+                }
+                labelPosition="left"
+              />
+            </Grid.Col>
+
             <Grid.Col span={12} my={10}>
               <Flex justify="flex-end" gap={2}>
                 <Button color="red" onClick={() => setOpen(false)}>

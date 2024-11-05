@@ -55,6 +55,7 @@ const ConfigSchema = new Schema<IConfigSchema>(
     reportReceivedTime: {
       from: { type: Date, default: null },
       to: { type: Date, default: null },
+      is24Hour: { type: Boolean, default: false },
     },
     thresholdUpdatedAt: { type: Date, default: null },
     triggerSubType: { type: String, default: "Non Mandatory" },

@@ -82,22 +82,57 @@ const findPostQaUser = async (props: IProps) => {
     { $addFields: addField },
     {
       $match: {
-        $expr: {
-          $and: [
-            {
-              $lt: [
-                { $add: ["$fromHour", { $divide: ["$fromMinute", 60] }] },
-                { $add: [currentHour, { $divide: [currentMinute, 60] }] },
+        $or: [
+          {
+            "config.reportReceivedTime.is24Hour": true,
+          },
+          {
+            $expr: {
+              $and: [
+                {
+                  $lt: [
+                    {
+                      $add: [
+                        "$fromHour",
+                        {
+                          $divide: ["$fromMinute", 60],
+                        },
+                      ],
+                    },
+                    {
+                      $add: [
+                        4,
+                        {
+                          $divide: [45, 60],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  $gt: [
+                    {
+                      $add: [
+                        "$toHour",
+                        {
+                          $divide: ["$toMinute", 60],
+                        },
+                      ],
+                    },
+                    {
+                      $add: [
+                        4,
+                        {
+                          $divide: [45, 60],
+                        },
+                      ],
+                    },
+                  ],
+                },
               ],
             },
-            {
-              $gt: [
-                { $add: ["$toHour", { $divide: ["$toMinute", 60] }] },
-                { $add: [currentHour, { $divide: [currentMinute, 60] }] },
-              ],
-            },
-          ],
-        },
+          },
+        ],
       },
     },
     { $sort: { "config.thresholdUpdatedAt": 1 } },
