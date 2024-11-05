@@ -9,7 +9,6 @@ import axios from "axios";
 import {
   CaseDetail,
   IDashboardData,
-  NumericStage,
   PostQaApproveFormValues,
   RevisedQaApproveFormValues,
   SingleResponseType,
@@ -254,8 +253,6 @@ const PostQaApproveContent = ({
 
       const payload = {
         id: data?._id,
-        action: "changeStage",
-        stage: NumericStage.CLOSED,
         userId: user?._id,
         userName: user?.name,
         postQARecommendation: preparedValues,
@@ -268,7 +265,7 @@ const PostQaApproveContent = ({
 
       const { data: res } = await axios.post<
         SingleResponseType<IDashboardData>
-      >(EndPoints.UPDATE_DASHBOARD_DATA, payload);
+      >(EndPoints.POST_QA_SUBMIT, payload);
 
       toast.success(res.message);
       if (reverseRes) toast.success(reverseRes?.message);
