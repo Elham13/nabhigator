@@ -32,6 +32,7 @@ import sendEmail from "@/lib/helpers/sendEmail";
 import { captureCaseEvent } from "../caseEvent/helpers";
 import ClaimInvestigator from "@/lib/Models/claimInvestigator";
 import { getEncryptClaimId } from "@/lib/helpers";
+import { investigatorRecommendationOptions } from "@/lib/utils/constants/options";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -84,6 +85,16 @@ router.post(async (req) => {
       FINAL_OUTCOME = "NI";
     }
 
+    const tempInv =
+      !!dashboardData?.claimInvestigators &&
+      dashboardData?.claimInvestigators?.length > 0
+        ? dashboardData?.claimInvestigators[0]
+        : null;
+
+    const invId = dashboardData?.claimInvestigators[0]?._id;
+    const inv: HydratedDocument<Investigator> | null =
+      await ClaimInvestigator.findById(invId);
+
     const payload = {
       Claimdetail: {
         CLAIM_NO: dashboardData?.claimId?.toString(),
@@ -93,9 +104,9 @@ router.post(async (req) => {
       },
       Case_Assignment: {
         CASE_ASSIGNMENT_FLAG: "1",
-        ASSIGN_TO: "M62",
-        TO_EMAIL: "FIallocation@maxbupa.com",
-        CC_EMAIL: "",
+        ASSIGN_TO: inv?.investigatorCode || "",
+        TO_EMAIL: inv?.email?.join(";") || "FIallocation@maxbupa.com",
+        CC_EMAIL: "FIallocation@maxbupa.com",
         REMARKS: summaryOfInvestigation,
         FRAUD_STATUS: "C",
         STATUS_Updates: "IV",
@@ -286,10 +297,6 @@ router.post(async (req) => {
         }
       }
     }
-
-    const invId = dashboardData?.claimInvestigators[0]?._id;
-    const inv: HydratedDocument<Investigator> | null =
-      await ClaimInvestigator.findById(invId);
 
     const webUrl =
       process.env.NEXT_PUBLIC_CONFIG === "PROD"

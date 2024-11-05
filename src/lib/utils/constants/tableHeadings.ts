@@ -391,17 +391,22 @@ export const postQaTableHeaders: ITableHeader[] = [
   {
     value: "shiftTime",
     label: "Shift Time",
-    sortable: true,
+    sortable: false,
   },
   {
     value: "claimAmount",
     label: "Claim Amount",
-    sortable: true,
+    sortable: false,
+  },
+  {
+    value: "pendency",
+    label: "Pendency",
+    sortable: false,
   },
   {
     value: "leadView",
     label: "Claim Type",
-    sortable: true,
+    sortable: false,
   },
   {
     value: "dailyThreshold",

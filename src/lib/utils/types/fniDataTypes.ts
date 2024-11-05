@@ -27,6 +27,8 @@ export type UserConfig = {
   canExportConsolidatedInbox?: "Yes" | "No";
   dailyThreshold?: number;
   dailyAssign?: number;
+  preAuthPendency?: number;
+  rmPendency?: number;
   claimAmount?: string;
   reportReceivedTime?: TReportReceivedTime;
   thresholdUpdatedAt?: Date;
