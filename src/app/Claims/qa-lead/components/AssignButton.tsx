@@ -91,6 +91,10 @@ const AssignButton = ({ el, action, refetch }: PropTypes) => {
             stage: NumericStage.POST_QC,
           };
 
+          if (el?.config?.leadView && el?.config?.leadView?.length > 0) {
+            payload.claimType = { $in: el?.config?.leadView };
+          }
+
           if (action === "assign") {
             payload["$or"] = [{ postQa: null }, { postQa: { $exists: false } }];
           } else {
@@ -115,7 +119,14 @@ const AssignButton = ({ el, action, refetch }: PropTypes) => {
 
       fetchData();
     }
-  }, [open, pagination.limit, pagination.page, debouncedClaimId]);
+  }, [
+    open,
+    pagination.limit,
+    pagination.page,
+    debouncedClaimId,
+    action,
+    el?.config?.leadView,
+  ]);
 
   return (
     <Fragment>

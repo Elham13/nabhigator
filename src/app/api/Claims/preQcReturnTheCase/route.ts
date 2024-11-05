@@ -85,12 +85,6 @@ router.post(async (req) => {
       FINAL_OUTCOME = "NI";
     }
 
-    const tempInv =
-      !!dashboardData?.claimInvestigators &&
-      dashboardData?.claimInvestigators?.length > 0
-        ? dashboardData?.claimInvestigators[0]
-        : null;
-
     const invId = dashboardData?.claimInvestigators[0]?._id;
     const inv: HydratedDocument<Investigator> | null =
       await ClaimInvestigator.findById(invId);
@@ -104,8 +98,10 @@ router.post(async (req) => {
       },
       Case_Assignment: {
         CASE_ASSIGNMENT_FLAG: "1",
-        ASSIGN_TO: inv?.investigatorCode || "",
-        TO_EMAIL: inv?.email?.join(";") || "FIallocation@maxbupa.com",
+        ASSIGN_TO: inv?.investigatorCode || "M62",
+        TO_EMAIL: !!inv?.email
+          ? inv?.email?.join(";")
+          : "FIallocation@maxbupa.com",
         CC_EMAIL: "FIallocation@maxbupa.com",
         REMARKS: summaryOfInvestigation,
         FRAUD_STATUS: "C",
