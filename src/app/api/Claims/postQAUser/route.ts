@@ -75,7 +75,6 @@ router.post(async (req) => {
         if (!time) throw new Error("Shift time values are required");
         user.config.reportReceivedTime = time;
       } else if (action === "updateClaimAmount") {
-        if (!claimAmount) throw new Error("claimAmount is required");
         user.config.claimAmount = claimAmount;
       } else if (action === "updateClaimType") {
         if (!claimType) throw new Error("Claim type is required");
