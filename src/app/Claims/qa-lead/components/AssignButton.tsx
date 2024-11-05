@@ -61,7 +61,7 @@ const AssignButton = ({ el, action, refetch }: PropTypes) => {
     setLoading(true);
     try {
       const payload = {
-        action: "assignCases",
+        action: action === "assign" ? "assignCases" : "reAssignCase",
         id: el?._id,
         caseIds: selected,
         userId: user?._id,

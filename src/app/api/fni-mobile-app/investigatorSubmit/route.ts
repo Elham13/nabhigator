@@ -248,63 +248,84 @@ router.post(async (req) => {
           ? dashboardData?.expedition?.map((el) => ({ ...el, noted: true }))
           : dashboardData?.expedition;
 
-      const users: IUser[] = await findPostQaUser({
-        claimType: dashboardData?.claimType,
-        providerState: dashboardData?.hospitalDetails?.providerState,
-        claimAmount: dashboardData?.claimDetails?.claimAmount || 0,
-      });
+      if (!dashboardData?.postQa) {
+        const users: IUser[] = await findPostQaUser({
+          claimType: dashboardData?.claimType,
+          providerState: dashboardData?.hospitalDetails?.providerState,
+          claimAmount: dashboardData?.claimDetails?.claimAmount || 0,
+        });
 
-      if (users && users?.length > 0) {
-        let isAssigned = false;
-        for (const user of users) {
-          const dailyThreshold = user?.config?.dailyThreshold || 0;
-          let dailyAssign = user?.config?.dailyAssign || 0;
-          const updatedAt = user?.config?.thresholdUpdatedAt || null;
+        if (users && users?.length > 0) {
+          let isAssigned = false;
+          for (const user of users) {
+            const dailyThreshold = user?.config?.dailyThreshold || 0;
+            let dailyAssign = user?.config?.dailyAssign || 0;
+            const updatedAt = user?.config?.thresholdUpdatedAt || null;
 
-          if (!!updatedAt) {
-            const noOfDaysSinceUpdated = dayjs()
-              .startOf("day")
-              .diff(dayjs(updatedAt).startOf("day"), "day");
+            if (!!updatedAt) {
+              const noOfDaysSinceUpdated = dayjs()
+                .startOf("day")
+                .diff(dayjs(updatedAt).startOf("day"), "day");
 
-            if (noOfDaysSinceUpdated > 0) {
-              // Means it's not updated today
+              if (noOfDaysSinceUpdated > 0) {
+                // Means it's not updated today
+                dailyAssign = 0;
+              }
+            } else {
+              // There is no updated date so we know this user is getting assigned for the first time
               dailyAssign = 0;
             }
-          } else {
-            // There is no updated date so we know this user is getting assigned for the first time
-            dailyAssign = 0;
+
+            const dailyLimitReached = dailyThreshold - dailyAssign < 1;
+
+            if (!dailyLimitReached) {
+              // Limit is not reached
+              const newUser: HydratedDocument<IUser> | null =
+                await User.findById(user?._id);
+
+              newUser!.config.dailyAssign = !!newUser?.config?.dailyAssign
+                ? newUser!.config.dailyAssign + 1
+                : 1;
+              newUser!.config.thresholdUpdatedAt = new Date();
+              dashboardData.postQa = user?._id;
+
+              if (dashboardData?.claimType === "PreAuth") {
+                if (
+                  !!newUser?.config?.preAuthPendency &&
+                  newUser?.config?.preAuthPendency > 0
+                ) {
+                  newUser.config.preAuthPendency += 1;
+                } else {
+                  newUser!.config.preAuthPendency = 1;
+                }
+              } else {
+                if (
+                  !!newUser?.config?.rmPendency &&
+                  newUser?.config?.rmPendency > 0
+                ) {
+                  newUser.config.rmPendency += 1;
+                } else {
+                  newUser!.config.rmPendency = 1;
+                }
+              }
+
+              eventRemarks =
+                eventRemarks += `, and assigned to post qa ${user?.name}`;
+              await newUser!.save();
+              isAssigned = true;
+              break;
+            }
           }
 
-          const dailyLimitReached = dailyThreshold - dailyAssign < 1;
-
-          if (!dailyLimitReached) {
-            // Limit is not reached
-            const newUser: HydratedDocument<IUser> | null = await User.findById(
-              user?._id
-            );
-
-            newUser!.config.dailyAssign = !!newUser?.config?.dailyAssign
-              ? newUser!.config.dailyAssign + 1
-              : 1;
-            newUser!.config.thresholdUpdatedAt = new Date();
-            dashboardData.postQa = user?._id;
+          if (!isAssigned) {
             eventRemarks =
-              eventRemarks += `, and assigned to post qa ${user?.name}`;
-            await newUser!.save();
-            isAssigned = true;
-            break;
+              eventRemarks += `, and moved to Post QA Lead bucket because no Post Qa matched`;
           }
-        }
-
-        if (!isAssigned) {
+        } else {
           eventRemarks =
             eventRemarks += `, and moved to Post QA Lead bucket because no Post Qa matched`;
         }
-      } else {
-        eventRemarks =
-          eventRemarks += `, and moved to Post QA Lead bucket because no Post Qa matched`;
       }
-
       dashboardData.stage = stage;
     } else {
       eventRemarks = `Investigator ${

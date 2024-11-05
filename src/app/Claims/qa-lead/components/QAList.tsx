@@ -100,6 +100,11 @@ const QAList = () => {
           <ClaimAmount user={el} refetch={() => getPostQA()} />
         </Table.Td>
         <Table.Td className="whitespace-nowrap">
+          {`P: ${el?.config?.preAuthPendency || 0} / R: ${
+            el?.config?.rmPendency || 0
+          }`}
+        </Table.Td>
+        <Table.Td className="whitespace-nowrap">
           <ClaimTypeCell user={el} refetch={() => getPostQA()} />
         </Table.Td>
         <Table.Td className="whitespace-nowrap">

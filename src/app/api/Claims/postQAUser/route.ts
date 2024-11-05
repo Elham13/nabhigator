@@ -107,7 +107,7 @@ router.post(async (req) => {
         }
       }
       data = await user.save();
-    } else if (action === "assignCases") {
+    } else if (["assignCases", "reAssignCase"].includes(action)) {
       const { id, caseIds, userId } = body;
       if (!id) throw new Error("id is required");
       if (!userId) throw new Error("userId is required");
@@ -143,29 +143,83 @@ router.post(async (req) => {
         );
       } else {
         // Limit is not reached
-        user.config.dailyAssign = !!dailyAssign ? dailyAssign + 1 : 1;
         user.config.thresholdUpdatedAt = new Date();
       }
 
-      await user?.save();
-
       for (const dId of caseIds) {
-        const dData = await DashboardData.findById(dId);
-        dData.postQa = user?._id;
-        dData.dateOfFallingIntoPostQaBucket = new Date();
-        await captureCaseEvent({
-          eventName: EventNames.MANUALLY_ASSIGNED_TO_POST_QA,
-          eventRemarks: `Manually assigned to ${user?.name}`,
-          intimationDate:
-            dData?.intimationDate ||
-            dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
-          stage: dData?.stage,
-          claimId: dData?.claimId,
-          userId,
-        });
+        const dData: HydratedDocument<IDashboardData> | null =
+          await DashboardData.findById(dId);
 
-        await dData.save();
+        if (dData) {
+          if (!!dData?.postQa) {
+            // In Case of Re-Assign
+            const postQaUser: HydratedDocument<IUser> | null =
+              await User.findById(dData?.postQa);
+
+            if (postQaUser) {
+              // Deduct Pendency
+              if (dData?.claimType === "PreAuth") {
+                if (
+                  !!postQaUser?.config?.preAuthPendency &&
+                  postQaUser?.config?.preAuthPendency > 0
+                ) {
+                  postQaUser.config.preAuthPendency -= 1;
+                }
+              } else {
+                if (
+                  !!postQaUser?.config?.rmPendency &&
+                  postQaUser?.config?.rmPendency > 0
+                ) {
+                  postQaUser.config.rmPendency -= 1;
+                }
+              }
+
+              // Deduct Daily Assign
+              if (
+                !!postQaUser?.config?.dailyAssign &&
+                postQaUser?.config?.dailyAssign > 0
+              )
+                postQaUser.config.dailyAssign -= 1;
+              await postQaUser.save();
+            }
+          }
+
+          if (dData?.claimType === "PreAuth") {
+            if (!!user?.config?.preAuthPendency) {
+              user.config.preAuthPendency += 1;
+            } else {
+              user.config.preAuthPendency = 1;
+            }
+          } else {
+            if (!!user?.config?.rmPendency) {
+              user.config.rmPendency += 1;
+            } else {
+              user.config.rmPendency = 1;
+            }
+          }
+
+          dData.postQa = user?._id;
+          dData.dateOfFallingIntoPostQaBucket = new Date();
+
+          dailyAssign += 1;
+
+          await captureCaseEvent({
+            eventName: EventNames.MANUALLY_ASSIGNED_TO_POST_QA,
+            eventRemarks: `Manually assigned to ${user?.name}`,
+            intimationDate:
+              dData?.intimationDate ||
+              dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
+            stage: dData?.stage,
+            claimId: dData?.claimId,
+            userId,
+          });
+
+          await dData.save();
+        }
       }
+
+      user.config.dailyAssign = dailyAssign;
+      await user?.save();
     } else throw new Error(`Wrong action ${action}`);
 
     return NextResponse.json(
