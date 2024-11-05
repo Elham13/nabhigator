@@ -91,11 +91,11 @@ const RejectedSection = ({ id, handleCancel }: PropTypes) => {
                 required
                 label={`Remark for ${el.reason}`}
                 placeholder={`Enter remark for ${el.reason}`}
-                value={el.remark}
+                value={el.remark || ""}
                 onChange={(e) =>
                   setRejectionReasons((prev) => {
                     const newData = [...prev];
-                    newData[ind].remark = e.currentTarget.value;
+                    newData[ind].remark = e.target.value;
                     return newData;
                   })
                 }
