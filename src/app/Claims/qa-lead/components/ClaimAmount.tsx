@@ -57,7 +57,7 @@ const ClaimAmount = ({ user, refetch }: PropTypes) => {
                 placeholder="Claim Amount"
                 value={claimAmount || ""}
                 onChange={(val) => setClaimAmount(val || "")}
-                data={claimAmountOptions?.map((el) => el?.label)}
+                data={["0-5 Lakh", "5-10 Lakh", "10 Lakh Plus"]}
                 checkIconPosition="right"
                 clearable
                 searchable

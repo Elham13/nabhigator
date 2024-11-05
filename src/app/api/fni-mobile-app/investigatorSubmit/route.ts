@@ -33,16 +33,10 @@ interface IProps {
 
 const getClaimAmountQuery = (claimAmount: number) => {
   let amountString = "";
-  if (claimAmount < 100000) amountString = "Less than 1 Lakh";
-  else if (claimAmount > 100000 && claimAmount < 500000)
-    amountString = "1 Lakh - 5 Lakhs";
-  else if (claimAmount > 500000 && claimAmount < 1000000)
-    amountString = "5 Lakhs - 10 Lakhs";
-  else if (claimAmount > 1000000 && claimAmount < 2000000)
-    amountString = "10 Lakhs - 20 Lakhs";
-  else if (claimAmount > 2000000 && claimAmount < 5000000)
-    amountString = "20 Lakhs - 50 Lakhs";
-  else if (claimAmount > 5000000) amountString = "Greater than 50 Lakhs";
+  if (claimAmount < 500000) amountString = "0-5 Lakh";
+  else if (claimAmount > 500000 && claimAmount <= 1000000)
+    amountString = "5-10 Lakh";
+  else if (claimAmount > 1000000) amountString = "10 Lakh Plus";
 
   return amountString;
 };
