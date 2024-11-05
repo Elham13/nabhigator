@@ -5,7 +5,6 @@ import axios from "axios";
 import { EndPoints } from "@/lib/utils/types/enums";
 import { toast } from "react-toastify";
 import { showError } from "@/lib/helpers";
-import { claimAmountOptions } from "@/lib/utils/constants/options";
 
 type PropTypes = { user: IUser; refetch: () => void };
 
