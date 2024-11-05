@@ -223,88 +223,91 @@ export async function POST(request: NextRequest, ctx: RequestContext) {
   return router.run(request, ctx) as Promise<void>;
 }
 
-// const d = [
-//   {
-//     $match: {
-//       role: "Post QA",
-//       $expr: {
-//         $lte: ["$config.dailyAssign", "$config.dailyThreshold"],
-//       },
-//       status: "Active",
-//       "config.leadView": "PreAuth",
-//       "config.reportReceivedTime": {
-//         $exists: true,
-//       },
-//       zone: "East",
-//     },
-//   },
-//   {
-//     $addFields: {
-//       fromHour: {
-//         $hour: "$config.reportReceivedTime.from",
-//       },
-//       fromMinute: {
-//         $minute: "$config.reportReceivedTime.from",
-//       },
-//       toHour: {
-//         $hour: "$config.reportReceivedTime.to",
-//       },
-//       toMinute: {
-//         $minute: "$config.reportReceivedTime.to",
-//       },
-//     },
-//   },
-//   {
-//     $match: {
-//       $expr: {
-//         $and: [
-//           {
-//             $lt: [
-//               {
-//                 $add: [
-//                   "$fromHour",
-//                   {
-//                     $divide: ["$fromMinute", 60],
-//                   },
-//                 ],
-//               },
-//               {
-//                 $add: [
-//                   22,
-//                   {
-//                     $divide: [8, 60],
-//                   },
-//                 ],
-//               },
-//             ],
-//           },
-//           {
-//             $gt: [
-//               {
-//                 $add: [
-//                   "$toHour",
-//                   {
-//                     $divide: ["$toMinute", 60],
-//                   },
-//                 ],
-//               },
-//               {
-//                 $add: [
-//                   22,
-//                   {
-//                     $divide: [8, 60],
-//                   },
-//                 ],
-//               },
-//             ],
-//           },
-//         ],
-//       },
-//     },
-//   },
-//   {
-//     $sort: {
-//       "config.thresholdUpdatedAt": 1,
-//     },
-//   },
-// ];
+const pipeline = [
+  {
+    $match: {
+      role: "Post QA",
+      $expr: {
+        $lte: ["$config.dailyAssign", "$config.dailyThreshold"],
+      },
+      status: "Active",
+      "leave.status": {
+        $ne: "Approved",
+      },
+      "config.leadView": "Reimbursement",
+      "config.reportReceivedTime": {
+        $exists: true,
+      },
+      zone: "West",
+    },
+  },
+  {
+    $addFields: {
+      fromHour: {
+        $hour: "$config.reportReceivedTime.from",
+      },
+      fromMinute: {
+        $minute: "$config.reportReceivedTime.from",
+      },
+      toHour: {
+        $hour: "$config.reportReceivedTime.to",
+      },
+      toMinute: {
+        $minute: "$config.reportReceivedTime.to",
+      },
+    },
+  },
+  {
+    $match: {
+      $expr: {
+        $and: [
+          {
+            $lt: [
+              {
+                $add: [
+                  "$fromHour",
+                  {
+                    $divide: ["$fromMinute", 60],
+                  },
+                ],
+              },
+              {
+                $add: [
+                  4,
+                  {
+                    $divide: [45, 60],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            $gt: [
+              {
+                $add: [
+                  "$toHour",
+                  {
+                    $divide: ["$toMinute", 60],
+                  },
+                ],
+              },
+              {
+                $add: [
+                  4,
+                  {
+                    $divide: [45, 60],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    },
+  },
+  {
+    $sort: {
+      "config.thresholdUpdatedAt": 1,
+    },
+  },
+];

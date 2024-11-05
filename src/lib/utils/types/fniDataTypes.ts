@@ -13,7 +13,11 @@ export interface CommonThProps {
   onSort(sortKey: string): void;
 }
 
-export type TReportReceivedTime = { from?: Date; to?: Date };
+export type TReportReceivedTime = {
+  from?: Date;
+  to?: Date;
+  is24Hour?: boolean;
+};
 
 export type UserConfig = {
   leadView?: string[];
