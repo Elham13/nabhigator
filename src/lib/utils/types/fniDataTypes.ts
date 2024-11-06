@@ -227,6 +227,7 @@ export interface Investigator {
   role?: "Leader" | "TeamMate" | "None";
   leader?: string;
   updates: InvestigatorUpdate;
+  pendency?: { preAuth: number[]; rm: number[] };
   createdAt: string;
   updatedAt: string;
 }

@@ -8,6 +8,7 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import {
   CaseDetail,
+  Investigator,
   EventNames,
   IDashboardData,
   ITasksAndDocuments,
@@ -22,6 +23,7 @@ import ClaimCase from "@/lib/Models/claimCase";
 import { captureCaseEvent } from "../../Claims/caseEvent/helpers";
 import User from "@/lib/Models/user";
 import ZoneStateMaster from "@/lib/Models/zoneStateMaster";
+import ClaimInvestigator from "@/lib/Models/claimInvestigator";
 
 const router = createEdgeRouter<NextRequest, {}>();
 
@@ -181,6 +183,24 @@ router.post(async (req) => {
       throw new Error(
         `No Claim Case found with the id ${dashboardData?.caseId}`
       );
+    const inv: HydratedDocument<Investigator> | null =
+      await ClaimInvestigator.findById(userId);
+
+    if (!inv) throw new Error(`No investigator found with the id ${userId}`);
+
+    if (dashboardData?.claimType === "PreAuth") {
+      if (!!inv?.pendency?.preAuth && inv?.pendency?.preAuth?.length > 0) {
+        inv.pendency.preAuth = inv?.pendency?.preAuth?.filter(
+          (claimId) => claimId !== dashboardData?.claimId
+        );
+      }
+    } else if (dashboardData?.claimType === "Reimbursement") {
+      if (!!inv?.pendency?.rm && inv?.pendency?.rm?.length > 0) {
+        inv.pendency.rm = inv?.pendency?.rm?.filter(
+          (claimId) => claimId !== dashboardData?.claimId
+        );
+      }
+    }
 
     let findings: ITasksAndDocuments | null = null;
 

@@ -270,7 +270,11 @@ router.post(async (req) => {
     // Update investigators daily and/or monthly assign and send email
     for (let i = 0; i < investigators?.length; i++) {
       const inv = investigators[i];
-      const updateRes = await updateInvestigators(inv);
+      const updateRes = await updateInvestigators(
+        inv,
+        dashboardData?.claimId,
+        dashboardData?.claimType
+      );
       if (!updateRes?.success) throw new Error(updateRes?.message);
 
       // TODO: Fix this

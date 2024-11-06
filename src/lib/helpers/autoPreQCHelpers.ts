@@ -363,7 +363,9 @@ export const findInvestigators = async (
 };
 
 export const updateInvestigators = async (
-  investigator: Investigator
+  investigator: Investigator,
+  claimId: number,
+  claimType: "PreAuth" | "Reimbursement"
 ): Promise<IUpdateInvReturnType> => {
   const payload: IUpdateInvReturnType = {
     success: true,
@@ -379,6 +381,16 @@ export const updateInvestigators = async (
       throw new Error(
         `Failed to find an investigator with the id ${investigator?._id}`
       );
+
+    if (claimType === "PreAuth") {
+      if (!!inv?.pendency?.preAuth && inv?.pendency?.preAuth?.length > 0) {
+        inv.pendency.preAuth = [...inv?.pendency?.preAuth, claimId];
+      }
+    } else if (claimType === "Reimbursement") {
+      if (!!inv?.pendency?.rm && inv?.pendency?.rm?.length > 0) {
+        inv.pendency.rm = [...inv?.pendency?.rm, claimId];
+      }
+    }
 
     const monthlyLimitReached =
       inv?.monthlyThreshold - inv?.monthlyAssigned <= 1;
