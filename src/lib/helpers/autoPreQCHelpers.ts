@@ -383,12 +383,24 @@ export const updateInvestigators = async (
       );
 
     if (claimType === "PreAuth") {
-      if (!!inv?.pendency?.preAuth && inv?.pendency?.preAuth?.length > 0) {
-        inv.pendency.preAuth = [...inv?.pendency?.preAuth, claimId];
+      if (!!inv?.pendency) {
+        if (!!inv?.pendency?.preAuth && inv?.pendency?.preAuth?.length > 0) {
+          inv.pendency.preAuth = [...inv?.pendency?.preAuth, claimId];
+        } else {
+          inv.pendency.preAuth = [claimId];
+        }
+      } else {
+        inv.pendency = { preAuth: [claimId], rm: [] };
       }
     } else if (claimType === "Reimbursement") {
-      if (!!inv?.pendency?.rm && inv?.pendency?.rm?.length > 0) {
-        inv.pendency.rm = [...inv?.pendency?.rm, claimId];
+      if (!!inv?.pendency) {
+        if (!!inv?.pendency?.rm && inv?.pendency?.rm?.length > 0) {
+          inv.pendency.rm = [...inv?.pendency?.rm, claimId];
+        } else {
+          inv.pendency.rm = [claimId];
+        }
+      } else {
+        inv.pendency = { preAuth: [], rm: [claimId] };
       }
     }
 
