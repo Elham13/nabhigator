@@ -23,6 +23,7 @@ export enum EndPoints {
   CITY = "/api/Claims/city",
   DASHBOARD_COUNTS = "/api/Claims/dashboardCounts",
   DASHBOARD_DATA = "/api/Claims/getData",
+  DELETE_CASE = "/api/Claims/deleteCase",
   DOWNLOAD_EXCEL = "/api/Claims/downloadExcel",
   DOWNLOAD_NPS = "/api/Claims/downloadNPS",
   EXTERNAL_INV_LIST = "/api/Claims/externalInvestigatorsList",
