@@ -156,6 +156,11 @@ export const investigatorsTableHead: ITableHeader[] = [
     sortable: true,
   },
   {
+    value: "pendency",
+    label: "Pendency",
+    sortable: false,
+  },
+  {
     value: "phone",
     label: "Phone",
     sortable: true,
@@ -403,11 +408,7 @@ export const postQaTableHeaders: ITableHeader[] = [
     label: "Pendency",
     sortable: false,
   },
-  {
-    value: "leadView",
-    label: "Claim Type",
-    sortable: false,
-  },
+
   {
     value: "dailyThreshold",
     label: "Daily Threshold",
@@ -416,6 +417,11 @@ export const postQaTableHeaders: ITableHeader[] = [
   {
     value: "dailyAssign",
     label: "Daily Assign",
+    sortable: false,
+  },
+  {
+    value: "leadView",
+    label: "Claim Type",
     sortable: false,
   },
   {

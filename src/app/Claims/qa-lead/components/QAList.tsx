@@ -104,9 +104,7 @@ const QAList = () => {
             el?.config?.rmPendency || 0
           }`}
         </Table.Td>
-        <Table.Td className="whitespace-nowrap">
-          <ClaimTypeCell user={el} refetch={() => getPostQA()} />
-        </Table.Td>
+
         <Table.Td className="whitespace-nowrap">
           <ThresholdsCell
             type="dailyThreshold"
@@ -116,6 +114,9 @@ const QAList = () => {
         </Table.Td>
         <Table.Td className="whitespace-nowrap">
           {el?.config?.dailyAssign || 0}
+        </Table.Td>
+        <Table.Td className="whitespace-nowrap">
+          <ClaimTypeCell user={el} refetch={() => getPostQA()} />
         </Table.Td>
         <Table.Td className="whitespace-nowrap">
           {!!el?.zone ? el?.zone?.join(", ") : "-"}
