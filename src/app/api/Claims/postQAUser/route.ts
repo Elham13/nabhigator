@@ -218,6 +218,11 @@ router.post(async (req) => {
 
       user.config.dailyAssign = dailyAssign;
       await user?.save();
+    } else if (action === "resetAllDailyAssign") {
+      await User.updateMany(
+        { role: Role.POST_QA },
+        { $set: { "config.dailyAssign": 0 } }
+      );
     } else throw new Error(`Wrong action ${action}`);
 
     return NextResponse.json(
