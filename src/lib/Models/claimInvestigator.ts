@@ -58,6 +58,14 @@ const ExpeditionSchema = new Schema<IExpeditionSchema>(
   }
 );
 
+const PendencySchema = new Schema(
+  {
+    preAuth: { type: [Number], default: [] },
+    rm: { type: [Number], default: [] },
+  },
+  { timestamps: true }
+);
+
 const InvestigatorSchema = new Schema<IInvestigatorSchema>(
   {
     investigatorName: {
@@ -150,6 +158,10 @@ const InvestigatorSchema = new Schema<IInvestigatorSchema>(
         type: [ExpeditionSchema],
         default: [],
       },
+    },
+    pendency: {
+      type: PendencySchema,
+      default: null,
     },
   },
   { timestamps: true }

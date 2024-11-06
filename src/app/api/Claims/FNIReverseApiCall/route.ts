@@ -42,7 +42,7 @@ router.post(async (req) => {
     if (process.env.NEXT_PUBLIC_CONFIG === "PROD")
       url = "https://www.nivabupa.com";
 
-    const EXECUTIVE_SUMMARY = `${url}${recommendation?.link}${recommendation?.text}`;
+    const EXECUTIVE_SUMMARY = `${url}${recommendation?.link}\n\n\n${recommendation?.text}`;
 
     const preparedPayload = {
       ...payload,
