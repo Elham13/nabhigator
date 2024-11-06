@@ -137,7 +137,7 @@ export const runPreQCAutoAllocation = async (
             bodyText: `Dear ${inv?.investigatorName} \nA new case has been assigned to you with the id ${data?.claimId} (System Pre-QC Auto-Allocation)\n\n\nWish you best of luck\nNabhigator`,
           });
         });
-      await updateInvestigators(inv);
+      await updateInvestigators(inv, data?.claimId, data?.claimType);
     }
     await data.save();
   } catch (error: any) {
