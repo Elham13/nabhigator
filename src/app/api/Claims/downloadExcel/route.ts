@@ -283,7 +283,7 @@ router.post(async (req) => {
       headers: {
         "Content-Type": "application/zip",
         "Content-Disposition": `attachment; filename=data_${dayjs().format(
-          "DD-MMM-YYYY hh:mm:ss a"
+          "DD-MMM-YYYY hh-mm-ss a"
         )}.zip`,
       },
     });
@@ -296,7 +296,7 @@ router.post(async (req) => {
     readableExcelStream.push(null); // End the stream
 
     zip.append(readableExcelStream, {
-      name: `data_${dayjs().format("DD-MMM-YYYY hh:mm:ss a")}.xlsx`,
+      name: `data_${dayjs().format("DD-MMM-YYYY hh-mm-ss a")}.xlsx`,
     });
 
     // Finalize the zip
