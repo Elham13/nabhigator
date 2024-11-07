@@ -115,34 +115,34 @@ router.post(async (req) => {
       const user: HydratedDocument<IUser> | null = await User.findById(id);
       if (!user) throw new Error(`Failed to find a user with the id ${id}`);
 
-      const dailyThreshold = user?.config?.dailyThreshold || 0;
-      let dailyAssign = user?.config?.dailyAssign || 0;
-      const updatedAt = user?.config?.thresholdUpdatedAt || null;
+      // const dailyThreshold = user?.config?.dailyThreshold || 0;
+      // let dailyAssign = user?.config?.dailyAssign || 0;
+      // const updatedAt = user?.config?.thresholdUpdatedAt || null;
 
-      if (!!updatedAt) {
-        const noOfDaysSinceUpdated = dayjs()
-          .startOf("day")
-          .diff(dayjs(updatedAt).startOf("day"), "day");
+      // if (!!updatedAt) {
+      //   const noOfDaysSinceUpdated = dayjs()
+      //     .startOf("day")
+      //     .diff(dayjs(updatedAt).startOf("day"), "day");
 
-        if (noOfDaysSinceUpdated > 0) {
-          // Means it's not updated today
-          dailyAssign = 0;
-        }
-      } else {
-        // There is no updated date so we know this user is getting assigned for the first time
-        dailyAssign = 0;
-      }
+      //   if (noOfDaysSinceUpdated > 0) {
+      //     // Means it's not updated today
+      //     dailyAssign = 0;
+      //   }
+      // } else {
+      //   // There is no updated date so we know this user is getting assigned for the first time
+      //   dailyAssign = 0;
+      // }
 
-      const dailyLimitReached = dailyThreshold - dailyAssign <= 1;
+      // const dailyLimitReached = dailyThreshold - dailyAssign <= 1;
 
-      if (dailyLimitReached) {
-        throw new Error(
-          "Daily limit reached, please select a different user or increase the daily assign"
-        );
-      } else {
-        // Limit is not reached
-        user.config.thresholdUpdatedAt = new Date();
-      }
+      // if (dailyLimitReached) {
+      //   throw new Error(
+      //     "Daily limit reached, please select a different user or increase the daily assign"
+      //   );
+      // } else {
+      //   // Limit is not reached
+      //   user.config.thresholdUpdatedAt = new Date();
+      // }
 
       for (const dId of caseIds) {
         const dData: HydratedDocument<IDashboardData> | null =
@@ -173,11 +173,11 @@ router.post(async (req) => {
               }
 
               // Deduct Daily Assign
-              if (
-                !!postQaUser?.config?.dailyAssign &&
-                postQaUser?.config?.dailyAssign > 0
-              )
-                postQaUser.config.dailyAssign -= 1;
+              // if (
+              //   !!postQaUser?.config?.dailyAssign &&
+              //   postQaUser?.config?.dailyAssign > 0
+              // )
+              //   postQaUser.config.dailyAssign -= 1;
               await postQaUser.save();
             }
           }
@@ -199,7 +199,7 @@ router.post(async (req) => {
           dData.postQa = user?._id;
           dData.dateOfFallingIntoPostQaBucket = new Date();
 
-          dailyAssign += 1;
+          // dailyAssign += 1;
 
           await captureCaseEvent({
             eventName: EventNames.MANUALLY_ASSIGNED_TO_POST_QA,
@@ -216,7 +216,7 @@ router.post(async (req) => {
         }
       }
 
-      user.config.dailyAssign = dailyAssign;
+      // user.config.dailyAssign = dailyAssign;
       await user?.save();
     } else if (action === "resetAllDailyAssign") {
       await User.updateMany(

@@ -227,18 +227,16 @@ const pipeline = [
   {
     $match: {
       role: "Post QA",
-      $expr: {
-        $lte: ["$config.dailyAssign", "$config.dailyThreshold"],
-      },
       status: "Active",
       "leave.status": {
         $ne: "Approved",
       },
-      "config.leadView": "Reimbursement",
+      "config.leadView": "PreAuth",
       "config.reportReceivedTime": {
         $exists: true,
       },
-      zone: "West",
+      zone: "East",
+      "config.claimAmount": "0-5 Lakh",
     },
   },
   {
@@ -259,55 +257,65 @@ const pipeline = [
   },
   {
     $match: {
-      $expr: {
-        $and: [
-          {
-            $lt: [
+      $or: [
+        {
+          "config.reportReceivedTime.is24Hour": true,
+        },
+        {
+          $expr: {
+            $and: [
               {
-                $add: [
-                  "$fromHour",
+                $lt: [
                   {
-                    $divide: ["$fromMinute", 60],
+                    $add: [
+                      "$fromHour",
+                      {
+                        $divide: ["$fromMinute", 60],
+                      },
+                    ],
+                  },
+                  {
+                    $add: [
+                      6,
+                      {
+                        $divide: [19, 60],
+                      },
+                    ],
                   },
                 ],
               },
               {
-                $add: [
-                  4,
+                $gt: [
                   {
-                    $divide: [45, 60],
+                    $add: [
+                      "$toHour",
+                      {
+                        $divide: ["$toMinute", 60],
+                      },
+                    ],
+                  },
+                  {
+                    $add: [
+                      6,
+                      {
+                        $divide: [19, 60],
+                      },
+                    ],
                   },
                 ],
               },
             ],
           },
-          {
-            $gt: [
-              {
-                $add: [
-                  "$toHour",
-                  {
-                    $divide: ["$toMinute", 60],
-                  },
-                ],
-              },
-              {
-                $add: [
-                  4,
-                  {
-                    $divide: [45, 60],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
+        },
+      ],
     },
   },
   {
     $sort: {
-      "config.thresholdUpdatedAt": 1,
+      updatedAt: 1,
     },
+  },
+  {
+    $limit: 1,
   },
 ];
