@@ -197,6 +197,10 @@ const ClaimCaseSchema = new Schema<any>(
       type: String,
       required: true,
     },
+    preQcUploads: {
+      type: [String],
+      default: [],
+    },
     allocationType: {
       type: String,
       enum: ["Single", "Dual"],

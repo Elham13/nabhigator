@@ -818,6 +818,7 @@ export interface CaseDetail {
   caseTypeDependencies: { [key: string]: string[] | undefined };
   caseStatus: "Accepted" | "Rejected" | "Investigation Rejected";
   preQcObservation: string;
+  preQcUploads?: string[];
   allocationType: "Single" | "Dual";
   singleTasksAndDocs: ITasksAndDocuments | null;
   insuredTasksAndDocs: ITasksAndDocuments | null;

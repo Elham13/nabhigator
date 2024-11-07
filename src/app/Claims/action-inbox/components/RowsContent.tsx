@@ -165,7 +165,24 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
               columnName="claimInvestigators"
               value={
                 el?.claimInvestigators?.length > 0
-                  ? el?.claimInvestigators?.map((ci) => ci?.name)?.join(", ")
+                  ? el?.claimInvestigators
+                      ?.sort((a, b) => {
+                        if (
+                          a.assignedFor === "Insured" &&
+                          b.assignedFor !== "Insured"
+                        ) {
+                          return -1;
+                        }
+                        if (
+                          a.assignedFor !== "Insured" &&
+                          b.assignedFor === "Insured"
+                        ) {
+                          return 1;
+                        }
+                        return 0;
+                      })
+                      ?.map((ci) => ci?.name)
+                      ?.join(", ")
                   : "-"
               }
             />

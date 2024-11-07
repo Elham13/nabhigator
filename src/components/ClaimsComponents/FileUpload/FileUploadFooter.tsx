@@ -28,6 +28,7 @@ const FileUploadFooter = ({ url, onDelete }: PropTypes) => {
       <div className="flex items-center gap-x-4">
         <button
           className="p-0 text-green-600 text-xl"
+          type="button"
           onClick={() => {
             if (isImageUrl(url)) {
               setVisible(true);
@@ -43,7 +44,7 @@ const FileUploadFooter = ({ url, onDelete }: PropTypes) => {
           description="Are you sure you want to delete this file?"
           onConfirm={onDelete}
         >
-          <button className="p-0 text-red-600 text-xl">
+          <button className="p-0 text-red-600 text-xl" type="button">
             <MdOutlineDelete />
           </button>
         </PopConfirm>
