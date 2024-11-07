@@ -18,12 +18,14 @@ import { buildUrl, showError, validateTasksAndDocs } from "@/lib/helpers";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import {
+  Box,
   Button,
   Flex,
   Modal,
   MultiSelect,
   Select,
   SimpleGrid,
+  Text,
   Textarea,
   TextInput,
 } from "@mantine/core";
@@ -37,6 +39,9 @@ import { getStates } from "@/lib/helpers/getLocations";
 import DualTasksSelect from "./DualTasksSelect";
 import { useTasks } from "@/lib/providers/TasksAndDocsProvider";
 import { toast } from "react-toastify";
+import FileUpload from "../FileUpload";
+import { tempDocInitials } from "@/lib/utils/constants";
+import FileUploadFooter from "../FileUpload/FileUploadFooter";
 
 const searchValuesInitials: IUserSearchValues = {
   pinCode: "",
@@ -241,6 +246,36 @@ const DualAllocationTasks = ({
         setSubmitting(false);
       }
     }
+  };
+
+  const handleGetUrl = (
+    id: string,
+    name: string,
+    url: string,
+    action: "Add" | "Remove"
+  ) => {
+    const urls =
+      tasksState?.preQcUploads && tasksState?.preQcUploads?.length > 0
+        ? [...tasksState?.preQcUploads, url]
+        : [url];
+
+    dispatch({
+      type: "change_state",
+      value: { ...tasksState, preQcUploads: urls },
+    });
+  };
+
+  const handleRemove = (index: number) => {
+    let urls =
+      tasksState?.preQcUploads && tasksState?.preQcUploads?.length > 0
+        ? [...tasksState?.preQcUploads]
+        : [];
+
+    urls = urls?.filter((_, ind) => ind !== index);
+    dispatch({
+      type: "change_state",
+      value: { ...tasksState, preQcUploads: urls },
+    });
   };
 
   useEffect(() => {
@@ -476,6 +511,24 @@ const DualAllocationTasks = ({
             dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
           }
         />
+        <Box>
+          <Text className="font-semibold">Pre-Qc Uploads: </Text>
+          {!!tasksState?.preQcUploads &&
+            tasksState?.preQcUploads?.length > 0 &&
+            tasksState?.preQcUploads?.map((el, ind) => (
+              <FileUploadFooter
+                key={ind}
+                url={el}
+                onDelete={() => handleRemove(ind)}
+              />
+            ))}
+          <FileUpload
+            doc={tempDocInitials}
+            docName="doc"
+            getUrl={handleGetUrl}
+            claimId={dashboardData?.claimId || 0}
+          />
+        </Box>
 
         {dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION && (
           <Textarea
