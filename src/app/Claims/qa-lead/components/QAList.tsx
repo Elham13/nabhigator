@@ -3,35 +3,26 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Box,
-  Button,
   CloseButton,
   Flex,
   Input,
   Pagination,
   Table,
 } from "@mantine/core";
-import {
-  IUser,
-  ResponseType,
-  Role,
-  SortOrder,
-} from "@/lib/utils/types/fniDataTypes";
+import { IUser, ResponseType, SortOrder } from "@/lib/utils/types/fniDataTypes";
 import { showError } from "@/lib/helpers";
 import axios from "axios";
-import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
+import { EndPoints } from "@/lib/utils/types/enums";
 import CommonTableHead from "@/components/ClaimsComponents/commonTable/CommonTableHead";
 import { postQaTableHeaders } from "@/lib/utils/constants/tableHeadings";
 import CommonTablePlaceholder from "@/components/ClaimsComponents/commonTable/CommonTablePlaceholder";
 import ShiftTimeCell from "./ShiftTimeCell";
 import ClaimTypeCell from "./ClaimTypeCell";
-import ThresholdsCell from "./ThresholdsCell";
 import StatusCell from "./StatusCell";
 import AssignButton from "./AssignButton";
-import { useDebouncedValue, useLocalStorage } from "@mantine/hooks";
+import { useDebouncedValue } from "@mantine/hooks";
 import { BiSearch } from "react-icons/bi";
 import ClaimAmount from "./ClaimAmount";
-import { toast } from "react-toastify";
-import { IUserFromSession } from "@/lib/utils/types/authTypes";
 
 interface ILoadings {
   fetch: boolean;
@@ -40,7 +31,6 @@ interface ILoadings {
 }
 
 const QAList = () => {
-  const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
   const [users, setUsers] = useState<IUser[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch] = useDebouncedValue(searchTerm, 500);
@@ -83,23 +73,6 @@ const QAList = () => {
     }
   }, [pagination?.limit, pagination?.page, sort, debouncedSearch]);
 
-  const handleSetDailyAssign = async () => {
-    setLoadings((prev) => ({ ...prev, dailyAssign: true }));
-    try {
-      const payload = {
-        action: "resetAllDailyAssign",
-      };
-      await axios.post<ResponseType<IUser>>(EndPoints.POST_QA_USER, payload);
-
-      toast.success("All users daily assign reset");
-      getPostQA();
-    } catch (error: any) {
-      showError(error);
-    } finally {
-      setLoadings((prev) => ({ ...prev, dailyAssign: false }));
-    }
-  };
-
   useEffect(() => {
     getPostQA();
   }, [pagination.page, pagination.limit, sort, getPostQA, debouncedSearch]);
@@ -132,17 +105,6 @@ const QAList = () => {
             el?.config?.rmPendency || 0
           }`}
         </Table.Td>
-
-        <Table.Td className="whitespace-nowrap">
-          <ThresholdsCell
-            type="dailyThreshold"
-            user={el}
-            refetch={() => getPostQA()}
-          />
-        </Table.Td>
-        <Table.Td className="whitespace-nowrap">
-          {el?.config?.dailyAssign || 0}
-        </Table.Td>
         <Table.Td className="whitespace-nowrap">
           <ClaimTypeCell user={el} refetch={() => getPostQA()} />
         </Table.Td>
@@ -156,34 +118,23 @@ const QAList = () => {
 
   return (
     <Box>
-      <Flex gap={20}>
-        <Input
-          radius="lg"
-          leftSection={<BiSearch />}
-          placeholder="Search Name"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.currentTarget.value)}
-          type="search"
-          rightSectionPointerEvents="all"
-          className="w-fit"
-          rightSection={
-            <CloseButton
-              aria-label="Clear search"
-              onClick={() => setSearchTerm("")}
-              style={{ display: searchTerm ? undefined : "none" }}
-            />
-          }
-        />
-        {user?.activeRole === Role.ADMIN && (
-          <Button
-            onClick={handleSetDailyAssign}
-            loading={loadings?.dailyAssign}
-            color="red"
-          >
-            Reset All users daily assign
-          </Button>
-        )}
-      </Flex>
+      <Input
+        radius="lg"
+        leftSection={<BiSearch />}
+        placeholder="Search Name"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.currentTarget.value)}
+        type="search"
+        rightSectionPointerEvents="all"
+        className="w-fit"
+        rightSection={
+          <CloseButton
+            aria-label="Clear search"
+            onClick={() => setSearchTerm("")}
+            style={{ display: searchTerm ? undefined : "none" }}
+          />
+        }
+      />
       <Table.ScrollContainer minWidth={800}>
         <Table highlightOnHover>
           <CommonTableHead

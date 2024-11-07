@@ -408,17 +408,6 @@ export const postQaTableHeaders: ITableHeader[] = [
     label: "Pendency",
     sortable: false,
   },
-
-  {
-    value: "dailyThreshold",
-    label: "Daily Threshold",
-    sortable: false,
-  },
-  {
-    value: "dailyAssign",
-    label: "Daily Assign",
-    sortable: false,
-  },
   {
     value: "leadView",
     label: "Claim Type",
