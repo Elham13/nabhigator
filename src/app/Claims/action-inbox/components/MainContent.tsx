@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Fragment, useCallback, useEffect, useState } from "react";
-import { Pagination } from "@mantine/core";
+import { Flex, Pagination, Text } from "@mantine/core";
 import InboxHeader from "./InboxHeader";
 import { useRouter } from "next/navigation";
 import { useLocalStorage } from "@mantine/hooks";
@@ -164,12 +164,18 @@ const MainContent = ({ origin }: PropTypes) => {
         }}
       />
 
-      <Pagination
-        className="w-fit ml-auto mt-8"
-        value={pagination.page}
-        onChange={(page) => setPagination((prev) => ({ ...prev, page }))}
-        total={Math.ceil(pagination.count / pagination.limit)}
-      />
+      <Flex align="end">
+        <Text>
+          Total <strong>{pagination?.count}</strong>
+        </Text>
+
+        <Pagination
+          className="w-fit ml-auto mt-8"
+          value={pagination.page}
+          onChange={(page) => setPagination((prev) => ({ ...prev, page }))}
+          total={Math.ceil(pagination.count / pagination.limit)}
+        />
+      </Flex>
     </Fragment>
   );
 };
