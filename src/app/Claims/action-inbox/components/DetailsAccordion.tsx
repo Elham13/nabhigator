@@ -20,6 +20,7 @@ import { StorageKeys } from "@/lib/utils/types/enums";
 import { useLocalStorage } from "@mantine/hooks";
 import { getEncryptClaimId } from "@/lib/helpers";
 import { BiCog } from "react-icons/bi";
+import PreQCUploads from "./PreQCUploads";
 
 const NPSConfirmationImmediate = dynamic(
   () => import("./InboxDetail/RMContent/NPSConfirmationImmediate"),
@@ -456,6 +457,16 @@ const DetailsAccordion = ({
           },
         ]
       : []),
+    {
+      value: "Pre QC Uploads",
+      content: (
+        <PreQCUploads
+          caseDetail={caseDetail}
+          claimId={data?.claimId}
+          setCaseDetail={setCaseDetail}
+        />
+      ),
+    },
   ];
 
   const items = accordionItems.map((el) => (
