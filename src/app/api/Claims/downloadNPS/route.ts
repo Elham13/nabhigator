@@ -12,6 +12,11 @@ import { CaseDetail, NumericStage } from "@/lib/utils/types/fniDataTypes";
 import { IRMFindings } from "@/lib/utils/types/rmDataTypes";
 import ClaimCase from "@/lib/Models/claimCase";
 import * as fastCsv from "fast-csv";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const router = createEdgeRouter<NextRequest, {}>();
 
@@ -58,14 +63,14 @@ router.post(async (req) => {
           tempObj?.claimId?.toString(),
           tempObj?.findings?.["NPS Confirmation"]?.insuredMobileNo || "-",
           !!tempObj?.findings?.["NPS Confirmation"]?.insuredVisitDate
-            ? dayjs(
-                tempObj?.findings?.["NPS Confirmation"]?.insuredVisitDate
-              ).format("DD-MMM-YYYY")
+            ? dayjs(tempObj?.findings?.["NPS Confirmation"]?.insuredVisitDate)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY")
             : "-",
           tempObj?.findings?.["NPS Confirmation"]?.updatedAt
-            ? dayjs(tempObj?.findings?.["NPS Confirmation"]?.updatedAt).format(
-                "DD-MMM-YYYY hh:mm:ss a"
-              )
+            ? dayjs(tempObj?.findings?.["NPS Confirmation"]?.updatedAt)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
             : "-",
         ];
         callback(null, row);

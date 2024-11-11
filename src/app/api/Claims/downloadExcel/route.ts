@@ -12,6 +12,11 @@ import { getOpenAndClosureTAT, getStageLabel } from "@/lib/helpers";
 import dayjs from "dayjs";
 import { columns } from "./helpers";
 import * as fastCsv from "fast-csv";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const router = createEdgeRouter<NextRequest, {}>();
 
@@ -193,22 +198,22 @@ router.post(async (req) => {
           el?.hospitalDetails?.providerAddress || "-",
           el?.hospitalDetails?.pinCode || "-",
           el?.hospitalizationDetails?.dateOfAdmission
-            ? dayjs(el?.hospitalizationDetails?.dateOfAdmission).format(
-                "DD-MMM-YYYY hh:mm:ss a"
-              )
+            ? dayjs(el?.hospitalizationDetails?.dateOfAdmission)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
             : "-",
           el?.hospitalizationDetails?.dateOfDischarge || "-",
           el?.hospitalizationDetails?.admissionType || "-",
           el?.contractDetails?.contractNo || "-",
           el?.contractDetails?.policyStartDate
-            ? dayjs(el?.contractDetails?.policyStartDate).format(
-                "DD-MMM-YYYY hh:mm:ss a"
-              )
+            ? dayjs(el?.contractDetails?.policyStartDate)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
             : "-",
           el?.contractDetails?.policyEndDate
-            ? dayjs(el?.contractDetails?.policyEndDate).format(
-                "DD-MMM-YYYY hh:mm:ss a"
-              )
+            ? dayjs(el?.contractDetails?.policyEndDate)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
             : "-",
           el?.contractDetails?.policyNo || "-",
           el?.contractDetails?.agentName || "-",
@@ -220,7 +225,9 @@ router.post(async (req) => {
           el?.allocationType || "Not Allocated",
           el?.stage ? getStageLabel(el?.stage) : "-",
           el?.intimationDate
-            ? dayjs(el?.intimationDate).format("DD-MMM-YYYY hh:mm:ss a")
+            ? dayjs(el?.intimationDate)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
             : "-",
           el?.teamLead &&
           Array.isArray(el?.teamLead) &&
@@ -230,26 +237,34 @@ router.post(async (req) => {
           el?.postQa?.name || "-",
           el?.clusterManager?.name || "-",
           el?.dateOfOS
-            ? dayjs(el?.dateOfOS).format("DD-MMM-YYYY hh:mm:ss a")
+            ? dayjs(el?.dateOfOS)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
             : "-",
           el?.dateOfClosure
-            ? dayjs(el?.dateOfClosure).format("DD-MMM-YYYY hh:mm:ss a")
+            ? dayjs(el?.dateOfClosure)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
             : "-",
           el?.claimInvestigators?.length > 0
             ? el?.claimInvestigators?.map((ci: any) => ci?.name)?.join(", ")
             : "-",
           el?.lossDate
-            ? dayjs(el?.lossDate).format("DD-MMM-YYYY hh:mm:ss a")
+            ? dayjs(el?.lossDate)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
             : "-",
           el?.locked ? "Yes" : "No",
           el?.investigatorRecommendation || "-",
           el?.dateOfFallingIntoPostQaBucket
-            ? dayjs(el?.dateOfFallingIntoPostQaBucket).format(
-                "DD-MMM-YYYY hh:mm:ss a"
-              )
+            ? dayjs(el?.dateOfFallingIntoPostQaBucket)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
             : "-",
           el?.invReportReceivedDate
-            ? dayjs(el?.invReportReceivedDate).format("DD-MMM-YYYY hh:mm:ss a")
+            ? dayjs(el?.invReportReceivedDate)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
             : "-",
           el?.finalOutcome || "-",
           el?.isReInvestigated ? "Yes" : "No",
@@ -264,7 +279,9 @@ router.post(async (req) => {
             intimationDate: el?.intimationDate,
           })?.closureTAT || "-",
           el?.updatedAt
-            ? dayjs(el?.updatedAt).format("DD-MMM-YYYY hh:mm:ss a")
+            ? dayjs(el?.updatedAt)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
             : "-",
         ];
         callback(null, row);
@@ -282,14 +299,16 @@ router.post(async (req) => {
     const response = new Response(zip, {
       headers: {
         "Content-Type": "application/zip",
-        "Content-Disposition": `attachment; filename=data_${dayjs().format(
-          "DD-MMM-YYYY hh-mm-ss a"
-        )}.zip`,
+        "Content-Disposition": `attachment; filename=data_${dayjs()
+          .tz("Asia/Kolkata")
+          .format("DD-MMM-YYYY hh-mm-ss a")}.zip`,
       },
     });
 
     zip.append(csvStream, {
-      name: `data_${dayjs().format("DD-MMM-YYYY hh-mm-ss a")}.xlsx`,
+      name: `data_${dayjs()
+        .tz("Asia/Kolkata")
+        .format("DD-MMM-YYYY hh-mm-ss a")}.xlsx`,
     });
 
     // Finalize the zip
