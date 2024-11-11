@@ -1,6 +1,4 @@
-import ExcelJS from "exceljs";
-
-export const columns: Partial<ExcelJS.Column>[] = [
+export const columns = [
   { key: "claimId", header: "Claim Id" },
   { key: "claimType", header: "Claim Type" },
   { key: "claimSubType", header: "Claim SubType" },
