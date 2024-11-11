@@ -308,7 +308,7 @@ router.post(async (req) => {
     zip.append(csvStream, {
       name: `data_${dayjs()
         .tz("Asia/Kolkata")
-        .format("DD-MMM-YYYY hh-mm-ss a")}.xlsx`,
+        .format("DD-MMM-YYYY hh-mm-ss a")}.csv`,
     });
 
     // Finalize the zip
