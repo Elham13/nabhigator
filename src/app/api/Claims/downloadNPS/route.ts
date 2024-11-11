@@ -108,7 +108,7 @@ router.post(async (req) => {
       },
     });
 
-    zip.append(csvStream, { name: "nps_values.xlsx" });
+    zip.append(csvStream, { name: "nps_values.csv" });
 
     // Finalize the zip
     zip.finalize();
