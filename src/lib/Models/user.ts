@@ -62,6 +62,10 @@ const ConfigSchema = new Schema<IConfigSchema>(
     },
     thresholdUpdatedAt: { type: Date, default: null },
     triggerSubType: { type: String, default: "Non Mandatory" },
+    pendency: {
+      preAuth: [{ claimId: { type: Number }, type: { type: String } }],
+      rm: [{ claimId: { type: Number }, type: { type: String } }],
+    },
   },
   { timestamps: true }
 );

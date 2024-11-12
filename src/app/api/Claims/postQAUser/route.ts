@@ -134,12 +134,36 @@ router.post(async (req) => {
                 ) {
                   postQaUser.config.preAuthPendency -= 1;
                 }
+
+                if (!!postQaUser?.config?.pendency) {
+                  postQaUser!.config!.pendency!.preAuth =
+                    !!postQaUser?.config?.pendency?.preAuth &&
+                    postQaUser?.config?.pendency?.preAuth?.length > 0
+                      ? postQaUser?.config?.pendency?.preAuth?.filter(
+                          (el) => el?.claimId !== dData?.claimId
+                        )
+                      : [];
+                } else {
+                  postQaUser!.config!.pendency = { preAuth: [], rm: [] };
+                }
               } else {
                 if (
                   !!postQaUser?.config?.rmPendency &&
                   postQaUser?.config?.rmPendency > 0
                 ) {
                   postQaUser.config.rmPendency -= 1;
+                }
+
+                if (!!postQaUser?.config?.pendency) {
+                  postQaUser!.config!.pendency!.rm =
+                    !!postQaUser?.config?.pendency?.rm &&
+                    postQaUser?.config?.pendency?.rm?.length > 0
+                      ? postQaUser?.config?.pendency?.rm?.filter(
+                          (el) => el?.claimId !== dData?.claimId
+                        )
+                      : [];
+                } else {
+                  postQaUser!.config!.pendency = { preAuth: [], rm: [] };
                 }
               }
 
@@ -153,11 +177,43 @@ router.post(async (req) => {
             } else {
               user.config.preAuthPendency = 1;
             }
+
+            if (!!user?.config?.pendency) {
+              user!.config!.pendency!.preAuth =
+                !!user?.config?.pendency?.preAuth &&
+                user?.config?.pendency?.preAuth?.length > 0
+                  ? [
+                      ...user?.config?.pendency?.preAuth,
+                      { claimId: dData?.claimId, type: "Manual" },
+                    ]
+                  : [{ claimId: dData?.claimId, type: "Manual" }];
+            } else {
+              user!.config!.pendency = {
+                preAuth: [{ claimId: dData?.claimId, type: "Manual" }],
+                rm: [],
+              };
+            }
           } else {
             if (!!user?.config?.rmPendency) {
               user.config.rmPendency += 1;
             } else {
               user.config.rmPendency = 1;
+            }
+
+            if (!!user?.config?.pendency) {
+              user!.config!.pendency!.rm =
+                !!user?.config?.pendency?.rm &&
+                user?.config?.pendency?.rm?.length > 0
+                  ? [
+                      ...user?.config?.pendency?.rm,
+                      { claimId: dData?.claimId, type: "Manual" },
+                    ]
+                  : [{ claimId: dData?.claimId, type: "Manual" }];
+            } else {
+              user!.config!.pendency = {
+                rm: [{ claimId: dData?.claimId, type: "Manual" }],
+                preAuth: [],
+              };
             }
           }
 
@@ -168,7 +224,9 @@ router.post(async (req) => {
 
           await captureCaseEvent({
             eventName: EventNames.MANUALLY_ASSIGNED_TO_POST_QA,
-            eventRemarks: `Manually assigned to ${user?.name}`,
+            eventRemarks: `Manually ${
+              action === "assignCases" ? "Assigned" : "Re-Assigned"
+            } to ${user?.name}`,
             intimationDate:
               dData?.intimationDate ||
               dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),

@@ -26,6 +26,7 @@ import React, { Fragment, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useDebouncedValue, useLocalStorage } from "@mantine/hooks";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
+import { Types } from "mongoose";
 
 type PropTypes = {
   el: IUser;
@@ -102,6 +103,7 @@ const AssignButton = ({ el, action, refetch }: PropTypes) => {
               { postQa: { $exists: true } },
               { postQa: { $ne: null } },
             ];
+            payload.excludePostQa = el?._id;
           }
 
           const { data } = await axios.post<ResponseType<IDashboardData>>(
