@@ -170,7 +170,7 @@ router.post(async (req) => {
     if (!id) throw new Error("id is required!");
     await connectDB(Databases.FNI);
 
-    const stage = NumericStage.POST_QC;
+    let stage = NumericStage.POST_QC;
 
     let eventRemarks: string = EventNames.INVESTIGATION_REPORT_SUBMITTED;
 
@@ -265,7 +265,9 @@ router.post(async (req) => {
           ? dashboardData?.expedition?.map((el) => ({ ...el, noted: true }))
           : dashboardData?.expedition;
 
-      if (!dashboardData?.postQa) {
+      if (!!dashboardData?.postQa) {
+        stage = NumericStage.POST_QA_REWORK;
+      } else {
         const user = await findPostQaUser({
           claimType: dashboardData?.claimType,
           providerState: dashboardData?.hospitalDetails?.providerState,
