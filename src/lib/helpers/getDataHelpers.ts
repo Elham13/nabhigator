@@ -440,10 +440,14 @@ export const processGetDataFilters = async (obj: any) => {
         ],
       };
     } else if (userRole === Role.POST_QA) {
-      processedObj["stage"] = NumericStage.POST_QC;
+      processedObj["stage"] = {
+        $in: [NumericStage.POST_QC, NumericStage.POST_QA_REWORK],
+      };
       processedObj["postQa"] = new Types.ObjectId(user?._id);
     } else if (userRole === Role.POST_QA_LEAD) {
-      processedObj["stage"] = NumericStage.POST_QC;
+      processedObj["stage"] = {
+        $in: [NumericStage.POST_QC, NumericStage.POST_QA_REWORK],
+      };
       processedObj["postQa"] = null;
     } else if (origin === "Inbox") {
       processedObj["stage"] = {

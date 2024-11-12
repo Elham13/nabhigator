@@ -96,6 +96,9 @@ const DualAllocationTasks = ({
     dispatch({ type: "change_state", value: { ...tasksState, [name]: value } });
   };
 
+  const isAllocation =
+    dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION;
+
   const validateValues = () => {
     try {
       if (tasksState?.caseType && tasksState?.caseType?.length > 0) {
@@ -127,18 +130,12 @@ const DualAllocationTasks = ({
 
       const insuredInv = tasksState?.insuredTasksAndDocs?.investigator;
 
-      if (
-        dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION &&
-        !insuredInv
-      )
+      if (isAllocation && !insuredInv)
         throw new Error("Please select an investigator in Insured part");
 
       const hospitalInv = tasksState?.hospitalTasksAndDocs?.investigator;
 
-      if (
-        dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION &&
-        !hospitalInv
-      )
+      if (isAllocation && !hospitalInv)
         throw new Error("Please select an investigator in Hospital part");
 
       validateTasksAndDocs({
@@ -150,10 +147,7 @@ const DualAllocationTasks = ({
         partName: "Hospital",
       });
 
-      if (
-        dashboardData?.stage !== NumericStage.PENDING_FOR_ALLOCATION &&
-        (!insuredInv || !hospitalInv)
-      ) {
+      if (!isAllocation && (!insuredInv || !hospitalInv)) {
         setConfirm({
           value: `You have not selected any investigator for ${
             !insuredInv && !hospitalInv
@@ -361,9 +355,7 @@ const DualAllocationTasks = ({
               value={tasksState?.insuredAddress || ""}
               name="insuredAddress"
               onChange={handleChange}
-              disabled={
-                dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-              }
+              disabled={isAllocation}
             />
             <Select
               label="Insured City"
@@ -377,9 +369,7 @@ const DualAllocationTasks = ({
                   value: { ...tasksState, insuredCity: val || "" },
                 })
               }
-              disabled={
-                dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-              }
+              disabled={isAllocation}
               data={geoOptions?.city}
               searchable
               clearable
@@ -400,9 +390,7 @@ const DualAllocationTasks = ({
                   value: { ...tasksState, insuredState: val || "" },
                 })
               }
-              disabled={
-                dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-              }
+              disabled={isAllocation}
               data={geoOptions?.state}
               searchable
               clearable
@@ -425,9 +413,7 @@ const DualAllocationTasks = ({
                   },
                 })
               }
-              disabled={
-                dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-              }
+              disabled={isAllocation}
               data={geoOptions?.pinCode}
               searchable
               clearable
@@ -450,9 +436,7 @@ const DualAllocationTasks = ({
           clearable
           required={tasksState?.caseType?.length < 1}
           withAsterisk
-          disabled={
-            dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-          }
+          disabled={isAllocation}
         />
         {tasksState?.caseType?.length > 0 &&
           dashboardData?.claimType !== "PreAuth" &&
@@ -484,9 +468,7 @@ const DualAllocationTasks = ({
                 searchable
                 hidePickedOptions
                 clearable
-                disabled={
-                  dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-                }
+                disabled={isAllocation}
                 required={user?.config?.triggerSubType === "Mandatory"}
               />
             ) : null;
@@ -507,9 +489,7 @@ const DualAllocationTasks = ({
               },
             });
           }}
-          disabled={
-            dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-          }
+          disabled={isAllocation}
         />
         <Box>
           <Text className="font-semibold">Pre-Qc Uploads: </Text>
@@ -530,7 +510,7 @@ const DualAllocationTasks = ({
           />
         </Box>
 
-        {dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION && (
+        {isAllocation && (
           <Textarea
             className="col-span-1 md:col-span-2"
             label="Allocator's comment"

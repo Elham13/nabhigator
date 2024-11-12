@@ -182,15 +182,19 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
               <h2 className="text-lg font-semibold">
                 {data?.stage === NumericStage.PENDING_FOR_PRE_QC
                   ? "Pre-QC"
-                  : data?.stage === NumericStage.POST_QC
+                  : !!data?.stage &&
+                    [
+                      NumericStage.POST_QC,
+                      NumericStage.POST_QA_REWORK,
+                    ].includes(data?.stage)
                   ? "Investigation"
                   : data?.stage === NumericStage.PENDING_FOR_ALLOCATION
                   ? "Allocation"
-                  : ""}{" "}
-                Summary
+                  : ""}
+                &nbsp;Summary
               </h2>
               <h4 className="text-sm">
-                {data?.claimType},{" "}
+                {data?.claimType},&nbsp;
                 <span className="text-yellow-400">
                   {data?.stage && getStageLabel(data?.stage)}
                 </span>
@@ -242,7 +246,10 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
             ) : null}
 
             {[Role.ADMIN, Role.POST_QA].includes(user?.activeRole) &&
-            data?.stage === NumericStage.POST_QC &&
+            !!data?.stage &&
+            [NumericStage.POST_QC, NumericStage.POST_QA_REWORK].includes(
+              data?.stage
+            ) &&
             origin === "inbox" ? (
               <PostQAFooter
                 caseDetail={caseDetail}

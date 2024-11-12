@@ -441,21 +441,8 @@ export enum NumericStage {
   PENDING_FOR_RE_ALLOCATION = 10,
   REJECTED = 11,
   CLOSED = 12,
+  POST_QA_REWORK = 13,
 }
-
-// Old stages
-// export enum NumericStage {
-//   PENDING_FOR_PRE_QC = 1,
-//   PENDING_FOR_ALLOCATION = 3,
-//   IN_FIELD_FRESH = 4,
-//   POST_QC = 5,
-//   IN_FIELD_REINVESTIGATION = 7,
-//   CLOSED = 12,
-//   REJECTED = 13,
-//   INVESTIGATION_ACCEPTED = 14,
-//   INVESTIGATION_SKIPPED = 15,
-//   IN_FIELD_REWORK = 16,
-// }
 
 export enum EventNames {
   INTIMATION_OR_REFERRAL = "Intimation/Referral",

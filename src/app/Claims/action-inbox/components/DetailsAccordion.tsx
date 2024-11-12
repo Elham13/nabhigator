@@ -204,7 +204,11 @@ const DetailsAccordion = ({
       ),
     },
     ...(data?.stage &&
-    [NumericStage.POST_QC, NumericStage.CLOSED].includes(data?.stage)
+    [
+      NumericStage.POST_QC,
+      NumericStage.POST_QA_REWORK,
+      NumericStage.CLOSED,
+    ].includes(data?.stage)
       ? [
           {
             value: "Tasks and Documents Assigned",
@@ -264,7 +268,9 @@ const DetailsAccordion = ({
               )),
           },
           ...([Role.ADMIN, Role.POST_QA].includes(user?.activeRole) &&
-          data?.stage === NumericStage.POST_QC &&
+          [NumericStage.POST_QC, NumericStage.POST_QA_REWORK].includes(
+            data?.stage
+          ) &&
           origin === "inbox"
             ? [
                 {

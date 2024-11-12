@@ -89,7 +89,7 @@ const AssignButton = ({ el, action, refetch }: PropTypes) => {
           const payload: Record<string, any> = {
             pagination,
             claimId: debouncedClaimId || undefined,
-            stage: NumericStage.POST_QC,
+            stage: { $in: [NumericStage.POST_QC, NumericStage.POST_QA_REWORK] },
           };
 
           if (el?.config?.leadView && el?.config?.leadView?.length > 0) {
