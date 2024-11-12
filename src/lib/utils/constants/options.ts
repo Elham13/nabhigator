@@ -2463,3 +2463,37 @@ export const untraceableBasisOptions = [
     label: "On the re-located address retrieved from Hospital/Vicinity",
   },
 ];
+
+export const ClaimsGroundOfRepudiationOptions = [
+  "PED/NDC",
+  "Fraud/Fabrication",
+  "Inflation/Misrepresentation",
+  "Policy Exclusion",
+  "Non Co-Operation",
+];
+
+export const providerRecommendationOptions = [
+  "De-Empanelment",
+  "Add in caution List",
+  "Remove from Caution List",
+  "Issue SCN",
+  "Add in un-preferred provider",
+  "NA",
+];
+
+export const policyRecommendationOptions = [
+  "Cancellation",
+  "Flag the Contract as caution contract",
+  "Flag the Member/Customer ID as Caution Member",
+  "Flag the Contact Number/E-Mail ID/PAN Number/Aadhaar Number as caution customer",
+  "Stop Renewal",
+  "NA",
+];
+
+export const sourcingRecommendationOptions = [
+  "Add sourcing in caution list",
+  "Issue SCN",
+  "Terminate agency code",
+  "Renewal Block",
+  "NA",
+];

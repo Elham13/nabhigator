@@ -111,8 +111,6 @@ router.post(async (req) => {
       }
     }
 
-    const postQaUserEmail = postQaUser?.email || "";
-
     if (claimType === "PreAuth") {
       recipients = [
         "Preauth.Team@nivabupa.com",
@@ -127,14 +125,14 @@ router.post(async (req) => {
         "Nandan.CA@nivabupa.com",
         "Rakesh.Pandey@nivabupa.com",
         "Nanit.Kumar@nivabupa.com",
-        postQaUserEmail,
+        postQaUser?.email || "",
       ];
     } else {
       recipients = ["FIAllocation@nivabupa.com"];
       ccRecipients = [
         "team.claims@nivabupa.com",
         "Sanjay.Kumar16@nivabupa.com",
-        postQaUserEmail,
+        postQaUser?.email || "",
       ];
     }
 

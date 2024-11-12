@@ -47,6 +47,15 @@ router.post(async (req) => {
         );
         message = "Document added successfully!";
       }
+    } else if (action === "AddPostQAValues") {
+      const { field, value } = body;
+
+      if (!field) throw new Error("field name is required");
+
+      caseDetail.postQARecommendation = { [field]: value };
+
+      updatedCase = await caseDetail.save();
+      message = "Captured successfully";
     } else if (action === "AddOverRulingReason") {
       if (!postQaOverRulingReason)
         throw new Error("postQaOverRulingReason is required");
