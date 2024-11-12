@@ -134,12 +134,14 @@ export interface PostQaApproveFormValues {
 export type TValueCode = { value: string; code: string };
 
 export interface RevisedQaApproveFormValues
-  extends Omit<
-    PostQaApproveFormValues,
-    "frcuRecommendationOnClaims" | "frcuGroundOfRepudiation"
+  extends Partial<
+    Omit<
+      PostQaApproveFormValues,
+      "frcuRecommendationOnClaims" | "frcuGroundOfRepudiation"
+    >
   > {
-  frcuRecommendationOnClaims: TValueCode;
-  frcuGroundOfRepudiation: TValueCode[];
+  frcuRecommendationOnClaims?: TValueCode;
+  frcuGroundOfRepudiation?: TValueCode[];
 }
 
 export enum EColorCode {
