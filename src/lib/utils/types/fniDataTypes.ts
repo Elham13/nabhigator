@@ -33,6 +33,16 @@ export type UserConfig = {
   reportReceivedTime?: TReportReceivedTime;
   thresholdUpdatedAt?: Date;
   triggerSubType?: "Mandatory" | "Non Mandatory";
+  pendency?: {
+    preAuth: {
+      claimId: number;
+      type: "Auto" | "Manual";
+    }[];
+    rm: {
+      claimId: number;
+      type: "Auto" | "Manual";
+    }[];
+  };
 };
 
 export enum Role {

@@ -23,6 +23,7 @@ import AssignButton from "./AssignButton";
 import { useDebouncedValue } from "@mantine/hooks";
 import { BiSearch } from "react-icons/bi";
 import ClaimAmount from "./ClaimAmount";
+import PendencyCell from "./PendencyCell";
 
 interface ILoadings {
   fetch: boolean;
@@ -101,9 +102,7 @@ const QAList = () => {
           <ClaimAmount user={el} refetch={() => getPostQA()} />
         </Table.Td>
         <Table.Td className="whitespace-nowrap">
-          {`P: ${el?.config?.preAuthPendency || 0} / R: ${
-            el?.config?.rmPendency || 0
-          }`}
+          <PendencyCell user={el} />
         </Table.Td>
         <Table.Td className="whitespace-nowrap">
           <ClaimTypeCell user={el} refetch={() => getPostQA()} />

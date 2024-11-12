@@ -47,9 +47,25 @@ router.post(async (req) => {
         throw new Error(`No post qa user found with the id ${data?.postQa}`);
 
       postQaUser!.config!.dailyAssign! -= 1;
-      if (data?.claimType === "PreAuth")
+      if (data?.claimType === "PreAuth") {
         postQaUser!.config!.preAuthPendency! -= 1;
-      else postQaUser!.config!.rmPendency! -= 1;
+        postQaUser!.config!.pendency!.preAuth =
+          !!postQaUser?.config?.pendency?.preAuth &&
+          postQaUser?.config?.pendency?.preAuth?.length > 0
+            ? postQaUser?.config?.pendency?.preAuth?.filter(
+                (el) => el?.claimId !== data?.claimId
+              )
+            : [];
+      } else {
+        postQaUser!.config!.rmPendency! -= 1;
+        postQaUser!.config!.pendency!.rm =
+          !!postQaUser?.config?.pendency?.rm &&
+          postQaUser?.config?.pendency?.rm?.length > 0
+            ? postQaUser?.config?.pendency?.rm?.filter(
+                (el) => el?.claimId !== data?.claimId
+              )
+            : [];
+      }
       await postQaUser.save();
     }
 

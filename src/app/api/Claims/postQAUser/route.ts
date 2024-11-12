@@ -134,6 +134,14 @@ router.post(async (req) => {
                 ) {
                   postQaUser.config.preAuthPendency -= 1;
                 }
+
+                postQaUser!.config!.pendency!.preAuth =
+                  !!postQaUser?.config?.pendency?.preAuth &&
+                  postQaUser?.config?.pendency?.preAuth?.length > 0
+                    ? postQaUser?.config?.pendency?.preAuth?.filter(
+                        (el) => el?.claimId !== dData?.claimId
+                      )
+                    : [];
               } else {
                 if (
                   !!postQaUser?.config?.rmPendency &&
@@ -141,6 +149,14 @@ router.post(async (req) => {
                 ) {
                   postQaUser.config.rmPendency -= 1;
                 }
+
+                postQaUser!.config!.pendency!.rm =
+                  !!postQaUser?.config?.pendency?.rm &&
+                  postQaUser?.config?.pendency?.rm?.length > 0
+                    ? postQaUser?.config?.pendency?.rm?.filter(
+                        (el) => el?.claimId !== dData?.claimId
+                      )
+                    : [];
               }
 
               await postQaUser.save();
@@ -153,12 +169,30 @@ router.post(async (req) => {
             } else {
               user.config.preAuthPendency = 1;
             }
+
+            user!.config!.pendency!.preAuth =
+              !!user?.config?.pendency?.preAuth &&
+              user?.config?.pendency?.preAuth?.length > 0
+                ? [
+                    ...user?.config?.pendency?.preAuth,
+                    { claimId: dData?.claimId, type: "Manual" },
+                  ]
+                : [{ claimId: dData?.claimId, type: "Manual" }];
           } else {
             if (!!user?.config?.rmPendency) {
               user.config.rmPendency += 1;
             } else {
               user.config.rmPendency = 1;
             }
+
+            user!.config!.pendency!.rm =
+              !!user?.config?.pendency?.rm &&
+              user?.config?.pendency?.rm?.length > 0
+                ? [
+                    ...user?.config?.pendency?.rm,
+                    { claimId: dData?.claimId, type: "Manual" },
+                  ]
+                : [{ claimId: dData?.claimId, type: "Manual" }];
           }
 
           dData.postQa = user?._id;
@@ -168,7 +202,9 @@ router.post(async (req) => {
 
           await captureCaseEvent({
             eventName: EventNames.MANUALLY_ASSIGNED_TO_POST_QA,
-            eventRemarks: `Manually assigned to ${user?.name}`,
+            eventRemarks: `Manually ${
+              action === "assignCases" ? "Assigned" : "Re-Assigned"
+            } to ${user?.name}`,
             intimationDate:
               dData?.intimationDate ||
               dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),

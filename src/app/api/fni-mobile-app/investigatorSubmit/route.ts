@@ -152,7 +152,7 @@ const findPostQaUser = async (props: IProps) => {
         ],
       },
     },
-    { $sort: { updatedAt: 1 } },
+    { $sort: { "config.thresholdUpdatedAt": -1 } },
     { $limit: 1 },
   ];
 
@@ -293,6 +293,15 @@ router.post(async (req) => {
             } else {
               newUser.config.preAuthPendency = 1;
             }
+
+            newUser!.config!.pendency!.preAuth =
+              !!newUser?.config?.pendency?.preAuth &&
+              newUser?.config?.pendency?.preAuth?.length > 0
+                ? [
+                    ...newUser?.config?.pendency?.preAuth,
+                    { claimId: dashboardData?.claimId, type: "Auto" },
+                  ]
+                : [{ claimId: dashboardData?.claimId, type: "Auto" }];
           } else {
             if (
               !!newUser?.config?.rmPendency &&
@@ -302,7 +311,18 @@ router.post(async (req) => {
             } else {
               newUser.config.rmPendency = 1;
             }
+
+            newUser!.config!.pendency!.rm =
+              !!newUser?.config?.pendency?.rm &&
+              newUser?.config?.pendency?.rm?.length > 0
+                ? [
+                    ...newUser?.config?.pendency?.rm,
+                    { claimId: dashboardData?.claimId, type: "Auto" },
+                  ]
+                : [{ claimId: dashboardData?.claimId, type: "Auto" }];
           }
+
+          newUser.config.thresholdUpdatedAt = new Date();
 
           eventRemarks =
             eventRemarks += `, and assigned to post qa ${user?.name}`;
