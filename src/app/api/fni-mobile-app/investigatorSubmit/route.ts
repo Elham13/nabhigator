@@ -152,7 +152,7 @@ const findPostQaUser = async (props: IProps) => {
         ],
       },
     },
-    { $sort: { "config.thresholdUpdatedAt": -1 } },
+    { $sort: { "config.thresholdUpdatedAt": 1 } },
     { $limit: 1 },
   ];
 
