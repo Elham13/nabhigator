@@ -463,7 +463,7 @@ const getFniData = async (
           ? "No"
           : "Yes",
         prevInsuranceCompany:
-          customerFromCustomerPolicy?.PREVIOUS_INSURANCE_COMPANY,
+          customerFromCustomerPolicy?.PREVIOUS_INSURANCE_COMPANY || "",
         insuredSince: customerFromCustomerPolicy?.INSURED_SINCE,
         mbrRegDate: claimingMemberDetails?.MEMBER_REGISTRATION_DATE || "-",
         NBHIPolicyStartDate: contracts[0]?.EFFECTIVE_DATE_OF_CONTRACT,
@@ -475,7 +475,7 @@ const getFniData = async (
             : "Active"
           : "-",
         agentCode: customerFromCustomerPolicy?.CONTRACTS?.[0]?.AGENT_CODE,
-        branchLocation: provider?.ProviderData?.providerState,
+        branchLocation: customerFromCustomerPolicy.BRANCH_NAME || "",
         sourcing:
           customerFromCustomerPolicy?.CONTRACTS?.[0]?.SourceSystem === "M"
             ? "Maximus"
