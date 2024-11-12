@@ -1,6 +1,14 @@
 import React, { Fragment, useState } from "react";
 import { IUser, ResponseType } from "@/lib/utils/types/fniDataTypes";
-import { Button, Flex, Grid, Modal, Select, Title } from "@mantine/core";
+import {
+  Button,
+  Flex,
+  Grid,
+  Modal,
+  MultiSelect,
+  Select,
+  Title,
+} from "@mantine/core";
 import axios from "axios";
 import { EndPoints } from "@/lib/utils/types/enums";
 import { toast } from "react-toastify";
@@ -9,8 +17,12 @@ import { showError } from "@/lib/helpers";
 type PropTypes = { user: IUser; refetch: () => void };
 
 const ClaimAmount = ({ user, refetch }: PropTypes) => {
-  const [claimAmount, setClaimAmount] = useState(
-    () => user?.config?.claimAmount || ""
+  const [claimAmount, setClaimAmount] = useState<string[]>(() =>
+    !!user?.config?.claimAmount &&
+    Array.isArray(user?.config?.claimAmount) &&
+    user?.config?.claimAmount?.length > 0
+      ? user?.config?.claimAmount
+      : []
   );
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -43,23 +55,26 @@ const ClaimAmount = ({ user, refetch }: PropTypes) => {
         className="cursor-pointer"
         onClick={() => setOpen(true)}
       >
-        {claimAmount || "-"}
+        {!!claimAmount && Array.isArray(claimAmount) && claimAmount?.length > 0
+          ? claimAmount?.join(", ")
+          : "-"}
       </div>
       {open && (
         <Modal opened={open} onClose={() => setOpen(false)}>
           <Title order={4}>Change Claim Amount</Title>
 
           <Grid>
-            <Grid.Col span={{ base: 12, md: 6 }}>
-              <Select
+            <Grid.Col span={12}>
+              <MultiSelect
                 label="Claim Amount"
                 placeholder="Claim Amount"
-                value={claimAmount || ""}
-                onChange={(val) => setClaimAmount(val || "")}
+                value={claimAmount || []}
+                onChange={(val) => setClaimAmount(val || [])}
                 data={["0-5 Lakh", "5-10 Lakh", "10 Lakh Plus"]}
                 checkIconPosition="right"
                 clearable
                 searchable
+                hidePickedOptions
               />
             </Grid.Col>
 

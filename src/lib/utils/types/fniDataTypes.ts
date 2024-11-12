@@ -29,7 +29,7 @@ export type UserConfig = {
   dailyAssign?: number;
   preAuthPendency?: number;
   rmPendency?: number;
-  claimAmount?: string;
+  claimAmount?: string[];
   reportReceivedTime?: TReportReceivedTime;
   thresholdUpdatedAt?: Date;
   triggerSubType?: "Mandatory" | "Non Mandatory";
