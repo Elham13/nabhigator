@@ -6,6 +6,7 @@ import FileUpload from "@/components/ClaimsComponents/FileUpload";
 import { tempDocInitials } from "@/lib/utils/constants";
 import { useAxios } from "@/lib/hooks/useAxios";
 import { EndPoints } from "@/lib/utils/types/enums";
+import { showError } from "@/lib/helpers";
 
 type PropTypes = {
   caseDetail: CaseDetail | null;
@@ -32,17 +33,24 @@ const PreQCUploads = ({ caseDetail, claimId, setCaseDetail }: PropTypes) => {
     url: string,
     action: "Add" | "Remove"
   ) => {
-    const urls =
-      caseDetail?.preQcUploads && caseDetail?.preQcUploads?.length > 0
-        ? [...caseDetail?.preQcUploads, url]
-        : [url];
+    try {
+      console.log({ caseDetail });
+      if (!caseDetail?._id) throw new Error("id is required");
 
-    const payload = {
-      id: caseDetail?._id,
-      action: "AddPreQcUploads",
-      preQcUploads: urls,
-    };
-    submit(payload);
+      const urls =
+        caseDetail?.preQcUploads && caseDetail?.preQcUploads?.length > 0
+          ? [...caseDetail?.preQcUploads, url]
+          : [url];
+
+      const payload = {
+        id: caseDetail?._id,
+        action: "AddPreQcUploads",
+        preQcUploads: urls,
+      };
+      submit(payload);
+    } catch (error: any) {
+      showError(error);
+    }
   };
 
   const handleRemove = (index: number) => {
