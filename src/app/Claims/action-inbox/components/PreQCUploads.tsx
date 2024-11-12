@@ -34,7 +34,6 @@ const PreQCUploads = ({ caseDetail, claimId, setCaseDetail }: PropTypes) => {
     action: "Add" | "Remove"
   ) => {
     try {
-      console.log({ caseDetail });
       if (!caseDetail?._id) throw new Error("id is required");
 
       const urls =
