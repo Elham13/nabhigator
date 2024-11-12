@@ -73,13 +73,18 @@ router.post(async (req) => {
         postQaUser?.config?.preAuthPendency > 0
       ) {
         postQaUser.config.preAuthPendency -= 1;
-        postQaUser!.config!.pendency!.preAuth =
-          !!postQaUser?.config?.pendency?.preAuth &&
-          postQaUser?.config?.pendency?.preAuth?.length > 0
-            ? postQaUser?.config?.pendency?.preAuth?.filter(
-                (el) => el?.claimId !== dashboardData?.claimId
-              )
-            : [];
+
+        if (!!postQaUser?.config?.pendency) {
+          postQaUser!.config!.pendency!.preAuth =
+            !!postQaUser?.config?.pendency?.preAuth &&
+            postQaUser?.config?.pendency?.preAuth?.length > 0
+              ? postQaUser?.config?.pendency?.preAuth?.filter(
+                  (el) => el?.claimId !== dashboardData?.claimId
+                )
+              : [];
+        } else {
+          postQaUser!.config!.pendency = { preAuth: [], rm: [] };
+        }
 
         await postQaUser.save();
       }
@@ -88,14 +93,19 @@ router.post(async (req) => {
         !!postQaUser?.config?.rmPendency &&
         postQaUser?.config?.rmPendency > 0
       ) {
-        postQaUser.config.rmPendency = postQaUser?.config?.rmPendency - 1;
-        postQaUser!.config!.pendency!.rm =
-          !!postQaUser?.config?.pendency?.rm &&
-          postQaUser?.config?.pendency?.rm?.length > 0
-            ? postQaUser?.config?.pendency?.rm?.filter(
-                (el) => el?.claimId !== dashboardData?.claimId
-              )
-            : [];
+        postQaUser.config.rmPendency -= 1;
+
+        if (!!postQaUser?.config?.pendency) {
+          postQaUser!.config!.pendency!.rm =
+            !!postQaUser?.config?.pendency?.rm &&
+            postQaUser?.config?.pendency?.rm?.length > 0
+              ? postQaUser?.config?.pendency?.rm?.filter(
+                  (el) => el?.claimId !== dashboardData?.claimId
+                )
+              : [];
+        } else {
+          postQaUser!.config!.pendency = { preAuth: [], rm: [] };
+        }
 
         await postQaUser.save();
       }

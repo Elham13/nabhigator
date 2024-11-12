@@ -49,22 +49,30 @@ router.post(async (req) => {
       postQaUser!.config!.dailyAssign! -= 1;
       if (data?.claimType === "PreAuth") {
         postQaUser!.config!.preAuthPendency! -= 1;
-        postQaUser!.config!.pendency!.preAuth =
-          !!postQaUser?.config?.pendency?.preAuth &&
-          postQaUser?.config?.pendency?.preAuth?.length > 0
-            ? postQaUser?.config?.pendency?.preAuth?.filter(
-                (el) => el?.claimId !== data?.claimId
-              )
-            : [];
+
+        if (!!postQaUser?.config?.pendency) {
+          postQaUser!.config!.pendency!.preAuth =
+            !!postQaUser?.config?.pendency?.preAuth &&
+            postQaUser?.config?.pendency?.preAuth?.length > 0
+              ? postQaUser?.config?.pendency?.preAuth?.filter(
+                  (el) => el?.claimId !== data?.claimId
+                )
+              : [];
+        } else {
+        }
       } else {
         postQaUser!.config!.rmPendency! -= 1;
-        postQaUser!.config!.pendency!.rm =
-          !!postQaUser?.config?.pendency?.rm &&
-          postQaUser?.config?.pendency?.rm?.length > 0
-            ? postQaUser?.config?.pendency?.rm?.filter(
-                (el) => el?.claimId !== data?.claimId
-              )
-            : [];
+        if (!!postQaUser?.config?.pendency) {
+          postQaUser!.config!.pendency!.rm =
+            !!postQaUser?.config?.pendency?.rm &&
+            postQaUser?.config?.pendency?.rm?.length > 0
+              ? postQaUser?.config?.pendency?.rm?.filter(
+                  (el) => el?.claimId !== data?.claimId
+                )
+              : [];
+        } else {
+          postQaUser!.config!.pendency = { preAuth: [], rm: [] };
+        }
       }
       await postQaUser.save();
     }

@@ -294,14 +294,21 @@ router.post(async (req) => {
               newUser.config.preAuthPendency = 1;
             }
 
-            newUser!.config!.pendency!.preAuth =
-              !!newUser?.config?.pendency?.preAuth &&
-              newUser?.config?.pendency?.preAuth?.length > 0
-                ? [
-                    ...newUser?.config?.pendency?.preAuth,
-                    { claimId: dashboardData?.claimId, type: "Auto" },
-                  ]
-                : [{ claimId: dashboardData?.claimId, type: "Auto" }];
+            if (!!newUser?.config?.pendency) {
+              newUser!.config!.pendency!.preAuth =
+                !!newUser?.config?.pendency?.preAuth &&
+                newUser?.config?.pendency?.preAuth?.length > 0
+                  ? [
+                      ...newUser?.config?.pendency?.preAuth,
+                      { claimId: dashboardData?.claimId, type: "Auto" },
+                    ]
+                  : [{ claimId: dashboardData?.claimId, type: "Auto" }];
+            } else {
+              newUser!.config!.pendency = {
+                preAuth: [{ claimId: dashboardData?.claimId, type: "Auto" }],
+                rm: [],
+              };
+            }
           } else {
             if (
               !!newUser?.config?.rmPendency &&
@@ -312,14 +319,21 @@ router.post(async (req) => {
               newUser.config.rmPendency = 1;
             }
 
-            newUser!.config!.pendency!.rm =
-              !!newUser?.config?.pendency?.rm &&
-              newUser?.config?.pendency?.rm?.length > 0
-                ? [
-                    ...newUser?.config?.pendency?.rm,
-                    { claimId: dashboardData?.claimId, type: "Auto" },
-                  ]
-                : [{ claimId: dashboardData?.claimId, type: "Auto" }];
+            if (!!newUser?.config?.pendency) {
+              newUser!.config!.pendency!.rm =
+                !!newUser?.config?.pendency?.rm &&
+                newUser?.config?.pendency?.rm?.length > 0
+                  ? [
+                      ...newUser?.config?.pendency?.rm,
+                      { claimId: dashboardData?.claimId, type: "Auto" },
+                    ]
+                  : [{ claimId: dashboardData?.claimId, type: "Auto" }];
+            } else {
+              newUser!.config!.pendency = {
+                rm: [{ claimId: dashboardData?.claimId, type: "Auto" }],
+                preAuth: [],
+              };
+            }
           }
 
           newUser.config.thresholdUpdatedAt = new Date();

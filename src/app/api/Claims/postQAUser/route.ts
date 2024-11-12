@@ -135,13 +135,17 @@ router.post(async (req) => {
                   postQaUser.config.preAuthPendency -= 1;
                 }
 
-                postQaUser!.config!.pendency!.preAuth =
-                  !!postQaUser?.config?.pendency?.preAuth &&
-                  postQaUser?.config?.pendency?.preAuth?.length > 0
-                    ? postQaUser?.config?.pendency?.preAuth?.filter(
-                        (el) => el?.claimId !== dData?.claimId
-                      )
-                    : [];
+                if (!!postQaUser?.config?.pendency) {
+                  postQaUser!.config!.pendency!.preAuth =
+                    !!postQaUser?.config?.pendency?.preAuth &&
+                    postQaUser?.config?.pendency?.preAuth?.length > 0
+                      ? postQaUser?.config?.pendency?.preAuth?.filter(
+                          (el) => el?.claimId !== dData?.claimId
+                        )
+                      : [];
+                } else {
+                  postQaUser!.config!.pendency = { preAuth: [], rm: [] };
+                }
               } else {
                 if (
                   !!postQaUser?.config?.rmPendency &&
@@ -150,13 +154,17 @@ router.post(async (req) => {
                   postQaUser.config.rmPendency -= 1;
                 }
 
-                postQaUser!.config!.pendency!.rm =
-                  !!postQaUser?.config?.pendency?.rm &&
-                  postQaUser?.config?.pendency?.rm?.length > 0
-                    ? postQaUser?.config?.pendency?.rm?.filter(
-                        (el) => el?.claimId !== dData?.claimId
-                      )
-                    : [];
+                if (!!postQaUser?.config?.pendency) {
+                  postQaUser!.config!.pendency!.rm =
+                    !!postQaUser?.config?.pendency?.rm &&
+                    postQaUser?.config?.pendency?.rm?.length > 0
+                      ? postQaUser?.config?.pendency?.rm?.filter(
+                          (el) => el?.claimId !== dData?.claimId
+                        )
+                      : [];
+                } else {
+                  postQaUser!.config!.pendency = { preAuth: [], rm: [] };
+                }
               }
 
               await postQaUser.save();
@@ -170,14 +178,21 @@ router.post(async (req) => {
               user.config.preAuthPendency = 1;
             }
 
-            user!.config!.pendency!.preAuth =
-              !!user?.config?.pendency?.preAuth &&
-              user?.config?.pendency?.preAuth?.length > 0
-                ? [
-                    ...user?.config?.pendency?.preAuth,
-                    { claimId: dData?.claimId, type: "Manual" },
-                  ]
-                : [{ claimId: dData?.claimId, type: "Manual" }];
+            if (!!user?.config?.pendency) {
+              user!.config!.pendency!.preAuth =
+                !!user?.config?.pendency?.preAuth &&
+                user?.config?.pendency?.preAuth?.length > 0
+                  ? [
+                      ...user?.config?.pendency?.preAuth,
+                      { claimId: dData?.claimId, type: "Manual" },
+                    ]
+                  : [{ claimId: dData?.claimId, type: "Manual" }];
+            } else {
+              user!.config!.pendency = {
+                preAuth: [{ claimId: dData?.claimId, type: "Manual" }],
+                rm: [],
+              };
+            }
           } else {
             if (!!user?.config?.rmPendency) {
               user.config.rmPendency += 1;
@@ -185,14 +200,21 @@ router.post(async (req) => {
               user.config.rmPendency = 1;
             }
 
-            user!.config!.pendency!.rm =
-              !!user?.config?.pendency?.rm &&
-              user?.config?.pendency?.rm?.length > 0
-                ? [
-                    ...user?.config?.pendency?.rm,
-                    { claimId: dData?.claimId, type: "Manual" },
-                  ]
-                : [{ claimId: dData?.claimId, type: "Manual" }];
+            if (!!user?.config?.pendency) {
+              user!.config!.pendency!.rm =
+                !!user?.config?.pendency?.rm &&
+                user?.config?.pendency?.rm?.length > 0
+                  ? [
+                      ...user?.config?.pendency?.rm,
+                      { claimId: dData?.claimId, type: "Manual" },
+                    ]
+                  : [{ claimId: dData?.claimId, type: "Manual" }];
+            } else {
+              user!.config!.pendency = {
+                rm: [{ claimId: dData?.claimId, type: "Manual" }],
+                preAuth: [],
+              };
+            }
           }
 
           dData.postQa = user?._id;
