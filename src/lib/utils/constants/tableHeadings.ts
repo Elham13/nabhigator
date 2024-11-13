@@ -256,6 +256,11 @@ export const assignCaseTableHeaders: ITableHeader[] = [
     label: "Claim Type",
     sortable: false,
   },
+  {
+    value: "finalOutcome",
+    label: "Final Outcome",
+    sortable: false,
+  },
 ];
 
 export const multipleEventTableHeading: ITableHeader[] = [

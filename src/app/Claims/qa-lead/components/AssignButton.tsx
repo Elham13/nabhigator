@@ -27,6 +27,7 @@ import { toast } from "react-toastify";
 import { useDebouncedValue, useLocalStorage } from "@mantine/hooks";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { Types } from "mongoose";
+import dayjs from "dayjs";
 
 type PropTypes = {
   el: IUser;
@@ -192,6 +193,16 @@ const AssignButton = ({ el, action, refetch }: PropTypes) => {
                         </Table.Td>
                         <Table.Td className="whitespace-nowrap">
                           {el?.claimType}
+                        </Table.Td>
+                        <Table.Td className="whitespace-nowrap">
+                          {el?.finalOutcome}
+                        </Table.Td>
+                        <Table.Td className="whitespace-nowrap">
+                          {el?.dateOfFallingIntoPostQaBucket
+                            ? dayjs(el?.dateOfFallingIntoPostQaBucket).format(
+                                "DD-MMM-YYYY hh:mm:ss a"
+                              )
+                            : "-"}
                         </Table.Td>
                       </Table.Tr>
                     ))
