@@ -52,7 +52,16 @@ router.post(async (req) => {
 
       if (!field) throw new Error("field name is required");
 
-      caseDetail.postQARecommendation = { [field]: value };
+      if (!!caseDetail.postQARecommendation) {
+        caseDetail.postQARecommendation = {
+          ...caseDetail.postQARecommendation,
+          [field]: value,
+        };
+      } else {
+        caseDetail.postQARecommendation = {
+          [field]: value,
+        };
+      }
 
       updatedCase = await caseDetail.save();
       message = "Captured successfully";
