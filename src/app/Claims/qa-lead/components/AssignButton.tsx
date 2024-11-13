@@ -195,7 +195,7 @@ const AssignButton = ({ el, action, refetch }: PropTypes) => {
                           {el?.claimType}
                         </Table.Td>
                         <Table.Td className="whitespace-nowrap">
-                          {el?.finalOutcome}
+                          {el?.investigatorRecommendation || "-"}
                         </Table.Td>
                         <Table.Td className="whitespace-nowrap">
                           {el?.dateOfFallingIntoPostQaBucket
