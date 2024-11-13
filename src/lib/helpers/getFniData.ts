@@ -187,7 +187,7 @@ const getFniData = async (
     const { data: customerPolicyDetail } =
       await axios.post<CustomerPolicyDetailRes>(
         `${baseUrl}${EndPoints.GET_CUSTOMER_POLICY_DETAIL}`,
-        { PolicyNumber: policyNo },
+        { PolicyNumber: policyNo, AllowedInactiveRecord: "Y" },
         { headers }
       );
     if (["False", "false"].includes(customerPolicyDetail?.Status))
