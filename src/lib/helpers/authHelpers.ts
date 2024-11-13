@@ -10,10 +10,7 @@ const secretKey =
 
 const key = new TextEncoder().encode(secretKey);
 
-export async function encrypt(payload: {
-  user: Omit<IUser, "password"> | Omit<Investigator, "password">;
-  expires: Date;
-}) {
+export async function encrypt(payload: { user: any; expires: Date }) {
   return await new SignJWT(JSON.parse(JSON.stringify(payload)))
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
