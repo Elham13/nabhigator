@@ -12,6 +12,7 @@ interface IExpeditionSchema
     Document {
   role: string;
 }
+
 interface ILockedSchema extends Omit<ILocked, "_id" | "role">, Document {
   role: string;
 }

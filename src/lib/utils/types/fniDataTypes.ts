@@ -392,7 +392,7 @@ export interface Member {
 }
 
 export interface History {
-  _id: string;
+  _id?: string;
   hospital: string;
   diagnosis: string;
   DOA: string;
@@ -405,9 +405,8 @@ export interface History {
 }
 
 export interface HistoricalClaim {
-  _id: string;
+  _id?: string;
   memberName: string;
-
   claimPreAuthNo: string;
   memberNo: string;
   history: History[];
@@ -514,7 +513,7 @@ export interface MainTriage {
 }
 
 export interface IFraudIndicator {
-  _id: string;
+  _id?: string;
   FRAUD_INDICATOR_DESC: string;
   Values: {
     CL_Selected: "TRUE" | "FALSE";
