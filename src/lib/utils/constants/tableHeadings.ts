@@ -257,8 +257,8 @@ export const assignCaseTableHeaders: ITableHeader[] = [
     sortable: false,
   },
   {
-    value: "finalOutcome",
-    label: "Final Outcome",
+    value: "investigatorRecommendation",
+    label: "Investigator Recommendation",
     sortable: false,
   },
 ];
