@@ -52,7 +52,7 @@ router.post(async (req) => {
       {
         success: true,
         message: "Login Success",
-        data,
+        data: { ...result?.toJSON(), password: undefined },
       },
       { status: 200 }
     );

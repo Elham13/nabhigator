@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { ISession } from "../utils/types/authTypes";
 import { NextRequest, NextResponse } from "next/server";
 import { NextHandler } from "next-connect";
-import { IUser, Investigator } from "../utils/types/fniDataTypes";
+import { Investigator } from "../utils/types/fniDataTypes";
 
 const secretKey =
   process.env.JWT_SECRET || "lkasjdfoi32ujroijlkajf983jfjaslkdfjlkadsjf";
