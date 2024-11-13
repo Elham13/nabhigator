@@ -34,8 +34,10 @@ router.post(async (req) => {
     if (result?.password !== password) throw new Error("Wrong password");
 
     const data = {
-      ...result?.toJSON(),
-      password: undefined,
+      _id: result?._id,
+      name: result?.name,
+      role: result?.role,
+      userId: result?.userId,
     };
 
     // Expires in 1 hour
@@ -50,7 +52,7 @@ router.post(async (req) => {
       {
         success: true,
         message: "Login Success",
-        data,
+        data: { ...result?.toJSON(), password: undefined },
       },
       { status: 200 }
     );
