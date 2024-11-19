@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { ChangeEvent, FocusEvent, useState } from "react";
 import Header from "./components/Header";
 import { showError } from "@/lib/helpers";
+import * as crypto from 'crypto';
 
 const Login = () => {
   const router = useRouter();
@@ -35,9 +36,18 @@ const Login = () => {
   });
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
     setValues((prev) => ({ ...prev, [name]: value }));
   };
+     const key = crypto.createHash('sha512').update('secretKey').digest('hex').substring(0, 32);
+     const encryptionIV = crypto.createHash('sha512').update('secretIV').digest('hex').substring(0, 16);
+
+      function encryptData(data:any) {
+        const cipher = crypto.createCipheriv('aes-256-cbc', key, encryptionIV);
+        return Buffer.from(
+          cipher.update(data, 'utf8', 'hex') + cipher.final('hex')
+        ).toString('base64') 
+      }
 
   const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -54,6 +64,10 @@ const Login = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    if(values.password){
+      var output = encryptData(values.password);
+        values.password = output;
+    }
     e.preventDefault();
     setLoading(true);
     if (Object.values(errors)?.some((value) => value !== "")) {

@@ -7,9 +7,20 @@ import { IUser } from "@/lib/utils/types/fniDataTypes";
 import User from "@/lib/Models/user";
 import { encrypt } from "@/lib/helpers/authHelpers";
 import { Databases } from "@/lib/utils/types/enums";
+import * as crypto from 'crypto';
 
 interface RequestContext {}
-
+const key = crypto
+.createHash('sha512')
+.update('secretKey')
+.digest('hex')
+.substring(0, 32);
+const encryptionIV = crypto
+.createHash('sha512')
+.update('secretIV')
+.digest('hex')
+.substring(0, 16);
+let updatedPass:string;
 const router = createEdgeRouter<NextRequest, RequestContext>();
 
 router.post(async (req) => {
@@ -17,6 +28,9 @@ router.post(async (req) => {
   try {
     if (!userId) throw new Error("userId is required");
     if (!password) throw new Error("password is required");
+    if(password){
+      updatedPass =  decryptData(password);
+    }
 
     await connectDB(Databases.FNI);
 
@@ -27,8 +41,13 @@ router.post(async (req) => {
 
     if (!result) throw new Error("Wrong userId");
 
-    if (result?.password !== password) throw new Error("Wrong password");
+    if (result?.status === "Inactive")
+      throw new Error(
+        "Your status is Inactive, please contact the admin to change your status!"
+      );
 
+    // if (result?.password !== password) throw new Error("Wrong password");
+    if (result?.password !== updatedPass) throw new Error("Wrong password");
     const data = {
       ...result?.toJSON(),
       password: undefined,
@@ -62,6 +81,15 @@ router.post(async (req) => {
     );
   }
 });
+
+    function decryptData(encryptedData:any) {
+      const buff = Buffer.from(encryptedData, 'base64')
+      const decipher = crypto.createDecipheriv('aes-256-cbc',key, encryptionIV)
+      return (
+        decipher.update(buff.toString('utf8'), 'hex', 'utf8') +
+        decipher.final('utf8')
+      )
+    }
 
 export async function POST(request: NextRequest, ctx: RequestContext) {
   return router.run(request, ctx) as Promise<void>;
