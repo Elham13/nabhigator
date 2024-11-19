@@ -14,11 +14,13 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import {
+  Box,
   Button,
   Flex,
   Modal,
   MultiSelect,
   SimpleGrid,
+  Text,
   Textarea,
 } from "@mantine/core";
 import {
@@ -29,6 +31,9 @@ import {
 } from "@/lib/utils/constants/options";
 import TasksSelect from "./TasksSelect";
 import { useTasks } from "@/lib/providers/TasksAndDocsProvider";
+import FileUploadFooter from "../FileUpload/FileUploadFooter";
+import FileUpload from "../FileUpload";
+import { tempDocInitials } from "@/lib/utils/constants";
 
 const dependentOptionsMap = {
   PED: pedOptionsArray,
@@ -63,6 +68,9 @@ const SingleAllocationTasks = ({
     dispatch({ type: "change_state", value: { [name]: value } });
   };
 
+  const isAllocation =
+    dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION;
+
   const validateValues = () => {
     try {
       if (tasksState?.caseType && tasksState?.caseType?.length > 0) {
@@ -88,7 +96,7 @@ const SingleAllocationTasks = ({
 
       const inv = !!tasksState?.singleTasksAndDocs?.investigator;
 
-      if (dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION && !inv)
+      if (isAllocation && !inv)
         throw new Error("Please select an investigator");
 
       validateTasksAndDocs({
@@ -96,10 +104,7 @@ const SingleAllocationTasks = ({
         partName: "None",
       });
 
-      if (
-        dashboardData?.stage !== NumericStage.PENDING_FOR_ALLOCATION &&
-        !inv
-      ) {
+      if (!isAllocation && !inv) {
         setConfirm(true);
         return false;
       }
@@ -173,6 +178,36 @@ const SingleAllocationTasks = ({
     }
   };
 
+  const handleGetUrl = (
+    id: string,
+    name: string,
+    url: string,
+    action: "Add" | "Remove"
+  ) => {
+    const urls =
+      tasksState?.preQcUploads && tasksState?.preQcUploads?.length > 0
+        ? [...tasksState?.preQcUploads, url]
+        : [url];
+
+    dispatch({
+      type: "change_state",
+      value: { ...tasksState, preQcUploads: urls },
+    });
+  };
+
+  const handleRemove = (index: number) => {
+    let urls =
+      tasksState?.preQcUploads && tasksState?.preQcUploads?.length > 0
+        ? [...tasksState?.preQcUploads]
+        : [];
+
+    urls = urls?.filter((_, ind) => ind !== index);
+    dispatch({
+      type: "change_state",
+      value: { ...tasksState, preQcUploads: urls },
+    });
+  };
+
   return (
     <form onSubmit={handleSubmit} className="mt-8">
       <SimpleGrid cols={{ sm: 1, md: 2 }}>
@@ -188,9 +223,7 @@ const SingleAllocationTasks = ({
           clearable
           required={tasksState?.caseType?.length < 1}
           withAsterisk
-          disabled={
-            dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-          }
+          disabled={isAllocation}
         />
         {tasksState?.caseType?.length > 0 &&
           dashboardData?.claimType !== "PreAuth" &&
@@ -221,9 +254,7 @@ const SingleAllocationTasks = ({
                 searchable
                 hidePickedOptions
                 clearable
-                disabled={
-                  dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-                }
+                disabled={isAllocation}
                 required={user?.config?.triggerSubType === "Mandatory"}
               />
             ) : null;
@@ -243,10 +274,26 @@ const SingleAllocationTasks = ({
               },
             });
           }}
-          disabled={
-            dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-          }
+          disabled={isAllocation}
         />
+        <Box>
+          <Text className="font-semibold">Pre-Qc Uploads: </Text>
+          {!!tasksState?.preQcUploads &&
+            tasksState?.preQcUploads?.length > 0 &&
+            tasksState?.preQcUploads?.map((el, ind) => (
+              <FileUploadFooter
+                key={ind}
+                url={el}
+                onDelete={() => handleRemove(ind)}
+              />
+            ))}
+          <FileUpload
+            doc={tempDocInitials}
+            docName="doc"
+            getUrl={handleGetUrl}
+            claimId={dashboardData?.claimId || 0}
+          />
+        </Box>
         {tasksState?.caseType?.length > 0 && (
           <TasksSelect
             title="Task and Documents assignment"
@@ -254,7 +301,7 @@ const SingleAllocationTasks = ({
             part="None"
           />
         )}
-        {dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION && (
+        {isAllocation && (
           <Textarea
             className="col-span-1 md:col-span-2"
             label="Allocator's comment"

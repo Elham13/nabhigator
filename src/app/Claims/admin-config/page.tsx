@@ -9,6 +9,7 @@ import { StorageKeys } from "@/lib/utils/types/enums";
 import { useLocalStorage } from "@mantine/hooks";
 import { Role } from "@/lib/utils/types/fniDataTypes";
 import { redirect } from "next/navigation";
+import DeleteCase from "./components/DeleteCase";
 
 const AdminConfig = () => {
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
@@ -28,9 +29,13 @@ const AdminConfig = () => {
         <Tabs value={activeTab} onChange={setActiveTab}>
           <Tabs.List>
             <Tabs.Tab value="change-stage">Change Stage</Tabs.Tab>
+            <Tabs.Tab value="delete-case">Delete Case</Tabs.Tab>
           </Tabs.List>
           <Tabs.Panel value="change-stage">
             <ChangeStage />
+          </Tabs.Panel>
+          <Tabs.Panel value="delete-case">
+            <DeleteCase />
           </Tabs.Panel>
         </Tabs>
       </Box>

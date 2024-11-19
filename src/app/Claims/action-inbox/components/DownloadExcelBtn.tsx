@@ -63,7 +63,7 @@ const DownloadExcelBtn = ({ filters, sort, searchTerm, origin }: PropTypes) => {
       const url = window.URL.createObjectURL(new Blob([data]));
       const a = document.createElement("a");
       a.href = url;
-      a.download = "records.zip"; // Optional
+      a.download = `data_${dayjs().format("DD-MMM-YYYY hh-mm-ss a")}.zip`; // Optional
       document.body.appendChild(a);
       a.click();
       a.remove();

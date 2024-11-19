@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import {
   Grid,
   MultiSelect,
@@ -17,40 +17,12 @@ import { useAxios } from "@/lib/hooks/useAxios";
 import { EndPoints } from "@/lib/utils/types/enums";
 import FileUpload from "@/components/ClaimsComponents/FileUpload";
 import { tempDocInitials } from "@/lib/utils/constants";
-
-const ClaimsGroundOfRepudiationOptions = [
-  "PED/NDC",
-  "Fraud/Fabrication",
-  "Inflation/Misrepresentation",
-  "Policy Exclusion",
-  "Non Co-Operation",
-];
-
-const providerRecommendationOptions = [
-  "De-Empanelment",
-  "Add in caution List",
-  "Remove from Caution List",
-  "Issue SCN",
-  "Add in un-preferred provider",
-  "NA",
-];
-
-const policyRecommendationOptions = [
-  "Cancellation",
-  "Flag the Contract as caution contract",
-  "Flag the Member/Customer ID as Caution Member",
-  "Flag the Contact Number/E-Mail ID/PAN Number/Aadhaar Number as caution customer",
-  "Stop Renewal",
-  "NA",
-];
-
-const sourcingRecommendationOptions = [
-  "Add sourcing in caution list",
-  "Issue SCN",
-  "Terminate agency code",
-  "Renewal Block",
-  "NA",
-];
+import {
+  ClaimsGroundOfRepudiationOptions,
+  policyRecommendationOptions,
+  providerRecommendationOptions,
+  sourcingRecommendationOptions,
+} from "@/lib/utils/constants/options";
 
 const regulatoryReportingRecommendationOptions = ["Yes", "No", "NA"];
 
@@ -58,23 +30,20 @@ type PropTypes = {
   claimId: number;
   caseDetail: CaseDetail | null;
   approvedValues: PostQaApproveFormValues;
-  overRulingReason: string;
   recommendation?: string;
   setApprovedValues: Dispatch<SetStateAction<PostQaApproveFormValues>>;
   setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
-  setOverRulingReason: Dispatch<SetStateAction<string>>;
 };
 
 const PostQaApproveForm = ({
   claimId,
   caseDetail,
   approvedValues,
-  overRulingReason,
   recommendation,
   setCaseDetail,
   setApprovedValues,
-  setOverRulingReason,
 }: PropTypes) => {
+  const [overRulingReason, setOverRulingReason] = useState("");
   const handleChangeFRCU = (val: string | null) => {
     if (val !== "Repudiation") {
       if (approvedValues.frcuGroundOfRepudiation?.length > 0)
@@ -135,6 +104,23 @@ const PostQaApproveForm = ({
     submit(payload);
   };
 
+  const handleBlur = (field: string, value: any) => {
+    const payload = {
+      id: caseDetail?._id,
+      action: "AddPostQAValues",
+      field,
+      value,
+    };
+
+    submit(payload);
+  };
+
+  useEffect(() => {
+    if (!!caseDetail?.postQaOverRulingReason) {
+      setOverRulingReason(caseDetail?.postQaOverRulingReason);
+    }
+  }, [caseDetail]);
+
   return (
     <form onSubmit={(e) => e.preventDefault()}>
       <Grid>
@@ -154,6 +140,7 @@ const PostQaApproveForm = ({
                 summaryOfInvestigation: e.target.value,
               }))
             }
+            onBlur={(e) => handleBlur("summaryOfInvestigation", e.target.value)}
           />
         </Grid.Col>
         <Grid.Col span={{ sm: 12, md: 6 }}>
@@ -166,6 +153,15 @@ const PostQaApproveForm = ({
             onChange={handleChangeFRCU}
             data={getSelectOption("FRCU")}
             clearable
+            onBlur={() => {
+              const value =
+                approvedValues?.frcuRecommendationOnClaims?.split("_")?.[0] ||
+                "";
+              const code =
+                approvedValues?.frcuRecommendationOnClaims?.split("_")?.[1] ||
+                "";
+              handleBlur("frcuRecommendationOnClaims", { value, code });
+            }}
           />
         </Grid.Col>
         {approvedValues.frcuRecommendationOnClaims === "Repudiation" ? (
@@ -320,10 +316,19 @@ const PostQaApproveForm = ({
             <TextInput
               label="Over ruling reason"
               placeholder="Enter Over ruling reason"
-              value={overRulingReason}
+              value={overRulingReason || ""}
               onChange={(e) => setOverRulingReason(e.target.value)}
               required
               withAsterisk
+              onBlur={(e) => {
+                const payload = {
+                  id: caseDetail?._id,
+                  action: "AddOverRulingReason",
+                  postQaOverRulingReason: e.target.value,
+                };
+
+                submit(payload);
+              }}
             />
           </Grid.Col>
         ) : null}

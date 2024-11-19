@@ -1,5 +1,5 @@
 import React from "react";
-import { CaseDetail } from "@/lib/utils/types/fniDataTypes";
+import { CaseDetail, ClaimInvestigator } from "@/lib/utils/types/fniDataTypes";
 import AHCVerificationPart from "./AHCVerificationPart";
 import ChemistVerification from "./ChemistVerification";
 import ClaimVerification from "./ClaimVerification";
@@ -19,13 +19,38 @@ import TreatingDoctorVerification from "./TreatingDoctorVerification";
 import VicinityVerification from "./VicinityVerification";
 import CommonTasks from "./CommonTasks";
 import { getTasksAndDocs } from "@/lib/helpers";
+import dayjs from "dayjs";
+import TwoSectionView from "../../TwoSectionView";
 
 type PropTypes = {
   caseData: CaseDetail | null;
+  claimInvestigators?: ClaimInvestigator[];
   claimType?: "PreAuth" | "Reimbursement";
 };
-const RMInvestigatorFindings = ({ caseData, claimType }: PropTypes) => {
-  const { rmFindings } = getTasksAndDocs({ claimType, claimCase: caseData });
+const RMInvestigatorFindings = ({
+  caseData,
+  claimInvestigators,
+  claimType,
+}: PropTypes) => {
+  const { rmFindings, tasksAndDocs } = getTasksAndDocs({
+    claimType,
+    claimCase: caseData,
+  });
+
+  const investigationFooter = [
+    {
+      key: "Name of investigator",
+      value: !!claimInvestigators
+        ? claimInvestigators?.map((el) => el.name)?.join(", ")
+        : "-",
+    },
+    {
+      key: "Date of report submission",
+      value: dayjs(tasksAndDocs?.invReportReceivedDate).format(
+        "DD-MMM-YYYY hh:mm:ss a"
+      ),
+    },
+  ];
 
   return (
     <div>
@@ -106,6 +131,7 @@ const RMInvestigatorFindings = ({ caseData, claimType }: PropTypes) => {
         />
       )}
       <CommonTasks values={rmFindings} />
+      <TwoSectionView data={investigationFooter} topic="" />
     </div>
   );
 };

@@ -184,6 +184,9 @@ const InvestigatorsList = ({
         <Table.Td className="whitespace-nowrap">
           {el?.investigatorName}
         </Table.Td>
+        <Table.Td className="whitespace-nowrap">{`P:${
+          el?.pendency?.preAuth?.length || 0
+        } / R:${el?.pendency?.rm?.length || 0}`}</Table.Td>
         <Table.Td className="whitespace-nowrap">{el?.phone}</Table.Td>
         <Table.Td className="whitespace-nowrap">
           {el?.email?.length > 0 ? el?.email?.join(", ") : "-"}

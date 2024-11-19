@@ -36,13 +36,13 @@ router.post(async (req) => {
 
     await connectDB(Databases.FNI);
 
-    let url = "http://localhost:3000";
+    let url = "http://localhost:8090";
     if (process.env.NEXT_PUBLIC_CONFIG === "UAT")
       url = "https://appform.nivabupa.com";
     if (process.env.NEXT_PUBLIC_CONFIG === "PROD")
       url = "https://www.nivabupa.com";
 
-    const EXECUTIVE_SUMMARY = `${recommendation?.text}${url}${recommendation?.link}`;
+    const EXECUTIVE_SUMMARY = `${url}${recommendation?.link}\n\n\n${recommendation?.text}`;
 
     const preparedPayload = {
       ...payload,

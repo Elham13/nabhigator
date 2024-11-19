@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Fragment, useCallback, useEffect, useState } from "react";
-import { Pagination } from "@mantine/core";
+import { Flex, Pagination, Text } from "@mantine/core";
 import InboxHeader from "./InboxHeader";
 import { useRouter } from "next/navigation";
 import { useLocalStorage } from "@mantine/hooks";
@@ -57,25 +57,25 @@ const MainContent = ({ origin }: PropTypes) => {
   };
 
   const handleView = (id: string) => {
-    if (NumericStage.POST_QC) {
-      const targetData = data?.find((el) => el?._id === id);
-      if (
-        targetData &&
-        targetData?.locked?.status &&
-        targetData?.stage === NumericStage.POST_QC
+    const targetData = data?.find((el) => el?._id === id);
+    if (
+      targetData &&
+      targetData?.locked?.status &&
+      [NumericStage.POST_QC, NumericStage.POST_QA_REWORK].includes(
+        targetData?.stage
       )
-        return toast.warn(
-          `This case is locked by ${targetData?.locked?.name}, ${
-            targetData?.locked?.role
-          }${
-            targetData?.locked?.updatedAt
-              ? ` at ${dayjs(targetData?.locked?.updatedAt).format(
-                  "DD-MMM-YYYY hh:mm:ss A"
-                )}`
-              : ""
-          }`
-        );
-    }
+    )
+      return toast.warn(
+        `This case is locked by ${targetData?.locked?.name}, ${
+          targetData?.locked?.role
+        }${
+          targetData?.locked?.updatedAt
+            ? ` at ${dayjs(targetData?.locked?.updatedAt).format(
+                "DD-MMM-YYYY hh:mm:ss a"
+              )}`
+            : ""
+        }`
+      );
 
     let address = `/Claims/action-inbox/${id}`;
 
@@ -164,12 +164,18 @@ const MainContent = ({ origin }: PropTypes) => {
         }}
       />
 
-      <Pagination
-        className="w-fit ml-auto mt-8"
-        value={pagination.page}
-        onChange={(page) => setPagination((prev) => ({ ...prev, page }))}
-        total={Math.ceil(pagination.count / pagination.limit)}
-      />
+      <Flex align="end">
+        <Text>
+          Total <strong>{pagination?.count}</strong>
+        </Text>
+
+        <Pagination
+          className="w-fit ml-auto mt-8"
+          value={pagination.page}
+          onChange={(page) => setPagination((prev) => ({ ...prev, page }))}
+          total={Math.ceil(pagination.count / pagination.limit)}
+        />
+      </Flex>
     </Fragment>
   );
 };

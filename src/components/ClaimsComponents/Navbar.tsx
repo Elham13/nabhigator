@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { BiChevronRight, BiLogOut, BiUser } from "react-icons/bi";
 import {
   MdDashboard,
+  MdHighQuality,
   MdOutlinePendingActions,
   MdOutlineSmsFailed,
   MdTravelExplore,
@@ -77,6 +78,16 @@ const Navbar = () => {
               name: "Admin Config",
               icon: <BiUser />,
               href: "/Claims/admin-config",
+            },
+          ]
+        : []),
+      ...(!!user?.activeRole &&
+      [Role.ADMIN, Role.POST_QA_LEAD].includes(user?.activeRole)
+        ? [
+            {
+              name: "QA Lead",
+              icon: <MdHighQuality />,
+              href: "/Claims/qa-lead",
             },
           ]
         : []),

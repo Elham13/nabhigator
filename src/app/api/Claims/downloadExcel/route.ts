@@ -6,11 +6,17 @@ import { PipelineStage } from "mongoose";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
-import ExcelJS from "exceljs";
 import archiver from "archiver";
-import { Readable } from "stream";
+import { Transform } from "stream";
 import { getOpenAndClosureTAT, getStageLabel } from "@/lib/helpers";
 import dayjs from "dayjs";
+import { columns } from "./helpers";
+import * as fastCsv from "fast-csv";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const router = createEdgeRouter<NextRequest, {}>();
 
@@ -121,89 +127,6 @@ router.post(async (req) => {
       },
     ];
 
-    const columns: Partial<ExcelJS.Column>[] = [
-      { key: "claimId", header: "Claim Id" },
-      { key: "claimType", header: "Claim Type" },
-      { key: "claimSubType", header: "Claim SubType" },
-      { key: "lossType", header: "Loss Type" },
-      { key: "benefitType", header: "Benefit Type" },
-      { key: "insuredName", header: "Insured Name" },
-      { key: "insuredType", header: "Insured Type" },
-      { key: "age", header: "Insured Age" },
-      { key: "contactNo", header: "Insured Contact" },
-      { key: "emailId", header: "Insured Email" },
-      { key: "gender", header: "Insured Gender" },
-      { key: "claimAmount", header: "Claim Amount" },
-      { key: "diagnosis", header: "Diagnosis" },
-      { key: "billedAmount", header: "Billed Amount" },
-      { key: "claimStatus", header: "Claim Status" },
-      { key: "deductibleAmount", header: "Deductible Amount" },
-      { key: "memberNo", header: "Member No" },
-      { key: "providerName", header: "Provider Name" },
-      { key: "providerType", header: "Provider Type" },
-      { key: "providerNo", header: "Provider Number" },
-      { key: "providerCity", header: "Provider City" },
-      { key: "providerState", header: "Provider State" },
-      { key: "providerAddress", header: "Provider Address" },
-      { key: "pinCode", header: "Provider PinCode" },
-      { key: "dateOfAdmission", header: "Date Of Admission" },
-      { key: "dateOfDischarge", header: "Date Of Discharge" },
-      { key: "admissionType", header: "Admission Type" },
-      { key: "contractNo", header: "Contract No" },
-      { key: "policyNo", header: "Policy No" },
-      { key: "policyStartDate", header: "Policy Start Date" },
-      { key: "policyEndDate", header: "Policy End Date" },
-      { key: "agentName", header: "Agent Name" },
-      { key: "agentCode", header: "Agent Code" },
-      { key: "currentStatus", header: "Current Status" },
-      { key: "product", header: "Product" },
-      { key: "sourcing", header: "Sourcing" },
-      { key: "prevInsuranceCompany", header: "Prev Insurance Company" },
-      { key: "allocationType", header: "Allocation Type" },
-      { key: "stage", header: "Stage" },
-      { key: "intimationDate", header: "Intimation Date" },
-      { key: "teamLead", header: "Team Lead" },
-      { key: "postQa", header: "Post QA" },
-      { key: "clusterManager", header: "Cluster Manager" },
-      { key: "dateOfOS", header: "Date Of OS" },
-      { key: "dateOfClosure", header: "Date Of Closure" },
-      { key: "claimInvestigators", header: "Claim Investigators" },
-      { key: "lossDate", header: "Loss Date" },
-      { key: "locked", header: "Is Locked" },
-      {
-        key: "investigatorRecommendation",
-        header: "Investigator Recommendation",
-      },
-      {
-        key: "dateOfFallingIntoPostQaBucket",
-        header: "Date of falling into Post QA",
-      },
-      {
-        key: "invReportReceivedDate",
-        header: "Investigator Report Received Date",
-      },
-      {
-        key: "finalOutcome",
-        header: "Final Outcome",
-      },
-      {
-        key: "isReInvestigated",
-        header: "Is Re-Investigated",
-      },
-      {
-        key: "openTAT",
-        header: "Open TAT",
-      },
-      {
-        key: "closureTAT",
-        header: "Closure TAT",
-      },
-      {
-        key: "updatedAt",
-        header: "Updated At",
-      },
-    ];
-
     if (!!filter?.colorCode) {
       pipeline.unshift({
         $addFields: {
@@ -241,141 +164,152 @@ router.post(async (req) => {
     // console.log("pipeline: ", pipeline);
     // console.log("pipeline: ", pipeline[0]["$match"], filter?.pagination);
 
-    let data = await DashboardData.aggregate(pipeline, {
-      allowDiskUse: true,
-    });
+    const csvStream = fastCsv.format({ headers: true });
 
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Claims");
+    csvStream.write(columns?.map((column) => column?.header));
 
-    worksheet.columns = columns;
-
-    data?.forEach((el) => {
-      worksheet.addRow({
-        claimId: el?.claimId || "-",
-        claimType: el?.claimType || "-",
-        claimSubType: el?.claimSubType || "-",
-        lossType: el?.lossType || "-",
-        benefitType: el?.benefitType || "-",
-        insuredName: el?.insuredDetails?.insuredName || "-",
-        insuredType: el?.insuredDetails?.insuredType || "-",
-        age: el?.insuredDetails?.age || "-",
-        contactNo: el?.insuredDetails?.contactNo || "-",
-        emailId: el?.insuredDetails?.emailId || "-",
-        gender: el?.insuredDetails?.gender || "-",
-        claimAmount: el?.claimDetails?.claimAmount || "-",
-        diagnosis: el?.claimDetails?.diagnosis || "-",
-        billedAmount: el?.claimDetails?.billedAmount || "-",
-        claimStatus: el?.claimDetails?.claimStatus || "-",
-        deductibleAmount: el?.claimDetails?.deductibleAmount || "-",
-        memberNo: el?.claimDetails?.memberNo || "-",
-        providerName: el?.hospitalDetails?.providerName || "-",
-        providerType: el?.hospitalDetails?.providerType || "-",
-        providerNo: el?.hospitalDetails?.providerNo || "-",
-        providerCity: el?.hospitalDetails?.providerCity || "-",
-        providerState: el?.hospitalDetails?.providerState || "-",
-        providerAddress: el?.hospitalDetails?.providerAddress || "-",
-        pinCode: el?.hospitalDetails?.pinCode || "-",
-        dateOfAdmission: el?.hospitalizationDetails?.dateOfAdmission
-          ? dayjs(el?.hospitalizationDetails?.dateOfAdmission).format(
-              "DD-MMM-YYYY hh:mm:ss a"
-            )
-          : "-",
-        dateOfDischarge: el?.hospitalizationDetails?.dateOfDischarge || "-",
-        admissionType: el?.hospitalizationDetails?.admissionType || "-",
-        contractNo: el?.contractDetails?.contractNo || "-",
-        policyStartDate: el?.contractDetails?.policyStartDate
-          ? dayjs(el?.contractDetails?.policyStartDate).format(
-              "DD-MMM-YYYY hh:mm:ss a"
-            )
-          : "-",
-        policyEndDate: el?.contractDetails?.policyEndDate
-          ? dayjs(el?.contractDetails?.policyEndDate).format(
-              "DD-MMM-YYYY hh:mm:ss a"
-            )
-          : "-",
-        policyNo: el?.contractDetails?.policyNo || "-",
-        agentName: el?.contractDetails?.agentName || "-",
-        agentCode: el?.contractDetails?.agentCode || "-",
-        currentStatus: el?.contractDetails?.currentStatus || "-",
-        product: el?.contractDetails?.product || "-",
-        sourcing: el?.contractDetails?.sourcing || "-",
-        prevInsuranceCompany: el?.contractDetails?.prevInsuranceCompany || "-",
-        allocationType: el?.allocationType || "Not Allocated",
-        stage: el?.stage ? getStageLabel(el?.stage) : "-",
-        intimationDate: el?.intimationDate
-          ? dayjs(el?.intimationDate).format("DD-MMM-YYYY hh:mm:ss a")
-          : "-",
-        teamLead:
+    const transformStream = new Transform({
+      objectMode: true,
+      transform(el, encoding, callback) {
+        // Map the MongoDB document to an array that represents a CSV row
+        const row = [
+          el?.claimId || "-",
+          el?.claimType || "-",
+          el?.claimSubType || "-",
+          el?.lossType || "-",
+          el?.benefitType || "-",
+          el?.insuredDetails?.insuredName || "-",
+          el?.insuredDetails?.insuredType || "-",
+          el?.insuredDetails?.age || "-",
+          el?.insuredDetails?.contactNo || "-",
+          el?.insuredDetails?.emailId || "-",
+          el?.insuredDetails?.gender || "-",
+          el?.claimDetails?.claimAmount || "-",
+          el?.claimDetails?.diagnosis || "-",
+          el?.claimDetails?.billedAmount || "-",
+          el?.claimDetails?.claimStatus || "-",
+          el?.claimDetails?.deductibleAmount || "-",
+          el?.claimDetails?.memberNo || "-",
+          el?.hospitalDetails?.providerName || "-",
+          el?.hospitalDetails?.providerType || "-",
+          el?.hospitalDetails?.providerNo || "-",
+          el?.hospitalDetails?.providerCity || "-",
+          el?.hospitalDetails?.providerState || "-",
+          el?.hospitalDetails?.providerAddress || "-",
+          el?.hospitalDetails?.pinCode || "-",
+          el?.hospitalizationDetails?.dateOfAdmission
+            ? dayjs(el?.hospitalizationDetails?.dateOfAdmission)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
+            : "-",
+          el?.hospitalizationDetails?.dateOfDischarge || "-",
+          el?.hospitalizationDetails?.admissionType || "-",
+          el?.contractDetails?.contractNo || "-",
+          el?.contractDetails?.policyStartDate
+            ? dayjs(el?.contractDetails?.policyStartDate)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
+            : "-",
+          el?.contractDetails?.policyEndDate
+            ? dayjs(el?.contractDetails?.policyEndDate)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
+            : "-",
+          el?.contractDetails?.policyNo || "-",
+          el?.contractDetails?.agentName || "-",
+          el?.contractDetails?.agentCode || "-",
+          el?.contractDetails?.currentStatus || "-",
+          el?.contractDetails?.product || "-",
+          el?.contractDetails?.sourcing || "-",
+          el?.contractDetails?.prevInsuranceCompany || "-",
+          el?.allocationType || "Not Allocated",
+          el?.stage ? getStageLabel(el?.stage) : "-",
+          el?.intimationDate
+            ? dayjs(el?.intimationDate)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
+            : "-",
           el?.teamLead &&
           Array.isArray(el?.teamLead) &&
           el?.teamLead?.length > 0
             ? el?.teamLead?.map((tl: any) => tl.name)?.join(", ")
             : "-",
-        postQa: el?.postQa?.name || "-",
-        clusterManager: el?.clusterManager?.name || "-",
-        dateOfOS: el?.dateOfOS
-          ? dayjs(el?.dateOfOS).format("DD-MMM-YYYY hh:mm:ss a")
-          : "-",
-        dateOfClosure: el?.dateOfClosure
-          ? dayjs(el?.dateOfClosure).format("DD-MMM-YYYY hh:mm:ss a")
-          : "-",
-        claimInvestigators:
+          el?.postQa?.name || "-",
+          el?.clusterManager?.name || "-",
+          el?.dateOfOS
+            ? dayjs(el?.dateOfOS)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
+            : "-",
+          el?.dateOfClosure
+            ? dayjs(el?.dateOfClosure)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
+            : "-",
           el?.claimInvestigators?.length > 0
             ? el?.claimInvestigators?.map((ci: any) => ci?.name)?.join(", ")
             : "-",
-        lossDate: el?.lossDate
-          ? dayjs(el?.lossDate).format("DD-MMM-YYYY hh:mm:ss a")
-          : "-",
-        locked: el?.locked ? "Yes" : "No",
-        investigatorRecommendation: el?.investigatorRecommendation || "-",
-        dateOfFallingIntoPostQaBucket: el?.dateOfFallingIntoPostQaBucket
-          ? dayjs(el?.dateOfFallingIntoPostQaBucket).format(
-              "DD-MMM-YYYY hh:mm:ss a"
-            )
-          : "-",
-        invReportReceivedDate: el?.invReportReceivedDate
-          ? dayjs(el?.invReportReceivedDate).format("DD-MMM-YYYY hh:mm:ss a")
-          : "-",
-        finalOutcome: el?.finalOutcome || "-",
-        isReInvestigated: el?.isReInvestigated ? "Yes" : "No",
-        openTAT:
+          el?.lossDate
+            ? dayjs(el?.lossDate)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
+            : "-",
+          el?.locked ? "Yes" : "No",
+          el?.investigatorRecommendation || "-",
+          el?.dateOfFallingIntoPostQaBucket
+            ? dayjs(el?.dateOfFallingIntoPostQaBucket)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
+            : "-",
+          el?.invReportReceivedDate
+            ? dayjs(el?.invReportReceivedDate)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
+            : "-",
+          el?.finalOutcome || "-",
+          el?.isReInvestigated ? "Yes" : "No",
           getOpenAndClosureTAT({
             stage: el?.stage,
             dateOfClosure: el?.dateOfClosure,
             intimationDate: el?.intimationDate,
           })?.openTAT || "-",
-        closureTAT:
           getOpenAndClosureTAT({
             stage: el?.stage,
             dateOfClosure: el?.dateOfClosure,
             intimationDate: el?.intimationDate,
           })?.closureTAT || "-",
-        updatedAt: el?.updatedAt
-          ? dayjs(el?.updatedAt).format("DD-MMM-YYYY hh:mm:ss a")
-          : "-",
-      });
+          el?.updatedAt
+            ? dayjs(el?.updatedAt)
+                .tz("Asia/Kolkata")
+                .format("DD-MMM-YYYY hh:mm:ss a")
+            : "-",
+        ];
+        callback(null, row);
+      },
     });
 
-    const zip = archiver("zip");
+    let cursor = await DashboardData.aggregate(pipeline).cursor();
+
+    cursor.pipe(transformStream).pipe(csvStream);
+
+    const zip = archiver("zip", { zlib: { level: 9 } });
 
     // Create a response stream
     // @ts-expect-error
     const response = new Response(zip, {
       headers: {
         "Content-Type": "application/zip",
-        "Content-Disposition": "attachment; filename=records.zip",
+        "Content-Disposition": `attachment; filename=data_${dayjs()
+          .tz("Asia/Kolkata")
+          .format("DD-MMM-YYYY hh-mm-ss a")}.zip`,
       },
     });
 
-    // Append the Excel workbook to the zip
-    const excelBuffer = await workbook.xlsx.writeBuffer();
-    const readableExcelStream = new Readable();
-    readableExcelStream._read = () => {}; // No-op
-    readableExcelStream.push(excelBuffer);
-    readableExcelStream.push(null); // End the stream
-
-    zip.append(readableExcelStream, { name: "records.xlsx" });
+    zip.append(csvStream, {
+      name: `data_${dayjs()
+        .tz("Asia/Kolkata")
+        .format("DD-MMM-YYYY hh-mm-ss a")}.csv`,
+    });
 
     // Finalize the zip
     zip.finalize();

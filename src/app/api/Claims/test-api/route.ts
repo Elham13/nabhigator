@@ -1,10 +1,15 @@
 import connectDB from "@/lib/db/dbConnectWithMongoose";
-import ClaimCase from "@/lib/Models/claimCase";
-import DashboardData from "@/lib/Models/dashboardData";
+import User from "@/lib/Models/user";
+import ZoneStateMaster from "@/lib/Models/zoneStateMaster";
 import { Databases } from "@/lib/utils/types/enums";
+import { IUser, IZoneStateMaster, Role } from "@/lib/utils/types/fniDataTypes";
+import dayjs from "dayjs";
+import { HydratedDocument, PipelineStage } from "mongoose";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 // dayjs.extend(timezone);
 
 const router = createEdgeRouter<NextRequest, {}>();
@@ -111,96 +116,94 @@ router.post(async (req) => {
   try {
     await connectDB(Databases.FNI);
 
-    let updateCount = 0;
-    if (body?.action === "finalOutcome") {
-      const dashboardData = await DashboardData.find({ stage: 12 });
+    const findPostQaUser = async (props: any) => {
+      const { claimType, providerState } = props;
 
-      for (let obj of dashboardData) {
-        if (!!obj?.caseId) {
-          const claimCase = await ClaimCase.findById(obj?.caseId);
+      dayjs.extend(utc);
+      dayjs.extend(timezone);
 
-          if (!!claimCase) {
-            let finalOutcome =
-              claimCase?.postQARecommendation?.frcuRecommendationOnClaims
-                ?.value || "";
+      const now = dayjs().tz("Europe/London"); // Get the current time
 
-            obj.finalOutcome = finalOutcome;
-            await obj.save();
-            updateCount += 1;
-          }
-        }
+      const currentHour = now.hour();
+      const currentMinute = now.minute();
+
+      const addField: PipelineStage.AddFields["$addFields"] = {
+        fromHour: {
+          $hour: "$config.reportReceivedTime.from",
+        },
+        fromMinute: {
+          $minute: "$config.reportReceivedTime.from",
+        },
+        toHour: {
+          $hour: "$config.reportReceivedTime.to",
+        },
+        toMinute: {
+          $minute: "$config.reportReceivedTime.to",
+        },
+      };
+
+      const match: PipelineStage.Match["$match"] = {
+        role: Role.POST_QA,
+        $expr: {
+          $lte: ["$config.dailyAssign", "$config.dailyThreshold"],
+        },
+        status: "Active",
+        "config.leadView": claimType,
+        "config.reportReceivedTime": { $exists: true },
+      };
+
+      const zoneState: HydratedDocument<IZoneStateMaster> | null =
+        await ZoneStateMaster.findOne({
+          State: { $regex: new RegExp(providerState, "i") },
+        });
+
+      if (zoneState) {
+        match["zone"] = zoneState?.Zone;
       }
-    }
 
-    // for (let obj of allCases) {
-    //   obj.preQcObservation = obj?.preQcObservation || "Testing";
+      const pipeline: PipelineStage[] = [
+        {
+          $match: match,
+        },
+        { $addFields: addField },
+        {
+          $match: {
+            $expr: {
+              $and: [
+                {
+                  $lt: [
+                    { $add: ["$fromHour", { $divide: ["$fromMinute", 60] }] },
+                    { $add: [currentHour, { $divide: [currentMinute, 60] }] },
+                  ],
+                },
+                {
+                  $gt: [
+                    { $add: ["$toHour", { $divide: ["$toMinute", 60] }] },
+                    { $add: [currentHour, { $divide: [currentMinute, 60] }] },
+                  ],
+                },
+              ],
+            },
+          },
+        },
+        { $sort: { "config.thresholdUpdatedAt": 1 } },
+      ];
 
-    //   if (obj?.allocationType === "Single") {
-    //     const investigator =
-    //       !!obj?.investigator && obj?.investigator?.length > 0
-    //         ? obj?.investigator[0]
-    //         : null;
+      const users: IUser[] = await User.aggregate(pipeline);
 
-    //     obj.singleTasksAndDocs = {
-    //       tasks: obj?.tasksAssigned,
-    //       docs: obj?.documents,
-    //       investigationRejected: obj?.investigationRejected,
-    //       investigator,
-    //       investigatorComment: obj?.investigatorComment,
-    //       outSourcingDate: obj?.outSourcingDate,
-    //       invReportReceivedDate: obj?.invReportReceivedDate,
-    //       preAuthFindings: obj?.investigationFindings,
-    //       preAuthFindingsPostQa: obj?.postQaFindings,
-    //       rmFindings: obj?.rmFindings,
-    //       rmFindingsPostQA: obj?.rmFindingsPostQA,
-    //     };
-    //   } else if (obj?.allocationType === "Dual") {
-    //     let investigator =
-    //       !!obj?.investigator && obj?.investigator?.length > 0
-    //         ? obj?.investigator[0]
-    //         : null;
-    //     obj.insuredTasksAndDocs = {
-    //       tasks: obj?.tasksAssigned,
-    //       docs: obj?.documents,
-    //       investigationRejected: obj?.investigationRejected,
-    //       investigator,
-    //       investigatorComment: obj?.investigatorComment,
-    //       outSourcingDate: obj?.outSourcingDate,
-    //       invReportReceivedDate: obj?.invReportReceivedDate,
-    //       preAuthFindings: obj?.investigationFindings,
-    //       preAuthFindingsPostQa: obj?.postQaFindings,
-    //       rmFindings: obj?.rmFindings,
-    //       rmFindingsPostQA: obj?.rmFindingsPostQA,
-    //     };
+      return users;
+    };
 
-    //     investigator =
-    //       !!obj?.investigator && obj?.investigator?.length > 1
-    //         ? obj?.investigator[1]
-    //         : null;
-    //     obj.hospitalTasksAndDocs = {
-    //       tasks: obj?.tasksAssigned,
-    //       docs: obj?.documents,
-    //       investigationRejected: obj?.investigationRejected,
-    //       investigator,
-    //       investigatorComment: obj?.investigatorComment,
-    //       outSourcingDate: obj?.outSourcingDate,
-    //       invReportReceivedDate: obj?.invReportReceivedDate,
-    //       preAuthFindings: obj?.investigationFindings,
-    //       preAuthFindingsPostQa: obj?.postQaFindings,
-    //       rmFindings: obj?.rmFindings,
-    //       rmFindingsPostQA: obj?.rmFindingsPostQA,
-    //     };
-    //   }
-    //   await obj.save();
-    //   updatedIds.push(obj?._id);
-    // }
+    const result = await findPostQaUser({
+      claimType: "PreAuth",
+      providerState: "Bihar",
+    });
 
     return NextResponse.json(
       {
         success: true,
         message: "Success",
-        data: null,
-        updateCount,
+        data: result,
       },
       { status: 200 }
     );
@@ -219,3 +222,100 @@ router.post(async (req) => {
 export async function POST(request: NextRequest, ctx: RequestContext) {
   return router.run(request, ctx) as Promise<void>;
 }
+
+const pipeline = [
+  {
+    $match: {
+      role: "Post QA",
+      status: "Active",
+      "leave.status": {
+        $ne: "Approved",
+      },
+      "config.leadView": "PreAuth",
+      "config.reportReceivedTime": {
+        $exists: true,
+      },
+      zone: "East",
+      "config.claimAmount": "0-5 Lakh",
+    },
+  },
+  {
+    $addFields: {
+      fromHour: {
+        $hour: "$config.reportReceivedTime.from",
+      },
+      fromMinute: {
+        $minute: "$config.reportReceivedTime.from",
+      },
+      toHour: {
+        $hour: "$config.reportReceivedTime.to",
+      },
+      toMinute: {
+        $minute: "$config.reportReceivedTime.to",
+      },
+    },
+  },
+  {
+    $match: {
+      $or: [
+        {
+          "config.reportReceivedTime.is24Hour": true,
+        },
+        {
+          $expr: {
+            $and: [
+              {
+                $lt: [
+                  {
+                    $add: [
+                      "$fromHour",
+                      {
+                        $divide: ["$fromMinute", 60],
+                      },
+                    ],
+                  },
+                  {
+                    $add: [
+                      6,
+                      {
+                        $divide: [19, 60],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                $gt: [
+                  {
+                    $add: [
+                      "$toHour",
+                      {
+                        $divide: ["$toMinute", 60],
+                      },
+                    ],
+                  },
+                  {
+                    $add: [
+                      6,
+                      {
+                        $divide: [19, 60],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      ],
+    },
+  },
+  {
+    $sort: {
+      updatedAt: 1,
+    },
+  },
+  {
+    $limit: 1,
+  },
+];

@@ -54,10 +54,6 @@ const DetailsAccordion = dynamic(() => import("./DetailsAccordion"), {
   ssr: false,
   loading: () => <BiCog className="animate-spin" />,
 });
-const PostQaLeadFooter = dynamic(() => import("./PostQaLeadFooter"), {
-  ssr: false,
-  loading: () => <BiCog className="animate-spin" />,
-});
 const FrozenRibbon = dynamic(() => import("./InboxDetail/FrozenRibbon"), {
   ssr: false,
   loading: () => <BiCog className="animate-spin" />,
@@ -186,15 +182,19 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
               <h2 className="text-lg font-semibold">
                 {data?.stage === NumericStage.PENDING_FOR_PRE_QC
                   ? "Pre-QC"
-                  : data?.stage === NumericStage.POST_QC
+                  : !!data?.stage &&
+                    [
+                      NumericStage.POST_QC,
+                      NumericStage.POST_QA_REWORK,
+                    ].includes(data?.stage)
                   ? "Investigation"
                   : data?.stage === NumericStage.PENDING_FOR_ALLOCATION
                   ? "Allocation"
-                  : ""}{" "}
-                Summary
+                  : ""}
+                &nbsp;Summary
               </h2>
               <h4 className="text-sm">
-                {data?.claimType},{" "}
+                {data?.claimType},&nbsp;
                 <span className="text-yellow-400">
                   {data?.stage && getStageLabel(data?.stage)}
                 </span>
@@ -246,7 +246,10 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
             ) : null}
 
             {[Role.ADMIN, Role.POST_QA].includes(user?.activeRole) &&
-            data?.stage === NumericStage.POST_QC &&
+            !!data?.stage &&
+            [NumericStage.POST_QC, NumericStage.POST_QA_REWORK].includes(
+              data?.stage
+            ) &&
             origin === "inbox" ? (
               <PostQAFooter
                 caseDetail={caseDetail}
@@ -275,16 +278,6 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
               data?.stage as NumericStage
             ) ? (
               <Expedite dashboardData={data} />
-            ) : null}
-
-            {user?.activeRole === Role.POST_QA_LEAD && origin === "inbox" ? (
-              <PostQaLeadFooter
-                {...{
-                  showElement,
-                  setShowElement,
-                  claimId: data?.claimId || 0,
-                }}
-              />
             ) : null}
           </Box>
         </>

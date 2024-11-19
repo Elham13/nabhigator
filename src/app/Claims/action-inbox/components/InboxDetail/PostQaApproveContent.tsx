@@ -1,4 +1,10 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Box, Button, Flex, Modal, Text } from "@mantine/core";
 import PostQaApproveForm from "./PostQaApproveForm";
 import InvestigationSummary from "./InvestigationSummary";
@@ -9,7 +15,6 @@ import axios from "axios";
 import {
   CaseDetail,
   IDashboardData,
-  NumericStage,
   PostQaApproveFormValues,
   RevisedQaApproveFormValues,
   SingleResponseType,
@@ -55,9 +60,8 @@ const PostQaApproveContent = ({
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [stageUpdating, setStageUpdating] = useState<boolean>(false);
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
-  const [overRulingReason, setOverRulingReason] = useState<string>("");
 
-  const getRecommendation = () => {
+  const recommendation = useMemo(() => {
     let value = "";
     let code = "";
 
@@ -92,23 +96,9 @@ const PostQaApproveContent = ({
     if (value && !code) return value;
     if (!!value && !!code) return `${value}_${code}`;
     return "";
-  };
+  }, [caseDetail, data?.claimType]);
 
-  const recommendation = getRecommendation();
-
-  const saveOverRuling = async () => {
-    try {
-      await axios.post(EndPoints.UPDATE_CASE_DETAIL, {
-        id: caseDetail?._id,
-        action: "AddOverRulingReason",
-        postQaOverRulingReason: overRulingReason,
-      });
-    } catch (error: any) {
-      showError(error);
-    }
-  };
-
-  const handleClose = async () => {
+  const checkIfCanClose = async () => {
     const {
       summaryOfInvestigation,
       frcuRecommendationOnClaims,
@@ -120,6 +110,7 @@ const PostQaApproveContent = ({
       sourcingRecommendation,
       regulatoryReportingRecommendation,
     } = approvedValues;
+
     if (!summaryOfInvestigation)
       return toast.warn("Fill Summary of investigation");
     if (!frcuRecommendationOnClaims)
@@ -146,10 +137,11 @@ const PostQaApproveContent = ({
     if (!regulatoryReportingRecommendation)
       return toast.warn("Select Regulatory Recommendation");
 
-    if (recommendation !== frcuRecommendationOnClaims && !overRulingReason)
+    if (
+      recommendation !== frcuRecommendationOnClaims &&
+      !caseDetail?.postQaOverRulingReason
+    )
       return toast.warn("Please add over ruling reason");
-    else if (recommendation !== frcuRecommendationOnClaims && overRulingReason)
-      await saveOverRuling();
 
     setModalVisible(true);
   };
@@ -217,8 +209,8 @@ const PostQaApproveContent = ({
         Report_Sharing: {
           REPORT_SHARING_FLAG: "1",
           FINAL_OUTCOME: getFinalOutcomeCode(
-            preparedValues?.frcuRecommendationOnClaims,
-            preparedValues?.frcuGroundOfRepudiation
+            preparedValues?.frcuRecommendationOnClaims!,
+            preparedValues?.frcuGroundOfRepudiation!
           ),
           FRAUD_STATUS: "C", // C => Case is closed, I => Assigned to investigator
           RPT_SEND_TO_EMAIL: `FIAllocation@nivabupa.com;Preauth.Team@nivabupa.com;${user?.email};`,
@@ -254,8 +246,6 @@ const PostQaApproveContent = ({
 
       const payload = {
         id: data?._id,
-        action: "changeStage",
-        stage: NumericStage.CLOSED,
         userId: user?._id,
         userName: user?.name,
         postQARecommendation: preparedValues,
@@ -268,7 +258,7 @@ const PostQaApproveContent = ({
 
       const { data: res } = await axios.post<
         SingleResponseType<IDashboardData>
-      >(EndPoints.UPDATE_DASHBOARD_DATA, payload);
+      >(EndPoints.POST_QA_SUBMIT, payload);
 
       toast.success(res.message);
       if (reverseRes) toast.success(reverseRes?.message);
@@ -316,8 +306,10 @@ const PostQaApproveContent = ({
 
     setApprovedValues((prev) => ({
       ...prev,
-      summaryOfInvestigation: summary || "",
-      frcuRecommendationOnClaims: recommendation || "-",
+      summaryOfInvestigation:
+        caseDetail?.postQARecommendation?.summaryOfInvestigation || summary,
+      frcuRecommendationOnClaims:
+        prev?.frcuRecommendationOnClaims || recommendation || "-",
       documents: caseDetail?.postQARecommendation?.documents || [],
     }));
   }, [caseDetail, data?.claimType, recommendation]);
@@ -328,14 +320,12 @@ const PostQaApproveContent = ({
         claimId={data?.claimId || 0}
         approvedValues={approvedValues}
         setApprovedValues={setApprovedValues}
-        overRulingReason={overRulingReason}
-        setOverRulingReason={setOverRulingReason}
         recommendation={recommendation}
         caseDetail={caseDetail}
         setCaseDetail={setCaseDetail}
       />
       <InvestigationSummary dashboardData={data} caseDetails={caseDetail} />
-      <Button mt={12} color="green" onClick={handleClose}>
+      <Button mt={12} color="green" onClick={checkIfCanClose}>
         Approve
       </Button>
       <Button mt={12} color="red" onClick={handleCancel} ml={8}>

@@ -58,7 +58,8 @@ router.post(async (req) => {
         userRole = Role.ALLOCATION;
         break;
       }
-      case NumericStage.POST_QC: {
+      case NumericStage.POST_QC:
+      case NumericStage.POST_QA_REWORK: {
         userRole = Role.POST_QA;
         break;
       }

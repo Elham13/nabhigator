@@ -20,7 +20,15 @@ import { StorageKeys } from "@/lib/utils/types/enums";
 import { useLocalStorage } from "@mantine/hooks";
 import { getEncryptClaimId } from "@/lib/helpers";
 import { BiCog } from "react-icons/bi";
+import PreQCUploads from "./PreQCUploads";
 
+const NPSConfirmationImmediate = dynamic(
+  () => import("./InboxDetail/RMContent/NPSConfirmationImmediate"),
+  {
+    ssr: false,
+    loading: () => <BiCog className="animate-spin" />,
+  }
+);
 const RejectionReasons = dynamic(
   () => import("./InboxDetail/RejectionReasons"),
   {
@@ -196,7 +204,11 @@ const DetailsAccordion = ({
       ),
     },
     ...(data?.stage &&
-    [NumericStage.POST_QC, NumericStage.CLOSED].includes(data?.stage)
+    [
+      NumericStage.POST_QC,
+      NumericStage.POST_QA_REWORK,
+      NumericStage.CLOSED,
+    ].includes(data?.stage)
       ? [
           {
             value: "Tasks and Documents Assigned",
@@ -256,7 +268,9 @@ const DetailsAccordion = ({
               )),
           },
           ...([Role.ADMIN, Role.POST_QA].includes(user?.activeRole) &&
-          data?.stage === NumericStage.POST_QC &&
+          [NumericStage.POST_QC, NumericStage.POST_QA_REWORK].includes(
+            data?.stage
+          ) &&
           origin === "inbox"
             ? [
                 {
@@ -293,6 +307,18 @@ const DetailsAccordion = ({
               <ClaimTypeDetails data={data} setData={setData} />
             ),
           },
+          ...(!!caseDetail?.singleTasksAndDocs?.rmFindings?.[
+            "NPS Confirmation"
+          ] ||
+          !!caseDetail?.insuredTasksAndDocs?.rmFindings?.["NPS Confirmation"] ||
+          !!caseDetail?.hospitalTasksAndDocs?.rmFindings?.["NPS Confirmation"]
+            ? [
+                {
+                  value: "NPS Confirmation",
+                  content: <NPSConfirmationImmediate caseDetail={caseDetail} />,
+                },
+              ]
+            : []),
         ]
       : []),
     {
@@ -432,6 +458,21 @@ const DetailsAccordion = ({
             content: (
               <RejectionReasons
                 rejectionReasons={caseDetail?.rejectionReasons}
+              />
+            ),
+          },
+        ]
+      : []),
+
+    ...(data?.stage !== NumericStage.PENDING_FOR_PRE_QC
+      ? [
+          {
+            value: "Pre QC Uploads",
+            content: (
+              <PreQCUploads
+                caseDetail={caseDetail}
+                claimId={data?.claimId}
+                setCaseDetail={setCaseDetail}
               />
             ),
           },

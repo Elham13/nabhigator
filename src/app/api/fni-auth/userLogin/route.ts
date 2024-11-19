@@ -36,7 +36,6 @@ router.post(async (req) => {
 
     const result: HydratedDocument<IUser> | null = await User.findOne({
       userId,
-      status: "Active",
     });
 
     if (!result) throw new Error("Wrong userId");
@@ -49,8 +48,10 @@ router.post(async (req) => {
     // if (result?.password !== password) throw new Error("Wrong password");
     if (result?.password !== updatedPass) throw new Error("Wrong password");
     const data = {
-      ...result?.toJSON(),
-      password: undefined,
+      _id: result?._id,
+      name: result?.name,
+      role: result?.role,
+      userId: result?.userId,
     };
 
     // Expires in 1 hour
@@ -59,14 +60,13 @@ router.post(async (req) => {
     const session = await encrypt({ user: data, expires });
 
     // Save the session in a cookie
-    // cookies().set("session", session, { expires, httpOnly: true });
     cookies().set("session", session, { httpOnly: true });
 
     return NextResponse.json(
       {
         success: true,
         message: "Login Success",
-        data,
+        data: { ...result?.toJSON(), password: undefined },
       },
       { status: 200 }
     );

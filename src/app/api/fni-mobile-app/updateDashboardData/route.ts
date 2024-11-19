@@ -22,7 +22,6 @@ import User from "@/lib/Models/user";
 import sendEmail from "@/lib/helpers/sendEmail";
 import { captureCaseEvent } from "../../Claims/caseEvent/helpers";
 import ClaimInvestigator from "@/lib/Models/claimInvestigator";
-import { getEncryptClaimId } from "@/lib/helpers";
 
 const router = createEdgeRouter<NextRequest, {}>();
 
@@ -82,101 +81,6 @@ router.post(async (req) => {
         eventRemarks = `Returned back to field investigator from POST QA with comment: ${postQaComment}`;
 
         message = "Case returned back to field investigator";
-      } else if (stage === NumericStage.CLOSED) {
-        let recipients: string[] = [];
-        let ccRecipients: string[] = [];
-        dashboardData.expedition =
-          dashboardData?.expedition && dashboardData?.expedition?.length > 0
-            ? dashboardData?.expedition?.map((el: any) => ({
-                ...el,
-                noted: true,
-              }))
-            : dashboardData?.expedition;
-
-        caseDetail.reportSubmissionDateQa = new Date();
-        caseDetail.qaBy = userName;
-        dashboardData.dateOfClosure = new Date();
-
-        await caseDetail.save();
-        eventName = EventNames.QA_COMPLETED;
-        eventRemarks = `Investigation approved and QA completed with summary of investigation: ${postQARecommendation?.summaryOfInvestigation}`;
-
-        const postQaUser: HydratedDocument<IUser> | null = await User.findById(
-          userId
-        );
-        const postQaUserEmail = postQaUser?.email || "";
-
-        if (claimType === "PreAuth") {
-          recipients = [
-            // "Pre.Auth@nivabupa.com",
-            "Preauth.Team@nivabupa.com",
-            "Rohit.Choudhary@nivabupa.com",
-            "Sudeshna.Mallick@nivabupa.com",
-            "Team.Claims@nivabupa.com",
-            // "Aditya.Srivastava@nivabupa.com",
-          ];
-          ccRecipients = [
-            "Sanjay.Kumar16@nivabupa.com",
-            "FIallocation@nivabupa.com",
-            "Vikram.Singh9@nivabupa.com",
-            "Nandan.CA@nivabupa.com",
-            "Rakesh.Pandey@nivabupa.com",
-            "Nanit.Kumar@nivabupa.com",
-            postQaUserEmail,
-          ];
-        } else {
-          recipients = ["FIAllocation@nivabupa.com"];
-          ccRecipients = [
-            "team.claims@nivabupa.com",
-            "Sanjay.Kumar16@nivabupa.com",
-            postQaUserEmail,
-          ];
-        }
-
-        const invId = dashboardData?.claimInvestigators[0]?._id;
-        const inv: HydratedDocument<Investigator> | null =
-          await ClaimInvestigator.findById(invId);
-
-        const webUrl =
-          process.env.NEXT_PUBLIC_CONFIG === "PROD"
-            ? "https://www.nivabupa.com/"
-            : "https://appform.nivabupa.com/";
-
-        const encryptedClaimId = await getEncryptClaimId(
-          dashboardData?.claimId
-        );
-
-        const emailContent = `<div><p style="font-weight:700">Dear Team,</p><p><span style="font-weight:700">${
-          claimType === "PreAuth" ? "Pre-Auth" : "Claim"
-        } ID ${
-          dashboardData?.claimId
-        } </span>is closed from FRCU by ${userName}</p><p><span style="font-weight:700">FRCU recommendation: </span>${
-          postQARecommendation?.frcuRecommendationOnClaims?.value
-        }</p><p>Kindly refer to FRCU Final Investigation Report and documents collected, <a href="${webUrl}/pdf-view-and-download?claimId=${encryptedClaimId}&docType=final-investigation-report&invType=${
-          inv?.Type
-        }">here.</a></p><p>The FRCU recommendation and summary can be referred in Maximus/Phoenix. The URL to access the Final Report and documents are available there as well.</p><p>Regards,</p><p>FRCU</p></div>`;
-
-        const {
-          success,
-          message: mailerMsg,
-          mailResponse,
-        } = await sendEmail({
-          from: FromEmails.DO_NOT_REPLY,
-          recipients: recipients,
-          cc_recipients: ccRecipients,
-          subject: `${claimType === "PreAuth" ? "Pre-Auth" : "Claim"} ID ${
-            dashboardData?.claimId
-          }, FRCU Closed- Recommendation: ${
-            postQARecommendation?.frcuRecommendationOnClaims?.value
-          }`,
-          html: emailContent,
-        });
-
-        if (!success) throw new Error(`Failed to send Email: ${mailerMsg}`);
-
-        message = `Case closed successfully and Email sent to ${mailResponse?.accepted?.join(
-          ", "
-        )}`;
       }
 
       dashboardData.stage = stage;

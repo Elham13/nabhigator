@@ -7,7 +7,9 @@ let connectionString =
     ? process.env.MONGODB_URI_UAT
     : process.env.MONGODB_URI_LOCAL;
 
-const options: ConnectOptions = {};
+const options: ConnectOptions = {
+  family: 4,
+};
 
 /**
  * Global is used here to maintain a cached connection across hot reloads

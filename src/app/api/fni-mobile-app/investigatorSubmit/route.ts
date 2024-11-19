@@ -8,12 +8,14 @@ import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import {
   CaseDetail,
+  Investigator,
   EventNames,
   IDashboardData,
   ITasksAndDocuments,
   IUser,
   IZoneStateMaster,
   NumericStage,
+  Role,
 } from "@/lib/utils/types/fniDataTypes";
 import { HydratedDocument, PipelineStage } from "mongoose";
 import DashboardData from "@/lib/Models/dashboardData";
@@ -21,44 +23,57 @@ import ClaimCase from "@/lib/Models/claimCase";
 import { captureCaseEvent } from "../../Claims/caseEvent/helpers";
 import User from "@/lib/Models/user";
 import ZoneStateMaster from "@/lib/Models/zoneStateMaster";
+import ClaimInvestigator from "@/lib/Models/claimInvestigator";
 
 const router = createEdgeRouter<NextRequest, {}>();
 
 interface IProps {
   claimType: "PreAuth" | "Reimbursement";
   providerState: string;
+  claimAmount: number;
 }
 
+const getClaimAmountQuery = (claimAmount: number) => {
+  let amountString = "";
+  if (claimAmount < 500000) amountString = "0-5 Lakh";
+  else if (claimAmount > 500000 && claimAmount <= 1000000)
+    amountString = "5-10 Lakh";
+  else if (claimAmount > 1000000) amountString = "10 Lakh Plus";
+
+  return amountString;
+};
+
 const findPostQaUser = async (props: IProps) => {
-  const { claimType, providerState } = props;
+  const { claimType, providerState, claimAmount } = props;
+
+  dayjs.extend(utc);
+  dayjs.extend(timezone);
+  const now = dayjs().tz("Europe/London");
+
+  const currentHour = now.hour();
+  const currentMinute = now.minute();
 
   const addField: PipelineStage.AddFields["$addFields"] = {
-    fromTimeHour: {
-      $dateToString: {
-        format: "%H:%M:%S",
-        date: "$config.reportReceivedTime.from",
-      },
+    fromHour: {
+      $hour: "$config.reportReceivedTime.from",
     },
-    toTimeHour: {
-      $dateToString: {
-        format: "%H:%M:%S",
-        date: "$config.reportReceivedTime.to",
-      },
+    fromMinute: {
+      $minute: "$config.reportReceivedTime.from",
+    },
+    toHour: {
+      $hour: "$config.reportReceivedTime.to",
+    },
+    toMinute: {
+      $minute: "$config.reportReceivedTime.to",
     },
   };
 
-  const targetTime = dayjs().format("hh:mm:ss");
-
   const match: PipelineStage.Match["$match"] = {
+    role: Role.POST_QA,
     status: "Active",
+    "leave.status": { $ne: "Approved" },
     "config.leadView": claimType,
     "config.reportReceivedTime": { $exists: true },
-    $expr: {
-      $and: [
-        { $lt: ["$fromTimeHour", targetTime] },
-        { $gt: ["$toTimeHour", targetTime] },
-      ],
-    },
   };
 
   const zoneState: HydratedDocument<IZoneStateMaster> | null =
@@ -70,22 +85,82 @@ const findPostQaUser = async (props: IProps) => {
     match["zone"] = zoneState?.Zone;
   }
 
+  if (claimAmount > 0) {
+    const claimAmountQuery = getClaimAmountQuery(claimAmount);
+    if (!!claimAmountQuery) {
+      match["config.claimAmount"] = claimAmountQuery;
+    }
+  }
+
   const pipeline: PipelineStage[] = [
     {
-      $match: {
-        $expr: {
-          $lte: ["$config.dailyAssign", "$config.dailyThreshold"],
-        },
-      },
+      $match: match,
     },
     { $addFields: addField },
-    { $match: match },
+    {
+      $match: {
+        $or: [
+          {
+            "config.reportReceivedTime.is24Hour": true,
+          },
+          {
+            $expr: {
+              $and: [
+                {
+                  $lt: [
+                    {
+                      $add: [
+                        "$fromHour",
+                        {
+                          $divide: ["$fromMinute", 60],
+                        },
+                      ],
+                    },
+                    {
+                      $add: [
+                        currentHour,
+                        {
+                          $divide: [currentMinute, 60],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  $gt: [
+                    {
+                      $add: [
+                        "$toHour",
+                        {
+                          $divide: ["$toMinute", 60],
+                        },
+                      ],
+                    },
+                    {
+                      $add: [
+                        currentHour,
+                        {
+                          $divide: [currentMinute, 60],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
     { $sort: { "config.thresholdUpdatedAt": 1 } },
+    { $limit: 1 },
   ];
 
   const users: IUser[] = await User.aggregate(pipeline);
 
-  return users;
+  if (users?.length > 0) return users[0];
+
+  return null;
 };
 
 router.post(async (req) => {
@@ -95,7 +170,7 @@ router.post(async (req) => {
     if (!id) throw new Error("id is required!");
     await connectDB(Databases.FNI);
 
-    const stage = NumericStage.POST_QC;
+    let stage = NumericStage.POST_QC;
 
     let eventRemarks: string = EventNames.INVESTIGATION_REPORT_SUBMITTED;
 
@@ -111,6 +186,24 @@ router.post(async (req) => {
       throw new Error(
         `No Claim Case found with the id ${dashboardData?.caseId}`
       );
+    const inv: HydratedDocument<Investigator> | null =
+      await ClaimInvestigator.findById(userId);
+
+    if (!inv) throw new Error(`No investigator found with the id ${userId}`);
+
+    if (dashboardData?.claimType === "PreAuth") {
+      if (!!inv?.pendency?.preAuth && inv?.pendency?.preAuth?.length > 0) {
+        inv.pendency.preAuth = inv?.pendency?.preAuth?.filter(
+          (claimId) => claimId !== dashboardData?.claimId
+        );
+      }
+    } else if (dashboardData?.claimType === "Reimbursement") {
+      if (!!inv?.pendency?.rm && inv?.pendency?.rm?.length > 0) {
+        inv.pendency.rm = inv?.pendency?.rm?.filter(
+          (claimId) => claimId !== dashboardData?.claimId
+        );
+      }
+    }
 
     let findings: ITasksAndDocuments | null = null;
 
@@ -172,79 +265,86 @@ router.post(async (req) => {
           ? dashboardData?.expedition?.map((el) => ({ ...el, noted: true }))
           : dashboardData?.expedition;
 
-      const users: IUser[] = await findPostQaUser({
-        claimType: dashboardData?.claimType,
-        providerState: dashboardData?.hospitalDetails?.providerState,
-      });
+      if (!!dashboardData?.postQa) {
+        stage = NumericStage.POST_QA_REWORK;
+      } else {
+        const user = await findPostQaUser({
+          claimType: dashboardData?.claimType,
+          providerState: dashboardData?.hospitalDetails?.providerState,
+          claimAmount: dashboardData?.claimDetails?.claimAmount || 0,
+        });
 
-      if (users && users?.length > 0) {
-        let isAssigned = false;
-        for (const obj of users) {
-          const user: HydratedDocument<IUser> | null = await User.findById(
-            obj?._id
-          );
-
-          if (!user)
-            throw new Error(`Failed to find a user with the id ${obj?._id}`);
-
-          const dailyThreshold = user?.config?.dailyThreshold || 0;
-          const dailyAssign = user?.config?.dailyAssign || 0;
-          const updatedAt = user?.config?.thresholdUpdatedAt || null;
-
-          const dailyLimitReached = dailyThreshold - dailyAssign <= 1;
-
-          if (dailyLimitReached) {
-            if (updatedAt) {
-              const noOfDaysSinceUpdated = dayjs()
-                .startOf("day")
-                .diff(dayjs(updatedAt).startOf("day"), "day");
-
-              if (noOfDaysSinceUpdated > 0) {
-                // It is not updated today, therefore reset the daily assign
-                user.config.dailyAssign = 1;
-                user.config.thresholdUpdatedAt = new Date();
-                dashboardData.postQa = user?._id;
-                eventRemarks =
-                  eventRemarks += `, and assigned to post qa ${user?.name}`;
-                await user.save();
-                isAssigned = true;
-                break;
-              }
-            } else {
-              // There is no updated date, so we know that it's the first time this user is getting assigned
-              user.config.dailyAssign = 1;
-              user.config.thresholdUpdatedAt = new Date();
-              dashboardData.postQa = user?._id;
-              eventRemarks =
-                eventRemarks += `, and assigned to post qa ${user?.name}`;
-              await user.save();
-              isAssigned = true;
-              break;
-            }
-          } else {
-            // Limit is not reached
-            user.config.dailyAssign = user?.config?.dailyAssign
-              ? user.config.dailyAssign + 1
-              : 1;
-            user.config.thresholdUpdatedAt = new Date();
-            dashboardData.postQa = user?._id;
-            eventRemarks =
-              eventRemarks += `, and assigned to post qa ${user?.name}`;
-            await user.save();
-            isAssigned = true;
-            break;
-          }
-        }
-
-        if (!isAssigned) {
+        if (!user) {
           eventRemarks =
             eventRemarks += `, and moved to Post QA Lead bucket because no Post Qa matched`;
-        }
-      } else {
-        eventRemarks =
-          eventRemarks += `, and moved to Post QA Lead bucket because no Post Qa matched`;
-      }
+        } else {
+          const newUser: HydratedDocument<IUser> | null = await User.findById(
+            user?._id
+          );
+          if (!newUser)
+            throw new Error(`No user found with the id ${user?._id}`);
 
+          dashboardData.postQa = user?._id;
+
+          if (dashboardData?.claimType === "PreAuth") {
+            if (
+              !!newUser?.config?.preAuthPendency &&
+              newUser?.config?.preAuthPendency > 0
+            ) {
+              newUser.config.preAuthPendency += 1;
+            } else {
+              newUser.config.preAuthPendency = 1;
+            }
+
+            if (!!newUser?.config?.pendency) {
+              newUser!.config!.pendency!.preAuth =
+                !!newUser?.config?.pendency?.preAuth &&
+                newUser?.config?.pendency?.preAuth?.length > 0
+                  ? [
+                      ...newUser?.config?.pendency?.preAuth,
+                      { claimId: dashboardData?.claimId, type: "Auto" },
+                    ]
+                  : [{ claimId: dashboardData?.claimId, type: "Auto" }];
+            } else {
+              newUser!.config!.pendency = {
+                preAuth: [{ claimId: dashboardData?.claimId, type: "Auto" }],
+                rm: [],
+              };
+            }
+          } else {
+            if (
+              !!newUser?.config?.rmPendency &&
+              newUser?.config?.rmPendency > 0
+            ) {
+              newUser.config.rmPendency += 1;
+            } else {
+              newUser.config.rmPendency = 1;
+            }
+
+            if (!!newUser?.config?.pendency) {
+              newUser!.config!.pendency!.rm =
+                !!newUser?.config?.pendency?.rm &&
+                newUser?.config?.pendency?.rm?.length > 0
+                  ? [
+                      ...newUser?.config?.pendency?.rm,
+                      { claimId: dashboardData?.claimId, type: "Auto" },
+                    ]
+                  : [{ claimId: dashboardData?.claimId, type: "Auto" }];
+            } else {
+              newUser!.config!.pendency = {
+                rm: [{ claimId: dashboardData?.claimId, type: "Auto" }],
+                preAuth: [],
+              };
+            }
+          }
+
+          newUser.config.thresholdUpdatedAt = new Date();
+
+          eventRemarks =
+            eventRemarks += `, and assigned to post qa ${user?.name}`;
+          await newUser!.save();
+        }
+      }
       dashboardData.stage = stage;
     } else {
       eventRemarks = `Investigator ${

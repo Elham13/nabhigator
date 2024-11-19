@@ -69,6 +69,8 @@ export const getStageLabel = (stage: NumericStage) => {
       return "Closed";
     case NumericStage.POST_QC:
       return "Post QA";
+    case NumericStage.POST_QA_REWORK:
+      return "Post QA Rework";
     case NumericStage.INVESTIGATION_ACCEPTED:
       return "Investigation Accepted";
     case NumericStage.INVESTIGATION_SKIPPED_AND_COMPLETING:
@@ -88,6 +90,7 @@ export const getStatusColor = (stage: NumericStage) => {
   if (stage === NumericStage.PENDING_FOR_ALLOCATION) return "cyan";
   if (stage === NumericStage.PENDING_FOR_RE_ALLOCATION) return "orange";
   if (stage === NumericStage.POST_QC) return "violet";
+  if (stage === NumericStage.POST_QA_REWORK) return "teal"; //yellow;
   if (stage === NumericStage.CLOSED) return "gray";
   if (stage === NumericStage.INVESTIGATION_ACCEPTED) return "indigo";
   if (stage === NumericStage.IN_FIELD_REWORK) return "lime";
@@ -187,7 +190,7 @@ export const numberToOrdinal = (number: number) => {
 };
 
 export const buildUrl = (url: string, params: Record<string, any> = {}) => {
-  const newUrl = new URL("http://localhost:3000/" + url);
+  const newUrl = new URL("http://localhost:8090/" + url);
 
   for (let k in params) {
     const value = params[k];

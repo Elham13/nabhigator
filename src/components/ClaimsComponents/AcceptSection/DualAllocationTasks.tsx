@@ -18,12 +18,14 @@ import { buildUrl, showError, validateTasksAndDocs } from "@/lib/helpers";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import {
+  Box,
   Button,
   Flex,
   Modal,
   MultiSelect,
   Select,
   SimpleGrid,
+  Text,
   Textarea,
   TextInput,
 } from "@mantine/core";
@@ -37,6 +39,9 @@ import { getStates } from "@/lib/helpers/getLocations";
 import DualTasksSelect from "./DualTasksSelect";
 import { useTasks } from "@/lib/providers/TasksAndDocsProvider";
 import { toast } from "react-toastify";
+import FileUpload from "../FileUpload";
+import { tempDocInitials } from "@/lib/utils/constants";
+import FileUploadFooter from "../FileUpload/FileUploadFooter";
 
 const searchValuesInitials: IUserSearchValues = {
   pinCode: "",
@@ -91,6 +96,9 @@ const DualAllocationTasks = ({
     dispatch({ type: "change_state", value: { ...tasksState, [name]: value } });
   };
 
+  const isAllocation =
+    dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION;
+
   const validateValues = () => {
     try {
       if (tasksState?.caseType && tasksState?.caseType?.length > 0) {
@@ -122,18 +130,12 @@ const DualAllocationTasks = ({
 
       const insuredInv = tasksState?.insuredTasksAndDocs?.investigator;
 
-      if (
-        dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION &&
-        !insuredInv
-      )
+      if (isAllocation && !insuredInv)
         throw new Error("Please select an investigator in Insured part");
 
       const hospitalInv = tasksState?.hospitalTasksAndDocs?.investigator;
 
-      if (
-        dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION &&
-        !hospitalInv
-      )
+      if (isAllocation && !hospitalInv)
         throw new Error("Please select an investigator in Hospital part");
 
       validateTasksAndDocs({
@@ -145,10 +147,7 @@ const DualAllocationTasks = ({
         partName: "Hospital",
       });
 
-      if (
-        dashboardData?.stage !== NumericStage.PENDING_FOR_ALLOCATION &&
-        (!insuredInv || !hospitalInv)
-      ) {
+      if (!isAllocation && (!insuredInv || !hospitalInv)) {
         setConfirm({
           value: `You have not selected any investigator for ${
             !insuredInv && !hospitalInv
@@ -243,6 +242,36 @@ const DualAllocationTasks = ({
     }
   };
 
+  const handleGetUrl = (
+    id: string,
+    name: string,
+    url: string,
+    action: "Add" | "Remove"
+  ) => {
+    const urls =
+      tasksState?.preQcUploads && tasksState?.preQcUploads?.length > 0
+        ? [...tasksState?.preQcUploads, url]
+        : [url];
+
+    dispatch({
+      type: "change_state",
+      value: { ...tasksState, preQcUploads: urls },
+    });
+  };
+
+  const handleRemove = (index: number) => {
+    let urls =
+      tasksState?.preQcUploads && tasksState?.preQcUploads?.length > 0
+        ? [...tasksState?.preQcUploads]
+        : [];
+
+    urls = urls?.filter((_, ind) => ind !== index);
+    dispatch({
+      type: "change_state",
+      value: { ...tasksState, preQcUploads: urls },
+    });
+  };
+
   useEffect(() => {
     if (!!dashboardData?.insuredDetails) {
       // Prefill insured address
@@ -326,9 +355,7 @@ const DualAllocationTasks = ({
               value={tasksState?.insuredAddress || ""}
               name="insuredAddress"
               onChange={handleChange}
-              disabled={
-                dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-              }
+              disabled={isAllocation}
             />
             <Select
               label="Insured City"
@@ -342,9 +369,7 @@ const DualAllocationTasks = ({
                   value: { ...tasksState, insuredCity: val || "" },
                 })
               }
-              disabled={
-                dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-              }
+              disabled={isAllocation}
               data={geoOptions?.city}
               searchable
               clearable
@@ -365,9 +390,7 @@ const DualAllocationTasks = ({
                   value: { ...tasksState, insuredState: val || "" },
                 })
               }
-              disabled={
-                dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-              }
+              disabled={isAllocation}
               data={geoOptions?.state}
               searchable
               clearable
@@ -390,9 +413,7 @@ const DualAllocationTasks = ({
                   },
                 })
               }
-              disabled={
-                dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-              }
+              disabled={isAllocation}
               data={geoOptions?.pinCode}
               searchable
               clearable
@@ -415,9 +436,7 @@ const DualAllocationTasks = ({
           clearable
           required={tasksState?.caseType?.length < 1}
           withAsterisk
-          disabled={
-            dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-          }
+          disabled={isAllocation}
         />
         {tasksState?.caseType?.length > 0 &&
           dashboardData?.claimType !== "PreAuth" &&
@@ -449,9 +468,7 @@ const DualAllocationTasks = ({
                 searchable
                 hidePickedOptions
                 clearable
-                disabled={
-                  dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-                }
+                disabled={isAllocation}
                 required={user?.config?.triggerSubType === "Mandatory"}
               />
             ) : null;
@@ -472,12 +489,28 @@ const DualAllocationTasks = ({
               },
             });
           }}
-          disabled={
-            dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-          }
+          disabled={isAllocation}
         />
+        <Box>
+          <Text className="font-semibold">Pre-Qc Uploads: </Text>
+          {!!tasksState?.preQcUploads &&
+            tasksState?.preQcUploads?.length > 0 &&
+            tasksState?.preQcUploads?.map((el, ind) => (
+              <FileUploadFooter
+                key={ind}
+                url={el}
+                onDelete={() => handleRemove(ind)}
+              />
+            ))}
+          <FileUpload
+            doc={tempDocInitials}
+            docName="doc"
+            getUrl={handleGetUrl}
+            claimId={dashboardData?.claimId || 0}
+          />
+        </Box>
 
-        {dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION && (
+        {isAllocation && (
           <Textarea
             className="col-span-1 md:col-span-2"
             label="Allocator's comment"

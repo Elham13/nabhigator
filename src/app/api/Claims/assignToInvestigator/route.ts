@@ -150,16 +150,21 @@ router.post(async (req) => {
     dashboardData.investigationCount += 1;
     dashboardData.allocationType = allocationType;
     dashboardData.dateOfOS = new Date();
-    dashboardData.stage =
-      isReInvestigated &&
+
+    if (
+      dashboardData.stage === NumericStage.POST_QC &&
       compareArrOfObjBasedOnProp(
         dashboardData?.claimInvestigators || [],
         investigators || [],
         "name",
         "investigatorName"
       )
-        ? NumericStage.IN_FIELD_REWORK
-        : NumericStage.IN_FIELD_FRESH;
+    ) {
+      dashboardData.stage = NumericStage.IN_FIELD_REWORK;
+    } else {
+      dashboardData.stage = NumericStage.IN_FIELD_FRESH;
+    }
+
     dashboardData.teamLead = dashboardData.teamLead || null;
 
     if (allocationType === "Single") {
@@ -265,7 +270,11 @@ router.post(async (req) => {
     // Update investigators daily and/or monthly assign and send email
     for (let i = 0; i < investigators?.length; i++) {
       const inv = investigators[i];
-      const updateRes = await updateInvestigators(inv);
+      const updateRes = await updateInvestigators(
+        inv,
+        dashboardData?.claimId,
+        dashboardData?.claimType
+      );
       if (!updateRes?.success) throw new Error(updateRes?.message);
 
       // TODO: Fix this

@@ -156,6 +156,11 @@ export const investigatorsTableHead: ITableHeader[] = [
     sortable: true,
   },
   {
+    value: "pendency",
+    label: "Pendency",
+    sortable: false,
+  },
+  {
     value: "phone",
     label: "Phone",
     sortable: true,
@@ -236,6 +241,29 @@ export const feedingLogsTableHeaders: ITableHeader[] = [
   {
     value: "failureReason",
     label: "Failure Reason",
+    sortable: false,
+  },
+];
+
+export const assignCaseTableHeaders: ITableHeader[] = [
+  {
+    value: "claimId",
+    label: "Claim Id",
+    sortable: false,
+  },
+  {
+    value: "claimType",
+    label: "Claim Type",
+    sortable: false,
+  },
+  {
+    value: "investigatorRecommendation",
+    label: "Investigator Recommendation",
+    sortable: false,
+  },
+  {
+    value: "dateOfFallingIntoPostQaBucket",
+    label: "Date of Falling in Post QA",
     sortable: false,
   },
 ];
@@ -366,33 +394,33 @@ export const postQaTableHeaders: ITableHeader[] = [
     sortable: true,
   },
   {
-    value: "userId",
-    label: "User ID",
-    sortable: true,
-  },
-  {
-    value: "phone",
-    label: "Phone",
-    sortable: true,
-  },
-  {
-    value: "password",
-    label: "Password",
-    sortable: true,
-  },
-  {
-    value: "role",
-    label: "Role",
+    value: "",
+    label: "Action",
     sortable: false,
   },
   {
-    value: "status",
-    label: "Status",
+    value: "leaveStatus",
+    label: "Leave Status",
     sortable: false,
   },
   {
-    value: "state",
-    label: "State",
+    value: "shiftTime",
+    label: "Shift Time",
+    sortable: false,
+  },
+  {
+    value: "claimAmount",
+    label: "Claim Amount",
+    sortable: false,
+  },
+  {
+    value: "pendency",
+    label: "Pendency",
+    sortable: false,
+  },
+  {
+    value: "leadView",
+    label: "Claim Type",
     sortable: false,
   },
   {
