@@ -365,11 +365,11 @@ export const usersTableHeaders: ITableHeader[] = [
     label: "Phone",
     sortable: true,
   },
-  {
-    value: "password",
-    label: "Password",
-    sortable: true,
-  },
+  // {
+  //   value: "password",
+  //   label: "Password",
+  //   sortable: true,
+  // },
   {
     value: "role",
     label: "Role",

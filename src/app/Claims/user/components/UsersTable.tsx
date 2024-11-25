@@ -95,7 +95,7 @@ const UsersTable = () => {
       <Table.Td>{el?.name}</Table.Td>
       <Table.Td>{el?.userId}</Table.Td>
       <Table.Td>{el?.phone}</Table.Td>
-      <Table.Td>{el?.password}</Table.Td>
+      {/* <Table.Td>{el?.password}</Table.Td> */}
       <Table.Td>{el?.role?.join(", ")}</Table.Td>
       <Table.Td>
         {el?.status === "Active" ? (
