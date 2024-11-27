@@ -272,12 +272,12 @@ router.post(async (req) => {
             stage: el?.stage,
             dateOfClosure: el?.dateOfClosure,
             intimationDate: el?.intimationDate,
-          })?.openTAT || "-",
+          })?.openTAT || 0,
           getOpenAndClosureTAT({
             stage: el?.stage,
             dateOfClosure: el?.dateOfClosure,
             intimationDate: el?.intimationDate,
-          })?.closureTAT || "-",
+          })?.closureTAT || 0,
           el?.updatedAt
             ? dayjs(el?.updatedAt)
                 .tz("Asia/Kolkata")
