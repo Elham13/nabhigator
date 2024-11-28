@@ -98,15 +98,9 @@ const PostQaReworkContent = ({
         stage: NumericStage.IN_FIELD_REWORK,
         userId: user._id,
         postQaComment: values?.comment,
+        postQARecommendation:undefined,
+        userName:user?.name,
       };
-
-      const { data: res } = await axios.post<
-        SingleResponseType<IDashboardData>
-      >(EndPoints.UPDATE_DASHBOARD_DATA, payload);
-      setShowElement((prev) => ({ ...prev, postQAComment: false }));
-      toast.success(res.message);
-      setModalVisible(false);
-      router.replace("/Claims/action-inbox");
     } catch (error) {
       showError(error);
     } finally {
