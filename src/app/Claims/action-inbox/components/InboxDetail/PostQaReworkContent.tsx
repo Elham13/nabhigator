@@ -101,7 +101,13 @@ const PostQaReworkContent = ({
         postQARecommendation: undefined,
         userName: user?.name,
       };
-      submit(payload);
+      const { data: res } = await axios.post<
+        SingleResponseType<IDashboardData>
+      >(EndPoints.UPDATE_DASHBOARD_DATA, payload);
+      setShowElement((prev) => ({ ...prev, postQAComment: false }));
+      toast.success(res.message);
+      setModalVisible(false);
+      router.replace("/Claims/action-inbox");
     } catch (error) {
       showError(error);
     } finally {
