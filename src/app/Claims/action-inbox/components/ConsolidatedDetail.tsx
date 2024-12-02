@@ -76,13 +76,13 @@ const ConsolidatedDetail = ({ data }: PropTypes) => {
       </GridCol>
       <GridCol span={{ sm: 12, md: 6 }}>
         <KeyValueContainer
-          label="Height"
+          label="Height in cm"
           value={data?.insuredDetails?.height}
         />
       </GridCol>
       <GridCol span={{ sm: 12, md: 6 }}>
         <KeyValueContainer
-          label="Weight"
+          label="Weight in kg"
           value={data?.insuredDetails?.weight}
         />
       </GridCol>
