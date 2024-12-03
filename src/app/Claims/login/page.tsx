@@ -112,7 +112,7 @@ const Login = () => {
         <form onSubmit={handleSubmit}>
           <Paper withBorder shadow="md" p={30} mt={30} radius="md">
             <TextInput
-              label="User Id"
+              label="User Name"
               placeholder="Pxxxxx"
               required
               error={errors.userId}
