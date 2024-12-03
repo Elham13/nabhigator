@@ -248,6 +248,7 @@ router.post(async (req) => {
 
       data = await User.aggregate(pipeline);
       count = await User.countDocuments(matchStage);
+      data.forEach(function(v:any){ delete v.password });
     }
 
     return NextResponse.json(
