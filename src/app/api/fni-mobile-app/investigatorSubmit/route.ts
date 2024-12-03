@@ -422,9 +422,8 @@ async function  informInvestigators({
   const claimType = data?.claimType;
   const recipients: string[] = [postQaEmail];
   const ccRecipients: string[] = [
-    "Shantam.sharma@nivabupa.com",
-    // "Sanjay.Kumar16@nivabupa.com",
-    // "FIallocation@nivabupa.com",
+    "Sanjay.Kumar16@nivabupa.com",
+    "FIallocation@nivabupa.com",
   ];
   let invName = "";
 
