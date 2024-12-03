@@ -23,6 +23,10 @@ const nextConfig = {
             key: "Access-Control-Allow-Headers",
             value: "*",
           },
+          {
+            key: "X-Frame-Options",
+            value: "DENY",
+          },
         ],
       },
     ];
