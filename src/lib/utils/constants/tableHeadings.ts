@@ -256,6 +256,16 @@ export const assignCaseTableHeaders: ITableHeader[] = [
     label: "Claim Type",
     sortable: false,
   },
+  {
+    value: "investigatorRecommendation",
+    label: "Investigator Recommendation",
+    sortable: false,
+  },
+  {
+    value: "dateOfFallingIntoPostQaBucket",
+    label: "Date of Falling in Post QA",
+    sortable: false,
+  },
 ];
 
 export const multipleEventTableHeading: ITableHeader[] = [

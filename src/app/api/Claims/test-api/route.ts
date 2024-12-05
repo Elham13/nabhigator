@@ -2,7 +2,13 @@ import connectDB from "@/lib/db/dbConnectWithMongoose";
 import User from "@/lib/Models/user";
 import ZoneStateMaster from "@/lib/Models/zoneStateMaster";
 import { Databases } from "@/lib/utils/types/enums";
-import { IUser, IZoneStateMaster, Role } from "@/lib/utils/types/fniDataTypes";
+import {
+  IDashboardData,
+  Investigator,
+  IUser,
+  IZoneStateMaster,
+  Role,
+} from "@/lib/utils/types/fniDataTypes";
 import dayjs from "dayjs";
 import { HydratedDocument, PipelineStage } from "mongoose";
 import { createEdgeRouter } from "next-connect";
@@ -10,6 +16,8 @@ import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import ClaimInvestigator from "@/lib/Models/claimInvestigator";
+import DashboardData from "@/lib/Models/dashboardData";
 // dayjs.extend(timezone);
 
 const router = createEdgeRouter<NextRequest, {}>();
@@ -116,94 +124,86 @@ router.post(async (req) => {
   try {
     await connectDB(Databases.FNI);
 
-    const findPostQaUser = async (props: any) => {
-      const { claimType, providerState } = props;
+    const investigators = (await ClaimInvestigator.find(
+      {}
+    ).lean()) as Investigator[];
 
-      dayjs.extend(utc);
-      dayjs.extend(timezone);
+    const updated: any[] = [];
 
-      const now = dayjs().tz("Europe/London"); // Get the current time
+    for (const inv of investigators) {
+      let alreadyAssignedClaimIdsRM: number[] = [];
+      let alreadyAssignedClaimIdsPreAuth: number[] = [];
 
-      const currentHour = now.hour();
-      const currentMinute = now.minute();
-
-      const addField: PipelineStage.AddFields["$addFields"] = {
-        fromHour: {
-          $hour: "$config.reportReceivedTime.from",
-        },
-        fromMinute: {
-          $minute: "$config.reportReceivedTime.from",
-        },
-        toHour: {
-          $hour: "$config.reportReceivedTime.to",
-        },
-        toMinute: {
-          $minute: "$config.reportReceivedTime.to",
-        },
-      };
-
-      const match: PipelineStage.Match["$match"] = {
-        role: Role.POST_QA,
-        $expr: {
-          $lte: ["$config.dailyAssign", "$config.dailyThreshold"],
-        },
-        status: "Active",
-        "config.leadView": claimType,
-        "config.reportReceivedTime": { $exists: true },
-      };
-
-      const zoneState: HydratedDocument<IZoneStateMaster> | null =
-        await ZoneStateMaster.findOne({
-          State: { $regex: new RegExp(providerState, "i") },
-        });
-
-      if (zoneState) {
-        match["zone"] = zoneState?.Zone;
+      if (!!inv?.pendency) {
+        if (!!inv?.pendency?.rm && inv?.pendency?.rm?.length > 0) {
+          alreadyAssignedClaimIdsRM = inv?.pendency?.rm;
+        }
+        if (!!inv?.pendency?.preAuth && inv?.pendency?.preAuth?.length > 0) {
+          alreadyAssignedClaimIdsPreAuth = inv?.pendency?.preAuth;
+        }
       }
 
-      const pipeline: PipelineStage[] = [
-        {
-          $match: match,
-        },
-        { $addFields: addField },
-        {
-          $match: {
-            $expr: {
-              $and: [
-                {
-                  $lt: [
-                    { $add: ["$fromHour", { $divide: ["$fromMinute", 60] }] },
-                    { $add: [currentHour, { $divide: [currentMinute, 60] }] },
-                  ],
-                },
-                {
-                  $gt: [
-                    { $add: ["$toHour", { $divide: ["$toMinute", 60] }] },
-                    { $add: [currentHour, { $divide: [currentMinute, 60] }] },
-                  ],
-                },
-              ],
-            },
-          },
-        },
-        { $sort: { "config.thresholdUpdatedAt": 1 } },
+      const unwantedClaimIds = [
+        ...alreadyAssignedClaimIdsPreAuth,
+        ...alreadyAssignedClaimIdsRM,
       ];
 
-      const users: IUser[] = await User.aggregate(pipeline);
+      const data = (await DashboardData.find({
+        "claimInvestigators._id": inv?._id,
+        stage: { $ne: 12 },
+        claimId: {
+          $nin: unwantedClaimIds,
+        },
+      }).lean()) as IDashboardData[];
 
-      return users;
-    };
+      if (!!data && data?.length > 0) {
+        const preAuthIds = data
+          ?.filter((el) => el?.claimType === "PreAuth")
+          ?.map((el) => el?.claimId);
+        const rmIds = data
+          ?.filter((el) => el?.claimType === "Reimbursement")
+          ?.map((el) => el?.claimId);
 
-    const result = await findPostQaUser({
-      claimType: "PreAuth",
-      providerState: "Bihar",
-    });
+        if (preAuthIds?.length > 0 || rmIds?.length > 0) {
+          const newInv: HydratedDocument<Investigator> | null =
+            await ClaimInvestigator.findById(inv?._id);
+
+          if (!newInv) throw new Error(`No inv found with the Id ${inv?._id}`);
+
+          if (!!newInv?.pendency) {
+            if (newInv?.pendency?.preAuth?.length > 0) {
+              newInv.pendency.preAuth = [
+                ...newInv.pendency.preAuth,
+                ...preAuthIds,
+              ];
+            } else {
+              newInv.pendency.preAuth = preAuthIds;
+            }
+            if (newInv?.pendency?.rm?.length > 0) {
+              newInv.pendency.rm = [...newInv.pendency.rm, ...rmIds];
+            } else {
+              newInv.pendency.rm = rmIds;
+            }
+          } else {
+            newInv.pendency = { preAuth: preAuthIds, rm: rmIds };
+          }
+
+          updated.push({
+            invName: newInv?.investigatorName,
+            preAuthIds,
+            rmIds,
+          });
+
+          await newInv.save();
+        }
+      }
+    }
 
     return NextResponse.json(
       {
         success: true,
         message: "Success",
-        data: result,
+        data: updated,
       },
       { status: 200 }
     );
@@ -222,100 +222,3 @@ router.post(async (req) => {
 export async function POST(request: NextRequest, ctx: RequestContext) {
   return router.run(request, ctx) as Promise<void>;
 }
-
-const pipeline = [
-  {
-    $match: {
-      role: "Post QA",
-      status: "Active",
-      "leave.status": {
-        $ne: "Approved",
-      },
-      "config.leadView": "PreAuth",
-      "config.reportReceivedTime": {
-        $exists: true,
-      },
-      zone: "East",
-      "config.claimAmount": "0-5 Lakh",
-    },
-  },
-  {
-    $addFields: {
-      fromHour: {
-        $hour: "$config.reportReceivedTime.from",
-      },
-      fromMinute: {
-        $minute: "$config.reportReceivedTime.from",
-      },
-      toHour: {
-        $hour: "$config.reportReceivedTime.to",
-      },
-      toMinute: {
-        $minute: "$config.reportReceivedTime.to",
-      },
-    },
-  },
-  {
-    $match: {
-      $or: [
-        {
-          "config.reportReceivedTime.is24Hour": true,
-        },
-        {
-          $expr: {
-            $and: [
-              {
-                $lt: [
-                  {
-                    $add: [
-                      "$fromHour",
-                      {
-                        $divide: ["$fromMinute", 60],
-                      },
-                    ],
-                  },
-                  {
-                    $add: [
-                      6,
-                      {
-                        $divide: [19, 60],
-                      },
-                    ],
-                  },
-                ],
-              },
-              {
-                $gt: [
-                  {
-                    $add: [
-                      "$toHour",
-                      {
-                        $divide: ["$toMinute", 60],
-                      },
-                    ],
-                  },
-                  {
-                    $add: [
-                      6,
-                      {
-                        $divide: [19, 60],
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-        },
-      ],
-    },
-  },
-  {
-    $sort: {
-      updatedAt: 1,
-    },
-  },
-  {
-    $limit: 1,
-  },
-];

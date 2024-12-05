@@ -43,6 +43,10 @@ const ChangeStage = () => {
         label: getStageLabel(NumericStage.POST_QC),
       },
       {
+        value: NumericStage.POST_QA_REWORK.toString(),
+        label: getStageLabel(NumericStage.POST_QA_REWORK),
+      },
+      {
         value: NumericStage.IN_FIELD_REINVESTIGATION.toString(),
         label: getStageLabel(NumericStage.IN_FIELD_REINVESTIGATION),
       },

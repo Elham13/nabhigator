@@ -68,6 +68,9 @@ const SingleAllocationTasks = ({
     dispatch({ type: "change_state", value: { [name]: value } });
   };
 
+  const isAllocation =
+    dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION;
+
   const validateValues = () => {
     try {
       if (tasksState?.caseType && tasksState?.caseType?.length > 0) {
@@ -93,7 +96,7 @@ const SingleAllocationTasks = ({
 
       const inv = !!tasksState?.singleTasksAndDocs?.investigator;
 
-      if (dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION && !inv)
+      if (isAllocation && !inv)
         throw new Error("Please select an investigator");
 
       validateTasksAndDocs({
@@ -101,10 +104,7 @@ const SingleAllocationTasks = ({
         partName: "None",
       });
 
-      if (
-        dashboardData?.stage !== NumericStage.PENDING_FOR_ALLOCATION &&
-        !inv
-      ) {
+      if (!isAllocation && !inv) {
         setConfirm(true);
         return false;
       }
@@ -223,9 +223,7 @@ const SingleAllocationTasks = ({
           clearable
           required={tasksState?.caseType?.length < 1}
           withAsterisk
-          disabled={
-            dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-          }
+          disabled={isAllocation}
         />
         {tasksState?.caseType?.length > 0 &&
           dashboardData?.claimType !== "PreAuth" &&
@@ -256,9 +254,7 @@ const SingleAllocationTasks = ({
                 searchable
                 hidePickedOptions
                 clearable
-                disabled={
-                  dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-                }
+                disabled={isAllocation}
                 required={user?.config?.triggerSubType === "Mandatory"}
               />
             ) : null;
@@ -278,9 +274,7 @@ const SingleAllocationTasks = ({
               },
             });
           }}
-          disabled={
-            dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION
-          }
+          disabled={isAllocation}
         />
         <Box>
           <Text className="font-semibold">Pre-Qc Uploads: </Text>
@@ -307,7 +301,7 @@ const SingleAllocationTasks = ({
             part="None"
           />
         )}
-        {dashboardData?.stage === NumericStage.PENDING_FOR_ALLOCATION && (
+        {isAllocation && (
           <Textarea
             className="col-span-1 md:col-span-2"
             label="Allocator's comment"

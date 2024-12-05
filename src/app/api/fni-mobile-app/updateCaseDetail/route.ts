@@ -12,7 +12,8 @@ const router = createEdgeRouter<NextRequest, {}>();
 router.post(async (req) => {
   const body = await req?.json();
 
-  const { id, action, postQaDoc, index, postQaOverRulingReason } = body;
+  const { id, action, postQaDoc, index, postQaOverRulingReason, preQcUploads } =
+    body;
 
   try {
     if (!id) throw new Error(`Id is missing`);
@@ -29,13 +30,11 @@ router.post(async (req) => {
 
     if (action === "AddPostQADocument") {
       if (!!index || index === 0) {
-        const foundCase = await ClaimCase.findById(id);
-        if (!foundCase) throw new Error(`No data found with the id ${id}`);
-        foundCase.postQARecommendation.documents =
-          foundCase?.postQARecommendation?.documents?.filter(
+        caseDetail!.postQARecommendation!.documents =
+          caseDetail?.postQARecommendation?.documents?.filter(
             (_: any, ind: number) => ind !== index
           );
-        updatedCase = await foundCase.save();
+        updatedCase = await caseDetail.save();
         message = "Document deleted successfully!";
       } else {
         if (!postQaDoc) throw new Error("Post QA document is required");
@@ -48,15 +47,38 @@ router.post(async (req) => {
         );
         message = "Document added successfully!";
       }
-    }
+    } else if (action === "AddPostQAValues") {
+      const { field, value } = body;
 
-    if (action === "AddOverRulingReason") {
+      if (!field) throw new Error("field name is required");
+
+      if (!!caseDetail.postQARecommendation) {
+        caseDetail.postQARecommendation = {
+          ...caseDetail.postQARecommendation,
+          [field]: value,
+        };
+      } else {
+        caseDetail.postQARecommendation = {
+          [field]: value,
+        };
+      }
+
+      updatedCase = await caseDetail.save();
+      message = "Captured successfully";
+    } else if (action === "AddOverRulingReason") {
       if (!postQaOverRulingReason)
         throw new Error("postQaOverRulingReason is required");
       caseDetail.postQaOverRulingReason = postQaOverRulingReason;
       updatedCase = await caseDetail.save();
       message = "Captured successfully";
-    }
+    } else if (action === "AddPreQcUploads") {
+      if (!preQcUploads || !Array.isArray(preQcUploads))
+        throw new Error("preQcUploads is required");
+
+      caseDetail.preQcUploads = preQcUploads;
+      updatedCase = await caseDetail.save();
+      message = "Uploaded successfully";
+    } else throw new Error(`Wrong action ${action}`);
 
     return NextResponse.json(
       {

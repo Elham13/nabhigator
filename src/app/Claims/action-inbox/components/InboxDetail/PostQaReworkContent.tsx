@@ -98,8 +98,9 @@ const PostQaReworkContent = ({
         stage: NumericStage.IN_FIELD_REWORK,
         userId: user._id,
         postQaComment: values?.comment,
+        postQARecommendation: undefined,
+        userName: user?.name,
       };
-
       const { data: res } = await axios.post<
         SingleResponseType<IDashboardData>
       >(EndPoints.UPDATE_DASHBOARD_DATA, payload);

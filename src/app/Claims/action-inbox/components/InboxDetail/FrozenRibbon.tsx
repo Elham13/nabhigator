@@ -31,7 +31,7 @@ const FrozenRibbon = ({ data }: PropTypes) => {
             stage: data?.stage,
             dateOfClosure: data?.dateOfClosure,
             intimationDate: data?.intimationDate,
-          })?.openTAT || "-"}
+          })?.openTAT || 0}
           &nbsp;days
         </strong>
       </p>

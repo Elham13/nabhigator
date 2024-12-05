@@ -3,17 +3,14 @@ import { cookies } from "next/headers";
 import { ISession } from "../utils/types/authTypes";
 import { NextRequest, NextResponse } from "next/server";
 import { NextHandler } from "next-connect";
-import { IUser, Investigator } from "../utils/types/fniDataTypes";
+import { Investigator } from "../utils/types/fniDataTypes";
 
 const secretKey =
   process.env.JWT_SECRET || "lkasjdfoi32ujroijlkajf983jfjaslkdfjlkadsjf";
 
 const key = new TextEncoder().encode(secretKey);
 
-export async function encrypt(payload: {
-  user: Omit<IUser, "password"> | Omit<Investigator, "password">;
-  expires: Date;
-}) {
+export async function encrypt(payload: { user: any; expires: Date }) {
   return await new SignJWT(JSON.parse(JSON.stringify(payload)))
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()

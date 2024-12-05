@@ -79,6 +79,7 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
             {dashboardData?.stage &&
               [
                 NumericStage.POST_QC,
+                NumericStage.POST_QA_REWORK,
                 NumericStage.CLOSED,
                 NumericStage.IN_FIELD_REWORK,
               ].includes(dashboardData?.stage) && (

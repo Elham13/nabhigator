@@ -26,6 +26,8 @@ import React, { Fragment, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useDebouncedValue, useLocalStorage } from "@mantine/hooks";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
+import { Types } from "mongoose";
+import dayjs from "dayjs";
 
 type PropTypes = {
   el: IUser;
@@ -88,7 +90,7 @@ const AssignButton = ({ el, action, refetch }: PropTypes) => {
           const payload: Record<string, any> = {
             pagination,
             claimId: debouncedClaimId || undefined,
-            stage: NumericStage.POST_QC,
+            stage: { $in: [NumericStage.POST_QC, NumericStage.POST_QA_REWORK] },
           };
 
           if (el?.config?.leadView && el?.config?.leadView?.length > 0) {
@@ -102,6 +104,7 @@ const AssignButton = ({ el, action, refetch }: PropTypes) => {
               { postQa: { $exists: true } },
               { postQa: { $ne: null } },
             ];
+            payload.excludePostQa = el?._id;
           }
 
           const { data } = await axios.post<ResponseType<IDashboardData>>(
@@ -190,6 +193,16 @@ const AssignButton = ({ el, action, refetch }: PropTypes) => {
                         </Table.Td>
                         <Table.Td className="whitespace-nowrap">
                           {el?.claimType}
+                        </Table.Td>
+                        <Table.Td className="whitespace-nowrap">
+                          {el?.investigatorRecommendation || "-"}
+                        </Table.Td>
+                        <Table.Td className="whitespace-nowrap">
+                          {el?.dateOfFallingIntoPostQaBucket
+                            ? dayjs(el?.dateOfFallingIntoPostQaBucket).format(
+                                "DD-MMM-YYYY hh:mm:ss a"
+                              )
+                            : "-"}
                         </Table.Td>
                       </Table.Tr>
                     ))

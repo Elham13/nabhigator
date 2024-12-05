@@ -80,6 +80,13 @@ export const processGetDataFilters = async (obj: any) => {
     delete processedObj["claimSubType"];
   }
 
+  if (processedObj["excludePostQa"]) {
+    processedObj["postQa"] = {
+      $ne: new Types.ObjectId(processedObj["excludePostQa"]),
+    };
+    delete processedObj["excludePostQa"];
+  }
+
   if (processedObj["dateOfOS"]) {
     const actualDate = dayjs(processedObj["dateOfOS"]).toDate();
     const plusOneDay = dayjs(processedObj["dateOfOS"]).add(1, "day").toDate();
@@ -376,9 +383,10 @@ export const processGetDataFilters = async (obj: any) => {
       (id: string) => new Types.ObjectId(id)
     ) || [];
 
-  const postQa = !!processedObj["postQa"]
-    ? processedObj["postQa"]?.map((id: string) => new Types.ObjectId(id))
-    : [];
+  const postQa =
+    !!processedObj["postQa"] && Array.isArray(processedObj["postQa"])
+      ? processedObj["postQa"]?.map((id: string) => new Types.ObjectId(id))
+      : [];
 
   if (teamLead) {
     processedObj["teamLead"] = teamLead;
@@ -432,10 +440,14 @@ export const processGetDataFilters = async (obj: any) => {
         ],
       };
     } else if (userRole === Role.POST_QA) {
-      processedObj["stage"] = NumericStage.POST_QC;
+      processedObj["stage"] = {
+        $in: [NumericStage.POST_QC, NumericStage.POST_QA_REWORK],
+      };
       processedObj["postQa"] = new Types.ObjectId(user?._id);
     } else if (userRole === Role.POST_QA_LEAD) {
-      processedObj["stage"] = NumericStage.POST_QC;
+      processedObj["stage"] = {
+        $in: [NumericStage.POST_QC, NumericStage.POST_QA_REWORK],
+      };
       processedObj["postQa"] = null;
     } else if (origin === "Inbox") {
       processedObj["stage"] = {

@@ -29,10 +29,20 @@ export type UserConfig = {
   dailyAssign?: number;
   preAuthPendency?: number;
   rmPendency?: number;
-  claimAmount?: string;
+  claimAmount?: string[];
   reportReceivedTime?: TReportReceivedTime;
   thresholdUpdatedAt?: Date;
   triggerSubType?: "Mandatory" | "Non Mandatory";
+  pendency?: {
+    preAuth: {
+      claimId: number;
+      type: "Auto" | "Manual";
+    }[];
+    rm: {
+      claimId: number;
+      type: "Auto" | "Manual";
+    }[];
+  };
 };
 
 export enum Role {
@@ -124,12 +134,14 @@ export interface PostQaApproveFormValues {
 export type TValueCode = { value: string; code: string };
 
 export interface RevisedQaApproveFormValues
-  extends Omit<
-    PostQaApproveFormValues,
-    "frcuRecommendationOnClaims" | "frcuGroundOfRepudiation"
+  extends Partial<
+    Omit<
+      PostQaApproveFormValues,
+      "frcuRecommendationOnClaims" | "frcuGroundOfRepudiation"
+    >
   > {
-  frcuRecommendationOnClaims: TValueCode;
-  frcuGroundOfRepudiation: TValueCode[];
+  frcuRecommendationOnClaims?: TValueCode;
+  frcuGroundOfRepudiation?: TValueCode[];
 }
 
 export enum EColorCode {
@@ -429,21 +441,8 @@ export enum NumericStage {
   PENDING_FOR_RE_ALLOCATION = 10,
   REJECTED = 11,
   CLOSED = 12,
+  POST_QA_REWORK = 13,
 }
-
-// Old stages
-// export enum NumericStage {
-//   PENDING_FOR_PRE_QC = 1,
-//   PENDING_FOR_ALLOCATION = 3,
-//   IN_FIELD_FRESH = 4,
-//   POST_QC = 5,
-//   IN_FIELD_REINVESTIGATION = 7,
-//   CLOSED = 12,
-//   REJECTED = 13,
-//   INVESTIGATION_ACCEPTED = 14,
-//   INVESTIGATION_SKIPPED = 15,
-//   IN_FIELD_REWORK = 16,
-// }
 
 export enum EventNames {
   INTIMATION_OR_REFERRAL = "Intimation/Referral",
