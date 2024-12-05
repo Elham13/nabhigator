@@ -197,7 +197,7 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
                   stage: el?.stage,
                   dateOfClosure: el?.dateOfClosure,
                   intimationDate: el?.intimationDate,
-                })?.openTAT || "-"
+                })?.openTAT || 0
               }
             />
             <TableCell
@@ -207,7 +207,7 @@ const RowsContent = ({ data, fetchData, handleView }: PropTypes) => {
                   stage: el?.stage,
                   dateOfClosure: el?.dateOfClosure,
                   intimationDate: el?.intimationDate,
-                })?.closureTAT || "-"
+                })?.closureTAT || 0
               }
             />
             <TableCell

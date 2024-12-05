@@ -69,19 +69,19 @@ router.post(async (req) => {
       totalRecords = 1;
 
       if (found) {
-        if (found?.stage === NumericStage.REJECTED) {
-          found.stage = NumericStage.IN_FIELD_REINVESTIGATION;
-          found.dateOfFallingIntoReInvestigation = new Date();
-          const newData = await found.save();
-          return NextResponse.json(
-            {
-              success: true,
-              message: `An existing record with this claim Id found as Rejected and sent it to In Field-Re-investigation`,
-              data: newData,
-            },
-            { status: 200 }
-          );
-        }
+        // if (found?.stage === NumericStage.REJECTED) {
+        //   found.stage = NumericStage.IN_FIELD_REINVESTIGATION;
+        //   found.dateOfFallingIntoReInvestigation = new Date();
+        //   const newData = await found.save();
+        //   return NextResponse.json(
+        //     {
+        //       success: true,
+        //       message: `An existing record with this claim Id found as Rejected and sent it to In Field-Re-investigation`,
+        //       data: newData,
+        //     },
+        //     { status: 200 }
+        //   );
+        // }
         throw new Error(
           `Record with claimId of ${claimType}_${claimId} already exists in DashboardData`
         );

@@ -40,8 +40,32 @@ router.post(async (req) => {
 
     if (!result) throw new Error("Wrong phone");
 
-    // if (result?.password !== password) throw new Error("Wrong password");
-    if (result?.password !== updatedPass) throw new Error("Wrong password");
+    // if (result?.password !== updatedPass) throw new Error("Wrong password");
+    const now = new Date();
+
+    // Check if the user is blocked
+    if (result.blockedUntil && now < result?.blockedUntil) {
+      const remainingTime = Math.ceil(
+        (result.blockedUntil - now.valueOf()) / 1000 / 60
+      );
+      throw new Error(`Too many failed attempts. Try again in ${remainingTime} minutes.`)
+    }
+    if (result?.password !== updatedPass) {
+      const MAX_ATTEMPTS = 3;
+      const BLOCK_DURATION = 10 * 60 * 1000; // 10 minutes in milliseconds      
+      result.failedAttempts += 1;
+
+      if (result?.failedAttempts >= MAX_ATTEMPTS) {
+        result.failedAttempts = 0; // Reset attempts
+        result.blockedUntil = new Date(now.getTime() + BLOCK_DURATION); // Block for 10 minutes
+        await result?.save();
+      throw new Error("Too many failed attempts. You are blocked for 10 minutes");
+      }
+
+      await result?.save();
+
+      throw new Error("Wrong password");
+    }
 
     const data = {
       _id: result?._id,
