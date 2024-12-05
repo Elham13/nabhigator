@@ -98,6 +98,8 @@ export interface IUser {
   name: string;
   email: string;
   phone: string;
+  failedAttempts: any;
+  blockedUntil:any; 
   userId: string;
   password: string;
   pinCode: string;
@@ -209,6 +211,8 @@ export interface Investigator {
   phone: string;
   email: string[];
   password: string;
+  failedAttempts: any;
+  blockedUntil:any; 
   investigatorName: string;
   investigatorCode: string;
   Type: "External" | "Internal";
