@@ -545,6 +545,7 @@ const hexToBytes = (hex?: string) => {
   for (let i = 0; i < hex.length; i += 2) {
     bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
   }
+
   return bytes;
 };
 
