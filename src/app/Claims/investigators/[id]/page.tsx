@@ -107,6 +107,8 @@ const usersInitials: Investigator = {
   updates: { expedition: [] },
   createdAt: "",
   updatedAt: "",
+  failedAttempts:0,
+  blockedUntil:0
 };
 
 const searchValuesInitials: IUserSearchValues = {

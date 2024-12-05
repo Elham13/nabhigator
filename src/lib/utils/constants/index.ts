@@ -166,6 +166,8 @@ export const usersInitials: IUser = {
   userType: "" as "Internal" | "External",
   claimAmountThreshold: "" as TClaimAmountThreshold,
   updates: { userIsInformed: true, details: {} },
+  failedAttempts:0,
+  blockedUntil:0
 };
 
 export const changeTaskInitialValues: AcceptedValues = {
