@@ -75,6 +75,8 @@ const InvestigatorSchema = new Schema<IInvestigatorSchema>(
     phone: { type: String, required: true, unique: true },
     email: { type: [String], required: true, unique: true },
     password: { type: String, required: true },
+    failedAttempts: { type: Number, default: 0 },
+    blockedUntil: { type: Date, default: null },
     investigatorCode: { type: String, required: true, unique: true },
     Type: {
       type: String,

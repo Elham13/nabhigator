@@ -94,6 +94,8 @@ const UserSchema = new Schema<IUserSchema>(
     },
     email: { type: String },
     phone: { type: String },
+    failedAttempts: { type: Number, default: 0 },
+    blockedUntil: { type: Date, default: null },
     userId: {
       type: String,
       unique: true,
