@@ -42,7 +42,8 @@ type ClaimsBenefits = {
 
 type DataType = {
   Claims: string;
-  ClaimsBenefits: ClaimsBenefits[];
+  ClaimsBenefits: ClaimsBenefits[]; 
+  Is_ReInvestigate:string;
 };
 
 const sanitizeBenefitSubtype = (subType?: string) => {
@@ -127,6 +128,7 @@ const processResponse = (data: DataType[]) => {
       lossType: arrOfObj?.length > 0 ? arrOfObj[0]?.lossType : "-",
       Claims: el?.Claims,
       cataractOrDayCareProcedure: el?.ClaimsBenefits,
+      Is_ReInvestigate:el?.Is_ReInvestigate,
     };
   });
 };

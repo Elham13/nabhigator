@@ -210,6 +210,13 @@ router.post(async (req) => {
                   }
                 }
               } else {
+                if(obj?.Is_ReInvestigate == "True"){
+                    foundDashboardData.stage =
+                    NumericStage.IN_FIELD_REINVESTIGATION;
+                  foundDashboardData.dateOfFallingIntoReInvestigation =
+                    new Date();
+                  await foundDashboardData.save();  
+                }
                 // if (foundDashboardData?.stage === NumericStage.REJECTED) {
                 //   foundDashboardData.stage =
                 //     NumericStage.IN_FIELD_REINVESTIGATION;

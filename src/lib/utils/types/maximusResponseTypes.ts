@@ -436,6 +436,7 @@ export interface IClaimsData {
   Claims: string;
   SourceSystem: string;
   ClaimsBenefits: IClaimsBenefits[];
+  Is_ReInvestigate:string;
 }
 
 export interface IGetFNIData {
