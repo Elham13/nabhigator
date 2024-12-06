@@ -323,7 +323,6 @@ async function informInvestigators({
   const ccRecipients: string[] = [
     "Sanjay.Kumar16@nivabupa.com",
     "FIallocation@nivabupa.com",
-    "Shantam.Sharma@nivabupa.com",
   ];
   let invName = "";
 
