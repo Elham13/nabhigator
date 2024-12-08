@@ -43,10 +43,12 @@ router.post(async (req) => {
 
     let inserted = 0;
     let skipped = 0;
-    let foundAndUpdated = 0;
+    let updated = 0;
     let totalRecords = 0;
     const skippedReasons: string[] = [];
     const skippedClaimIds: string[] = [];
+    const updatedReasons: string[] = [];
+    const updatedClaimIds: string[] = [];
 
     if (body?.claimId && body?.claimType) {
       const sourceSystem = body?.sourceSystem as TSourceSystem;
@@ -69,19 +71,6 @@ router.post(async (req) => {
       totalRecords = 1;
 
       if (found) {
-        // if (found?.stage === NumericStage.REJECTED) {
-        //   found.stage = NumericStage.IN_FIELD_REINVESTIGATION;
-        //   found.dateOfFallingIntoReInvestigation = new Date();
-        //   const newData = await found.save();
-        //   return NextResponse.json(
-        //     {
-        //       success: true,
-        //       message: `An existing record with this claim Id found as Rejected and sent it to In Field-Re-investigation`,
-        //       data: newData,
-        //     },
-        //     { status: 200 }
-        //   );
-        // }
         throw new Error(
           `Record with claimId of ${claimType}_${claimId} already exists in DashboardData`
         );
@@ -210,31 +199,18 @@ router.post(async (req) => {
                   }
                 }
               } else {
-                if(obj?.Is_ReInvestigate == "True"){
-                    foundDashboardData.stage =
+                if (obj?.Is_ReInvestigate === "True") {
+                  foundDashboardData.stage =
                     NumericStage.IN_FIELD_REINVESTIGATION;
                   foundDashboardData.dateOfFallingIntoReInvestigation =
                     new Date();
-                  await foundDashboardData.save();  
+                  await foundDashboardData.save();
                 }
-                // if (foundDashboardData?.stage === NumericStage.REJECTED) {
-                //   foundDashboardData.stage =
-                //     NumericStage.IN_FIELD_REINVESTIGATION;
-                //   foundDashboardData.dateOfFallingIntoReInvestigation =
-                //     new Date();
-                //   await foundDashboardData.save();
-                // } else {
-                //   skipped += 1;
-                //   skippedReasons?.push(
-                //     `${apiType}: Case already exist for claimId: ${obj?.claimType}_${obj?.claimId}`
-                //   );
-                //   skippedClaimIds?.push(obj?.claimId);
-                // }
-                skipped += 1;
-                skippedReasons?.push(
-                  `${apiType}: Case already exist for claimId: ${obj?.claimType}_${obj?.claimId}`
+                updated += 1;
+                updatedReasons?.push(
+                  `${apiType}: Case moved to Re-Investigation for claimId: ${obj?.claimType}_${obj?.claimId}`
                 );
-                skippedClaimIds?.push(obj?.claimId);
+                updatedClaimIds?.push(obj?.claimId);
               }
             }
           }
@@ -248,9 +224,11 @@ router.post(async (req) => {
       totalRecords,
       insertedRecords: inserted,
       skippedRecords: skipped,
-      foundAndUpdatedRecords: foundAndUpdated,
+      updatedRecords: updated,
       skippedReasons,
       skippedClaimIds,
+      updatedReasons,
+      updatedClaimIds,
     };
 
     await DashboardFeedingLog.create(payload);

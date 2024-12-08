@@ -49,10 +49,10 @@ router.post(async (req) => {
     let eventRemarks: string = "";
     let data: any = null;
 
-    const dashboardData = await DashboardData.findById(id);
+    const dashboardData: HydratedDocument<IDashboardData> | null =
+      await DashboardData.findById(id);
 
     if (!dashboardData) throw new Error(`No data found with the id ${id}`);
-    const claimType = dashboardData?.claimType;
 
     const caseDetail: HydratedDocument<CaseDetail> | null =
       await ClaimCase.findById(dashboardData?.caseId);
@@ -77,6 +77,11 @@ router.post(async (req) => {
                 noted: true,
               }))
             : dashboardData?.expedition;
+        dashboardData.claimInvestigators =
+          dashboardData?.claimInvestigators?.map((inv) => ({
+            ...inv,
+            investigationStatus: "Rework",
+          }));
         eventName = EventNames.RETURN_TO_FIELD;
         eventRemarks = `Returned back to field investigator from POST QA with comment: ${postQaComment}`;
 
@@ -87,7 +92,7 @@ router.post(async (req) => {
           userId,
           isCancel: true,
         });
-      } 
+      }
       dashboardData.stage = stage;
       dashboardData.actionsTaken = dashboardData?.actionsTaken
         ? [

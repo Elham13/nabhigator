@@ -143,6 +143,7 @@ const SkipInvestigation = ({ dashboardData, onDone }: PropTypes) => {
               <Text>Are you sure to proceed?</Text>
 
               <TextInput
+                className="mt-4"
                 label="Remarks"
                 placeholder="Remarks"
                 value={remarks}

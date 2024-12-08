@@ -216,15 +216,15 @@ router.post(async (req) => {
       dashboardData.claimInvestigators = invs;
     }
 
-    const maximusRes = await tellMaximusCaseIsAssigned(
-      dashboardData?.toJSON(),
-      investigators[0],
-      body?.preQcObservation,
-      user?.email
-    );
+    // const maximusRes = await tellMaximusCaseIsAssigned(
+    //   dashboardData?.toJSON(),
+    //   investigators[0],
+    //   body?.preQcObservation,
+    //   user?.email
+    // );
 
-    if (!maximusRes?.success)
-      throw new Error(`Maximus Error: ${maximusRes.message}`);
+    // if (!maximusRes?.success)
+    //   throw new Error(`Maximus Error: ${maximusRes.message}`);
 
     responseObj.message = `Case assigned to ${
       allocationType === "Dual"

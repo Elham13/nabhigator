@@ -1,6 +1,6 @@
 import { IDDataFeedingLog } from "../utils/types/fniDataTypes";
 import { ObjectId } from "mongodb";
-import { Document, model, models ,Schema} from "mongoose";
+import { Document, model, models, Schema } from "mongoose";
 
 interface FeedingLog extends Omit<IDDataFeedingLog, "_id">, Document {
   _id: ObjectId;
@@ -17,13 +17,19 @@ const DashboardDataFeedingLogsSchema = new Schema<FeedingLog>(
     skippedRecords: {
       type: Number,
     },
-    foundAndUpdatedRecords: {
+    updatedRecords: {
       type: Number,
     },
     skippedClaimIds: {
       type: [String],
     },
     skippedReasons: {
+      type: [String],
+    },
+    updatedReasons: {
+      type: [String],
+    },
+    updatedClaimIds: {
       type: [String],
     },
   },

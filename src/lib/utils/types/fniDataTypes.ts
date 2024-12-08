@@ -99,7 +99,7 @@ export interface IUser {
   email: string;
   phone: string;
   failedAttempts: any;
-  blockedUntil:any; 
+  blockedUntil: any;
   userId: string;
   password: string;
   pinCode: string;
@@ -212,7 +212,7 @@ export interface Investigator {
   email: string[];
   password: string;
   failedAttempts: any;
-  blockedUntil:any; 
+  blockedUntil: any;
   investigatorName: string;
   investigatorCode: string;
   Type: "External" | "Internal";
@@ -422,7 +422,12 @@ export type ClaimInvestigator = {
   name: string;
   assignedFor: string;
   assignedData: Date | null;
-  investigationStatus: "Unassigned" | "Assigned" | "Accepted" | "Completed";
+  investigationStatus:
+    | "Unassigned"
+    | "Assigned"
+    | "Accepted"
+    | "Completed"
+    | "Rework";
 };
 
 export interface IAutoPreQC {
@@ -982,9 +987,11 @@ export interface IDDataFeedingLog {
   totalRecords: number;
   insertedRecords: number;
   skippedRecords: number;
-  foundAndUpdatedRecords: number;
+  updatedRecords: number;
   skippedClaimIds: string[];
   skippedReasons: string[];
+  updatedClaimIds: string[];
+  updatedReasons: string[];
   updatedAt: string | Date;
   createdAt: string | Date;
 }

@@ -21,6 +21,7 @@ import {
   Box,
   Button,
   Flex,
+  Loader,
   Modal,
   MultiSelect,
   Select,
@@ -81,6 +82,11 @@ const DualAllocationTasks = ({
     pinCode: [],
   });
   const [confirm, setConfirm] = useState({ value: "", visible: false });
+  const [loadings, setLoadings] = useState({
+    city: false,
+    state: false,
+    pinCode: false,
+  });
 
   const closeConfirm = () => setConfirm({ value: "", visible: false });
 
@@ -289,6 +295,7 @@ const DualAllocationTasks = ({
 
   useEffect(() => {
     const getCities = async () => {
+      setLoadings((prev) => ({ ...prev, city: true }));
       try {
         const { data } = await axios.get<ResponseType<INewCityMaster>>(
           buildUrl(EndPoints.NEW_CITY_MASTER, {
@@ -303,6 +310,8 @@ const DualAllocationTasks = ({
         }));
       } catch (error) {
         showError(error);
+      } finally {
+        setLoadings((prev) => ({ ...prev, city: false }));
       }
     };
 
@@ -311,6 +320,7 @@ const DualAllocationTasks = ({
 
   useEffect(() => {
     const getPinCodes = async () => {
+      setLoadings((prev) => ({ ...prev, pinCode: true }));
       try {
         const { data } = await axios.get<ResponseType<INewPinCodeMaster>>(
           buildUrl(EndPoints.NEW_PIN_CODE_MASTER, {
@@ -324,6 +334,8 @@ const DualAllocationTasks = ({
         }));
       } catch (error) {
         showError(error);
+      } finally {
+        setLoadings((prev) => ({ ...prev, pinCode: false }));
       }
     };
     getPinCodes();
@@ -339,7 +351,9 @@ const DualAllocationTasks = ({
           state: [...new Set(options?.map((el) => el.State))],
         }));
       },
-      getLoading: (status) => {},
+      getLoading: (status) => {
+        setLoadings((prev) => ({ ...prev, state: status }));
+      },
     });
   }, [searchValues.state, dashboardData?.insuredDetails?.state]);
 
@@ -357,71 +371,83 @@ const DualAllocationTasks = ({
               onChange={handleChange}
               disabled={isAllocation}
             />
-            <Select
-              label="Insured City"
-              placeholder="Insured City"
-              required
-              value={tasksState?.insuredCity || ""}
-              name="insuredCity"
-              onChange={(val) =>
-                dispatch({
-                  type: "change_state",
-                  value: { ...tasksState, insuredCity: val || "" },
-                })
-              }
-              disabled={isAllocation}
-              data={geoOptions?.city}
-              searchable
-              clearable
-              searchValue={searchValues.city || ""}
-              onSearchChange={(val) =>
-                setSearchValues((prev) => ({ ...prev, city: val || "" }))
-              }
-            />
-            <Select
-              label="Insured State"
-              placeholder="Insured State"
-              required
-              value={tasksState?.insuredState || ""}
-              name="insuredState"
-              onChange={(val) =>
-                dispatch({
-                  type: "change_state",
-                  value: { ...tasksState, insuredState: val || "" },
-                })
-              }
-              disabled={isAllocation}
-              data={geoOptions?.state}
-              searchable
-              clearable
-              searchValue={searchValues.state}
-              onSearchChange={(val) =>
-                setSearchValues((prev) => ({ ...prev, state: val || "" }))
-              }
-            />
-            <Select
-              label="Insured PinCode"
-              placeholder="Insured PinCode"
-              required
-              value={tasksState?.insuredPinCode?.toString() || ""}
-              onChange={(val) =>
-                dispatch({
-                  type: "change_state",
-                  value: {
-                    ...tasksState,
-                    insuredPinCode: val ? parseInt(val) : 0,
-                  },
-                })
-              }
-              disabled={isAllocation}
-              data={geoOptions?.pinCode}
-              searchable
-              clearable
-              searchValue={searchValues.pinCode}
-              onSearchChange={(val) =>
-                setSearchValues((prev) => ({ ...prev, pinCode: val || "" }))
-              }
-            />
+            <Flex align="flex-end">
+              <Select
+                className="w-full"
+                label="Insured City"
+                placeholder="Insured City"
+                required
+                value={tasksState?.insuredCity || ""}
+                name="insuredCity"
+                onChange={(val) =>
+                  dispatch({
+                    type: "change_state",
+                    value: { ...tasksState, insuredCity: val || "" },
+                  })
+                }
+                disabled={isAllocation || loadings?.city}
+                data={geoOptions?.city}
+                searchable
+                clearable
+                searchValue={searchValues.city || ""}
+                onSearchChange={(val) =>
+                  setSearchValues((prev) => ({ ...prev, city: val || "" }))
+                }
+              />
+              {loadings?.city && <Loader size="md" type="dots" />}
+            </Flex>
+            <Flex align="flex-end">
+              <Select
+                className="w-full"
+                label="Insured State"
+                placeholder="Insured State"
+                required
+                value={tasksState?.insuredState || ""}
+                name="insuredState"
+                onChange={(val) =>
+                  dispatch({
+                    type: "change_state",
+                    value: { ...tasksState, insuredState: val || "" },
+                  })
+                }
+                disabled={isAllocation || loadings?.state}
+                data={geoOptions?.state}
+                searchable
+                clearable
+                searchValue={searchValues.state}
+                onSearchChange={(val) =>
+                  setSearchValues((prev) => ({ ...prev, state: val || "" }))
+                }
+              />
+              {loadings?.state && <Loader size="md" type="dots" />}
+            </Flex>
+            <Flex align="flex-end">
+              <Select
+                className="w-full"
+                label="Insured PinCode"
+                placeholder="Insured PinCode"
+                required
+                value={tasksState?.insuredPinCode?.toString() || ""}
+                onChange={(val) =>
+                  dispatch({
+                    type: "change_state",
+                    value: {
+                      ...tasksState,
+                      insuredPinCode: val ? parseInt(val) : 0,
+                    },
+                  })
+                }
+                disabled={isAllocation || loadings?.pinCode}
+                data={geoOptions?.pinCode}
+                searchable
+                clearable
+                searchValue={searchValues.pinCode}
+                onSearchChange={(val) =>
+                  setSearchValues((prev) => ({ ...prev, pinCode: val || "" }))
+                }
+              />
+              {loadings?.pinCode && <Loader size="md" type="dots" />}
+            </Flex>
           </>
         )}
         <MultiSelect
