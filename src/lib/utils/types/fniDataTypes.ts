@@ -267,6 +267,7 @@ export interface ContractDetails {
   sourcing: string;
   bancaDetails: string;
   customerType: string;
+  inceptionDate: string;
 }
 
 export interface InsuredDetails {

@@ -489,6 +489,8 @@ const getFniData = async (
             : claimDetail?.PolicyClaims?.Customer_Type === "C"
             ? "Group"
             : claimDetail?.PolicyClaims?.Customer_Type,
+        inceptionDate:
+          customerFromCustomerPolicy?.CONTRACTS?.[0]?.Inception_Date,
       },
       members: customizedMembers,
       insuredDetails: {

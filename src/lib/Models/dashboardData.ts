@@ -90,6 +90,7 @@ const ContractDetailsSchema = new Schema({
   sourcing: { type: String },
   bancaDetails: { type: String },
   customerType: { type: String },
+  inceptionDate: { type: String },
 });
 
 const HistorySchema = new Schema({
