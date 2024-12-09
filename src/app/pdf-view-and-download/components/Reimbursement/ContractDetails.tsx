@@ -45,6 +45,12 @@ const ContractDetails = ({ data, invType }: PropTypes) => {
         : "-",
     },
     {
+      key: "Inception Date",
+      value: data?.contractDetails?.inceptionDate
+        ? dayjs(data?.contractDetails?.inceptionDate).format("DD-MMM-YYYY")
+        : "-",
+    },
+    {
       key: "NBHI Policy Start Date",
       value: data?.contractDetails?.NBHIPolicyStartDate
         ? dayjs(data?.contractDetails?.NBHIPolicyStartDate).format(
