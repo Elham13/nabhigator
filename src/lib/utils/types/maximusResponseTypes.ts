@@ -144,6 +144,7 @@ export interface Contract {
   COVER_SUB_TYPE: string;
   AGENT_NAME: string;
   AGENT_CODE: string;
+  Inception_Date: string;
 }
 
 export interface KYCDetails {
@@ -436,7 +437,7 @@ export interface IClaimsData {
   Claims: string;
   SourceSystem: string;
   ClaimsBenefits: IClaimsBenefits[];
-  Is_ReInvestigate:string;
+  Is_ReInvestigate: string;
 }
 
 export interface IGetFNIData {

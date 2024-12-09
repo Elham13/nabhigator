@@ -64,6 +64,18 @@ const ContractDetailsContent = ({ data }: PropTypes) => {
       </GridCol>
       <GridCol span={{ sm: 12, md: 6 }}>
         <KeyValueContainer
+          label="Inception Date"
+          value={
+            data?.contractDetails?.inceptionDate
+              ? dayjs(data?.contractDetails?.inceptionDate).format(
+                  "DD-MMM-YYYY"
+                )
+              : "-"
+          }
+        />
+      </GridCol>
+      <GridCol span={{ sm: 12, md: 6 }}>
+        <KeyValueContainer
           label="NBHI Policy Start Date"
           value={
             data?.contractDetails?.NBHIPolicyStartDate
