@@ -82,7 +82,7 @@ const InvestigatorsList = ({
   const [data, setData] = useState<Investigator[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [pagination, setPagination] = useState({
-    limit: 5,
+    limit: 15,
     page: 1,
     count: 0,
   });
