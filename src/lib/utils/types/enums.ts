@@ -48,6 +48,7 @@ export enum EndPoints {
   STATES = "/api/Claims/states",
   UPDATE_CASE_DETAIL = "/api/fni-mobile-app/updateCaseDetail",
   UPDATE_DASHBOARD_DATA = "/api/fni-mobile-app/updateDashboardData",
+  UPDATE_FNI_DYNAMIC_FIELDS = "/api/Claims/updateFniDynamicFields",
   USER = "/api/Claims/user",
   USER_LOGIN = "/api/fni-auth/userLogin",
   USER_LOGOUT = "/api/Claims/userLogout",

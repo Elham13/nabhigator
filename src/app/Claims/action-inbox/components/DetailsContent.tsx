@@ -176,9 +176,6 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
               }
             />
           )}
-                     <Button className="m-4" onClick={getData}>
-                    Reload
-              </Button>
           <Box>
             <Box className="bg-blue-900 text-white rounded-t-lg p-4 flex flex-col items-center justify-center">
               <h1 className="text-xl font-bold">{data?.claimId}</h1>
