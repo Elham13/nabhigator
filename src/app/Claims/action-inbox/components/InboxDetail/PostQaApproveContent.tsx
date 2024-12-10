@@ -37,6 +37,7 @@ type PropTypes = {
 
 const approvedValuesInitials: PostQaApproveFormValues = {
   summaryOfInvestigation: "",
+  qaRemarks: "",
   frcuRecommendationOnClaims: "",
   claimsGroundOfRepudiation: [],
   frcuGroundOfRepudiation: [],
@@ -101,6 +102,7 @@ const PostQaApproveContent = ({
   const checkIfCanClose = async () => {
     const {
       summaryOfInvestigation,
+      qaRemarks,
       frcuRecommendationOnClaims,
       claimsGroundOfRepudiation,
       frcuGroundOfRepudiation,
@@ -113,6 +115,7 @@ const PostQaApproveContent = ({
 
     if (!summaryOfInvestigation)
       return toast.warn("Fill Summary of investigation");
+    if (!qaRemarks) return toast.warn("QA Remarks is required");
     if (!frcuRecommendationOnClaims)
       return toast.warn("Select FRCU Recommendation on Claims");
     if (frcuRecommendationOnClaims === "Repudiation") {
@@ -172,7 +175,7 @@ const PostQaApproveContent = ({
       let reportLink = `/pdf-view-and-download?claimId=${encryptedClaimId}&docType=final-investigation-report`;
 
       const recommendation = {
-        text: `${approvedValues?.summaryOfInvestigation}. This case is investigated at Nabhigator, Please refer the report link: `,
+        text: `${approvedValues?.qaRemarks}. This case is investigated at Nabhigator, Please refer the report link: `,
         link: reportLink,
       };
 
@@ -251,10 +254,11 @@ const PostQaApproveContent = ({
         postQARecommendation: preparedValues,
       };
 
-      const { data: reverseRes } = await axios.post(
-        EndPoints.REVERSE_API,
-        apiPayload
-      );
+      let reverseRes: any = null;
+      if (process.env.NEXT_PUBLIC_CONFIG !== "LOCAL") {
+        const { data } = await axios.post(EndPoints.REVERSE_API, apiPayload);
+        reverseRes = data;
+      }
 
       const { data: res } = await axios.post<
         SingleResponseType<IDashboardData>
@@ -308,6 +312,7 @@ const PostQaApproveContent = ({
       ...prev,
       summaryOfInvestigation:
         caseDetail?.postQARecommendation?.summaryOfInvestigation || summary,
+      qaRemarks: caseDetail?.postQARecommendation?.qaRemarks || "",
       frcuRecommendationOnClaims:
         prev?.frcuRecommendationOnClaims || recommendation || "-",
       documents: caseDetail?.postQARecommendation?.documents || [],
