@@ -412,6 +412,34 @@ const DetailsAccordion = ({
         ]
       : []),
 
+    ...(caseDetail?.caseStatus === "Rejected"
+      ? [
+          {
+            value: "Rejection Reasons",
+            content: (
+              <RejectionReasons
+                rejectionReasons={caseDetail?.rejectionReasons}
+              />
+            ),
+          },
+        ]
+      : []),
+
+    ...(data?.stage !== NumericStage.PENDING_FOR_PRE_QC
+      ? [
+          {
+            value: "Pre QC Uploads",
+            content: (
+              <PreQCUploads
+                caseDetail={caseDetail}
+                claimId={data?.claimId}
+                setCaseDetail={setCaseDetail}
+              />
+            ),
+          },
+        ]
+      : []),
+
     ...(data?.stage &&
     [
       NumericStage.PENDING_FOR_ALLOCATION,
@@ -446,34 +474,6 @@ const DetailsAccordion = ({
                   }
                 />
               </Fragment>
-            ),
-          },
-        ]
-      : []),
-
-    ...(caseDetail?.caseStatus === "Rejected"
-      ? [
-          {
-            value: "Rejection Reasons",
-            content: (
-              <RejectionReasons
-                rejectionReasons={caseDetail?.rejectionReasons}
-              />
-            ),
-          },
-        ]
-      : []),
-
-    ...(data?.stage !== NumericStage.PENDING_FOR_PRE_QC
-      ? [
-          {
-            value: "Pre QC Uploads",
-            content: (
-              <PreQCUploads
-                caseDetail={caseDetail}
-                claimId={data?.claimId}
-                setCaseDetail={setCaseDetail}
-              />
             ),
           },
         ]
