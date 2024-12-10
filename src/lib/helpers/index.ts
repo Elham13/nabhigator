@@ -639,14 +639,15 @@ export const getOpenAndClosureTAT = ({
     openTAT:
       !!stage && [NumericStage.CLOSED, NumericStage.REJECTED].includes(stage)
         ? dateOfClosure
-          ? dayjs(dateOfClosure).diff(dayjs(intimationDate), "days")
+          ? dayjs(dateOfClosure).tz("Asia/Kolkata")
+          .diff(dayjs(intimationDate).tz("Asia/Kolkata"), "days")
           : 0
-        : dayjs().diff(dayjs(intimationDate), "days"),
+        : dayjs().tz("Asia/Kolkata").diff(dayjs(intimationDate).tz("Asia/Kolkata"), "days"),
     closureTAT:
       !!stage &&
       [NumericStage.CLOSED, NumericStage.REJECTED].includes(stage) &&
       dateOfClosure
-        ? dayjs().diff(dayjs(dateOfClosure), "days")
+        ? dayjs().tz("Asia/Kolkata").diff(dayjs(dateOfClosure).tz("Asia/Kolkata"), "days")
         : 0,
   };
 };
