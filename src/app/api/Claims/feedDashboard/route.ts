@@ -206,24 +206,26 @@ router.post(async (req) => {
                   foundDashboardData.dateOfFallingIntoReInvestigation =
                     new Date();
                   await foundDashboardData.save();
+
+                  await captureCaseEvent({
+                    eventName: EventNames.MOVED_TO_IN_FIELD_RE_INVESTIGATION,
+                    intimationDate:
+                      foundDashboardData?.intimationDate ||
+                      dayjs()
+                        .tz("Asia/Kolkata")
+                        .format("DD-MMM-YYYY hh:mm:ss A"),
+                    stage: foundDashboardData?.stage,
+                    claimId: foundDashboardData?.claimId,
+                    eventRemarks:
+                      "Case returned back from Maximus to be Re-Investigated",
+                    userName: "System",
+                  });
+                  updated += 1;
+                  updatedReasons?.push(
+                    `${apiType}: Case moved to Re-Investigation for claimId: ${obj?.claimType}_${obj?.claimId}`
+                  );
+                  updatedClaimIds?.push(obj?.claimId);
                 }
-                updated += 1;
-                updatedReasons?.push(
-                  `${apiType}: Case moved to Re-Investigation for claimId: ${obj?.claimType}_${obj?.claimId}`
-                );
-                updatedClaimIds?.push(obj?.claimId);
-                
-                await captureCaseEvent({
-                  eventName: EventNames.MOVED_TO_IN_FIELD_RE_INVESTIGATION,
-                  intimationDate:
-                    foundDashboardData?.intimationDate ||
-                    dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
-                  stage: foundDashboardData?.stage,
-                  claimId: foundDashboardData?.claimId,
-                  eventRemarks:
-                    "Case returned back from Maximus to be Re-Investigated",
-                  userName: "System",
-                });
               }
             }
           }
