@@ -31,7 +31,7 @@ const getToken = async () => {
   }
 };
 
-interface IFetchProps {
+export interface IFetchProps {
   claimId?: number;
   claimType?: "PreAuth" | "Reimbursement";
   mustFetch?: {
@@ -55,7 +55,7 @@ export const fetchMaxData = async ({
   claimType,
   mustFetch = { getClaimDetailById: true },
 }: IFetchProps) => {
-  const response = {} as IResponse;
+  const response: IResponse = {};
   try {
     const { success, message, token } = await getToken();
     if (!success) throw new Error(message);
@@ -68,13 +68,13 @@ export const fetchMaxData = async ({
 
       const { data: claimDetail } = await axios.post<ClaimsGetByIdRes>(
         `${baseUrl}${EndPoints.GET_CLAIM_DETAIL_BY_ID}`,
-        { ClaimID: claimId, ClaimType: claimType },
+        { ClaimID: claimId?.toString(), ClaimType: claimType?.charAt(0) },
         { headers }
       );
 
       if (["False", "false"].includes(claimDetail?.Status)) {
         throw new Error(
-          `Get Claim details by id api failure: ${claimDetail?.StatusMessage}`
+          `Maximus Error: ${EndPoints.GET_CLAIM_DETAIL_BY_ID} api failure: ${claimDetail?.StatusMessage}`
         );
       }
 
@@ -84,7 +84,7 @@ export const fetchMaxData = async ({
         const { data: claimOtherDetail } =
           await axios.post<ClaimOtherDetailRes>(
             `${baseUrl}${EndPoints.GET_CLAIM_OTHER_DETAILS}`,
-            { ClaimID: claimId, ClaimType: claimType },
+            { ClaimID: claimId?.toString(), ClaimType: claimType?.charAt(0) },
             { headers }
           );
 
@@ -130,8 +130,8 @@ export const fetchMaxData = async ({
       }
     }
 
-    return { success: false, message: "Success", data: response };
+    return { success: true, message: "Success", data: response };
   } catch (error: any) {
-    return { success: false, message: error?.message, data: {} };
+    return { success: false, message: error?.message, data: null };
   }
 };
