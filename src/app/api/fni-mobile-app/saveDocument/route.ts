@@ -37,7 +37,6 @@ router.post(async (req) => {
 
     const caseDetail: HydratedDocument<CaseDetail> | null =
       await ClaimCase.findById(id);
-
     if (!caseDetail) throw new Error(`No data found with id ${id}`);
 
     let docs: DocumentMap | null = null;
@@ -67,9 +66,7 @@ router.post(async (req) => {
     }
 
     if (!docs) throw new Error("No documents found");
-
-    const documents = docs?.get(docName);
-
+    const documents = docName.includes("-") ? docs?.get(docName.split('-')[1]): docs?.get(docName); 
     if (!documents)
       throw new Error(`No documents found with the docName ${docName}`);
 
