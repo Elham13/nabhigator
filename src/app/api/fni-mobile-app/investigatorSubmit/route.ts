@@ -265,16 +265,15 @@ router.post(async (req) => {
         dashboardData?.expedition && dashboardData?.expedition?.length > 0
           ? dashboardData?.expedition?.map((el) => ({ ...el, noted: true }))
           : dashboardData?.expedition;
-        let postQaEmail:string='';
-        let postQaUsername:string=''; 
+      let postQaEmail: string = "";
+      let postQaUsername: string = "";
       if (!!dashboardData?.postQa) {
         stage = NumericStage.POST_QA_REWORK;
-        const postQaUser = await User.findById(dashboardData?.postQa)
-        if(!postQaUser) throw new Error('no postqa user found');
+        const postQaUser = await User.findById(dashboardData?.postQa);
+        if (!postQaUser) throw new Error("no postqa user found");
         postQaEmail = postQaUser?.email;
         postQaUsername = postQaUser?.name;
       } else {
-
         const user = await findPostQaUser({
           claimType: dashboardData?.claimType,
           providerState: dashboardData?.hospitalDetails?.providerState,
@@ -291,8 +290,8 @@ router.post(async (req) => {
 
           if (!newUser)
             throw new Error(`No user found with the id ${user?._id}`);
-            postQaEmail = newUser?.email;
-            postQaUsername = newUser?.name;
+          postQaEmail = newUser?.email;
+          postQaUsername = newUser?.name;
           dashboardData.postQa = user?._id;
 
           if (dashboardData?.claimType === "PreAuth") {
@@ -354,8 +353,14 @@ router.post(async (req) => {
           await newUser!.save();
         }
       }
-      if(dashboardData?.stage === NumericStage.IN_FIELD_REWORK ){
-        await informInvestigators({ userName, data: dashboardData, userId ,postQaEmail,postQaUsername});
+      if (dashboardData?.stage === NumericStage.IN_FIELD_REWORK) {
+        await informInvestigators({
+          userName,
+          data: dashboardData,
+          userId,
+          postQaEmail,
+          postQaUsername,
+        });
       }
       dashboardData.stage = stage;
     } else {
@@ -366,6 +371,7 @@ router.post(async (req) => {
 
     dashboardData.invReportReceivedDate = new Date();
 
+    await inv.save();
     await caseDetail.save();
     const data = await dashboardData.save();
 
@@ -406,18 +412,18 @@ router.post(async (req) => {
 export async function POST(request: NextRequest, ctx: RequestContext) {
   return router.run(request, ctx) as Promise<void>;
 }
-async function  informInvestigators({
+async function informInvestigators({
   data,
   userName,
   userId,
   postQaEmail,
-  postQaUsername
+  postQaUsername,
 }: {
   data: IDashboardData;
   userName: string;
   userId: string;
   postQaEmail: string;
-  postQaUsername:string
+  postQaUsername: string;
 }) {
   const claimType = data?.claimType;
   const recipients: string[] = [postQaEmail];
