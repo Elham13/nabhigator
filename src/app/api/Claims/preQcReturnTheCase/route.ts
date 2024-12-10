@@ -225,6 +225,7 @@ router.post(async (req) => {
         { useFindAndModify: false }
       );
     } else {
+      await ClaimCase.findOneAndDelete({ dashboardDataId: dashboardData?._id });
       const newCase: HydratedDocument<CaseDetail> = await ClaimCase.create({
         caseStatus: "Rejected",
         allocationType: "Single",
@@ -339,7 +340,7 @@ router.post(async (req) => {
     return NextResponse.json(
       {
         success: true,
-        message: "Changes captured successfully",
+        message: "Case returned back to Maximus successfully",
         data: {},
       },
       { status: 200 }
