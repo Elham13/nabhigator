@@ -1,122 +1,18 @@
 import connectDB from "@/lib/db/dbConnectWithMongoose";
-import User from "@/lib/Models/user";
-import ZoneStateMaster from "@/lib/Models/zoneStateMaster";
 import { Databases } from "@/lib/utils/types/enums";
 import {
   IDashboardData,
   Investigator,
-  IUser,
-  IZoneStateMaster,
-  Role,
+  NumericStage,
 } from "@/lib/utils/types/fniDataTypes";
-import dayjs from "dayjs";
-import { HydratedDocument, PipelineStage } from "mongoose";
+import { HydratedDocument } from "mongoose";
 import { createEdgeRouter } from "next-connect";
 import { RequestContext } from "next/dist/server/base-server";
 import { NextRequest, NextResponse } from "next/server";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
 import ClaimInvestigator from "@/lib/Models/claimInvestigator";
 import DashboardData from "@/lib/Models/dashboardData";
-// dayjs.extend(timezone);
 
 const router = createEdgeRouter<NextRequest, {}>();
-
-const dbQueries = () => {
-  // For report recieved date
-  // db.dashboarddatas
-  //   .aggregate([
-  //     {
-  //       $match: {
-  //         stage: { $in: [12, 4] },
-  //         caseId: { $exists: true, $ne: null },
-  //         $or: [
-  //           { invReportReceivedDate: { $exists: false } },
-  //           { invReportReceivedDate: null },
-  //         ],
-  //       },
-  //     },
-  //     { $project: { claimId: 1, invReportReceivedDate: 1, caseId: 1 } },
-  //   ])
-  //   .forEach(function (doc) {
-  //     const claimCase = db.claimcases.findOne({ _id: doc.caseId });
-  //     if (claimCase) {
-  //       let date = null;
-  //       if (
-  //         claimCase.singleTasksAndDocs &&
-  //         claimCase.singleTasksAndDocs.invReportReceivedDate
-  //       ) {
-  //         date = claimCase.singleTasksAndDocs.invReportReceivedDate;
-  //       } else if (claimCase.reportReceivedDate) {
-  //         date = claimCase.reportReceivedDate;
-  //       } else if (claimCase.invReportReceivedDate) {
-  //         date = claimCase.invReportReceivedDate;
-  //       } else {
-  //         print("No condition success for caseId: " + claimCase._id);
-  //       }
-  //       if (date) {
-  //         print("Update success: " + claimCase._id);
-  //         db.dashboarddatas.findAndModify({
-  //           query: { _id: doc._id },
-  //           update: { $set: { invReportReceivedDate: date } },
-  //         });
-  //       }
-  //     } else {
-  //       print("Document not found for caseId: " + doc.caseId);
-  //     }
-  //   });
-  // For recommendation
-  // db.dashboarddatas
-  //   .aggregate([
-  //     {
-  //       $match: {
-  //         stage: { $in: [12, 4] },
-  //         caseId: { $exists: true, $ne: null },
-  //         $or: [
-  //           { investigatorRecommendation: { $exists: false } },
-  //           { investigatorRecommendation: null },
-  //           { investigatorRecommendation: "" },
-  //         ],
-  //       },
-  //     },
-  //     { $project: { claimId: 1, investigatorRecommendation: 1, caseId: 1 } },
-  //   ])
-  //   .forEach(function (doc) {
-  //     const claimCase = db.claimcases.findOne({ _id: doc.caseId });
-  //     if (claimCase) {
-  //       let recommendation = null;
-  //       if (
-  //         claimCase.singleTasksAndDocs &&
-  //         claimCase.singleTasksAndDocs.preAuthFindings &&
-  //         claimCase.singleTasksAndDocs.preAuthFindings &&
-  //         claimCase.singleTasksAndDocs.preAuthFindings.recommendation &&
-  //         claimCase.singleTasksAndDocs.preAuthFindings.recommendation.value
-  //       ) {
-  //         recommendation =
-  //           claimCase.singleTasksAndDocs.preAuthFindings.recommendation.value;
-  //       } else if (
-  //         claimCase.investigationFindings &&
-  //         claimCase.investigationFindings &&
-  //         claimCase.investigationFindings &&
-  //         claimCase.investigationFindings.recommendation &&
-  //         claimCase.investigationFindings.recommendation.value
-  //       ) {
-  //         recommendation = claimCase.investigationFindings.recommendation.value;
-  //       } else {
-  //         print("No condition success for caseId: " + claimCase._id);
-  //       }
-  //       if (recommendation) {
-  //         print("Update success: " + claimCase._id);
-  //         db.dashboarddatas.findAndModify({
-  //           query: { _id: doc._id },
-  //           update: { $set: { investigatorRecommendation: recommendation } },
-  //         });
-  //       }
-  //     } else {
-  //       print("Document not found for caseId: " + doc.caseId);
-  //     }
-  //   });
-};
 
 router.post(async (req) => {
   const body = await req?.json();
@@ -150,7 +46,14 @@ router.post(async (req) => {
 
       const data = (await DashboardData.find({
         "claimInvestigators._id": inv?._id,
-        stage: { $ne: 12 },
+        stage: {
+          $in: [
+            NumericStage.IN_FIELD_FRESH,
+            NumericStage.IN_FIELD_REINVESTIGATION,
+            NumericStage.IN_FIELD_REWORK,
+            NumericStage.INVESTIGATION_ACCEPTED,
+          ],
+        },
         claimId: {
           $nin: unwantedClaimIds,
         },
@@ -193,6 +96,56 @@ router.post(async (req) => {
             preAuthIds,
             rmIds,
           });
+
+          await newInv.save();
+        }
+      }
+    }
+
+    for (const inv of investigators) {
+      const data = (await DashboardData.find({
+        "claimInvestigators._id": inv?._id,
+        stage: {
+          $in: [
+            NumericStage.IN_FIELD_FRESH,
+            NumericStage.IN_FIELD_REINVESTIGATION,
+            NumericStage.IN_FIELD_REWORK,
+            NumericStage.INVESTIGATION_ACCEPTED,
+          ],
+        },
+      }).lean()) as IDashboardData[];
+
+      if (data && data?.length > 0) {
+        const preAuthIds = data
+          ?.filter((el) => el?.claimType === "PreAuth")
+          ?.map((el) => el?.claimId);
+        const rmIds = data
+          ?.filter((el) => el?.claimType === "Reimbursement")
+          ?.map((el) => el?.claimId);
+
+        const newInv: HydratedDocument<Investigator> | null =
+          await ClaimInvestigator.findById(inv?._id);
+
+        if (newInv) {
+          if (newInv?.pendency) {
+            if (newInv?.pendency?.preAuth?.length > 0) {
+              newInv.pendency.preAuth = newInv?.pendency?.preAuth?.filter(
+                (id) => preAuthIds?.includes(id)
+              );
+            } else {
+              newInv.pendency.preAuth = preAuthIds;
+            }
+
+            if (newInv?.pendency?.rm?.length > 0) {
+              newInv.pendency.rm = newInv?.pendency?.rm?.filter((id) =>
+                rmIds?.includes(id)
+              );
+            } else {
+              newInv.pendency.rm = rmIds;
+            }
+          } else {
+            newInv.pendency = { preAuth: rmIds, rm: preAuthIds };
+          }
 
           await newInv.save();
         }

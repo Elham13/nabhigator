@@ -20,6 +20,7 @@ import { performSystemPreQc } from "@/lib/helpers/performSystemPreQc";
 import getClaimIds from "@/lib/helpers/getClaimIds";
 import DashboardFeedingLog from "@/lib/Models/dashboardFeedingLog";
 import { TSourceSystem } from "@/lib/utils/types/maximusResponseTypes";
+import { captureCaseEvent } from "../caseEvent/helpers";
 
 dayjs.extend(tz);
 
@@ -211,6 +212,18 @@ router.post(async (req) => {
                   `${apiType}: Case moved to Re-Investigation for claimId: ${obj?.claimType}_${obj?.claimId}`
                 );
                 updatedClaimIds?.push(obj?.claimId);
+                
+                await captureCaseEvent({
+                  eventName: EventNames.MOVED_TO_IN_FIELD_RE_INVESTIGATION,
+                  intimationDate:
+                    foundDashboardData?.intimationDate ||
+                    dayjs().tz("Asia/Kolkata").format("DD-MMM-YYYY hh:mm:ss A"),
+                  stage: foundDashboardData?.stage,
+                  claimId: foundDashboardData?.claimId,
+                  eventRemarks:
+                    "Case returned back from Maximus to be Re-Investigated",
+                  userName: "System",
+                });
               }
             }
           }
