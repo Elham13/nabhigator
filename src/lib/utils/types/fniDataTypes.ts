@@ -486,6 +486,7 @@ export enum EventNames {
   DOCUMENT_RESTORED = "Document Restored",
   DOCUMENT_REPLACED = "Document Replaced",
   STAGE_CHANGE = "Stage changed",
+  MOVED_TO_IN_FIELD_RE_INVESTIGATION = "Moved To In-Field Re-Investigation",
 }
 
 export interface INewCityMaster {
