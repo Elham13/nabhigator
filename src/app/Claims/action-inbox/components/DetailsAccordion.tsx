@@ -192,7 +192,7 @@ const DetailsAccordion = ({
           {
             value: "Pre-Auth Details",
             content: value === "Pre-Auth Details" && (
-              <GeneralContent data={data} />
+              <GeneralContent data={data} setData={setData} />
             ),
           },
         ]

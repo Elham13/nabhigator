@@ -1,15 +1,45 @@
-import React from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import KeyValueContainer from "./KeyValueContainer";
 import dayjs from "dayjs";
-import { Grid, GridCol } from "@mantine/core";
-import { IDashboardData } from "@/lib/utils/types/fniDataTypes";
-import { convertToIndianFormat, getStageLabel } from "@/lib/helpers";
+import { ActionIcon, Flex, Grid, GridCol } from "@mantine/core";
+import {
+  IDashboardData,
+  SingleResponseType,
+} from "@/lib/utils/types/fniDataTypes";
+import { convertToIndianFormat, getStageLabel, showError } from "@/lib/helpers";
+import { IoReload } from "react-icons/io5";
+import axios from "axios";
+import { EndPoints } from "@/lib/utils/types/enums";
+import { toast } from "react-toastify";
 
 type PropTypes = {
   data: IDashboardData | null;
+  setData: Dispatch<SetStateAction<IDashboardData | null>>;
 };
 
-const GeneralContent = ({ data }: PropTypes) => {
+const GeneralContent = ({ data, setData }: PropTypes) => {
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const updateClaimStatus = async () => {
+    setLoading(true);
+    try {
+      const { data: res } = await axios.post<
+        SingleResponseType<IDashboardData>
+      >(EndPoints.UPDATE_FNI_DYNAMIC_FIELDS, {
+        fieldToUpdate: "claimStatusUpdated",
+        claimId: data?.claimId,
+        claimType: data?.claimType,
+        membershipId: data?.insuredDetails?.memberId,
+      });
+      toast.success(res?.message);
+      setData(res?.data);
+    } catch (error: any) {
+      showError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Grid>
       {/* <GridCol span={{ sm: 12, md: 6 }}>
@@ -114,10 +144,15 @@ const GeneralContent = ({ data }: PropTypes) => {
             />
           </GridCol>
           <GridCol span={{ sm: 12, md: 6 }}>
-            <KeyValueContainer
-              label="Pre-Auth Status Updated"
-              value={data?.claimDetails?.claimStatusUpdated}
-            />
+            <Flex gap={10} justify="space-between">
+              <KeyValueContainer
+                label="Pre-Auth Status Updated"
+                value={data?.claimDetails?.claimStatusUpdated}
+              />
+              <ActionIcon size="md" onClick={updateClaimStatus}>
+                <IoReload className={`${loading ? "animate-spin" : ""}`} />
+              </ActionIcon>
+            </Flex>
           </GridCol>
           <GridCol span={{ sm: 12, md: 6 }}>
             <KeyValueContainer
