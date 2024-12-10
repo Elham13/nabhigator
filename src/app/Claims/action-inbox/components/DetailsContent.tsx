@@ -220,7 +220,11 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
             {[Role.ADMIN, Role.PRE_QC, Role.ALLOCATION].includes(
               user?.activeRole
             ) &&
-            data?.stage === NumericStage.PENDING_FOR_PRE_QC &&
+            data?.stage &&
+            [
+              NumericStage.PENDING_FOR_PRE_QC,
+              NumericStage.IN_FIELD_REINVESTIGATION,
+            ].includes(data?.stage) &&
             origin === "inbox" ? (
               <PreQcFooter
                 data={data}

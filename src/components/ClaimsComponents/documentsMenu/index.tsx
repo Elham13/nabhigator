@@ -49,8 +49,10 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
 
   if (process.env.NEXT_PUBLIC_CONFIG === "PROD") {
     link = `https://www.nivabupa.com${link}`;
-  } else {
+  } else if (process.env.NEXT_PUBLIC_CONFIG === "UAT") {
     link = `https://appform.nivabupa.com${link}`;
+  } else {
+    link = `http://localhost:8090${link}`;
   }
 
   return (
