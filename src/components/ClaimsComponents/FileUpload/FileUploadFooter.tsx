@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { documentName, getSignedUrlHelper, isImageUrl } from "@/lib/helpers";
 import { IoEyeOutline, IoLinkOutline } from "react-icons/io5";
 import PopConfirm from "@/components/PopConfirm";
 import { MdOutlineDelete } from "react-icons/md";
-import { Modal } from "@mantine/core";
+import { Button, Modal } from "@mantine/core";
 
 type PropTypes = {
   url: string;
@@ -17,7 +17,24 @@ const FileUploadFooter = ({ url, onDelete }: PropTypes) => {
 
   const docName = documentName(url) || "";
 
-  getSignedUrlHelper(url).then((str) => setSignedUrl(str));
+  const handleDownload = () => {
+    const a = document.createElement("a");
+    a.href = signedUrl;
+    a.download = docName; // Optional
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
+  useEffect(() => {
+    (async () => {
+      if (!!url) {
+        const str = await getSignedUrlHelper(url);
+        if (str) setSignedUrl(str);
+      }
+    })();
+  }, [url]);
 
   return (
     <div className="flex items-center justify-between text-xs text-slate-300 group px-2 py-1 rounded hover:bg-slate-200">
@@ -53,6 +70,7 @@ const FileUploadFooter = ({ url, onDelete }: PropTypes) => {
         <Modal opened={visible} onClose={() => setVisible(false)} size="xl">
           <p>{docName}</p>
           <div className="mt-4">
+            <Button onClick={handleDownload}>Download</Button>
             {isImageUrl(url) ? (
               <Image
                 alt="Uploaded Image"
