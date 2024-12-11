@@ -459,12 +459,8 @@ export default function InvestigationSummary({
                   Pre-Auth Details
                 </Title>
                 <Box>
-                  {preAuthData.map(({ label, value }) => (
-                    <KeyValueContainer
-                      key={label}
-                      label={label}
-                      value={value}
-                    />
+                  {preAuthData.map(({ label, value }, ind) => (
+                    <KeyValueContainer key={ind} label={label} value={value} />
                   ))}
                 </Box>
               </Box>
@@ -496,13 +492,13 @@ export default function InvestigationSummary({
                   Documents Assigned
                 </Title>
                 <Box>
-                  {documentsAssigned.map(({ label, value }) => (
-                    <Box key={label}>
+                  {documentsAssigned.map(({ label, value }, ind) => (
+                    <Box key={ind}>
                       <Box className="flex items-center justify-between">
                         <Text>{label}</Text>
                         <Text fw={500} c="green">
-                          {value.map((item: any) => (
-                            <span key={item}>{item}</span>
+                          {value.map((item: any, ind: number) => (
+                            <span key={ind}>{item}</span>
                           ))}
                         </Text>
                       </Box>
@@ -527,10 +523,10 @@ export default function InvestigationSummary({
                   Pre-Auth Investigator Findings
                 </Title>
                 <Box>
-                  {investigationDataArray.map((item) => {
+                  {investigationDataArray.map((item, ind) => {
                     return (
                       <KeyValueContainer
-                        key={item.key}
+                        key={ind}
                         label={item.key}
                         value={item.value}
                       />
@@ -543,16 +539,16 @@ export default function InvestigationSummary({
                   Post-QA recommendation
                 </Title>
                 <Box>
-                  {postQARecommendationArray.map((item) => {
+                  {postQARecommendationArray.map((item, ind) => {
                     let returnJsx;
                     if (Array.isArray(item.value)) {
                       returnJsx = (
-                        <Box key={item.key}>
+                        <Box key={ind}>
                           <Box className="flex items-center justify-between">
                             <Text>{item.key}</Text>
                             <Text fw={500} c="green">
-                              {item.value.map((item) => (
-                                <span key={item}>{item}</span>
+                              {item.value.map((item, ind) => (
+                                <span key={ind}>{item}</span>
                               ))}
                             </Text>
                           </Box>

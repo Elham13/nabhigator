@@ -144,6 +144,25 @@ const PostQaApproveForm = ({
           />
         </Grid.Col>
         <Grid.Col span={{ sm: 12, md: 6 }}>
+          <Textarea
+            autosize
+            minRows={5}
+            resize="vertical"
+            label="QA Remarks"
+            placeholder="Enter QA Remarks"
+            required
+            withAsterisk
+            value={approvedValues.qaRemarks}
+            onChange={(e) =>
+              setApprovedValues((prev) => ({
+                ...prev,
+                qaRemarks: e.target.value,
+              }))
+            }
+            onBlur={(e) => handleBlur("qaRemarks", e.target.value)}
+          />
+        </Grid.Col>
+        <Grid.Col span={{ sm: 12, md: 6 }}>
           <Select
             label="FRCU Recommendation on Claims"
             placeholder="FRCU Recommendation on Claims"
