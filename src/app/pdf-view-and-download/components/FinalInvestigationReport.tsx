@@ -611,82 +611,116 @@ const FinalInvestigationReport = ({
           topic="Hospitalization Details"
         />
       )}
-      {isRM ?  
-          <>
-                {!!rmFindingsQA?.["Insured Verification"] ? (
-          <InsuredVerification
-            values={rmFindingsQA?.["Insured Verification"]}
-          />) :null}
-            <div>
-              {!!rmFindings?.["Hospital Verification"] && (
-                <HospitalVerification values={rmFindings?.["Hospital Verification"]} />
-              )}
-              {!!rmFindings?.["Claim Verification"] && (
-                <ClaimVerification values={rmFindings?.["Claim Verification"]} />
-              )}
-              {!!rmFindings?.["Treating Doctor Verification"] && (
-                <TreatingDoctorVerification
-                  values={rmFindings?.["Treating Doctor Verification"]} />
-              )}
-              {!!rmFindings?.["Chemist Verification"] && (
-                <ChemistVerification values={rmFindings?.["Chemist Verification"]} />
-              )}
-              {!!rmFindings?.["OPD Verification Part"] && (
-                <OPDVerificationPart values={rmFindings?.["OPD Verification Part"]} />
-              )}
-              {!!rmFindings?.["Lab Part/Pathologist Verification"] && (
-                <LabOrPathologistVerification
-                  values={rmFindings?.["Lab Part/Pathologist Verification"]} />
-              )}
-              {!!rmFindings?.["NPS Confirmation"] && (
-                <NPSConfirmation values={rmFindings?.["NPS Confirmation"]} />
-              )}
-              {!!rmFindings?.["AHC Verification Part"] && (
-                <AHCVerificationPart values={rmFindings?.["AHC Verification Part"]} />
-              )}
-              {!!rmFindings?.["Pre-Post Verification"] && (
-                <PrePostVerification values={rmFindings?.["Pre-Post Verification"]} />
-              )}
-              {!!rmFindings?.["Employer Verification"] && (
-                <EmployerVerification values={rmFindings?.["Employer Verification"]} />
-              )}
-              {!!rmFindings?.["Employment & Establishment Verification"] && (
-                <EmploymentAndEstablishmentVerification
-                  values={rmFindings?.["Employment & Establishment Verification"]} />
-              )}
-              {!!rmFindings?.["Family Doctor Part/Referring Doctor Verification"] && (
-                <FamilyDoctorPartReferringDoctorVerification
-                  values={rmFindings?.["Family Doctor Part/Referring Doctor Verification"]} />
-              )}
-              {!!rmFindings?.["Hospital Daily Cash Part"] && (
-                <HospitalDailyCashPart
-                  values={rmFindings?.["Hospital Daily Cash Part"]} />
-              )}
-
-              {!!rmFindings?.["Random Vicinity Hospital/Lab/Doctor/Chemist Verification"] && (
-                <RandomVicinityVerification
-                  values={rmFindings?.["Random Vicinity Hospital/Lab/Doctor/Chemist Verification"]} />
-              )}
-
-              {!!rmFindings?.["Vicinity Verification"] && (
-                <VicinityVerification values={rmFindings?.["Vicinity Verification"]} />
-              )}
-              {!!rmFindings?.["Miscellaneous Verification"] && (
-                <MiscellaneousVerification
-                  values={rmFindings?.["Miscellaneous Verification"]} />
-              )}
-              {/* <CommonTasks values={rmFindings} /> */}
-            </div></>
-      
-         : <TwoSectionView data={patientDetails} topic="Patient Details" />
-      
-      }
-       {!isRM  ? (
+      {isRM ? (
         <>
-            <SectionHeading>Ailment Details</SectionHeading>
-            <TableView tableData={ailmentsTableData} />
+          {!!rmFindingsQA?.["Insured Verification"] ? (
+            <InsuredVerification
+              values={rmFindingsQA?.["Insured Verification"]}
+            />
+          ) : null}
+          <div>
+            {!!rmFindings?.["Hospital Verification"] && (
+              <HospitalVerification
+                values={rmFindings?.["Hospital Verification"]}
+              />
+            )}
+            {!!rmFindings?.["Claim Verification"] && (
+              <ClaimVerification values={rmFindings?.["Claim Verification"]} />
+            )}
+            {!!rmFindings?.["Treating Doctor Verification"] && (
+              <TreatingDoctorVerification
+                values={rmFindings?.["Treating Doctor Verification"]}
+              />
+            )}
+            {!!rmFindings?.["Chemist Verification"] && (
+              <ChemistVerification
+                values={rmFindings?.["Chemist Verification"]}
+              />
+            )}
+            {!!rmFindings?.["OPD Verification Part"] && (
+              <OPDVerificationPart
+                values={rmFindings?.["OPD Verification Part"]}
+              />
+            )}
+            {!!rmFindings?.["Lab Part/Pathologist Verification"] && (
+              <LabOrPathologistVerification
+                values={rmFindings?.["Lab Part/Pathologist Verification"]}
+              />
+            )}
+            {!!rmFindings?.["NPS Confirmation"] && (
+              <NPSConfirmation values={rmFindings?.["NPS Confirmation"]} />
+            )}
+            {!!rmFindings?.["AHC Verification Part"] && (
+              <AHCVerificationPart
+                values={rmFindings?.["AHC Verification Part"]}
+              />
+            )}
+            {!!rmFindings?.["Pre-Post Verification"] && (
+              <PrePostVerification
+                values={rmFindings?.["Pre-Post Verification"]}
+              />
+            )}
+            {!!rmFindings?.["Employer Verification"] && (
+              <EmployerVerification
+                values={rmFindings?.["Employer Verification"]}
+              />
+            )}
+            {!!rmFindings?.["Employment & Establishment Verification"] && (
+              <EmploymentAndEstablishmentVerification
+                values={rmFindings?.["Employment & Establishment Verification"]}
+              />
+            )}
+            {!!rmFindings?.[
+              "Family Doctor Part/Referring Doctor Verification"
+            ] && (
+              <FamilyDoctorPartReferringDoctorVerification
+                values={
+                  rmFindings?.[
+                    "Family Doctor Part/Referring Doctor Verification"
+                  ]
+                }
+              />
+            )}
+            {!!rmFindings?.["Hospital Daily Cash Part"] && (
+              <HospitalDailyCashPart
+                values={rmFindings?.["Hospital Daily Cash Part"]}
+              />
+            )}
+
+            {!!rmFindings?.[
+              "Random Vicinity Hospital/Lab/Doctor/Chemist Verification"
+            ] && (
+              <RandomVicinityVerification
+                values={
+                  rmFindings?.[
+                    "Random Vicinity Hospital/Lab/Doctor/Chemist Verification"
+                  ]
+                }
+              />
+            )}
+
+            {!!rmFindings?.["Vicinity Verification"] && (
+              <VicinityVerification
+                values={rmFindings?.["Vicinity Verification"]}
+              />
+            )}
+            {!!rmFindings?.["Miscellaneous Verification"] && (
+              <MiscellaneousVerification
+                values={rmFindings?.["Miscellaneous Verification"]}
+              />
+            )}
+            {/* <CommonTasks values={rmFindings} /> */}
+          </div>
         </>
-      ) : null}    
+      ) : (
+        <TwoSectionView data={patientDetails} topic="Patient Details" />
+      )}
+      {!isRM ? (
+        <>
+          <SectionHeading>Ailment Details</SectionHeading>
+          <TableView tableData={ailmentsTableData} />
+        </>
+      ) : null}
       {!isRM ||
       (isRM &&
         !!rmFindingsQA?.["Insured Verification"]?.personalOrSocialHabits &&
@@ -701,10 +735,12 @@ const FinalInvestigationReport = ({
       <Text style={styles.txt}>
         {caseData?.postQARecommendation?.summaryOfInvestigation || "-"}
       </Text>
-      {!isRM ? <TwoSectionView
-        data={investigationDetailsData}
-        topic="Investigation Details"
-      />: null}
+      {!isRM ? (
+        <TwoSectionView
+          data={investigationDetailsData}
+          topic="Investigation Details"
+        />
+      ) : null}
       <TwoSectionView
         data={investigationConclusion}
         topic="Investigation Conclusion"
