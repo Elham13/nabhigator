@@ -216,15 +216,17 @@ router.post(async (req) => {
       dashboardData.claimInvestigators = invs;
     }
 
-    const maximusRes = await tellMaximusCaseIsAssigned(
-      dashboardData?.toJSON(),
-      investigators[0],
-      body?.preQcObservation,
-      user?.email
-    );
+    if (process.env.NEXT_PUBLIC_CONFIG !== "LOCAL") {
+      const maximusRes = await tellMaximusCaseIsAssigned(
+        dashboardData?.toJSON(),
+        investigators[0],
+        body?.preQcObservation,
+        user?.email
+      );
 
-    if (!maximusRes?.success)
-      throw new Error(`Maximus Error: ${maximusRes.message}`);
+      if (!maximusRes?.success)
+        throw new Error(`Maximus Error: ${maximusRes.message}`);
+    }
 
     responseObj.message = `Case assigned to ${
       allocationType === "Dual"
@@ -289,25 +291,27 @@ router.post(async (req) => {
       //   break;
       // }
 
-      inv?.email?.length > 0 &&
-        inv?.email?.map(async (mail: string) => {
-          const cc_recipients: string[] = ["FIAllocation@nivabupa.com"];
-          if (dashboardData?.teamLead) {
-            const tl = await User.findById(dashboardData?.teamLead);
-            if (tl) cc_recipients?.push(tl?.email);
-          }
-          if (dashboardData?.clusterManager) {
-            const cm = await User.findById(dashboardData?.clusterManager);
-            if (cm) cc_recipients?.push(cm?.email);
-          }
-          await sendEmail({
-            from: FromEmails.DO_NOT_REPLY,
-            recipients: mail,
-            cc_recipients,
-            subject: `New Case assigned (${dashboardData?.claimId}_${dashboardData?.claimType})`,
-            bodyText: `Dear ${inv?.investigatorName} \nA new case has been assigned to you with the id ${dashboardData?.claimId}\n\n\nWish you best of luck\nNabhigator`,
+      if (process.env.NEXT_PUBLIC_CONFIG !== "LOCAL") {
+        inv?.email?.length > 0 &&
+          inv?.email?.map(async (mail: string) => {
+            const cc_recipients: string[] = ["FIAllocation@nivabupa.com"];
+            if (dashboardData?.teamLead) {
+              const tl = await User.findById(dashboardData?.teamLead);
+              if (tl) cc_recipients?.push(tl?.email);
+            }
+            if (dashboardData?.clusterManager) {
+              const cm = await User.findById(dashboardData?.clusterManager);
+              if (cm) cc_recipients?.push(cm?.email);
+            }
+            await sendEmail({
+              from: FromEmails.DO_NOT_REPLY,
+              recipients: mail,
+              cc_recipients,
+              subject: `New Case assigned (${dashboardData?.claimId}_${dashboardData?.claimType})`,
+              bodyText: `Dear ${inv?.investigatorName} \nA new case has been assigned to you with the id ${dashboardData?.claimId}\n\n\nWish you best of luck\nNabhigator`,
+            });
           });
-        });
+      }
     }
 
     return NextResponse.json(responseObj, { status: statusCode });
