@@ -1,8 +1,14 @@
 "use client";
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 import { Button, Menu } from "@mantine/core";
-import { CaseDetail, DocumentData } from "@/lib/utils/types/fniDataTypes";
+import {
+  CaseDetail,
+  DocumentData,
+  IS3Url,
+} from "@/lib/utils/types/fniDataTypes";
 import { getSignedUrlHelper, getTasksAndDocs, showError } from "@/lib/helpers";
+import { EndPoints } from "@/lib/utils/types/enums";
+import dayjs from "dayjs";
 
 type PropTypes = {
   caseData: CaseDetail | null;
@@ -11,6 +17,7 @@ type PropTypes = {
 };
 
 const LocalDocsView = ({ caseData, claimType, claimId }: PropTypes) => {
+  const [loading, setLoading] = useState<boolean>(false);
   const {
     tasksAndDocs,
     preAuthFindings,
@@ -24,8 +31,8 @@ const LocalDocsView = ({ caseData, claimType, claimId }: PropTypes) => {
 
   const docs: Record<string, DocumentData[]> = tasksAndDocs?.docs as any;
 
-  const downloadAllDocuments = async () => {
-    const documents: { url: string; name: string }[] = [];
+  const prepareDocUrls = async () => {
+    const documents: IS3Url[] = [];
 
     if (!!docs && Object.keys(docs).length > 0) {
       Object.keys(docs).map((docKey) => {
@@ -234,15 +241,43 @@ const LocalDocsView = ({ caseData, claimType, claimId }: PropTypes) => {
       }
     }
 
-    for (let i = 0; i < documents?.length; i++) {
-      const a = document.createElement("a");
-      const signedUrl = await getSignedUrlHelper(documents[i]?.url);
-      a.href = signedUrl;
-      a.target = "_blank";
-      a.download = documents[i]?.name;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+    let res: IS3Url[] = [];
+
+    for (const doc of documents) {
+      const url = await getSignedUrlHelper(doc?.url);
+      const mimeType = doc?.url?.split(".").pop();
+      res.push({ name: `${doc?.name}.${mimeType}`, url });
+    }
+
+    return res;
+  };
+
+  const downloadAllDocuments = async () => {
+    setLoading(true);
+    const documents = await prepareDocUrls();
+    try {
+      const response = await fetch(EndPoints.DOWNLOAD_ALL_DOCS_AS_ZIP, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ documents }),
+      });
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `files-${dayjs().format("DD-MMM-YYYY_hh-mm_a")}.zip`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      } else {
+        throw new Error("Failed to create zip folder");
+      }
+    } catch (error: any) {
+      showError(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -469,6 +504,8 @@ const LocalDocsView = ({ caseData, claimType, claimId }: PropTypes) => {
           my="lg"
           className="mx-auto block"
           onClick={downloadAllDocuments}
+          loading={loading}
+          disabled={loading}
         >
           Download All
         </Button>
