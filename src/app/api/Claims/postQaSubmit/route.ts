@@ -21,6 +21,7 @@ import sendEmail from "@/lib/helpers/sendEmail";
 import { captureCaseEvent } from "../caseEvent/helpers";
 import ClaimInvestigator from "@/lib/Models/claimInvestigator";
 import { getEncryptClaimId } from "@/lib/helpers";
+import SMTPPool from "nodemailer/lib/smtp-pool";
 
 const router = createEdgeRouter<NextRequest, {}>();
 
@@ -157,25 +158,29 @@ router.post(async (req) => {
       inv?.Type
     }">here.</a></p><p>The FRCU recommendation and summary can be referred in Maximus/Phoenix. The URL to access the Final Report and documents are available there as well.</p><p>Regards,</p><p>FRCU</p></div>`;
 
-    const {
-      success,
-      message: mailerMsg,
-      mailResponse,
-    } = await sendEmail({
-      from: FromEmails.DO_NOT_REPLY,
-      recipients: recipients,
-      cc_recipients: ccRecipients,
-      subject: `${claimType === "PreAuth" ? "Pre-Auth" : "Claim"} ID ${
-        dashboardData?.claimId
-      }, FRCU Closed- Recommendation: ${
-        postQARecommendation?.frcuRecommendationOnClaims?.value
-      }`,
-      html: emailContent,
-    });
+    let mailRes: SMTPPool.SentMessageInfo | null = null;
+    if (process.env.NEXT_PUBLIC_CONFIG !== "LOCAL") {
+      const {
+        success,
+        message: mailerMsg,
+        mailResponse,
+      } = await sendEmail({
+        from: FromEmails.DO_NOT_REPLY,
+        recipients: recipients,
+        cc_recipients: ccRecipients,
+        subject: `${claimType === "PreAuth" ? "Pre-Auth" : "Claim"} ID ${
+          dashboardData?.claimId
+        }, FRCU Closed- Recommendation: ${
+          postQARecommendation?.frcuRecommendationOnClaims?.value
+        }`,
+        html: emailContent,
+      });
 
-    if (!success) throw new Error(`Failed to send Email: ${mailerMsg}`);
+      if (!success) throw new Error(`Failed to send Email: ${mailerMsg}`);
+      mailRes = mailResponse;
+    }
 
-    const message = `Case closed successfully and Email sent to ${mailResponse?.accepted?.join(
+    const message = `Case closed successfully and Email sent to ${mailRes?.accepted?.join(
       ", "
     )}`;
 
