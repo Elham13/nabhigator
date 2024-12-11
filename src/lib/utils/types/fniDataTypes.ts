@@ -1075,3 +1075,8 @@ export type TGeoOption = {
   state: string[];
   pinCode: string[];
 };
+
+export interface IS3Url {
+  url: string;
+  name: string;
+}
