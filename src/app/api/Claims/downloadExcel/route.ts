@@ -225,9 +225,7 @@ router.post(async (req) => {
           el?.allocationType || "Not Allocated",
           el?.stage ? getStageLabel(el?.stage) : "-",
           el?.intimationDate
-            ? dayjs(el?.intimationDate)
-                .tz("Asia/Kolkata")
-                .format("DD-MMM-YYYY hh:mm:ss a")
+            ? dayjs(el?.intimationDate).format("DD-MMM-YYYY hh:mm:ss a")
             : "-",
           el?.teamLead &&
           Array.isArray(el?.teamLead) &&
