@@ -271,6 +271,7 @@ const DetailsContent = ({ dashboardDataId, origin }: PropTypes) => {
               NumericStage.IN_FIELD_REINVESTIGATION,
               NumericStage.INVESTIGATION_ACCEPTED,
               NumericStage.INVESTIGATION_SKIPPED_AND_COMPLETING,
+              NumericStage.IN_FIELD_REWORK,
             ].includes(data?.stage) &&
             origin === "consolidated" ? (
               <SkipInvestigation dashboardData={data} onDone={getData} />
