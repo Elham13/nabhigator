@@ -364,7 +364,7 @@ const DetailsAccordion = ({
           />
           <Divider />
           <Title order={5} ta="center" c="green" my={4}>
-            Model Fraud Indicator 4
+            Model Fraud Indicator
           </Title>
           <FraudIndicatorTable
             data={data?.fraudIndicators?.indicatorsList}
