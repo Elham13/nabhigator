@@ -200,7 +200,12 @@ router.post(async (req) => {
                   }
                 }
               } else {
-                if (obj?.Is_ReInvestigate === "True") {
+                if (
+                  obj?.Is_ReInvestigate === "True" &&
+                  [NumericStage.CLOSED, NumericStage.REJECTED].includes(
+                    foundDashboardData?.stage
+                  )
+                ) {
                   foundDashboardData.stage =
                     NumericStage.IN_FIELD_REINVESTIGATION;
                   foundDashboardData.dateOfFallingIntoReInvestigation =
