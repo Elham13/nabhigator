@@ -70,7 +70,7 @@ router.post(async (req) => {
           tempObj?.findings?.["NPS Confirmation"]?.updatedAt
             ? dayjs(tempObj?.findings?.["NPS Confirmation"]?.updatedAt)
                 .tz("Asia/Kolkata")
-                .format("DD-MMM-YYYY hh:mm:ss a")
+                .format("DD-MMM-YYYY hh:mm")
             : "-",
         ];
         callback(null, row);
