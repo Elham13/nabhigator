@@ -40,7 +40,7 @@ const TriageOrPreQcSummary = ({
       />
       <Divider />
       <Title order={5} ta="center" c="green" my={4}>
-        Model Fraud Indicator
+        Model Fraud Indicator 3
       </Title>
       <FraudIndicatorTable
         data={data?.fraudIndicators?.indicatorsList}

@@ -6,6 +6,7 @@ import {
   ClaimsGetByIdRes,
   CustomerPolicyDetailRes,
   GetAuthRes,
+  IGetClaimFNIDetails,
 } from "@/lib/utils/types/maximusResponseTypes";
 import axios from "axios";
 
@@ -35,6 +36,7 @@ export interface IFetchProps {
   claimId?: number;
   claimType?: "PreAuth" | "Reimbursement";
   mustFetch?: {
+    getClaimFniDetails?: boolean;
     getClaimDetailById?: boolean;
     claimOtherDetail?: boolean;
     customerPolicyDetail?: boolean;
@@ -43,6 +45,7 @@ export interface IFetchProps {
 }
 
 interface IResponse {
+  claimFNIDetail?: IGetClaimFNIDetails;
   claimDetail?: ClaimsGetByIdRes;
   claimOtherDetail?: ClaimOtherDetailRes;
   customerPolicyDetail?: CustomerPolicyDetailRes;
@@ -53,7 +56,7 @@ interface IResponse {
 export const fetchMaxData = async ({
   claimId,
   claimType,
-  mustFetch = { getClaimDetailById: true },
+  mustFetch,
 }: IFetchProps) => {
   const response: IResponse = {};
   try {
@@ -61,6 +64,23 @@ export const fetchMaxData = async ({
     if (!success) throw new Error(message);
 
     const headers = { ...commonHeaders, Authorization: `Bearer ${token}` };
+
+    if (mustFetch?.getClaimFniDetails) {
+      if (!claimId) throw new Error("claimId is required");
+      if (!claimType) throw new Error("claimType is required");
+      const { data: claimFNIDetail } = await axios.post<IGetClaimFNIDetails>(
+        `${baseUrl}${EndPoints.GET_CLAIM_FNI_DETAILS}`,
+        { ClaimID: claimId, ClaimType: claimType },
+        { headers }
+      );
+
+      if (["False", "false"].includes(claimFNIDetail?.Status))
+        throw new Error(
+          `${EndPoints.GET_CLAIM_FNI_DETAILS} api error: ${claimFNIDetail?.StatusMessage}`
+        );
+
+      response.claimFNIDetail = claimFNIDetail;
+    }
 
     if (mustFetch?.getClaimDetailById) {
       if (!claimId) throw new Error("claimId is required");

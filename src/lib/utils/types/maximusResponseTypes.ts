@@ -335,8 +335,8 @@ export interface ClaimDetailsOther {
 export interface IFraudIndicator {
   FRAUD_INDICATOR_DESC: string;
   Values: {
-    CL_Selected: string;
-    FI_Selected: string;
+    CL_Selected: "TRUE" | "FALSE";
+    FI_Selected: "TRUE" | "FALSE";
   };
 }
 
