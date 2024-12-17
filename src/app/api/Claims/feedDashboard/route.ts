@@ -21,6 +21,7 @@ import getClaimIds from "@/lib/helpers/getClaimIds";
 import DashboardFeedingLog from "@/lib/Models/dashboardFeedingLog";
 import { TSourceSystem } from "@/lib/utils/types/maximusResponseTypes";
 import { captureCaseEvent } from "../caseEvent/helpers";
+import { fetchMaxData } from "../updateFniDynamicFields/helpers";
 
 dayjs.extend(tz);
 
@@ -206,30 +207,67 @@ router.post(async (req) => {
                     foundDashboardData?.stage
                   )
                 ) {
-                  foundDashboardData.stage =
-                    NumericStage.IN_FIELD_REINVESTIGATION;
-                  foundDashboardData.dateOfFallingIntoReInvestigation =
-                    new Date();
-                  await foundDashboardData.save();
-
-                  await captureCaseEvent({
-                    eventName: EventNames.MOVED_TO_IN_FIELD_RE_INVESTIGATION,
-                    intimationDate:
-                      foundDashboardData?.intimationDate ||
-                      dayjs()
-                        .tz("Asia/Kolkata")
-                        .format("DD-MMM-YYYY hh:mm:ss A"),
-                    stage: foundDashboardData?.stage,
+                  const maxRes = await fetchMaxData({
                     claimId: foundDashboardData?.claimId,
-                    eventRemarks:
-                      "Case returned back from Maximus to be Re-Investigated",
-                    userName: "System",
+                    claimType: foundDashboardData?.claimType,
+                    mustFetch: { getClaimFniDetails: true },
                   });
-                  updated += 1;
-                  updatedReasons?.push(
-                    `${apiType}: Case moved to Re-Investigation for claimId: ${obj?.claimType}_${obj?.claimId}`
-                  );
-                  updatedClaimIds?.push(obj?.claimId);
+
+                  if (maxRes?.success) {
+                    foundDashboardData.stage =
+                      NumericStage.IN_FIELD_REINVESTIGATION;
+                    foundDashboardData.dateOfFallingIntoReInvestigation =
+                      new Date();
+
+                    foundDashboardData.fraudIndicators = {
+                      indicatorsList:
+                        maxRes?.data?.claimFNIDetail?.PolicyClaimsOther?.ClaimFNIDetails?.FNI?.FRAUD_INDICATORS?.filter(
+                          (obj, index, self) =>
+                            index ===
+                            self?.findIndex(
+                              (t) =>
+                                t?.FRAUD_INDICATOR_DESC ===
+                                obj?.FRAUD_INDICATOR_DESC
+                            )
+                        ) || [],
+                      remarks:
+                        maxRes?.data?.claimFNIDetail?.PolicyClaimsOther
+                          ?.ClaimFNIDetails?.FNI?.Other_Remarks || "",
+                    };
+
+                    await foundDashboardData.save();
+                    await captureCaseEvent({
+                      eventName: EventNames.MOVED_TO_IN_FIELD_RE_INVESTIGATION,
+                      intimationDate:
+                        foundDashboardData?.intimationDate ||
+                        dayjs()
+                          .tz("Asia/Kolkata")
+                          .format("DD-MMM-YYYY hh:mm:ss A"),
+                      stage: foundDashboardData?.stage,
+                      claimId: foundDashboardData?.claimId,
+                      eventRemarks:
+                        "Case returned back from Maximus to be Re-Investigated",
+                      userName: "System",
+                    });
+                    updated += 1;
+                    updatedReasons?.push(
+                      `${apiType}: Case moved to Re-Investigation for claimId: ${obj?.claimType}_${obj?.claimId}`
+                    );
+                    updatedClaimIds?.push(obj?.claimId);
+                  } else {
+                    await captureCaseEvent({
+                      eventName: EventNames.FAILED_TO_RE_INVESTIGATE,
+                      intimationDate:
+                        foundDashboardData?.intimationDate ||
+                        dayjs()
+                          .tz("Asia/Kolkata")
+                          .format("DD-MMM-YYYY hh:mm:ss A"),
+                      stage: foundDashboardData?.stage,
+                      claimId: foundDashboardData?.claimId,
+                      eventRemarks: `Case returned back from Maximus to be Re-Investigated, but failed to re-investigate because: ${maxRes?.message}`,
+                      userName: "System",
+                    });
+                  }
                 }
               }
             }
