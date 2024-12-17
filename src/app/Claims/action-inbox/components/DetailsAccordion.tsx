@@ -368,7 +368,7 @@ const DetailsAccordion = ({
           </Title>
           <FraudIndicatorTable
             data={data?.fraudIndicators?.indicatorsList}
-            comments={data?.fraudIndicators?.remarks}
+            comments={data?.fraudIndicators?.remarks + "Hello"}
           />
         </div>
       ),

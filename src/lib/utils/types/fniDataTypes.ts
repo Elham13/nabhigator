@@ -488,6 +488,7 @@ export enum EventNames {
   DOCUMENT_REPLACED = "Document Replaced",
   STAGE_CHANGE = "Stage changed",
   MOVED_TO_IN_FIELD_RE_INVESTIGATION = "Moved To In-Field Re-Investigation",
+  FAILED_TO_RE_INVESTIGATE = "Failed to Re-Investigate",
 }
 
 export interface INewCityMaster {
@@ -526,7 +527,7 @@ export interface MainTriage {
 }
 
 export interface IFraudIndicator {
-  _id: string;
+  _id?: string;
   FRAUD_INDICATOR_DESC: string;
   Values: {
     CL_Selected: "TRUE" | "FALSE";
