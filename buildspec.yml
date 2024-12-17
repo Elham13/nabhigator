@@ -12,11 +12,11 @@ phases:
     commands:
       # install npm
       - n 18
-      - npm install
+      # - npm install
 
   build:
     commands:
-      - npm install
+      # - npm install
   # post_build:
   #   commands:
   #     - curl -sfL 'https://raw.githubusercontent.com/orcasecurity/orca-cli/main/install.sh' | bash # download installation script
