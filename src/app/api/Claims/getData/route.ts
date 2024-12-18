@@ -146,15 +146,70 @@ router.post(async (req) => {
         },
       });
     }
-
     // console.log("pipeline: ", pipeline);
     // console.log("pipeline: ", pipeline[0]["$match"], filter?.pagination);
+    let count= 0;
+    if (
+      !!filter?.intimationDateRange &&
+      Array.isArray(filter?.intimationDateRange)
+    ) {
+      const dashPipeline: PipelineStage[] = [
+        {
+          $match: updatedFilter,
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "clusterManager",
+            foreignField: "_id",
+            as: "clusterManager",
+          },
+        },
+        {
+          $unwind: { path: "$clusterManager", preserveNullAndEmptyArrays: true },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "teamLead",
+            foreignField: "_id",
+            as: "teamLead",
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "postQa",
+            foreignField: "_id",
+            as: "postQa",
+          },
+        },
+        { $unwind: { path: "$postQa", preserveNullAndEmptyArrays: true } },
+        {
+          $project: {
+            claimId: 1,
+            intimationDate: 1,
+        },
+        },
+  
+      ];
+      dashPipeline.unshift({
+        $addFields: {
+          intimationDateAsDate: { $toDate: "$intimationDate" },
+        },
+      });
+      let dashboardData = await DashboardData.aggregate(dashPipeline, {
+        allowDiskUse: true,
+      });
+      count = await dashboardData.length;
+      console.log("dashbpard: ",dashboardData.length);
+    }else{
+       count = await DashboardData.countDocuments(updatedFilter);
+    }
 
     let data = await DashboardData.aggregate(pipeline, {
       allowDiskUse: true,
     });
-
-    const count = await DashboardData.countDocuments(updatedFilter);
 
     return NextResponse.json(
       {
