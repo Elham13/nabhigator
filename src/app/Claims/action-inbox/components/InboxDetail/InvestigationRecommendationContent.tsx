@@ -113,6 +113,13 @@ const Recommendations = ({
               ))}
             </Box>
           ) : null}
+
+          {findings?.reInvestigationFindings && (
+            <KeyValueContainer
+              label="Re-Investigation Findings"
+              value={findings?.reInvestigationFindings}
+            />
+          )}
         </>
       ) : (
         <Text ta="center" c="red">

@@ -387,6 +387,10 @@ export default function InvestigationSummary({
           )
           .join("; ") || "-",
     },
+    {
+      key: "Re-Investigation Findings",
+      value: preAuthFindings?.reInvestigationFindings || "-",
+    },
   ];
 
   const postQARecommendationArray = [

@@ -788,6 +788,7 @@ export interface IInvestigationFindings {
   evidenceOfRepudiation?: string;
   repudiationReason?: string;
   createdAt?: Date | string;
+  reInvestigationFindings?: string;
 }
 
 export interface RevisedInvestigationFindings

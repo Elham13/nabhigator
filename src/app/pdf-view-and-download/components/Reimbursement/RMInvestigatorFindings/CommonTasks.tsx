@@ -85,6 +85,10 @@ const CommonTasks = ({ values }: PropTypes) => {
         ]
       : []),
     ...otherRecommendations,
+    {
+      key: "Re-Investigation Findings",
+      value: values?.reInvestigationFindings || "-",
+    },
   ];
   return <ThreeSectionView data={data} topic="Common Tasks" />;
 };
