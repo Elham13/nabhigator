@@ -2,7 +2,6 @@ import DashboardData from "@/lib/Models/dashboardData";
 import connectDB from "@/lib/db/dbConnectWithMongoose";
 import { processGetDataFilters } from "@/lib/helpers/getDataHelpers";
 import { Databases } from "@/lib/utils/types/enums";
-// import { Role } from "@/lib/utils/types/fniDataTypes";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { PipelineStage, Types } from "mongoose";
@@ -148,7 +147,7 @@ router.post(async (req) => {
     }
     // console.log("pipeline: ", pipeline);
     // console.log("pipeline: ", pipeline[0]["$match"], filter?.pagination);
-    let count= 0;
+    let count: number = 0;
     if (
       !!filter?.intimationDateRange &&
       Array.isArray(filter?.intimationDateRange)
@@ -158,40 +157,11 @@ router.post(async (req) => {
           $match: updatedFilter,
         },
         {
-          $lookup: {
-            from: "users",
-            localField: "clusterManager",
-            foreignField: "_id",
-            as: "clusterManager",
-          },
-        },
-        {
-          $unwind: { path: "$clusterManager", preserveNullAndEmptyArrays: true },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "teamLead",
-            foreignField: "_id",
-            as: "teamLead",
-          },
-        },
-        {
-          $lookup: {
-            from: "users",
-            localField: "postQa",
-            foreignField: "_id",
-            as: "postQa",
-          },
-        },
-        { $unwind: { path: "$postQa", preserveNullAndEmptyArrays: true } },
-        {
           $project: {
             claimId: 1,
             intimationDate: 1,
+          },
         },
-        },
-  
       ];
       dashPipeline.unshift({
         $addFields: {
@@ -201,10 +171,9 @@ router.post(async (req) => {
       let dashboardData = await DashboardData.aggregate(dashPipeline, {
         allowDiskUse: true,
       });
-      count = await dashboardData.length;
-      console.log("dashbpard: ",dashboardData.length);
-    }else{
-       count = await DashboardData.countDocuments(updatedFilter);
+      count = dashboardData.length;
+    } else {
+      count = await DashboardData.countDocuments(updatedFilter);
     }
 
     let data = await DashboardData.aggregate(pipeline, {
