@@ -983,6 +983,7 @@ export const RMInvestigationFindingSchema = new Schema<IRMFindingsSchema>(
     discrepanciesOrIrregularitiesObserved: { type: String },
     recommendation: { type: RecommendationSchema },
     otherRecommendation: { type: [OtherRecommendationSchema], default: [] },
+    reInvestigationFindings: { type: String, default: "" },
   },
   { timestamps: true }
 );

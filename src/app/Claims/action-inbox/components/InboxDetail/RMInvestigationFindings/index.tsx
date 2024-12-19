@@ -62,6 +62,7 @@ const RMInvestigationFindings = ({
         formPart={formPart}
         findings={rmFindings}
         claimId={dashboardData?.claimId}
+        dashboardData={dashboardData}
         caseId={caseDetail?._id as string}
         setCaseDetail={setCaseDetail}
       />

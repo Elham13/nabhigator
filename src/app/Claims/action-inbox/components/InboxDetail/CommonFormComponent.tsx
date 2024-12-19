@@ -22,7 +22,11 @@ import {
   IRecommendation,
   IRMFindings,
 } from "@/lib/utils/types/rmDataTypes";
-import { CaseDetail, SingleResponseType } from "@/lib/utils/types/fniDataTypes";
+import {
+  CaseDetail,
+  IDashboardData,
+  SingleResponseType,
+} from "@/lib/utils/types/fniDataTypes";
 import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
 import { getSelectOption } from "@/lib/helpers";
 import {
@@ -45,6 +49,7 @@ interface IInitialValues {
   discrepanciesOrIrregularitiesObserved: string;
   recommendation: IRecommendation;
   otherRecommendation: IOtherRecommendation[];
+  reInvestigationFindings?: string;
 }
 
 const initialFormValues: IInitialValues = {
@@ -60,6 +65,7 @@ type PropTypes = {
   findings: IRMFindings | null;
   claimId?: number;
   caseId?: string;
+  dashboardData: IDashboardData | null;
   setCaseDetail: Dispatch<SetStateAction<CaseDetail | null>>;
 };
 
@@ -70,6 +76,7 @@ const CommonFormComponent = ({
   claimId,
   caseId,
   setCaseDetail,
+  dashboardData,
 }: PropTypes) => {
   const [user] = useLocalStorage<IUserFromSession>({ key: StorageKeys.USER });
   const [values, setValues] = useState<IInitialValues>(initialFormValues);
@@ -477,6 +484,30 @@ const CommonFormComponent = ({
               })}
           </Fragment>
         ))}
+      {dashboardData?.isReInvestigated ? (
+        <Grid.Col span={12}>
+          <Textarea
+            label="Re-Investigation Findings"
+            placeholder="Re-Investigation Findings"
+            resize="vertical"
+            required
+            withAsterisk
+            value={values?.reInvestigationFindings || ""}
+            onBlur={(e) =>
+              handleBlur({
+                key: "reInvestigationFindings",
+                value: e.target.value,
+              })
+            }
+            onChange={(e) =>
+              setValues((prev) => ({
+                ...prev,
+                reInvestigationFindings: e.target?.value,
+              }))
+            }
+          />
+        </Grid.Col>
+      ) : null}
     </Grid>
   );
 };

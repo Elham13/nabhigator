@@ -628,4 +628,5 @@ export interface IRMFindings {
   discrepanciesOrIrregularitiesObserved?: string;
   recommendation?: IRecommendation;
   otherRecommendation?: IOtherRecommendation[];
+  reInvestigationFindings?: string;
 }
