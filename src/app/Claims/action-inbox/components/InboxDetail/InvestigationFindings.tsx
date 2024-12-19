@@ -1822,6 +1822,25 @@ const InvestigationFindings = ({
               );
             })
           : null}
+        {dashboardData?.isReInvestigated ? (
+          <Grid.Col span={12}>
+            <Textarea
+              label="Re-Investigation Findings"
+              placeholder="Re-Investigation Findings"
+              resize="vertical"
+              required
+              withAsterisk
+              value={values?.reInvestigationFindings || ""}
+              onBlur={(e) => handleBlur("reInvestigationFindings")}
+              onChange={(e) =>
+                setValues((prev) => ({
+                  ...prev,
+                  reInvestigationFindings: e.target?.value,
+                }))
+              }
+            />
+          </Grid.Col>
+        ) : null}
       </Grid>
     </Box>
   );

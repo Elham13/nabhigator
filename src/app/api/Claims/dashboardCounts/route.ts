@@ -52,7 +52,10 @@ router.get(async (req) => {
       commonFilters["stage"] = NumericStage.PENDING_FOR_PRE_QC;
     } else if (user?.activeRole === Role.POST_QA) {
       commonFilters["stage"] = {
-        $in: [NumericStage.POST_QC, NumericStage.POST_QA_REWORK],
+        $in: [
+          NumericStage.POST_QC,
+          NumericStage.POST_QA_REWORK,
+        ],
       };
       commonFilters["postQa"] = user?._id;
     } else if (user?.activeRole === Role.POST_QA_LEAD) {

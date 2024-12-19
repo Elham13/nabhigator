@@ -584,6 +584,10 @@ const FinalInvestigationReport = ({
           ?.join(", ") || "-",
     },
     {
+      key: "Re-Investigation Findings",
+      value: preAuthFindings?.reInvestigationFindings || "-",
+    },
+    {
       key: "Is Ported?",
       value: preAuthFindings?.port || "-",
     },

@@ -229,6 +229,15 @@ const Findings = ({ findings }: { findings: IRMFindings | null }) => {
                   </Fragment>
                 ))
               : null}
+
+            {findings?.reInvestigationFindings ? (
+              <GridCol span={{ sm: 12, md: 6 }}>
+                <KeyValueContainer
+                  label="Re-Investigation Findings"
+                  value={findings?.reInvestigationFindings || "-"}
+                />
+              </GridCol>
+            ) : null}
           </Grid>
         </>
       ) : (

@@ -111,20 +111,52 @@ router.post(async (req) => {
       break;
     }
 
-    const isReInvestigated = dashboardData?.claimInvestigators?.length > 0;
+    const isReInvestigated =
+      dashboardData?.stage === NumericStage.IN_FIELD_REINVESTIGATION;
 
     let newCase: any = null;
     if (allocationType === "Single") {
-      body.singleTasksAndDocs.docs = body?.singleTasksAndDocs?.docs
-        ? new Map(body?.singleTasksAndDocs?.docs)
-        : [];
+      const docsArr = body?.singleTasksAndDocs?.docs || [];
+      if (isReInvestigated) {
+        docsArr.push([
+          "Re-Investigation Uploads",
+          [
+            {
+              docUrl: [],
+              hiddenDocUrls: [],
+              location: null,
+              name: "Re-Investigation Uploads",
+              replacedDocUrls: [],
+            },
+          ],
+        ]);
+      }
+      const docs =
+        docsArr?.length > 0
+          ? new Map(body?.singleTasksAndDocs?.docs)
+          : new Map([]);
+      body.singleTasksAndDocs.docs = docs;
     } else {
       body.insuredTasksAndDocs.docs = body?.insuredTasksAndDocs?.docs
         ? new Map(body?.insuredTasksAndDocs?.docs)
         : [];
-      body.hospitalTasksAndDocs.docs = body?.hospitalTasksAndDocs?.docs
-        ? new Map(body?.hospitalTasksAndDocs?.docs)
-        : [];
+      const docsArr = body?.hospitalTasksAndDocs?.docs || [];
+      if (isReInvestigated) {
+        docsArr.push([
+          "Re-Investigation Uploads",
+          [
+            {
+              docUrl: [],
+              hiddenDocUrls: [],
+              location: null,
+              name: "Re-Investigation Uploads",
+              replacedDocUrls: [],
+            },
+          ],
+        ]);
+      }
+      const hospitalDocs = docsArr?.length > 0 ? new Map(docsArr) : [];
+      body.hospitalTasksAndDocs.docs = hospitalDocs;
     }
     if (dashboardData?.caseId) {
       await ClaimCase.findByIdAndUpdate(
@@ -169,7 +201,7 @@ router.post(async (req) => {
 
     if (allocationType === "Single") {
       dashboardData.claimInvestigators = investigators?.map(
-        (inv: Investigator, ind: number) => ({
+        (inv: Investigator) => ({
           _id: inv?._id,
           name: inv.investigatorName,
           assignedFor: "",
