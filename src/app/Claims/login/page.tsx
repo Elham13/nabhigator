@@ -24,6 +24,7 @@ import { ChangeEvent, FocusEvent, useState } from "react";
 import Header from "./components/Header";
 import { showError } from "@/lib/helpers";
 import * as crypto from 'crypto';
+import ReCAPTCHA from "react-google-recaptcha";
 
 const Login = () => {
   const router = useRouter();
@@ -37,6 +38,7 @@ const Login = () => {
     key: StorageKeys.USER,
     defaultValue: null,
   });
+  const [captcha, setCaptcha] = useState<string | null>(null);
   const [show, setShow] = useState(false);
   const [forgetPass, setforgetPass] = useState({ confirmPassword: "", newPassword: "" });
   const [otp, setOtp] = useState<any>(null);
@@ -70,6 +72,7 @@ const Login = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    if (!captcha) throw new Error("Please verify you are not Robot");
     if(values.password){
       var output = encryptData(values.password);
         values.password = output;
@@ -164,8 +167,12 @@ const Login = () => {
               name="password"
               value={values.password}
               onChange={handleChange}
-              onBlur={handleBlur} 
-              />
+              onBlur={handleBlur}
+            />
+           <ReCAPTCHA
+            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
+            onChange={setCaptcha}
+          />
             <Button loading={loading} type="submit" fullWidth mt="xl">
               Login
             </Button>

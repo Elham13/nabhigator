@@ -76,10 +76,12 @@ router.post(async (req) => {
     };
 
     // Expires in 1 hour
-    const expires = new Date(Date.now() + 60 * 60 * 1000);
-
+    // const expires = new Date(Date.now() + 60 * 60 * 1000);
+     // Expires in 20 minutes
+    const expires = new Date(Date.now() + 60 * 2 * 1000);
+    // const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+    console.log("expires",expires,"data",data)
     const session = await encrypt({ user: data, expires });
-
     return NextResponse.json(
       {
         success: true,

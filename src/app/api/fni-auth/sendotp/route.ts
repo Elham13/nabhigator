@@ -49,8 +49,7 @@ router.post(async (req) => {
       </table></table></table>`;
       sendEmail({
         from: FromEmails.DO_NOT_REPLY,
-        // recipients: result?.email,
-        recipients: 'shantam.sharma@nivabupa.com',
+        recipients: result?.email,
         subject: `Verification code`,
         html,
       });
