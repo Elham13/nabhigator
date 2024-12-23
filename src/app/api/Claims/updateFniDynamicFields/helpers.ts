@@ -70,7 +70,7 @@ export const fetchMaxData = async ({
       if (!claimType) throw new Error("claimType is required");
       const { data: claimFNIDetail } = await axios.post<IGetClaimFNIDetails>(
         `${baseUrl}${EndPoints.GET_CLAIM_FNI_DETAILS}`,
-        { ClaimID: claimId, ClaimType: claimType },
+        { ClaimID: claimId?.toString(), ClaimType: claimType?.charAt(0) },
         { headers }
       );
 
