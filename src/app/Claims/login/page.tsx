@@ -9,6 +9,9 @@ import {
   Text,
   Container,
   Button,
+  Modal,
+  PinInput,
+  Center,
 } from "@mantine/core";
 import { useLocalStorage } from "@mantine/hooks";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
@@ -34,6 +37,9 @@ const Login = () => {
     key: StorageKeys.USER,
     defaultValue: null,
   });
+  const [show, setShow] = useState(false);
+  const [forgetPass, setforgetPass] = useState({ confirmPassword: "", newPassword: "" });
+  const [otp, setOtp] = useState<any>(null);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     let { name, value } = e.target;
@@ -93,8 +99,36 @@ const Login = () => {
     }
   };
 
+  const handleClose = () => setShow(false);
+  async function sendOtp() {
+    if (values.userId) {
+      try {
+        const { data } = await axios.post<SingleResponseType<IUserFromSession>>(
+          EndPoints.SEND_OTP,
+          {"userId" : values.userId, "otp" : "" , "password" : "","confirm":""}
+        );
+        setShow(true);
+      } catch (error) {
+        showError(error);
+      } finally {
+        setLoading(false);
+      }}}
+    async function verifyOtp(){
+      try {
+        const { data } = await axios.post<SingleResponseType<IUserFromSession>>(
+          EndPoints.SEND_OTP,
+          {"userId" : values.userId, "otp" : otp , "password" :encryptData(forgetPass.newPassword), "confirm":encryptData(forgetPass.confirmPassword)}
+        );
+        setShow(false);
+      } catch (error) {
+        showError(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
   return (
-    <Paper h="100vh">
+    <><Paper h="100vh">
       <Head>
         <title>Nabhigator Login</title>
         <meta name="description" content="Welcome to Nabhigator Login" />
@@ -120,7 +154,7 @@ const Login = () => {
               value={values.userId}
               onChange={handleChange}
               onBlur={handleBlur}
-            />
+              />
             <PasswordInput
               label="Password"
               placeholder="Your password"
@@ -130,15 +164,49 @@ const Login = () => {
               name="password"
               value={values.password}
               onChange={handleChange}
-              onBlur={handleBlur}
-            />
+              onBlur={handleBlur} 
+              />
             <Button loading={loading} type="submit" fullWidth mt="xl">
               Login
+            </Button>
+            <Button onClick={sendOtp} fullWidth mt="xs">
+            Forget Password / Reset Password
             </Button>
           </Paper>
         </form>
       </Container>
     </Paper>
+    <Modal opened={show} onClose={handleClose} title="Forget Password / Reset Password">
+        {/* Modal content */}
+        <Center>
+        <PinInput  oneTimeCode  onComplete={(value) => {
+            setOtp(value)
+         }}/>
+        </Center>
+        <TextInput label="New Password"
+              name = "newPassword"
+              onChange={
+                (e)=>{
+                  let { name, value } = e.target;
+                  setforgetPass((prev) => ({ ...prev, [name]: value })
+                 )}
+              }/>
+              <PasswordInput label="Confirm Password" 
+              name ="confirmPassword"
+              onChange={
+                (e)=>{
+                  let { name, value } = e.target;
+                  setforgetPass((prev) => ({ ...prev, [name]: value })
+                )}
+                }/>
+                <Button onClick={verifyOtp}  fullWidth mt="xs">
+               Submit
+                </Button>
+                <Button onClick={sendOtp} fullWidth mt="xs">
+            Resend otp
+            </Button>                
+      </Modal>
+</>
   );
 };
 

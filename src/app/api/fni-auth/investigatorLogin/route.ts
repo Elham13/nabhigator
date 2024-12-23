@@ -8,7 +8,6 @@ import ClaimInvestigator from "@/lib/Models/claimInvestigator";
 import { encrypt } from "@/lib/helpers/authHelpers";
 import { Databases } from "@/lib/utils/types/enums";
 import * as crypto from "crypto";
-import { updateInvestigators } from "@/lib/helpers/autoPreQCHelpers";
 
 const router = createEdgeRouter<NextRequest, RequestContext>();
 const key = crypto
@@ -38,7 +37,7 @@ router.post(async (req) => {
         phone,
       });
 
-    if (!result) throw new Error("Wrong phone");
+    if (!result) throw new Error("Incorrect phone number");
 
     // if (result?.password !== updatedPass) throw new Error("Wrong password");
     const now = new Date();

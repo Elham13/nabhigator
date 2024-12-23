@@ -38,7 +38,7 @@ router.post(async (req) => {
       userId,
     });
 
-    if (!result) throw new Error("Wrong userId");
+    if (!result) throw new Error("Incorrect username");
 
     if (result?.status === "Inactive")
       throw new Error(
@@ -70,7 +70,7 @@ router.post(async (req) => {
 
     await result?.save();
 
-    throw new Error("Wrong password");
+    throw new Error("Incorrect password");
   }
     const data = {
       _id: result?._id,

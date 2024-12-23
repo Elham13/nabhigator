@@ -60,6 +60,7 @@ export enum EndPoints {
   WDMS_DOC_CONTENT = "/api/Claims/wdmsDocs/docContent",
   ZONE_MASTER = "/api/Claims/zoneMaster",
   ZONE_STATE_MASTER = "/api/Claims/zoneStateMaster",
+  SEND_OTP = "/api/fni-auth/sendotp",
 
   // Maximus Endpoint
   GET_AUTH = "auth/getauthtoken",
