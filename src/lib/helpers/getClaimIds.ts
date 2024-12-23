@@ -42,8 +42,45 @@ type ClaimsBenefits = {
 
 type DataType = {
   Claims: string;
-  ClaimsBenefits: ClaimsBenefits[]; 
-  Is_ReInvestigate:string;
+  ClaimsBenefits: ClaimsBenefits[];
+  Is_ReInvestigate: string;
+};
+
+export const getOnlyClaimIds = async (
+  SourceSystem: "M" | "P"
+): Promise<{ success: boolean; message: string; data: string[] }> => {
+  try {
+    const { data: token } = await axios.post(
+      `${baseUrl}auth/getauthtoken`,
+      authPayload,
+      {
+        headers,
+      }
+    );
+
+    const getFniDataUrl = `${baseUrl}claim/getfnidata`;
+    const payload = {
+      ClaimType: "FnI",
+      SourceSystem,
+    };
+    const getFniDataHeaders = {
+      headers: { ...headers, Authorization: `Bearer ${token?.Token}` },
+    };
+    const { data } = await axios.post<IGetFNIData>(
+      getFniDataUrl,
+      payload,
+      getFniDataHeaders
+    );
+
+    const claimsData =
+      data?.ClaimsData && data?.ClaimsData?.length > 0 ? data?.ClaimsData : [];
+
+    const claimIds = claimsData?.map((el) => el?.Claims);
+
+    return { success: true, message: "Fetched", data: claimIds };
+  } catch (error: any) {
+    return { success: false, message: error?.message, data: [] };
+  }
 };
 
 const sanitizeBenefitSubtype = (subType?: string) => {
@@ -128,7 +165,7 @@ const processResponse = (data: DataType[]) => {
       lossType: arrOfObj?.length > 0 ? arrOfObj[0]?.lossType : "-",
       Claims: el?.Claims,
       cataractOrDayCareProcedure: el?.ClaimsBenefits,
-      Is_ReInvestigate:el?.Is_ReInvestigate,
+      Is_ReInvestigate: el?.Is_ReInvestigate,
     };
   });
 };
