@@ -17,7 +17,7 @@ import DashboardData from "@/lib/Models/dashboardData";
 import getFniData from "@/lib/helpers/getFniData";
 import CaseEvent from "@/lib/Models/caseEvent";
 import { performSystemPreQc } from "@/lib/helpers/performSystemPreQc";
-import getClaimIds, { getOnlyClaimIds } from "@/lib/helpers/getClaimIds";
+import getClaimIds from "@/lib/helpers/getClaimIds";
 import DashboardFeedingLog from "@/lib/Models/dashboardFeedingLog";
 import { TSourceSystem } from "@/lib/utils/types/maximusResponseTypes";
 import { captureCaseEvent } from "../caseEvent/helpers";
@@ -59,18 +59,6 @@ router.post(async (req) => {
 
       if (!["M", "P"].includes(sourceSystem))
         throw new Error(`Wrong sourceSystem: ${sourceSystem}`);
-
-      const claimIds = await getOnlyClaimIds(sourceSystem);
-
-      if (!claimIds?.success)
-        throw new Error(`Mximus Error: ${claimIds?.message}`);
-
-      if (
-        claimIds?.data?.length < 1 ||
-        !claimIds?.data?.includes(`${body?.claimType}_${body?.claimId}`)
-      ) {
-        throw new Error("This case does not exists under FNI tab Maximus");
-      }
 
       const claimId = body?.claimId.toString();
       const claimType = body?.claimType;
