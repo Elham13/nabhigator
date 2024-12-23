@@ -66,7 +66,7 @@ router.post(async (req) => {
     }
 
     if (!docs) throw new Error("No documents found");
-    const documents = docName.includes("-") ? docs?.get(docName.split('-')[1]): docs?.get(docName); 
+    const documents = docs?.get(docName);
     if (!documents)
       throw new Error(`No documents found with the docName ${docName}`);
 
