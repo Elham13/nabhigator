@@ -35,7 +35,7 @@ router.post(async (req) => {
       userId,
     });
    if(!otp && !password){
-    if (!result) throw new Error("Wrong userId");
+    if (!result) throw new Error("Incorrect user name");
     if (result?.status === "Inactive")
       throw new Error(
         "Your status is Inactive, please contact the admin to change your status!"
@@ -67,7 +67,7 @@ router.post(async (req) => {
     if (!otp) throw new Error("Otp is required");
     if (password  !== confirm) throw new Error("Passwords don't match");
        const updatedPass =  decryptData(password)
-       if (result?.password !== updatedPass) throw new Error("Wrong password");
+      //  if (!isPasswordStrong(updatedPass)) throw new Error("Password is too weak.");
 
     if(otp.toString() !=  localStorage.getItem('otp')) throw new Error ("Please enter correct otp")
    const updatedUser =  await User.updateOne({userId: userId}, {$set:{password: password}})

@@ -19,6 +19,7 @@ import { EndPoints, StorageKeys } from "@/lib/utils/types/enums";
 import { IUserFromSession } from "@/lib/utils/types/authTypes";
 import { Role } from "@/lib/utils/types/fniDataTypes";
 import { showError } from "@/lib/helpers";
+import useIdle from "@/lib/utils/idleTimeout";
 
 const Navbar = () => {
   const { colorScheme, setColorScheme } = useMantineColorScheme();
@@ -135,6 +136,12 @@ const Navbar = () => {
         <MdLightMode size={28} />
       </button>
     );
+    const handleIdle = () => {
+      console.log("ikkk")
+       handleLogout();
+    };
+  
+    const { isIdle } = useIdle({ onIdle: handleIdle, idleTime: 15});
 
   return (
     <div className="flex flex-col justify-between h-[calc(100vh-3.8rem)] overflow-x-hidden overflow-y-auto">

@@ -169,7 +169,7 @@ const Login = () => {
               onChange={handleChange}
               onBlur={handleBlur}
             />
-           <ReCAPTCHA
+           <ReCAPTCHA  class="mt-4"
             sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ""}
             onChange={setCaptcha}
           />
