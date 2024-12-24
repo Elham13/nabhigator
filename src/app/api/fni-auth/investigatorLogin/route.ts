@@ -67,7 +67,7 @@ router.post(async (req) => {
 
       await result?.save();
 
-      throw new Error("Wrong password");
+      throw new Error("Incorrect password");
     }
 
     const data = {

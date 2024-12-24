@@ -67,10 +67,10 @@ router.post(async (req) => {
     if (!otp) throw new Error("Otp is required");
     if (password  !== confirm) throw new Error("Passwords don't match");
        const updatedPass =  decryptData(password)
-      //  if (!isPasswordStrong(updatedPass)) throw new Error("Password is too weak.");
+       if (!isPasswordStrong(updatedPass)) throw new Error("Password is too weak.");
 
     if(otp.toString() !=  localStorage.getItem('otp')) throw new Error ("Please enter correct otp")
-   const updatedUser =  await User.updateOne({userId: userId}, {$set:{password: password}})
+   const updatedUser =  await User.updateOne({userId: userId}, {$set:{password: updatedPass}})
     return NextResponse.json(
       {
         success: true,
