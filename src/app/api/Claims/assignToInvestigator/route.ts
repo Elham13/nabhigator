@@ -14,6 +14,8 @@ import {
   EventNames,
   Investigator,
   ClaimInvestigator,
+  CaseDetail,
+  DocumentMap,
 } from "@/lib/utils/types/fniDataTypes";
 import { HydratedDocument } from "mongoose";
 import DashboardData from "@/lib/Models/dashboardData";
@@ -26,8 +28,13 @@ import { captureCaseEvent } from "../caseEvent/helpers";
 import { compareArrOfObjBasedOnProp } from "@/lib/helpers";
 import User from "@/lib/Models/user";
 import sendEmail from "@/lib/helpers/sendEmail";
-import { defineInvestigator } from "@/lib/helpers/assignToInvHelpers";
+import {
+  defineInvestigator,
+  removeDuplicatesFrom2DArray,
+  removeDuplicatesFromArrayOfObjects,
+} from "@/lib/helpers/assignToInvHelpers";
 import { IUpdateInvReturnType } from "@/lib/utils/types/apiTypes";
+import { LiaEthernetSolid } from "react-icons/lia";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -74,6 +81,10 @@ router.post(async (req) => {
         `No record found with the dashboardDataId ${dashboardDataId}`
       );
 
+    let claimCase: HydratedDocument<CaseDetail> | null = null;
+    if (dashboardData?.caseId)
+      claimCase = await ClaimCase.findById(dashboardData.caseId);
+
     let investigators: Investigator[] = [];
 
     while (true) {
@@ -112,12 +123,36 @@ router.post(async (req) => {
     }
 
     const isReInvestigated =
+      !dashboardData?.isReInvestigated &&
       dashboardData?.stage === NumericStage.IN_FIELD_REINVESTIGATION;
 
-    let newCase: any = null;
+    let existingClaimCase: any = null;
     if (allocationType === "Single") {
-      const docsArr = body?.singleTasksAndDocs?.docs || [];
+      let docsArr = body?.singleTasksAndDocs?.docs || [];
+      let tempTasks: any[] = body?.singleTasksAndDocs?.tasks;
       if (isReInvestigated) {
+        if (!claimCase)
+          throw new Error(
+            `Failed to find case detail with the id ${dashboardData?.caseId}`
+          );
+        existingClaimCase = claimCase.toJSON();
+
+        if (
+          existingClaimCase?.singleTasksAndDocs?.docs &&
+          existingClaimCase?.singleTasksAndDocs?.tasks?.length > 0
+        ) {
+          const savedDocs = Object.entries(
+            existingClaimCase?.singleTasksAndDocs?.docs
+          );
+
+          docsArr = [...savedDocs, ...docsArr];
+          tempTasks = [
+            ...(existingClaimCase?.singleTasksAndDocs?.tasks || []),
+            ...(body?.singleTasksAndDocs?.tasks || []),
+          ];
+          tempTasks = removeDuplicatesFromArrayOfObjects(tempTasks, "name");
+        }
+
         docsArr.push([
           "Re-Investigation Uploads",
           [
@@ -130,19 +165,68 @@ router.post(async (req) => {
             },
           ],
         ]);
+
+        docsArr = removeDuplicatesFrom2DArray(docsArr);
+        body.singleTasksAndDocs = {
+          ...existingClaimCase?.singleTasksAndDocs,
+          tasks: tempTasks,
+          docs: docsArr?.length > 0 ? new Map(docsArr) : new Map([]),
+        };
+      } else {
+        body.singleTasksAndDocs.docs =
+          docsArr?.length > 0 ? new Map(docsArr) : new Map([]);
       }
-      const docs =
-        docsArr?.length > 0
-          ? new Map(body?.singleTasksAndDocs?.docs)
-          : new Map([]);
-      body.singleTasksAndDocs.docs = docs;
     } else {
-      body.insuredTasksAndDocs.docs = body?.insuredTasksAndDocs?.docs
-        ? new Map(body?.insuredTasksAndDocs?.docs)
-        : [];
-      const docsArr = body?.hospitalTasksAndDocs?.docs || [];
+      let insuredDocsArr = body?.insuredTasksAndDocs?.docs || [];
+      let insuredTempTasks: any[] = body?.insuredTasksAndDocs?.tasks;
+      let hospitalDocsArr = body?.hospitalTasksAndDocs?.docs || [];
+      let hospitalTempTasks: any[] = body?.hospitalTasksAndDocs?.tasks;
+
       if (isReInvestigated) {
-        docsArr.push([
+        if (!claimCase)
+          throw new Error(
+            `Failed to find case detail with the id ${dashboardData?.caseId}`
+          );
+        existingClaimCase = claimCase.toJSON();
+
+        if (
+          existingClaimCase?.insuredTasksAndDocs?.docs &&
+          existingClaimCase?.insuredTasksAndDocs?.tasks?.length > 0
+        ) {
+          const savedDocsInsured = Object.entries(
+            existingClaimCase?.insuredTasksAndDocs?.docs
+          );
+
+          insuredDocsArr = [...savedDocsInsured, ...insuredDocsArr];
+          insuredTempTasks = [
+            ...(existingClaimCase?.insuredTasksAndDocs?.tasks || []),
+            ...(body?.insuredTasksAndDocs?.tasks || []),
+          ];
+          insuredTempTasks = removeDuplicatesFromArrayOfObjects(
+            insuredTempTasks,
+            "name"
+          );
+        }
+        if (
+          existingClaimCase?.hospitalTasksAndDocs?.docs &&
+          existingClaimCase?.hospitalTasksAndDocs?.tasks?.length > 0
+        ) {
+          const savedDocsHospital = Object.entries(
+            existingClaimCase?.hospitalTasksAndDocs?.docs
+          );
+
+          hospitalDocsArr = [...savedDocsHospital, ...hospitalDocsArr];
+          hospitalTempTasks = [
+            ...(existingClaimCase?.hospitalTasksAndDocs?.tasks || []),
+            ...(body?.hospitalTasksAndDocs?.tasks || []),
+          ];
+          hospitalTempTasks = removeDuplicatesFromArrayOfObjects(
+            hospitalTempTasks,
+            "name"
+          );
+        }
+
+        hospitalDocsArr.push([
           "Re-Investigation Uploads",
           [
             {
@@ -154,30 +238,53 @@ router.post(async (req) => {
             },
           ],
         ]);
+        insuredDocsArr = removeDuplicatesFrom2DArray(insuredDocsArr);
+        hospitalDocsArr = removeDuplicatesFrom2DArray(hospitalDocsArr);
+
+        body.insuredTasksAndDocs = {
+          ...existingClaimCase?.insuredTasksAndDocs,
+          tasks: insuredTempTasks,
+          docs:
+            insuredDocsArr?.length > 0 ? new Map(insuredDocsArr) : new Map([]),
+        };
+        body.hospitalTasksAndDocs = {
+          ...existingClaimCase?.hospitalTasksAndDocs,
+          tasks: hospitalTempTasks,
+          docs:
+            hospitalDocsArr?.length > 0
+              ? new Map(hospitalDocsArr)
+              : new Map([]),
+        };
+      } else {
+        body.insuredTasksAndDocs.docs =
+          insuredDocsArr?.length > 0 ? new Map(insuredDocsArr) : new Map([]);
+        body.hospitalTasksAndDocs.docs =
+          hospitalDocsArr?.length > 0 ? new Map(hospitalDocsArr) : new Map([]);
       }
-      const hospitalDocs = docsArr?.length > 0 ? new Map(docsArr) : [];
-      body.hospitalTasksAndDocs.docs = hospitalDocs;
     }
-    if (dashboardData?.caseId) {
-      await ClaimCase.findByIdAndUpdate(
-        dashboardData?.caseId,
-        {
-          ...body,
-          intimationDate: dashboardData?.intimationDate,
-          assignedBy: user?._id,
-          outSourcingDate: new Date(),
-        },
-        { useFindAndModify: false }
-      );
+
+    // return NextResponse.json(responseObj, { status: 400 });
+
+    if (claimCase) {
+      claimCase.set({
+        ...body,
+        assignedBy: user?._id,
+        outSourcingDate: new Date(),
+      });
     } else {
-      newCase = new ClaimCase({
+      claimCase = new ClaimCase({
         ...body,
         intimationDate: dashboardData?.intimationDate,
         assignedBy: user?._id,
         outSourcingDate: new Date(),
       });
-      dashboardData.caseId = newCase?._id;
+      dashboardData.caseId = claimCase?._id as string;
     }
+
+    if (!claimCase)
+      throw new Error(
+        `Failed to find a claimCase with the id: ${dashboardData?.caseId}`
+      );
     dashboardData.isReInvestigated = isReInvestigated;
     dashboardData.investigationCount += 1;
     dashboardData.allocationType = allocationType;
@@ -269,7 +376,7 @@ router.post(async (req) => {
     }`;
     responseObj.data = investigators;
 
-    if (newCase !== null) await newCase.save();
+    await claimCase.save();
     await dashboardData.save();
 
     await captureCaseEvent({

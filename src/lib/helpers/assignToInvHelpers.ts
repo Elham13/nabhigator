@@ -247,3 +247,29 @@ export const defineInvestigator = async (
     return payload;
   }
 };
+
+export const removeDuplicatesFromArrayOfObjects = (
+  array: any[],
+  key: string
+) => {
+  return array.reduce((acc, obj) => {
+    if (!acc.some((el: any) => el[key] === obj[key])) acc.push(obj);
+    return acc;
+  }, []);
+};
+
+export const removeDuplicatesFrom2DArray = (data: any[]) => {
+  const uniqueNames = new Map<string, any>();
+
+  const filteredData = data.filter((item) => {
+    const name = item[0];
+    if (uniqueNames.has(name)) {
+      return false;
+    } else {
+      uniqueNames.set(name, true);
+      return true;
+    }
+  });
+
+  return filteredData;
+};

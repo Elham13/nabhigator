@@ -114,7 +114,7 @@ const Navbar = () => {
   };
 
   const handleLogout = async () => {
-    setLoading(false);
+    setLoading(true);
     try {
       await axios.get(EndPoints.USER_LOGOUT);
       setUser(null);
@@ -122,7 +122,7 @@ const Navbar = () => {
     } catch (error: any) {
       showError(error);
     } finally {
-      setLoading(true);
+      setLoading(false);
     }
   };
 
@@ -136,12 +136,12 @@ const Navbar = () => {
         <MdLightMode size={28} />
       </button>
     );
-    const handleIdle = () => {
-      console.log("ikkk")
-       handleLogout();
-    };
-  
-    const { isIdle } = useIdle({ onIdle: handleIdle, idleTime: 15});
+
+  const handleIdle = () => {
+    handleLogout();
+  };
+
+  useIdle({ onIdle: handleIdle, idleTime: 15 });
 
   return (
     <div className="flex flex-col justify-between h-[calc(100vh-3.8rem)] overflow-x-hidden overflow-y-auto">
