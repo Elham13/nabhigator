@@ -286,7 +286,9 @@ router.post(async (req) => {
       },
     });
 
-    let cursor = await DashboardData.aggregate(pipeline).cursor();
+    let cursor = await DashboardData.aggregate(pipeline, {
+      allowDiskUse: true,
+    }).cursor();
 
     cursor.pipe(transformStream).pipe(csvStream);
 
