@@ -200,6 +200,7 @@ const getFniData = async (
       {
         PolicyNo_COI: policyNo,
         Membership_No_ID: "",
+        AllowedInactiveRecord: "Y",
       },
       { headers }
     );
