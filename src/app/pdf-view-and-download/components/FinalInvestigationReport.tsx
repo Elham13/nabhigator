@@ -500,6 +500,10 @@ const FinalInvestigationReport = ({
         "-",
     },
     {
+      key: "Post QA Remarks",
+      value: caseData?.postQARecommendation?.qaRemarks || "-",
+    },
+    {
       key: "Claim Ground of Repudiation",
       value:
         caseData?.postQARecommendation?.claimsGroundOfRepudiation?.join(", ") ||
