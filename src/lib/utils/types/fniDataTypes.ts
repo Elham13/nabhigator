@@ -123,6 +123,7 @@ export interface IUser {
 export interface PostQaApproveFormValues {
   summaryOfInvestigation: string;
   qaRemarks: string;
+  reInvestigationRemarks?: string;
   frcuRecommendationOnClaims: string;
   claimsGroundOfRepudiation: string[];
   frcuGroundOfRepudiation: string[];

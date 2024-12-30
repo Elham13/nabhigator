@@ -111,6 +111,7 @@ const PostQaApproveContent = ({
       policyRecommendation,
       sourcingRecommendation,
       regulatoryReportingRecommendation,
+      reInvestigationRemarks,
     } = approvedValues;
 
     if (!summaryOfInvestigation)
@@ -139,6 +140,8 @@ const PostQaApproveContent = ({
       return toast.warn("Select Sourcing Recommendation");
     if (!regulatoryReportingRecommendation)
       return toast.warn("Select Regulatory Recommendation");
+    if (data?.isReInvestigated && !reInvestigationRemarks)
+      return toast.warn("Re-Investigation Remarks is requiredl");
 
     if (
       recommendation !== frcuRecommendationOnClaims &&
@@ -313,6 +316,8 @@ const PostQaApproveContent = ({
       summaryOfInvestigation:
         caseDetail?.postQARecommendation?.summaryOfInvestigation || summary,
       qaRemarks: caseDetail?.postQARecommendation?.qaRemarks || "",
+      reInvestigationRemarks:
+        caseDetail?.postQARecommendation?.reInvestigationRemarks || "",
       frcuRecommendationOnClaims:
         prev?.frcuRecommendationOnClaims || recommendation || "-",
       documents: caseDetail?.postQARecommendation?.documents || [],
@@ -322,7 +327,7 @@ const PostQaApproveContent = ({
   return (
     <Box className="mt-4">
       <PostQaApproveForm
-        claimId={data?.claimId || 0}
+        dashboardData={data}
         approvedValues={approvedValues}
         setApprovedValues={setApprovedValues}
         recommendation={recommendation}

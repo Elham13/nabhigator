@@ -241,6 +241,7 @@ const ClaimCaseSchema = new Schema<any>(
     postQARecommendation: {
       summaryOfInvestigation: { type: String },
       qaRemarks: { type: String },
+      reInvestigationRemarks: { type: String },
       frcuRecommendationOnClaims: {
         type: { value: String, code: String },
         default: {},

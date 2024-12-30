@@ -85,14 +85,26 @@ const DocumentsMenu = ({ dashboardData }: PropTypes) => {
                 NumericStage.CLOSED,
                 NumericStage.IN_FIELD_REWORK,
               ].includes(dashboardData?.stage) && (
-                <Menu.Item
-                  color="cyan"
-                  onClick={() => {
-                    window.open(`${link}&docType=investigation`, "_blank");
-                  }}
-                >
-                  Investigation Report
-                </Menu.Item>
+                <>
+                  <Menu.Item
+                    color="cyan"
+                    onClick={() => {
+                      window.open(`${link}&docType=investigation`, "_blank");
+                    }}
+                  >
+                    Investigation Report
+                  </Menu.Item>
+                  {dashboardData?.isReInvestigated && (
+                    <Menu.Item
+                      color="pink"
+                      onClick={() => {
+                        window.open(`${link}&docType=investigation`, "_blank");
+                      }}
+                    >
+                      Re-Investigation Report
+                    </Menu.Item>
+                  )}
+                </>
               )}
             {dashboardData?.stage &&
               dashboardData?.stage === NumericStage.CLOSED && (

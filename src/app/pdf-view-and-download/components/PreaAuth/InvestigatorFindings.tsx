@@ -437,10 +437,14 @@ const InvestigatorFindings = ({ caseData, dashboardData }: PropTypes) => {
           ?.map((el) => el?.detail?.map((e) => e.remark)?.join(", "))
           ?.join(", ") || "-",
     },
-    {
-      key: "Re-Investigation Findings",
-      value: preAuthFindings?.reInvestigationFindings || "-",
-    },
+    ...(dashboardData?.isReInvestigated
+      ? [
+          {
+            key: "Re-Investigation Findings",
+            value: preAuthFindings?.reInvestigationFindings || "-",
+          },
+        ]
+      : []),
     {
       key: "Is Ported?",
       value: preAuthFindings?.port || "-",

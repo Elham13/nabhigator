@@ -36,6 +36,7 @@ const FieldInvestigationReport = ({
           caseData={caseData}
           claimType={dashboardData?.claimType}
           claimInvestigators={dashboardData?.claimInvestigators}
+          dashboardData={dashboardData}
         />
       ) : null}
     </View>

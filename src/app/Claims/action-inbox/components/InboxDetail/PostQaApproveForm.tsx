@@ -9,6 +9,7 @@ import {
 } from "@mantine/core";
 import {
   CaseDetail,
+  IDashboardData,
   PostQaApproveFormValues,
 } from "@/lib/utils/types/fniDataTypes";
 import { getSelectOption } from "@/lib/helpers";
@@ -27,7 +28,7 @@ import {
 const regulatoryReportingRecommendationOptions = ["Yes", "No", "NA"];
 
 type PropTypes = {
-  claimId: number;
+  dashboardData: IDashboardData | null;
   caseDetail: CaseDetail | null;
   approvedValues: PostQaApproveFormValues;
   recommendation?: string;
@@ -36,8 +37,8 @@ type PropTypes = {
 };
 
 const PostQaApproveForm = ({
-  claimId,
   caseDetail,
+  dashboardData,
   approvedValues,
   recommendation,
   setCaseDetail,
@@ -162,6 +163,29 @@ const PostQaApproveForm = ({
             onBlur={(e) => handleBlur("qaRemarks", e.target.value)}
           />
         </Grid.Col>
+        {dashboardData?.isReInvestigated && (
+          <Grid.Col span={{ sm: 12, md: 6 }}>
+            <Textarea
+              autosize
+              minRows={5}
+              resize="vertical"
+              label="Re-Investigation Remarks"
+              placeholder="Enter Re-Investigation Remarks"
+              required
+              withAsterisk
+              value={approvedValues.reInvestigationRemarks}
+              onChange={(e) =>
+                setApprovedValues((prev) => ({
+                  ...prev,
+                  reInvestigationRemarks: e.target.value,
+                }))
+              }
+              onBlur={(e) =>
+                handleBlur("reInvestigationRemarks", e.target.value)
+              }
+            />
+          </Grid.Col>
+        )}
         <Grid.Col span={{ sm: 12, md: 6 }}>
           <Select
             label="FRCU Recommendation on Claims"
@@ -237,7 +261,7 @@ const PostQaApproveForm = ({
                 doc={tempDocInitials}
                 docName="doc"
                 getUrl={handleGetUrl}
-                claimId={claimId}
+                claimId={dashboardData?.claimId || 0}
               />
             </Grid.Col>
           </>

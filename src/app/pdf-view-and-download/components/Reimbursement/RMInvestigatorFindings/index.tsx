@@ -1,5 +1,9 @@
 import React from "react";
-import { CaseDetail, ClaimInvestigator } from "@/lib/utils/types/fniDataTypes";
+import {
+  CaseDetail,
+  ClaimInvestigator,
+  IDashboardData,
+} from "@/lib/utils/types/fniDataTypes";
 import AHCVerificationPart from "./AHCVerificationPart";
 import ChemistVerification from "./ChemistVerification";
 import ClaimVerification from "./ClaimVerification";
@@ -26,11 +30,13 @@ type PropTypes = {
   caseData: CaseDetail | null;
   claimInvestigators?: ClaimInvestigator[];
   claimType?: "PreAuth" | "Reimbursement";
+  dashboardData: IDashboardData | null;
 };
 const RMInvestigatorFindings = ({
   caseData,
   claimInvestigators,
   claimType,
+  dashboardData,
 }: PropTypes) => {
   const { rmFindings, tasksAndDocs } = getTasksAndDocs({
     claimType,
@@ -130,7 +136,7 @@ const RMInvestigatorFindings = ({
           values={rmFindings?.["Miscellaneous Verification"]}
         />
       )}
-      <CommonTasks values={rmFindings} />
+      <CommonTasks values={rmFindings} dashboardData={dashboardData} />
       <TwoSectionView data={investigationFooter} topic="" />
     </div>
   );

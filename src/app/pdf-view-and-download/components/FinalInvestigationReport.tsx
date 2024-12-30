@@ -503,6 +503,15 @@ const FinalInvestigationReport = ({
       key: "Post QA Remarks",
       value: caseData?.postQARecommendation?.qaRemarks || "-",
     },
+    ...(dashboardData?.isReInvestigated
+      ? [
+          {
+            key: "Re-Investigation Remarks",
+            value:
+              caseData?.postQARecommendation?.reInvestigationRemarks || "-",
+          },
+        ]
+      : []),
     {
       key: "Claim Ground of Repudiation",
       value:

@@ -1,12 +1,14 @@
 import React from "react";
 import { IRMFindings } from "@/lib/utils/types/rmDataTypes";
 import ThreeSectionView from "../../ThreeSectionView";
+import { IDashboardData } from "@/lib/utils/types/fniDataTypes";
 
 type PropTypes = {
   values?: IRMFindings | null;
+  dashboardData: IDashboardData | null;
 };
 
-const CommonTasks = ({ values }: PropTypes) => {
+const CommonTasks = ({ values, dashboardData }: PropTypes) => {
   const otherRecommendations =
     values?.otherRecommendation && values?.otherRecommendation?.length > 0
       ? values?.otherRecommendation?.flatMap((el, ind) => [
@@ -85,10 +87,14 @@ const CommonTasks = ({ values }: PropTypes) => {
         ]
       : []),
     ...otherRecommendations,
-    {
-      key: "Re-Investigation Findings",
-      value: values?.reInvestigationFindings || "-",
-    },
+    ...(dashboardData?.isReInvestigated
+      ? [
+          {
+            key: "Re-Investigation Findings",
+            value: values?.reInvestigationFindings || "-",
+          },
+        ]
+      : []),
   ];
   return <ThreeSectionView data={data} topic="Common Tasks" />;
 };
