@@ -61,77 +61,97 @@ const DocumentTable = ({
         Documents of {docKey}
       </Title>
       {documents.length > 0 && (
-        <Table>
+        <Table highlightOnHover>
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Document name</Table.Th>
-              <Table.Th>Document url</Table.Th>
-              <Table.Th>Document location</Table.Th>
-              <Table.Th>Is uploaded</Table.Th>
+              <Table.Th>Documents Section</Table.Th>
+              {!!user?.activeRole &&
+                [Role.ADMIN, Role.POST_QA].includes(user.activeRole) && (
+                  <Table.Th>Action</Table.Th>
+                )}
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {documents.map((el: any, index: number) => (
+            {documents.map((el, index: number) => (
               <Table.Tr key={index}>
                 <Table.Td>{el?.name}</Table.Td>
                 <Table.Td>
-                  <Box className="flex items-center gap-x-4">
-                    {!!el?.docUrl &&
-                      el?.docUrl?.length > 0 &&
-                      el?.docUrl?.map((url: string, ind: number) => {
-                        return el?.replacedDocUrls?.includes(
-                          url
-                        ) ? null : !!user?.activeRole &&
-                          [Role.ADMIN, Role.POST_QA].includes(
-                            user.activeRole
-                          ) ? (
-                          <TasksAndDocumentsButtons
-                            key={ind}
-                            docIndex={ind}
-                            caseId={caseId}
-                            url={url}
-                            name={el?.name}
-                            taskName={docKey}
-                            userName={user?.name}
-                            isHidden={el?.hiddenDocUrls?.includes(url)}
-                            setCaseDetail={setCaseDetail}
-                            typeOfDoc={typeOfDoc}
-                          />
-                        ) : (
-                          <ActionIcon
-                            disabled={!url}
-                            variant="light"
-                            title="View"
-                            onClick={() => {
-                              window.open(
-                                `/Claims/action-inbox/documents?url=${encodeURIComponent(
-                                  url
-                                )}&name=${el?.name}`,
-                                "_blank"
-                              );
-                            }}
-                          >
-                            <BsEye />
-                          </ActionIcon>
-                        );
-                      })}
-                  </Box>
+                  {el?.docUrl && el?.docUrl?.length > 0 ? (
+                    <Table>
+                      <Table.Thead>
+                        <Table.Tr>
+                          <Table.Th>View</Table.Th>
+                          <Table.Th>Location</Table.Th>
+                        </Table.Tr>
+                      </Table.Thead>
+                      <Table.Tbody>
+                        {el?.docUrl?.map((url, ind) => {
+                          return el?.replacedDocUrls?.includes(url) ||
+                            el?.hiddenDocUrls?.includes(url) ? null : (
+                            <Table.Tr key={ind}>
+                              <Table.Td>
+                                <ActionIcon
+                                  key={ind}
+                                  disabled={!url}
+                                  variant="light"
+                                  title="View"
+                                  onClick={() => {
+                                    window.open(
+                                      `/Claims/action-inbox/documents?url=${encodeURIComponent(
+                                        url
+                                      )}&name=${el?.name}`,
+                                      "_blank"
+                                    );
+                                  }}
+                                >
+                                  <BsEye />
+                                </ActionIcon>
+                              </Table.Td>
+                              <Table.Td>
+                                <ActionIcon
+                                  disabled={!el?.location}
+                                  variant="light"
+                                  onClick={() => {
+                                    window.open(
+                                      `https://www.google.com/maps?q=${el?.location?.latitude},${el?.location?.longitude}`,
+                                      "_blank"
+                                    );
+                                  }}
+                                >
+                                  <HiLocationMarker />
+                                </ActionIcon>
+                              </Table.Td>
+                            </Table.Tr>
+                          );
+                        })}
+                      </Table.Tbody>
+                    </Table>
+                  ) : null}
                 </Table.Td>
-                <Table.Td>
-                  <ActionIcon
-                    disabled={!el?.location}
-                    variant="light"
-                    onClick={() => {
-                      window.open(
-                        `https://www.google.com/maps?q=${el?.location?.latitude},${el?.location?.longitude}`,
-                        "_blank"
-                      );
-                    }}
-                  >
-                    <HiLocationMarker />
-                  </ActionIcon>
-                </Table.Td>
-                <Table.Td>{el?.docUrl?.length > 0 ? "Yes" : "No"}</Table.Td>
+                {!!user?.activeRole &&
+                  [Role.ADMIN, Role.POST_QA].includes(user.activeRole) && (
+                    <Table.Td className="flex flex-col gap-4">
+                      {!!el?.docUrl &&
+                        el?.docUrl?.length > 0 &&
+                        el?.docUrl?.map((url: string, ind: number) => {
+                          return el?.replacedDocUrls?.includes(url) ? null : (
+                            <TasksAndDocumentsButtons
+                              key={ind}
+                              docIndex={ind}
+                              caseId={caseId}
+                              url={url}
+                              name={el?.name}
+                              taskName={docKey}
+                              userName={user?.name}
+                              isHidden={el?.hiddenDocUrls?.includes(url)}
+                              setCaseDetail={setCaseDetail}
+                              typeOfDoc={typeOfDoc}
+                            />
+                          );
+                        })}
+                    </Table.Td>
+                  )}
               </Table.Tr>
             ))}
           </Table.Tbody>
