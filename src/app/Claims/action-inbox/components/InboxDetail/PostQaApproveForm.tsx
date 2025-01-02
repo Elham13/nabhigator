@@ -24,6 +24,7 @@ import {
   providerRecommendationOptions,
   sourcingRecommendationOptions,
 } from "@/lib/utils/constants/options";
+import ImagePaster from "@/components/ImagePaster";
 
 const regulatoryReportingRecommendationOptions = ["Yes", "No", "NA"];
 
@@ -266,6 +267,10 @@ const PostQaApproveForm = ({
             </Grid.Col>
           </>
         ) : null}
+        {/* <Grid.Col span={{ sm: 12, md: 6 }}>
+          <Text>Paste Snip shot</Text>
+          <ImagePaster />
+        </Grid.Col> */}
         {["Query to Raise_NC", "Query to Raise_QR"].includes(
           approvedValues.frcuRecommendationOnClaims
         ) ? (

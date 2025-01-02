@@ -1,0 +1,68 @@
+.container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+}
+
+.editableDiv {
+  width: 100%;
+  min-height: 100%;
+  border: 4px dashed orange;
+  border-radius: 0.4rem;
+  outline: none;
+  z-index: 100;
+}
+
+.editableDiv:focus {
+  border-style: 2px solid;
+}
+
+.placeholder {
+  color: lightgray;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  user-select: none;
+}
+
+.imgContainer {
+  position: relative;
+  height: fit-content;
+  width: fit-content;
+}
+
+.imgBtn {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  background-color: red;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.imgBtn::before,
+.imgBtn::after {
+  content: "";
+  position: absolute;
+  width: 1rem;
+  height: 2px;
+  background-color: white;
+  top: 50%;
+  left: 50%;
+  transform-origin: center;
+}
+
+.imgBtn::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.imgBtn::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
